@@ -3,6 +3,10 @@ const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('src/ui-playback-history.js', 'utf8');
+assert.match(source, /function publishPlaybackHistoryChange\(card\)/);
+assert.match(source, /persistHistory\(history\);[\s\S]{0,120}publishPlaybackHistoryChange\(card\)/);
+assert.match(source, /if \(result\.imported\)[\s\S]{0,500}publishPlaybackHistoryChange\(null\)/);
+assert.match(source, /\$\(document\)\.trigger\('yani:watch-progress', \[changedCard \|\| null\]\)/);
 const ui = fs.readFileSync('src/ui.js', 'utf8');
 const build = fs.readFileSync('build.js', 'utf8');
 

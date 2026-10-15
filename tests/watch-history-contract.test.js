@@ -48,8 +48,9 @@ assert.ok(!/fetchExcluded/.test(ui), 'the queue must not filter by user lists');
 assert.ok(!/loadContinueWatchingExclusions/.test(ui), 'the user-list filter must be gone');
 assert.match(ui, /function applyPlaybackSnapshot\(remoteEntries\)/);
 assert.match(ui, /setPreview\(homeButtons\.continue_watching, '', ''\)/, 'empty continue queue must clear the dashboard title');
-assert.match(ui, /LampaYaniApi\.lastWatches\(recentWatches, control\)/);
 assert.match(ui, /LampaYaniHomeSections\.fetchHistoryRange\(LampaYaniApi\.watchHistory, 300, 30, control\)/);
+assert.doesNotMatch(ui, /var recentWatches = LampaYaniHomeSections\.lastWatchTokens/,
+    'dashboard history refresh must discover titles watched on other devices');
 assert.match(sectionsSource, /function lastWatchTokens\(saved, limit\)/);
 assert.match(ui, /readHomePlaybackSnapshot\(playbackUserKey\)/);
 assert.match(ui, /cacheHomePlaybackSnapshot\(playbackUserKey, result\[0\]\)/);

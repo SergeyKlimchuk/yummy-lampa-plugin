@@ -1537,15 +1537,12 @@
 
             if (playbackNeedsRefresh) scheduleHomeTask(function () {
                 var control = homeRequestControl();
-                var recentWatches = LampaYaniHomeSections.lastWatchTokens(localHistory, 8);
-                var recentPlayback = LampaYaniApi.lastWatches(recentWatches, control).then(function (payload) {
-                    return LampaYaniHomeSections.normalizeRemoteHistory(payload);
-                }).catch(function (error) {
-                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Fast playback history is unavailable; falling back to full history', error);
-                    return LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (fallbackError) {
-                        if (!homeRequestCancelled(fallbackError)) console.warn('[YummyAnime Home] Server playback history is unavailable', fallbackError);
-                        return null;
-                    });
+                // last-watches can refresh only videos this device already
+                // knows. It cannot discover a title watched on another device,
+                // so the account merge must use the complete history range.
+                var recentPlayback = LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (error) {
+                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Server playback history is unavailable', error);
+                    return null;
                 });
                 Promise.all([recentPlayback]).then(function (result) {
                     if (destroyed) return;
@@ -3182,6 +3179,35 @@
     // Stream sources that already carry a direct Alloha stream and must not be
     // routed through the Alloha policy a second time.
     var ALLOHA_RESOLVED_SOURCES = ['lampac-alloha', 'yani-resolver'];
+    var lampaHistoryPending = {};
+
+    function lampaHistoryEnabled() {
+        if (!Lampa.Storage || !Lampa.Storage.get) return true;
+        var value = Lampa.Storage.get('yani_add_to_lampa_history', true);
+        return value !== false && value !== 'false' && value !== 0 && value !== '0';
+    }
+
+    function addToLampaHistory(card) {
+        if (!lampaHistoryEnabled() || !card || !card.yani_id || !Lampa.Favorite || !Lampa.Favorite.add) return;
+        var key = String(card.yani_id);
+        if (lampaHistoryPending[key]) return;
+
+        // Lampa history must contain a real native card. Saving a YummyAnime id
+        // as if it were a TMDB id creates a history item that cannot be opened.
+        // Resolve in the background so starting playback is never delayed.
+        lampaHistoryPending[key] = Promise.resolve().then(function () {
+            return findStandardLampaCard(card);
+        }).then(function (match) {
+            if (!lampaHistoryEnabled() || !match || !match.card || !match.card.id) return;
+            var nativeCard = Object.assign({}, match.card);
+            nativeCard.source = nativeCard.source || 'tmdb';
+            Lampa.Favorite.add('history', nativeCard);
+        }).catch(function (error) {
+            console.warn('[YummyAnime] Could not add title to Lampa history', error);
+        }).then(function () {
+            delete lampaHistoryPending[key];
+        });
+    }
 
     function launchVideo(card, group, videos, selected, options) {
         options = options || {};
@@ -3248,6 +3274,7 @@
         if (!options.recovery) selected.yani_internal_recovery = 0;
         playbackContext = {card: card, group: group, videos: videos, selected: selected};
         rememberPlayback(card, group, selected);
+        addToLampaHistory(card);
         syncServerProgress(selected);
 
         var playlist = buildExternalPlaylist(card, videos);
@@ -3414,6 +3441,7 @@
         if (!url || !Lampa.Activity || !Lampa.Activity.push) return false;
         try {
             rememberPlayback(card, group, selected);
+            addToLampaHistory(card);
             // The embedded site player is still a watch, so the account has to
             // learn about it like it does for the internal and external ones.
             // Only the start can be reported: the page plays inside an iframe
@@ -5242,6 +5270,12 @@
             component: 'yani',
             param: {name: 'yani_auto_next', type: 'trigger', default: false},
             field: {name: t('auto_next'), description: t('auto_next_description')}
+        });
+
+        Lampa.SettingsApi.addParam({
+            component: 'yani',
+            param: {name: 'yani_add_to_lampa_history', type: 'trigger', default: true},
+            field: {name: t('add_to_lampa_history'), description: t('add_to_lampa_history_description')}
         });
 
         Lampa.SettingsApi.addParam({

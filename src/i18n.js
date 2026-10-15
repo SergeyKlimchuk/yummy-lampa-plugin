@@ -92,6 +92,8 @@
     messages.ru.sync_history_error = 'Не удалось синхронизировать историю';
     messages.ru.auto_sync_progress = 'Автосинхронизация прогресса';
     messages.ru.auto_sync_progress_description = 'Автоматически сохранять в аккаунте YummyAnime прогресс внутреннего плеера Lampa и подтягивать серверный прогресс на главный экран, в историю и карточку тайтла. При отключении доступна ручная синхронизация на странице аккаунта';
+    messages.ru.add_to_lampa_history = 'Добавлять в историю Lampa';
+    messages.ru.add_to_lampa_history_description = 'Добавлять начатые в YummyAnime тайтлы во встроенную историю просмотра Lampa';
     messages.ru.user_lists = 'Мои списки';
     messages.ru.more = 'Ещё';
     messages.ru.user_lists_description = 'Списки вашего аккаунта YummyAnime';
@@ -195,6 +197,8 @@
     messages.en.sync_history_error = 'Failed to synchronize history';
     messages.en.auto_sync_progress = 'Automatic progress sync';
     messages.en.auto_sync_progress_description = 'Automatically save internal Lampa player progress to the YummyAnime account and pull server progress onto the home screen, history and title card. When disabled, manual sync is available on the account page';
+    messages.en.add_to_lampa_history = 'Add to Lampa history';
+    messages.en.add_to_lampa_history_description = 'Add titles started in YummyAnime to Lampa built-in watch history';
     messages.en.user_lists = 'My Lists';
     messages.en.more = 'More';
     messages.en.user_lists_description = 'Lists from your YummyAnime account';
@@ -729,6 +733,8 @@ messages.en.cvh_region_blocked = 'CVH video is unavailable in your region. Choos
     messages.uk.sync_history_error = 'Не вдалося синхронізувати історію';
     messages.uk.auto_sync_progress = 'Автосинхронізація прогресу';
     messages.uk.auto_sync_progress_description = 'Автоматично зберігати в обліковому записі YummyAnime прогрес внутрішнього плеєра Lampa і підтягувати серверний прогрес на головний екран, в історію та картку тайтла. Після вимкнення доступна ручна синхронізація на сторінці облікового запису';
+    messages.uk.add_to_lampa_history = 'Додавати до історії Lampa';
+    messages.uk.add_to_lampa_history_description = 'Додавати розпочаті в YummyAnime тайтли до вбудованої історії перегляду Lampa';
     messages.uk.user_lists = 'Мої списки';
     messages.uk.more = 'Ще';
     messages.uk.user_lists_description = 'Списки вашого облікового запису YummyAnime';

@@ -9,6 +9,19 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.18] - 2026-10-16
+
+### Added
+
+- Add an enabled-by-default option to place titles started through YummyAnime in Lampa watch history
+
+## [0.47.17] - 2026-10-16
+
+### Fixed
+
+- Fix Continue Watching not refreshing after playback starts from Schedule or after YummyAnime account history is imported
+- Fix dashboard history sync missing titles watched on another device by merging the complete YummyAnime account history
+
 ## [0.47.16] - 2026-10-16
 
 ### Fixed

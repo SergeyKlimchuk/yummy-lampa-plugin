@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.16',
+        version: '0.47.18',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -125,6 +125,8 @@ function pluginYummyAnime() {
     messages.ru.sync_history_error = 'Не удалось синхронизировать историю';
     messages.ru.auto_sync_progress = 'Автосинхронизация прогресса';
     messages.ru.auto_sync_progress_description = 'Автоматически сохранять в аккаунте YummyAnime прогресс внутреннего плеера Lampa и подтягивать серверный прогресс на главный экран, в историю и карточку тайтла. При отключении доступна ручная синхронизация на странице аккаунта';
+    messages.ru.add_to_lampa_history = 'Добавлять в историю Lampa';
+    messages.ru.add_to_lampa_history_description = 'Добавлять начатые в YummyAnime тайтлы во встроенную историю просмотра Lampa';
     messages.ru.user_lists = 'Мои списки';
     messages.ru.more = 'Ещё';
     messages.ru.user_lists_description = 'Списки вашего аккаунта YummyAnime';
@@ -228,6 +230,8 @@ function pluginYummyAnime() {
     messages.en.sync_history_error = 'Failed to synchronize history';
     messages.en.auto_sync_progress = 'Automatic progress sync';
     messages.en.auto_sync_progress_description = 'Automatically save internal Lampa player progress to the YummyAnime account and pull server progress onto the home screen, history and title card. When disabled, manual sync is available on the account page';
+    messages.en.add_to_lampa_history = 'Add to Lampa history';
+    messages.en.add_to_lampa_history_description = 'Add titles started in YummyAnime to Lampa built-in watch history';
     messages.en.user_lists = 'My Lists';
     messages.en.more = 'More';
     messages.en.user_lists_description = 'Lists from your YummyAnime account';
@@ -762,6 +766,8 @@ messages.en.cvh_region_blocked = 'CVH video is unavailable in your region. Choos
     messages.uk.sync_history_error = 'Не вдалося синхронізувати історію';
     messages.uk.auto_sync_progress = 'Автосинхронізація прогресу';
     messages.uk.auto_sync_progress_description = 'Автоматично зберігати в обліковому записі YummyAnime прогрес внутрішнього плеєра Lampa і підтягувати серверний прогрес на головний екран, в історію та картку тайтла. Після вимкнення доступна ручна синхронізація на сторінці облікового запису';
+    messages.uk.add_to_lampa_history = 'Додавати до історії Lampa';
+    messages.uk.add_to_lampa_history_description = 'Додавати розпочаті в YummyAnime тайтли до вбудованої історії перегляду Lampa';
     messages.uk.user_lists = 'Мої списки';
     messages.uk.more = 'Ще';
     messages.uk.user_lists_description = 'Списки вашого облікового запису YummyAnime';
@@ -7452,6 +7458,21 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var historyCache = null;
         var historyCacheAt = 0;
         var HISTORY_CACHE_MS = 500;
+        var historyChangeTimer = 0;
+        var pendingHistoryCard = null;
+
+        function publishPlaybackHistoryChange(card) {
+            if (card) pendingHistoryCard = card;
+            if (historyChangeTimer || typeof setTimeout !== 'function') return;
+            historyChangeTimer = setTimeout(function () {
+                historyChangeTimer = 0;
+                var changedCard = pendingHistoryCard;
+                pendingHistoryCard = null;
+                if (window.$ && typeof document !== 'undefined') {
+                    $(document).trigger('yani:watch-progress', [changedCard || null]);
+                }
+            }, 0);
+        }
 
         function playbackHistory() {
             if (!window.Lampa || !window.Lampa.Storage) return {};
@@ -7537,6 +7558,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             });
             ids.slice(100).forEach(function (id) { delete history[id]; });
             persistHistory(history);
+            publishPlaybackHistoryChange(card);
             return saved;
         }
 
@@ -7554,7 +7576,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var Home = window.LampaYaniHomeSections;
             if (!Home || !Home.importRemoteIntoLocal) return {imported: 0, history: playbackHistory()};
             var result = Home.importRemoteIntoLocal(playbackHistory(), remoteEntries);
-            if (result.imported) persistHistory(result.history);
+            if (result.imported) {
+                persistHistory(result.history);
+                // A remote pull can add titles that this device has never
+                // opened. Notify an already visible dashboard after storage is
+                // updated so its Continue Watching row does not stay stale.
+                publishPlaybackHistoryChange(null);
+            }
             return result;
         }
 
@@ -7683,7 +7711,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 syncCardEpisodesMeta($(this), card);
                 syncCardOverlayLayout($(this), card);
             });
-            if (window.$ && $(document) && $(document).trigger) $(document).trigger('yani:watch-progress', [card]);
+            publishPlaybackHistoryChange(card);
         }
 
         function updatePlaybackProgress(context, position, duration, remote) {
@@ -16327,15 +16355,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
             if (playbackNeedsRefresh) scheduleHomeTask(function () {
                 var control = homeRequestControl();
-                var recentWatches = LampaYaniHomeSections.lastWatchTokens(localHistory, 8);
-                var recentPlayback = LampaYaniApi.lastWatches(recentWatches, control).then(function (payload) {
-                    return LampaYaniHomeSections.normalizeRemoteHistory(payload);
-                }).catch(function (error) {
-                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Fast playback history is unavailable; falling back to full history', error);
-                    return LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (fallbackError) {
-                        if (!homeRequestCancelled(fallbackError)) console.warn('[YummyAnime Home] Server playback history is unavailable', fallbackError);
-                        return null;
-                    });
+                // last-watches can refresh only videos this device already
+                // knows. It cannot discover a title watched on another device,
+                // so the account merge must use the complete history range.
+                var recentPlayback = LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (error) {
+                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Server playback history is unavailable', error);
+                    return null;
                 });
                 Promise.all([recentPlayback]).then(function (result) {
                     if (destroyed) return;
@@ -17972,6 +17997,35 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     // Stream sources that already carry a direct Alloha stream and must not be
     // routed through the Alloha policy a second time.
     var ALLOHA_RESOLVED_SOURCES = ['lampac-alloha', 'yani-resolver'];
+    var lampaHistoryPending = {};
+
+    function lampaHistoryEnabled() {
+        if (!Lampa.Storage || !Lampa.Storage.get) return true;
+        var value = Lampa.Storage.get('yani_add_to_lampa_history', true);
+        return value !== false && value !== 'false' && value !== 0 && value !== '0';
+    }
+
+    function addToLampaHistory(card) {
+        if (!lampaHistoryEnabled() || !card || !card.yani_id || !Lampa.Favorite || !Lampa.Favorite.add) return;
+        var key = String(card.yani_id);
+        if (lampaHistoryPending[key]) return;
+
+        // Lampa history must contain a real native card. Saving a YummyAnime id
+        // as if it were a TMDB id creates a history item that cannot be opened.
+        // Resolve in the background so starting playback is never delayed.
+        lampaHistoryPending[key] = Promise.resolve().then(function () {
+            return findStandardLampaCard(card);
+        }).then(function (match) {
+            if (!lampaHistoryEnabled() || !match || !match.card || !match.card.id) return;
+            var nativeCard = Object.assign({}, match.card);
+            nativeCard.source = nativeCard.source || 'tmdb';
+            Lampa.Favorite.add('history', nativeCard);
+        }).catch(function (error) {
+            console.warn('[YummyAnime] Could not add title to Lampa history', error);
+        }).then(function () {
+            delete lampaHistoryPending[key];
+        });
+    }
 
     function launchVideo(card, group, videos, selected, options) {
         options = options || {};
@@ -18038,6 +18092,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         if (!options.recovery) selected.yani_internal_recovery = 0;
         playbackContext = {card: card, group: group, videos: videos, selected: selected};
         rememberPlayback(card, group, selected);
+        addToLampaHistory(card);
         syncServerProgress(selected);
 
         var playlist = buildExternalPlaylist(card, videos);
@@ -18204,6 +18259,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         if (!url || !Lampa.Activity || !Lampa.Activity.push) return false;
         try {
             rememberPlayback(card, group, selected);
+            addToLampaHistory(card);
             // The embedded site player is still a watch, so the account has to
             // learn about it like it does for the internal and external ones.
             // Only the start can be reported: the page plays inside an iframe
@@ -20032,6 +20088,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             component: 'yani',
             param: {name: 'yani_auto_next', type: 'trigger', default: false},
             field: {name: t('auto_next'), description: t('auto_next_description')}
+        });
+
+        Lampa.SettingsApi.addParam({
+            component: 'yani',
+            param: {name: 'yani_add_to_lampa_history', type: 'trigger', default: true},
+            field: {name: t('add_to_lampa_history'), description: t('add_to_lampa_history_description')}
         });
 
         Lampa.SettingsApi.addParam({

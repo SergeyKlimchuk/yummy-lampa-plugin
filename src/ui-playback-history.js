@@ -25,6 +25,21 @@
         var historyCache = null;
         var historyCacheAt = 0;
         var HISTORY_CACHE_MS = 500;
+        var historyChangeTimer = 0;
+        var pendingHistoryCard = null;
+
+        function publishPlaybackHistoryChange(card) {
+            if (card) pendingHistoryCard = card;
+            if (historyChangeTimer || typeof setTimeout !== 'function') return;
+            historyChangeTimer = setTimeout(function () {
+                historyChangeTimer = 0;
+                var changedCard = pendingHistoryCard;
+                pendingHistoryCard = null;
+                if (window.$ && typeof document !== 'undefined') {
+                    $(document).trigger('yani:watch-progress', [changedCard || null]);
+                }
+            }, 0);
+        }
 
         function playbackHistory() {
             if (!window.Lampa || !window.Lampa.Storage) return {};
@@ -110,6 +125,7 @@
             });
             ids.slice(100).forEach(function (id) { delete history[id]; });
             persistHistory(history);
+            publishPlaybackHistoryChange(card);
             return saved;
         }
 
@@ -127,7 +143,13 @@
             var Home = window.LampaYaniHomeSections;
             if (!Home || !Home.importRemoteIntoLocal) return {imported: 0, history: playbackHistory()};
             var result = Home.importRemoteIntoLocal(playbackHistory(), remoteEntries);
-            if (result.imported) persistHistory(result.history);
+            if (result.imported) {
+                persistHistory(result.history);
+                // A remote pull can add titles that this device has never
+                // opened. Notify an already visible dashboard after storage is
+                // updated so its Continue Watching row does not stay stale.
+                publishPlaybackHistoryChange(null);
+            }
             return result;
         }
 
@@ -256,7 +278,7 @@
                 syncCardEpisodesMeta($(this), card);
                 syncCardOverlayLayout($(this), card);
             });
-            if (window.$ && $(document) && $(document).trigger) $(document).trigger('yani:watch-progress', [card]);
+            publishPlaybackHistoryChange(card);
         }
 
         function updatePlaybackProgress(context, position, duration, remote) {
