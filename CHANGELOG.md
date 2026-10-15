@@ -9,11 +9,17 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.16] - 2026-10-16
+
+### Fixed
+
+- Fix partially hidden cards in the last catalog row by bringing the whole focused card into the TV viewport
+
 ## [0.47.15] - 2026-10-15
 
 ### Changed
 
-- Fix vertical TV focus across all title-detail rows 
+- Fix vertical TV focus across all title-detail rows
 - Restore stable focus to genre, studio, director, recommendation, and comment items after returning from nested pages
 
 ## [0.47.14] - 2026-10-15

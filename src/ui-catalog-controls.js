@@ -227,6 +227,30 @@
             return focused && focused.length ? focused : $();
         }
 
+        function ensureCardFullyVisible(card) {
+            if (!card || !card.length || !card[0] || !comp.scroll || !comp.scroll.wheel) return;
+            var viewport = comp.scroll.render && comp.scroll.render();
+            var viewportNode = viewport && viewport[0];
+            var cardRect = card[0].getBoundingClientRect();
+            var viewportRect = viewportNode && viewportNode.getBoundingClientRect ? viewportNode.getBoundingClientRect() : null;
+            var top = viewportRect && viewportRect.height ? Math.max(0, viewportRect.top) : 0;
+            var bottom = viewportRect && viewportRect.height ? Math.min(window.innerHeight, viewportRect.bottom) : window.innerHeight;
+            var margin = Math.max(12, cardRect.height * 0.06);
+            var delta = 0;
+            if (cardRect.bottom > bottom - margin) delta = cardRect.bottom - bottom + margin;
+            else if (cardRect.top < top + margin) delta = cardRect.top - top - margin;
+            if (Math.abs(delta) > 1) comp.scroll.wheel(delta);
+        }
+
+        function revealCatalogCard(card) {
+            if (!card || !card.length) return;
+            if (comp.scroll && comp.scroll.update) comp.scroll.update(card, true);
+            // Lampa 0.47 may align only the focused point and leave the title or
+            // poster edge outside the viewport. Measure after its own update and
+            // scroll just the missing distance so the whole TV card stays visible.
+            setTimeout(function () { ensureCardFullyVisible(card); }, 0);
+        }
+
         function focusCardInDirection(direction) {
             var collection = comp.scroll && comp.scroll.render ? comp.scroll.render() : comp.render();
             var current = focusedCatalogCard();
@@ -259,7 +283,7 @@
             comp.last = target;
             Navigator.add(target);
             Lampa.Controller.collectionFocus(target, collection, true);
-            if (comp.scroll && comp.scroll.update) comp.scroll.update($(target), true);
+            revealCatalogCard($(target));
             focusScope.remember(target);
             return true;
         }
@@ -394,6 +418,7 @@
             root.off('hover:focus.yaniCatalogCard').on('hover:focus.yaniCatalogCard', '.card.selector', function (event) {
                 lastCatalogCard = event.currentTarget || this;
                 comp.last = lastCatalogCard;
+                revealCatalogCard($(lastCatalogCard));
             });
             setTimeout(function () {
                 syncNavigationCollection();
