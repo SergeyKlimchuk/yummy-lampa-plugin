@@ -24,6 +24,16 @@ assert.match(detail, /loadDetailRecommendations\(data, info, bindDetailScrollTar
 assert.match(detail, /if \(appendNavigation\) appendNavigation\(row\)/);
 assert.match(detail, /appendDetailNavigation\(empty\)/);
 assert.match(detail, /appendDetailNavigation\(errorRow\)/);
+assert.match(detail, /function detailVerticalTarget\(direction\)/);
+assert.match(detail, /html\.find\('\.selector:visible'\)/);
+assert.match(detail, /current\.closest\('\.yani-detail__info, \.yani-detail__poster-column'\)/);
+assert.match(detail, /lane\.length \? lane\.find\('\.selector:visible'\) : html\.find\('\.selector:visible'\)/);
+assert.match(detail, /Math\.abs\(deltaY\) \* 1000 \+ Math\.abs\(x - currentX\)/);
+assert.match(detail, /if \(!moveDetailVertical\('up'\)\) Lampa\.Controller\.toggle\('head'\)/);
+assert.match(detail, /if \(!moveDetailVertical\('down'\)\) movePageDown\(scroll\)/);
+assert.match(detail, /data-yani-focus-key', 'credit:' \+ kind/);
+assert.match(detail, /data-yani-focus-key', 'recommendation:'/);
+assert.match(detail, /data-yani-focus-key', 'comment:'/);
 assert.match(detail, /yaniDetailOwner: detailComponent/);
 assert.match(detail, /comp\.destroy = function \(\) \{\s*destroyed = true/);
 assert.match(detail, /if \(videosAbort\) videosAbort\.abort\(\)/);

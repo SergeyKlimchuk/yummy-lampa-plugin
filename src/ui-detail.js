@@ -102,7 +102,8 @@
             if (!items.length) return section.remove();
             items.forEach(function (item) {
                 var card = toCard(item);
-                var row = $('<div class="yani-detail__recommendation selector"></div>');
+                var row = $('<div class="yani-detail__recommendation selector"></div>')
+                    .attr('data-yani-focus-key', 'recommendation:' + String(card.yani_id || card.id || card.title || ''));
                 var recommendationPoster = $('<img class="yani-detail__recommendation-poster" alt="">').attr('src', card.poster || '');
                 LampaYaniMedia.bindPosterFallback(recommendationPoster, card);
                 row.append(recommendationPoster);
@@ -725,6 +726,7 @@
                 var value = genreValue(genre);
                 if (!title || value === null) return;
                 var chip = $('<div class="yani-detail__genre selector"></div>').text(title);
+                chip.attr('data-yani-focus-key', 'genre:' + String(value));
                 chip.on('hover:enter click.yaniDetailGenre', function () { openGenreCatalog(genre); });
                 bindDetailButtonFocus(chip);
                 block.append(chip);
@@ -752,6 +754,7 @@
             var values = $('<div class="yani-detail__credit-values"></div>');
             items.forEach(function (subject) {
                 var chip = $('<div class="yani-detail__credit selector"></div>').text(subject.title || subject.name);
+                chip.attr('data-yani-focus-key', 'credit:' + kind + ':' + String(subject.id !== undefined ? subject.id : subject.url || subject.title || subject.name));
                 chip.on('hover:enter click.yaniDetailCredit', function () {
                     if (openSubjectCatalog) openSubjectCatalog(kind, subject);
                 });
@@ -867,6 +870,39 @@
             return true;
         }
 
+        function detailVerticalTarget(direction) {
+            var current = focusedDetailElement();
+            if (!current.length || !current[0].getBoundingClientRect) return $();
+            var currentRect = current[0].getBoundingClientRect();
+            var currentX = (currentRect.left + currentRect.right) / 2;
+            var currentY = (currentRect.top + currentRect.bottom) / 2;
+            var threshold = Math.max(8, Math.min(24, currentRect.height * 0.3));
+            var best = null;
+            var bestScore = Infinity;
+            var lane = current.closest('.yani-detail__info, .yani-detail__poster-column');
+            var candidates = lane.length ? lane.find('.selector:visible') : html.find('.selector:visible');
+            candidates.each(function () {
+                if (this === current[0] || !this.getBoundingClientRect) return;
+                var rect = this.getBoundingClientRect();
+                if (!(rect.width > 0) || !(rect.height > 0)) return;
+                var x = (rect.left + rect.right) / 2;
+                var y = (rect.top + rect.bottom) / 2;
+                var deltaY = y - currentY;
+                if (direction === 'up' ? deltaY >= -threshold : deltaY <= threshold) return;
+                var score = Math.abs(deltaY) * 1000 + Math.abs(x - currentX);
+                if (score < bestScore) {
+                    bestScore = score;
+                    best = this;
+                }
+            });
+            return best ? $(best) : $();
+        }
+
+        function moveDetailVertical(direction) {
+            var target = detailVerticalTarget(direction);
+            return target.length ? focusDetailElement(target) : false;
+        }
+
         function hasHorizontalSibling(element, direction) {
             var siblings = element.parent().children('.selector:visible');
             var index = siblings.index(element);
@@ -926,7 +962,8 @@
                 }
                 comments.forEach(function (comment) {
                     var item = commentItem(comment);
-                    var row = $('<div class="yani-detail__comment selector"></div>');
+                    var row = $('<div class="yani-detail__comment selector"></div>')
+                        .attr('data-yani-focus-key', 'comment:' + String(comment.id || comment.comment_id || comment.date || ''));
                     row.append($('<div class="yani-detail__comment-title"></div>').text(item.title));
                     if (item.subtitle) row.append($('<div class="yani-detail__comment-stats"></div>').text(item.subtitle));
                     row.on('hover:focus', function () { row.addClass('focus'); });
@@ -971,8 +1008,14 @@
                     if (moveFromListPanelToContent()) return;
                     Navigator.move('right');
                 },
-                up: function () { if (!posterExpanded) { if (Navigator.canmove('up')) Navigator.move('up'); else Lampa.Controller.toggle('head'); } },
-                down: function () { if (!posterExpanded) movePageDown(scroll); },
+                up: function () {
+                    if (posterExpanded) return;
+                    if (!moveDetailVertical('up')) Lampa.Controller.toggle('head');
+                },
+                down: function () {
+                    if (posterExpanded) return;
+                    if (!moveDetailVertical('down')) movePageDown(scroll);
+                },
                 back: function () { if (!closePosterViewer()) goBack(); }
             };
             Lampa.Controller.add('content', controller);

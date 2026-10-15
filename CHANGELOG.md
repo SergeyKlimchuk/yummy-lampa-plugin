@@ -9,6 +9,13 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.15] - 2026-10-15
+
+### Changed
+
+- Fix vertical TV focus across all title-detail rows 
+- Restore stable focus to genre, studio, director, recommendation, and comment items after returning from nested pages
+
 ## [0.47.14] - 2026-10-15
 
 ### Changed
