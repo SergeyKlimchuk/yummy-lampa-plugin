@@ -44,7 +44,7 @@ const context = {
             Loading: {start: function () {}, stop: function () {}}
         },
         LampaYaniUiUtils: {
-            videoData: function () { return {}; },
+            videoData: function (video) { return video && video.data || {}; },
             normalizeVideoUrl: function (url) { return url || ''; },
             videoHost: function () { return ''; },
             yummyTvDetailsUrl: function () { return ''; }
@@ -100,6 +100,14 @@ var grouped = api.groupVideos(episodes);
 assert.strictEqual(Object.keys(grouped).length, 1, 'quality changes must not split one dubbing/source into multiple groups');
 assert.strictEqual(grouped[Object.keys(grouped)[0]].videos.length, 12, 'all episodes must stay in the selected dubbing/source group');
 assert.strictEqual(grouped[Object.keys(grouped)[0]].episodeCount, 12, 'voice metadata must expose the unique episode count');
+assert.strictEqual(grouped[Object.keys(grouped)[0]].latestEpisode, '12', 'voice metadata must expose the latest episode for its own source');
+var unevenSources = api.groupVideos([
+    {number: '12', iframe_url: 'https://kodik.example/12', date: 120, data: {dubbing: 'Studio', player: 'Kodik', player_id: 'kodik'}},
+    {number: '11', iframe_url: 'https://cvh.example/11', date: 110, data: {dubbing: 'Studio', player: 'CVH', player_id: 'cvh'}}
+]);
+assert.strictEqual(Object.keys(unevenSources).length, 2, 'the same dubbing on different sources must remain separate');
+assert.strictEqual(unevenSources['studio|kodik'].latestEpisode, '12', 'Kodik must report only its own latest episode');
+assert.strictEqual(unevenSources['studio|cvh'].latestEpisode, '11', 'CVH must not inherit the latest episode from Kodik');
 assert.match(source, /function applySavedPlaybackPosition\(card, video\)/);
 assert.match(source, /Episode\.same\(Episode\.valueOf\(video\), playback && playback\.number\)/,
     'switching a voice or source must only carry progress to the same episode');

@@ -9,6 +9,10 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix identical dubbing teams on different players implying the same latest episode by showing source-specific episode availability
+
 ## [0.47.10] - 2026-10-01
 
 ### Fixed

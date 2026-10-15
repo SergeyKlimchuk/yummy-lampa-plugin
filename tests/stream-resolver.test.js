@@ -9,6 +9,9 @@ global.LampaYaniEpisode = {
 };
 global.fetch = async function (url) {
     if (String(url).indexOf('plapi.cdnvideohub.com/api/v1/player/sv/playlist') >= 0) {
+        if (String(url).indexOf('id=777') >= 0) {
+            return {ok: true, text: async function () { return JSON.stringify({tags: [5], items: []}); }};
+        }
         var movie = String(url).indexOf('id=999') >= 0;
         return {
             ok: true,
@@ -36,9 +39,9 @@ global.fetch = async function (url) {
                 return JSON.stringify({
                     failoverHost: 'vd.example.test',
                     sources: {
-                        mpegMediumUrl: 'https://vd.example.test/?type=2&token=480',
-                        mpegHighUrl: 'https://vd.example.test/?type=3&token=720',
-                        mpegFullHdUrl: 'https://vd.example.test/?type=5&token=1080'
+                        mpegMediumUrl: 'https://primary.okcdn.test/?type=2&token=480',
+                        mpegHighUrl: 'https://primary.okcdn.test/?type=3&token=720',
+                        mpegFullHdUrl: 'https://primary.okcdn.test/?type=5&token=1080'
                     }
                 });
             }
@@ -182,8 +185,8 @@ Promise.all([
     assert.strictEqual(cvh.source, 'cvh');
     assert.strictEqual(cvh.direct, true);
     assert.strictEqual(cvh.quality, '1080p');
-    assert.strictEqual(cvh.url, 'https://vd.example.test/?type=5&token=1080');
-    assert.strictEqual(cvh.qualities['720p'], 'https://vd.example.test/?type=3&token=720');
+    assert.strictEqual(cvh.url, 'https://primary.okcdn.test/?type=5&token=1080');
+    assert.strictEqual(cvh.qualities['720p'], 'https://primary.okcdn.test/?type=3&token=720');
     assert.match(cvh.headers['User-Agent'], /Chrome\/149/);
     var cvhMovie = results[6];
     assert.strictEqual(cvhMovie.source, 'cvh');
@@ -193,6 +196,15 @@ Promise.all([
         delete global.AndroidJS;
         assert.strictEqual(androidVk.quality, '1080p');
         assert.strictEqual(androidVk.url, 'https://vkvd346.okcdn.ru/video/1080/track.m3u8');
+        return LampaYaniStreamResolver.resolve('https://ru.yummyani.me/iframeCVH.html?dubbing_code=AniLibria&anime_id=31240&episode=2', {force: true});
+    }).then(function (forcedCvh) {
+        assert.strictEqual(forcedCvh.url, 'https://vd.example.test/?type=5&token=1080', 'forced CVH recovery must switch a named CDN host to failoverHost');
+        assert.strictEqual(forcedCvh.qualities['720p'], 'https://vd.example.test/?type=3&token=720');
+        return LampaYaniStreamResolver.resolve('https://ru.yummyani.me/iframeCVH.html?anime_id=777&episode=1');
+    }).then(function () {
+        throw new Error('Region-blocked CVH video unexpectedly resolved');
+    }, function (error) {
+        assert.strictEqual(error.code, 'CVH_REGION_BLOCKED');
         return LampaYaniStreamResolver.resolve('https://ru.yummyani.me/iframeVK.html?id=-228989270_456239022');
     }).then(function () {
         throw new Error('Unavailable VK video unexpectedly resolved');

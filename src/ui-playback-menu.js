@@ -322,7 +322,10 @@
                         quality: videoQualityLabel(video),
                         source: source,
                         videos: [],
-                        episodeKeys: {}
+                        episodeKeys: {},
+                        latestEpisode: '',
+                        latestEpisodeNumber: NaN,
+                        latestEpisodeDate: 0
                     };
                 }
                 groups[key].videos.push(video);
@@ -331,6 +334,20 @@
                     ? Episode.key(Episode.valueOf(video))
                     : String(video.number || video.index || '').trim();
                 if (episodeKey) groups[key].episodeKeys[episodeKey] = true;
+                var episodeValue = Episode && Episode.valueOf
+                    ? Episode.valueOf(video)
+                    : String(video.number || video.episode || video.index || '').trim();
+                var episodeNumber = Episode && Episode.number
+                    ? Episode.number(episodeValue)
+                    : Number(String(episodeValue).replace(',', '.'));
+                var episodeDate = Number(video.date || video.created_at || video.updated_at || 0);
+                var currentNumber = groups[key].latestEpisodeNumber;
+                if ((isFinite(episodeNumber) && (!isFinite(currentNumber) || episodeNumber > currentNumber)) ||
+                    (!isFinite(episodeNumber) && !isFinite(currentNumber) && episodeDate >= groups[key].latestEpisodeDate)) {
+                    groups[key].latestEpisode = episodeValue;
+                    groups[key].latestEpisodeNumber = episodeNumber;
+                    groups[key].latestEpisodeDate = episodeDate;
+                }
             });
             Object.keys(groups).forEach(function (key) {
                 groups[key].episodeCount = Object.keys(groups[key].episodeKeys).length || groups[key].videos.length;

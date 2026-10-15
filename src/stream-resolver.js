@@ -372,11 +372,13 @@
         return result;
     }
 
-    function replaceIpHost(url, failoverHost) {
+    function replaceCvhHost(url, failoverHost, forceFailover) {
         if (!url || !failoverHost) return url;
         try {
             var parsed = new URL(url);
-            if (parsed.protocol === 'https:' && /^\d{1,3}(?:\.\d{1,3}){3}$/.test(parsed.hostname)) parsed.hostname = failoverHost;
+            if (parsed.protocol === 'https:' && (forceFailover || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(parsed.hostname))) {
+                parsed.hostname = failoverHost;
+            }
             return parsed.toString();
         } catch (ignore) {
             return url;
@@ -394,7 +396,8 @@
         return typeof own === 'string' && own ? own : CHROME_UA;
     }
 
-    function resolveCvh(iframeUrl) {
+    function resolveCvh(iframeUrl, options) {
+        options = options || {};
         var fullUrl = normalizeUrl(iframeUrl);
         var hit = cached(fullUrl);
         if (hit) return Promise.resolve(hit);
@@ -421,8 +424,15 @@
         };
         var playlistUrl = 'https://plapi.cdnvideohub.com/api/v1/player/sv/playlist?pub=745&id=' + encodeURIComponent(animeId) + '&aggr=mali';
         return requestJson(playlistUrl, {headers: headers}).then(function (playlist) {
+            var playlistItems = playlist && Array.isArray(playlist.items) ? playlist.items : [];
+            var playlistTags = playlist && Array.isArray(playlist.tags) ? playlist.tags : [];
+            if (!playlistItems.length && playlistTags.some(function (tag) { return Number(tag) === 5; })) {
+                var blocked = new Error('CVH stream is unavailable in this region');
+                blocked.code = 'CVH_REGION_BLOCKED';
+                throw blocked;
+            }
             var serial = !playlist || playlist.isSerial !== false;
-            var candidates = (playlist && Array.isArray(playlist.items) ? playlist.items : []).filter(function (item) {
+            var candidates = playlistItems.filter(function (item) {
                 if (!serial) return true;
                 return item && (item.episode === null || item.episode === undefined || window.LampaYaniEpisode.same(item.episode, episode));
             });
@@ -449,7 +459,7 @@
                 ['720p', 'mpegHighUrl'],
                 ['1080p', 'mpegFullHdUrl']
             ].forEach(function (item) {
-                var streamUrl = replaceIpHost(String(sources[item[1]] || '').trim(), failoverHost);
+                var streamUrl = replaceCvhHost(String(sources[item[1]] || '').trim(), failoverHost, Boolean(options.forceFailover));
                 if (streamUrl) qualities[item[0]] = streamUrl;
             });
             var labels = Object.keys(qualities);
@@ -834,7 +844,7 @@
         if (options.force) invalidate(url);
         if (isDirectVideoUrl(url)) return Promise.resolve({url: url, source: 'direct'});
         if (isKodikUrl(url)) return resolveKodik(url);
-        if (isCvhUrl(url)) return resolveCvh(url);
+        if (isCvhUrl(url)) return resolveCvh(url, {forceFailover: Boolean(options.force)});
         if (isAksorUrl(url)) return resolveAksor(url);
         if (isSibnetUrl(url)) return resolveSibnet(url);
         if (isRutubeUrl(url)) return resolveRutube(url);

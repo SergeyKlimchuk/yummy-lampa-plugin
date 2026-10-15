@@ -2990,7 +2990,9 @@
 
     function voiceOptionSubtitle(group) {
         return t('video_quality') + ': ' + (group.quality || t('quality_auto')) +
-            (group.source ? ' · ' + group.source : '') + ' · ' + Number(group.episodeCount || group.videos.length) + ' ' + t('episodes_short');
+            (group.source ? ' · ' + group.source : '') +
+            (group.latestEpisode ? ' · ' + t('latest_episode') + ': ' + group.latestEpisode : '') +
+            ' · ' + Number(group.episodeCount || group.videos.length) + ' ' + t('episodes_short');
     }
 
     function enrichVoiceOptionQuality(item, target) {
@@ -3224,7 +3226,7 @@
                     return;
                 }
                 if (isCvhPlaybackSource(url, group)) {
-                    Lampa.Noty.show(t('cvh_stream_unavailable'));
+                    Lampa.Noty.show(t(error && error.code === 'CVH_REGION_BLOCKED' ? 'cvh_region_blocked' : 'cvh_stream_unavailable'));
                     restorePlaybackInteraction();
                     return;
                 }

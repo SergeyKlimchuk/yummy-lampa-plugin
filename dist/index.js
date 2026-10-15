@@ -165,6 +165,7 @@ function pluginYummyAnime() {
     messages.ru.collection_load_error = 'Не удалось загрузить коллекцию';
     messages.ru.collection_empty = 'В этой коллекции пока нет тайтлов';
     messages.ru.episodes_short = 'серий';
+    messages.ru.latest_episode = 'последняя серия';
     messages.ru.episode_information = 'Информация о сериях';
     messages.ru.seasons_short = 'сез.';
     messages.ru.episodes_aired = 'Вышло';
@@ -267,6 +268,7 @@ function pluginYummyAnime() {
     messages.en.collection_load_error = 'Failed to load the collection';
     messages.en.collection_empty = 'This collection does not contain any titles yet';
     messages.en.episodes_short = 'episodes';
+    messages.en.latest_episode = 'latest episode';
     messages.en.episode_information = 'Episode information';
     messages.en.seasons_short = 'seasons';
     messages.en.episodes_aired = 'Aired';
@@ -354,6 +356,7 @@ function pluginYummyAnime() {
     messages.ru.vk_stream_unavailable = 'Не удалось получить видеопоток VK. Видео может быть недоступно, ограничено владельцем или требовать авторизацию VK';
     messages.ru.sibnet_source_description = 'Открывать официальный веб-плеер Sibnet внутри Lampa. Он необходим, потому что прямой MP4 Sibnet проверяет адрес страницы плеера';
     messages.ru.cvh_stream_unavailable = 'Не удалось получить прямой поток CVH. Выберите другую озвучку или источник';
+messages.ru.cvh_region_blocked = 'Видео CVH недоступно в вашем регионе. Выберите другой источник';
     messages.ru.cvh_source_description = 'Прямой MP4-поток. На Android и Android TV доступен внутренний плеер Lampa в режиме совместимости, а также внешний плеер; на LG WebOS доступен внутренний плеер';
     messages.ru.cvh_source_warning = 'Для CVH на Android и Android TV расширение использует совместимый режим внутреннего плеера. Если конкретный поток не поддерживается устройством, выберите внешний плеер.';
     messages.ru.detail_load_error = 'Не удалось загрузить данные YummyAnime';
@@ -454,6 +457,7 @@ function pluginYummyAnime() {
     messages.en.vk_stream_unavailable = 'Could not obtain the VK video stream. The video may be unavailable, restricted by its owner, or require VK authorization';
     messages.en.sibnet_source_description = 'Open the official Sibnet web player inside Lampa. It is required because the direct Sibnet MP4 checks the player page address';
     messages.en.cvh_stream_unavailable = 'Could not obtain a direct CVH stream. Choose another dubbing or source';
+messages.en.cvh_region_blocked = 'CVH video is unavailable in your region. Choose another source';
     messages.en.cvh_source_description = 'Direct MP4 stream. Android and Android TV can use Lampa\'s internal player in compatibility mode or an external player; LG WebOS supports the internal player';
     messages.en.cvh_source_warning = 'For CVH on Android and Android TV, the extension uses a compatible internal-player mode. If the device cannot decode a particular stream, choose an external player.';
     messages.en.detail_load_error = 'Failed to load YummyAnime details';
@@ -782,6 +786,7 @@ function pluginYummyAnime() {
     messages.uk.collection_load_error = 'Не вдалося завантажити колекцію';
     messages.uk.collection_empty = 'У цій колекції поки немає тайтлів';
     messages.uk.episodes_short = 'серій';
+    messages.uk.latest_episode = 'остання серія';
     messages.uk.episode_information = 'Інформація про серії';
     messages.uk.seasons_short = 'сез.';
     messages.uk.episodes_aired = 'Вийшло';
@@ -851,6 +856,7 @@ function pluginYummyAnime() {
     messages.uk.vk_stream_unavailable = 'Не вдалося отримати відеопотік VK. Відео може бути недоступне, обмежене власником або вимагати авторизацію VK';
     messages.uk.sibnet_source_description = 'Відкривати офіційний вебплеєр Sibnet усередині Lampa. Він потрібен, оскільки прямий MP4 Sibnet перевіряє адресу сторінки плеєра';
     messages.uk.cvh_stream_unavailable = 'Не вдалося отримати прямий потік CVH. Виберіть інше озвучення або джерело';
+messages.uk.cvh_region_blocked = 'Відео CVH недоступне у вашому регіоні. Виберіть інше джерело';
     messages.uk.cvh_source_description = 'Прямий MP4-потік. На Android та Android TV доступний внутрішній плеєр Lampa в режимі сумісності, а також зовнішній плеєр; на LG WebOS доступний внутрішній плеєр';
     messages.uk.cvh_source_warning = 'Для CVH на Android та Android TV розширення використовує сумісний режим внутрішнього плеєра. Якщо пристрій не підтримує конкретний потік, виберіть зовнішній плеєр.';
     messages.uk.detail_load_error = 'Не вдалося завантажити дані YummyAnime';
@@ -2404,11 +2410,13 @@ function pluginYummyAnime() {
         return result;
     }
 
-    function replaceIpHost(url, failoverHost) {
+    function replaceCvhHost(url, failoverHost, forceFailover) {
         if (!url || !failoverHost) return url;
         try {
             var parsed = new URL(url);
-            if (parsed.protocol === 'https:' && /^\d{1,3}(?:\.\d{1,3}){3}$/.test(parsed.hostname)) parsed.hostname = failoverHost;
+            if (parsed.protocol === 'https:' && (forceFailover || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(parsed.hostname))) {
+                parsed.hostname = failoverHost;
+            }
             return parsed.toString();
         } catch (ignore) {
             return url;
@@ -2426,7 +2434,8 @@ function pluginYummyAnime() {
         return typeof own === 'string' && own ? own : CHROME_UA;
     }
 
-    function resolveCvh(iframeUrl) {
+    function resolveCvh(iframeUrl, options) {
+        options = options || {};
         var fullUrl = normalizeUrl(iframeUrl);
         var hit = cached(fullUrl);
         if (hit) return Promise.resolve(hit);
@@ -2453,8 +2462,15 @@ function pluginYummyAnime() {
         };
         var playlistUrl = 'https://plapi.cdnvideohub.com/api/v1/player/sv/playlist?pub=745&id=' + encodeURIComponent(animeId) + '&aggr=mali';
         return requestJson(playlistUrl, {headers: headers}).then(function (playlist) {
+            var playlistItems = playlist && Array.isArray(playlist.items) ? playlist.items : [];
+            var playlistTags = playlist && Array.isArray(playlist.tags) ? playlist.tags : [];
+            if (!playlistItems.length && playlistTags.some(function (tag) { return Number(tag) === 5; })) {
+                var blocked = new Error('CVH stream is unavailable in this region');
+                blocked.code = 'CVH_REGION_BLOCKED';
+                throw blocked;
+            }
             var serial = !playlist || playlist.isSerial !== false;
-            var candidates = (playlist && Array.isArray(playlist.items) ? playlist.items : []).filter(function (item) {
+            var candidates = playlistItems.filter(function (item) {
                 if (!serial) return true;
                 return item && (item.episode === null || item.episode === undefined || window.LampaYaniEpisode.same(item.episode, episode));
             });
@@ -2481,7 +2497,7 @@ function pluginYummyAnime() {
                 ['720p', 'mpegHighUrl'],
                 ['1080p', 'mpegFullHdUrl']
             ].forEach(function (item) {
-                var streamUrl = replaceIpHost(String(sources[item[1]] || '').trim(), failoverHost);
+                var streamUrl = replaceCvhHost(String(sources[item[1]] || '').trim(), failoverHost, Boolean(options.forceFailover));
                 if (streamUrl) qualities[item[0]] = streamUrl;
             });
             var labels = Object.keys(qualities);
@@ -2866,7 +2882,7 @@ function pluginYummyAnime() {
         if (options.force) invalidate(url);
         if (isDirectVideoUrl(url)) return Promise.resolve({url: url, source: 'direct'});
         if (isKodikUrl(url)) return resolveKodik(url);
-        if (isCvhUrl(url)) return resolveCvh(url);
+        if (isCvhUrl(url)) return resolveCvh(url, {forceFailover: Boolean(options.force)});
         if (isAksorUrl(url)) return resolveAksor(url);
         if (isSibnetUrl(url)) return resolveSibnet(url);
         if (isRutubeUrl(url)) return resolveRutube(url);
@@ -8082,7 +8098,10 @@ function pluginYummyAnime() {
                         quality: videoQualityLabel(video),
                         source: source,
                         videos: [],
-                        episodeKeys: {}
+                        episodeKeys: {},
+                        latestEpisode: '',
+                        latestEpisodeNumber: NaN,
+                        latestEpisodeDate: 0
                     };
                 }
                 groups[key].videos.push(video);
@@ -8091,6 +8110,20 @@ function pluginYummyAnime() {
                     ? Episode.key(Episode.valueOf(video))
                     : String(video.number || video.index || '').trim();
                 if (episodeKey) groups[key].episodeKeys[episodeKey] = true;
+                var episodeValue = Episode && Episode.valueOf
+                    ? Episode.valueOf(video)
+                    : String(video.number || video.episode || video.index || '').trim();
+                var episodeNumber = Episode && Episode.number
+                    ? Episode.number(episodeValue)
+                    : Number(String(episodeValue).replace(',', '.'));
+                var episodeDate = Number(video.date || video.created_at || video.updated_at || 0);
+                var currentNumber = groups[key].latestEpisodeNumber;
+                if ((isFinite(episodeNumber) && (!isFinite(currentNumber) || episodeNumber > currentNumber)) ||
+                    (!isFinite(episodeNumber) && !isFinite(currentNumber) && episodeDate >= groups[key].latestEpisodeDate)) {
+                    groups[key].latestEpisode = episodeValue;
+                    groups[key].latestEpisodeNumber = episodeNumber;
+                    groups[key].latestEpisodeDate = episodeDate;
+                }
             });
             Object.keys(groups).forEach(function (key) {
                 groups[key].episodeCount = Object.keys(groups[key].episodeKeys).length || groups[key].videos.length;
@@ -17629,7 +17662,9 @@ function pluginYummyAnime() {
 
     function voiceOptionSubtitle(group) {
         return t('video_quality') + ': ' + (group.quality || t('quality_auto')) +
-            (group.source ? ' · ' + group.source : '') + ' · ' + Number(group.episodeCount || group.videos.length) + ' ' + t('episodes_short');
+            (group.source ? ' · ' + group.source : '') +
+            (group.latestEpisode ? ' · ' + t('latest_episode') + ': ' + group.latestEpisode : '') +
+            ' · ' + Number(group.episodeCount || group.videos.length) + ' ' + t('episodes_short');
     }
 
     function enrichVoiceOptionQuality(item, target) {
@@ -17863,7 +17898,7 @@ function pluginYummyAnime() {
                     return;
                 }
                 if (isCvhPlaybackSource(url, group)) {
-                    Lampa.Noty.show(t('cvh_stream_unavailable'));
+                    Lampa.Noty.show(t(error && error.code === 'CVH_REGION_BLOCKED' ? 'cvh_region_blocked' : 'cvh_stream_unavailable'));
                     restorePlaybackInteraction();
                     return;
                 }

@@ -132,6 +132,7 @@
     messages.ru.collection_load_error = 'Не удалось загрузить коллекцию';
     messages.ru.collection_empty = 'В этой коллекции пока нет тайтлов';
     messages.ru.episodes_short = 'серий';
+    messages.ru.latest_episode = 'последняя серия';
     messages.ru.episode_information = 'Информация о сериях';
     messages.ru.seasons_short = 'сез.';
     messages.ru.episodes_aired = 'Вышло';
@@ -234,6 +235,7 @@
     messages.en.collection_load_error = 'Failed to load the collection';
     messages.en.collection_empty = 'This collection does not contain any titles yet';
     messages.en.episodes_short = 'episodes';
+    messages.en.latest_episode = 'latest episode';
     messages.en.episode_information = 'Episode information';
     messages.en.seasons_short = 'seasons';
     messages.en.episodes_aired = 'Aired';
@@ -321,6 +323,7 @@
     messages.ru.vk_stream_unavailable = 'Не удалось получить видеопоток VK. Видео может быть недоступно, ограничено владельцем или требовать авторизацию VK';
     messages.ru.sibnet_source_description = 'Открывать официальный веб-плеер Sibnet внутри Lampa. Он необходим, потому что прямой MP4 Sibnet проверяет адрес страницы плеера';
     messages.ru.cvh_stream_unavailable = 'Не удалось получить прямой поток CVH. Выберите другую озвучку или источник';
+messages.ru.cvh_region_blocked = 'Видео CVH недоступно в вашем регионе. Выберите другой источник';
     messages.ru.cvh_source_description = 'Прямой MP4-поток. На Android и Android TV доступен внутренний плеер Lampa в режиме совместимости, а также внешний плеер; на LG WebOS доступен внутренний плеер';
     messages.ru.cvh_source_warning = 'Для CVH на Android и Android TV расширение использует совместимый режим внутреннего плеера. Если конкретный поток не поддерживается устройством, выберите внешний плеер.';
     messages.ru.detail_load_error = 'Не удалось загрузить данные YummyAnime';
@@ -421,6 +424,7 @@
     messages.en.vk_stream_unavailable = 'Could not obtain the VK video stream. The video may be unavailable, restricted by its owner, or require VK authorization';
     messages.en.sibnet_source_description = 'Open the official Sibnet web player inside Lampa. It is required because the direct Sibnet MP4 checks the player page address';
     messages.en.cvh_stream_unavailable = 'Could not obtain a direct CVH stream. Choose another dubbing or source';
+messages.en.cvh_region_blocked = 'CVH video is unavailable in your region. Choose another source';
     messages.en.cvh_source_description = 'Direct MP4 stream. Android and Android TV can use Lampa\'s internal player in compatibility mode or an external player; LG WebOS supports the internal player';
     messages.en.cvh_source_warning = 'For CVH on Android and Android TV, the extension uses a compatible internal-player mode. If the device cannot decode a particular stream, choose an external player.';
     messages.en.detail_load_error = 'Failed to load YummyAnime details';
@@ -749,6 +753,7 @@
     messages.uk.collection_load_error = 'Не вдалося завантажити колекцію';
     messages.uk.collection_empty = 'У цій колекції поки немає тайтлів';
     messages.uk.episodes_short = 'серій';
+    messages.uk.latest_episode = 'остання серія';
     messages.uk.episode_information = 'Інформація про серії';
     messages.uk.seasons_short = 'сез.';
     messages.uk.episodes_aired = 'Вийшло';
@@ -818,6 +823,7 @@
     messages.uk.vk_stream_unavailable = 'Не вдалося отримати відеопотік VK. Відео може бути недоступне, обмежене власником або вимагати авторизацію VK';
     messages.uk.sibnet_source_description = 'Відкривати офіційний вебплеєр Sibnet усередині Lampa. Він потрібен, оскільки прямий MP4 Sibnet перевіряє адресу сторінки плеєра';
     messages.uk.cvh_stream_unavailable = 'Не вдалося отримати прямий потік CVH. Виберіть інше озвучення або джерело';
+messages.uk.cvh_region_blocked = 'Відео CVH недоступне у вашому регіоні. Виберіть інше джерело';
     messages.uk.cvh_source_description = 'Прямий MP4-потік. На Android та Android TV доступний внутрішній плеєр Lampa в режимі сумісності, а також зовнішній плеєр; на LG WebOS доступний внутрішній плеєр';
     messages.uk.cvh_source_warning = 'Для CVH на Android та Android TV розширення використовує сумісний режим внутрішнього плеєра. Якщо пристрій не підтримує конкретний потік, виберіть зовнішній плеєр.';
     messages.uk.detail_load_error = 'Не вдалося завантажити дані YummyAnime';
