@@ -9,14 +9,21 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
-## [0.47.13] - 2026-10-15
+## [0.47.14] - 2026-10-15
 
 ### Changed
 
-- Fix queued progress and list updates being discarded on temporary HTTP 408, 425, and 429 responses 
+- Fix delayed title-card focus after closing the internal Lampa player by restoring navigation on the player destroy event
+
+## [0.47.13] - 2026-10-15
 
 ### Added
+
 - Add bounded server retry tracking while preserving mutation order
+
+### Changed
+
+- Fix queued progress and list updates being discarded on temporary HTTP 408, 425, and 429 responses
 
 ## [0.47.12] - 2026-10-15
 

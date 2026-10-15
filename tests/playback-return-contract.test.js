@@ -38,6 +38,8 @@ assert.match(menu, /function restorePlaybackInteraction\(snapshot, options\)[\s\
 assert.match(menu, /if \(Date\.now\(\) < deadline\) restore\(interval, true\)/);
 assert.match(menu, /activeController === expectedController && activeFocus && focusInCollection/);
 assert.match(ui, /Lampa\.Player\.callback\(function \(\) \{[\s\S]{0,700}restorePlaybackInteraction\(null, \{timeout: 2400, interval: 120\}\)/);
+assert.match(ui, /state\.playerDestroyHandler = function \(event\)[\s\S]{0,700}!state\.advanced && !state\.recovering[\s\S]{0,260}restorePlaybackInteraction\(null, \{timeout: 2400, interval: 120\}\)/,
+    'the title focus must start restoring on player destroy without waiting for the late callback');
 ['Lampa.Android.openPlayer', 'Android.openPlayer', 'AndroidJS.openPlayer'].forEach((bridge) => {
     const start = ui.indexOf("tryExternalOpen('" + bridge + "'");
     assert.ok(start >= 0, bridge + ' bridge must exist');

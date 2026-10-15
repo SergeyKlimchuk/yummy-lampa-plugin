@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.13',
+        version: '0.47.14',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -18595,6 +18595,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             playerEndedHandler: null,
             playerDestroyHandler: null,
             playerErrorHandler: null,
+            returnRestoreScheduled: false,
             recoveryAttempts: Number(context.selected && context.selected.yani_internal_recovery || 0),
             recovering: false,
             startedAt: Date.now(),
@@ -18901,8 +18902,15 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         };
         state.playerDestroyHandler = function (event) {
             // Lampa may remove the underlying media node before Player.callback.
-            // Capture the final position while its player object still exists.
+            // Capture the final position while its player object still exists,
+            // then restore the title controller immediately instead of waiting
+            // for the later callback. Auto-next and stream recovery deliberately
+            // close the player themselves and must keep ownership of navigation.
             storeObservedPlayback(generation, context, state, event, true);
+            if (!state.advanced && !state.recovering && !state.returnRestoreScheduled) {
+                state.returnRestoreScheduled = true;
+                restorePlaybackInteraction(null, {timeout: 2400, interval: 120});
+            }
         };
         state.playerErrorHandler = function (event) {
             recoverInternalPlayback(generation, context, state, event);
