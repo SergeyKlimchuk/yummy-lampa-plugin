@@ -75,6 +75,14 @@ assert.match(source, /LampaYaniStreamResolver\.resolve\(origin, \{force: true\}\
     'recovery must bypass a stale signed-stream cache');
 assert.match(source, /state\.recoveryAttempts >= 1/,
     'recovery must run at most once per playback launch');
+assert.match(source, /CVH_STARTUP_STALL_MS = 18000/,
+    'CVH playback must detect a stream that never starts');
+assert.match(source, /CVH_PLAYBACK_STALL_MS = 15000/,
+    'CVH playback must detect a stream that stops advancing');
+assert.match(source, /isCvhPlaybackSource\(videoResolverUrl\(context\.selected\), context\.group\)/,
+    'the stall watchdog must be limited to CVH');
+assert.match(source, /startupStalled \|\| playbackStalled[\s\S]{0,240}recoverInternalPlayback/,
+    'a detected CVH stall must use the bounded recovery path');
 assert.match(source, /watched\.end_time = Math\.floor\(position\)/,
     'recovery must resume from the last observed position');
 assert.ok(!/function needsRequestHeaders\(item\)[\s\S]{0,400}Object\.keys\(headers\)/.test(source),

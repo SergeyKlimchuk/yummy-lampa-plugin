@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.11',
+        version: '0.47.12',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -18467,6 +18467,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     var playbackWatcher = null;
     var playbackWatcherGeneration = 0;
     var PLAYER_STARTUP_GRACE_MS = 120000;
+    var CVH_STARTUP_STALL_MS = 18000;
+    var CVH_PLAYBACK_STALL_MS = 15000;
     var NEXT_PREFETCH_LEAD = 90;
     var PLAYER_CLOSE_POLL_MS = 80;
     var PLAYER_CLOSE_SETTLE_MS = 120;
@@ -18570,6 +18572,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             playerErrorHandler: null,
             recoveryAttempts: Number(context.selected && context.selected.yani_internal_recovery || 0),
             recovering: false,
+            startedAt: Date.now(),
+            lastProgressAt: Date.now(),
             lastSeenAt: Date.now()
         };
         playbackWatcher = state;
@@ -18837,6 +18841,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         if (!(position >= 0)) position = 0;
         if (!(duration >= 0)) duration = 0;
         state.lastSeenAt = Date.now();
+        if (Math.abs(position - Number(state.lastObservedPosition || 0)) > 0.25) {
+            state.lastProgressAt = state.lastSeenAt;
+        }
         state.lastObservedPosition = position;
         state.lastObservedDuration = duration;
         if (!(position > 0)) return;
@@ -18941,6 +18948,22 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var duration = Number(video.duration) || 0;
         var finalState = video.paused || video.ended || duration > 0 && position >= duration - 2;
         storeObservedPlayback(generation, context, state, {current: position, duration: duration}, finalState);
+
+        var cvhSource = isCvhPlaybackSource(videoResolverUrl(context.selected), context.group);
+        if (cvhSource && !video.paused && !video.ended && !state.recovering && state.recoveryAttempts < 1) {
+            var now = Date.now();
+            var startupStalled = position <= 0.25 && now - state.startedAt >= CVH_STARTUP_STALL_MS;
+            var playbackStalled = position > 0.25 && now - state.lastProgressAt >= CVH_PLAYBACK_STALL_MS;
+            if (startupStalled || playbackStalled) {
+                recoverInternalPlayback(generation, context, state, {
+                    fatal: true,
+                    current: position,
+                    duration: duration,
+                    reason: startupStalled ? 'cvh-startup-stall' : 'cvh-playback-stall'
+                });
+                return;
+            }
+        }
 
         if (state.skipMode !== 'off' && duration >= 60) {
             var rounded = Math.round(duration);

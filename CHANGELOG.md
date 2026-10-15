@@ -9,6 +9,12 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.12] - 2026-10-15
+
+### Fixed
+
+- Fix silent CVH startup and mid-playback stalls by performing one bounded refresh through the failover host
+
 ## [0.47.11] - 2026-10-15
 
 ### Fixed
