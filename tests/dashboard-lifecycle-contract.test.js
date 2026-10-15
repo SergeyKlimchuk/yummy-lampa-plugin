@@ -11,11 +11,13 @@ assert.match(api, /externalSignal\.addEventListener\('abort', abortRequest/);
 assert.match(api, /externalSignal\.removeEventListener\('abort', abortRequest/);
 assert.match(api, /method === 'GET' && options\.dedupe !== false && !options\.signal/);
 assert.match(api, /schedule: function \(control\)/);
+assert.match(api, /lastWatches: function \(watches, control\)/);
 assert.match(api, /watchHistory: function \(limit, offset, control\)/);
 
 assert.match(ui, /var homeAbortController = typeof AbortController !== 'undefined'/);
 assert.match(ui, /var homeTimers = \[\]/);
-assert.match(ui, /scheduleHomeTask\(function \(\) \{[\s\S]*?fetchHistoryRange\(LampaYaniApi\.watchHistory, 300, 30, control\)/);
+assert.match(ui, /scheduleHomeTask\(function \(\) \{[\s\S]*?LampaYaniApi\.lastWatches\(recentWatches, control\)/);
+assert.match(ui, /falling back to full history[\s\S]*?fetchHistoryRange\(LampaYaniApi\.watchHistory, 300, 30, control\)/);
 assert.match(ui, /}, 140 \* homeDelayScale\)/);
 assert.match(ui, /}, 420 \* homeDelayScale\)/);
 assert.match(ui, /}, 760 \* homeDelayScale\)/);

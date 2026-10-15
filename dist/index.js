@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.10',
+        version: '0.47.11',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -1944,6 +1944,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 body: JSON.stringify({videos: videos || []}),
                 queueMutation: true,
                 mutationKey: 'progress-batch'
+            });
+        },
+        lastWatches: function (watches, control) {
+            control = control || {};
+            var query = (watches || []).slice(0, 8).filter(Boolean).map(function (watch) {
+                return 'watches=' + encodeURIComponent(String(watch));
+            }).join('&');
+            return request('/video/last-watches' + (query ? '?' + query : ''), {
+                auth: true,
+                cache: false,
+                signal: control.signal
             });
         },
         watchHistory: function (limit, offset, control) {
@@ -7934,7 +7945,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function restorePlaybackInteraction(snapshot, options) {
             snapshot = snapshot && snapshot.controller ? snapshot : playbackReturnSnapshot();
             options = options || {};
-            var retryDelays = Array.isArray(options.retryDelays) ? options.retryDelays.slice() : [];
+            var timeout = Math.max(0, Number(options.timeout) || 2400);
+            var interval = Math.max(50, Number(options.interval) || 120);
+            var deadline = Date.now() + timeout;
             var session = playbackReturnState.session;
             if (restoreTimer) clearTimeout(restoreTimer);
             function restore(delay, verifyOnly) {
@@ -7975,7 +7988,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                         console.warn('[YummyAnime] Could not restore playback navigation', error);
                     } finally {
                         if (playbackReturnState.session !== session) return;
-                        if (retryDelays.length) restore(retryDelays.shift(), true);
+                        if (Date.now() < deadline) restore(interval, true);
                         else clearPlaybackReturn();
                     }
                 }, delay);
@@ -11347,6 +11360,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         });
     }
 
+    function lastWatchTokens(saved, limit) {
+        return normalizeLocalHistory(saved).filter(function (entry) {
+            return Boolean(entry.video_id);
+        }).sort(function (left, right) {
+            return Number(right.updated_at || 0) - Number(left.updated_at || 0);
+        }).slice(0, Math.max(1, Number(limit || 8))).map(function (entry) {
+            var date = Math.max(0, Math.floor(Number(entry.updated_at || 0) / 1000));
+            return [entry.video_id, Math.max(0, Math.floor(Number(entry.time || 0))), date].join(':');
+        });
+    }
+
     // How many episodes a title has released changes at most once a week, but
     // Continue Watching asked the API for it on every single open - one request
     // per finished title, all of them awaited before the list could be drawn.
@@ -11901,6 +11925,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         fetchHistoryRange: fetchHistoryRange,
         normalizeRemoteHistory: normalizeRemoteHistory,
         normalizeLocalHistory: normalizeLocalHistory,
+        lastWatchTokens: lastWatchTokens,
         mergeHistory: mergeHistory,
         historyEntryKey: historyEntryKey,
         isContinueEntry: isContinueEntry,
@@ -16209,12 +16234,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
             if (playbackNeedsRefresh) scheduleHomeTask(function () {
                 var control = homeRequestControl();
-                Promise.all([
-                    LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (error) {
-                        if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Server playback history is unavailable', error);
+                var recentWatches = LampaYaniHomeSections.lastWatchTokens(localHistory, 8);
+                var recentPlayback = LampaYaniApi.lastWatches(recentWatches, control).then(function (payload) {
+                    return LampaYaniHomeSections.normalizeRemoteHistory(payload);
+                }).catch(function (error) {
+                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Fast playback history is unavailable; falling back to full history', error);
+                    return LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (fallbackError) {
+                        if (!homeRequestCancelled(fallbackError)) console.warn('[YummyAnime Home] Server playback history is unavailable', fallbackError);
                         return null;
-                    })
-                ]).then(function (result) {
+                    });
+                });
+                Promise.all([recentPlayback]).then(function (result) {
                     if (destroyed) return;
                     if (result[0] !== null) cacheHomePlaybackSnapshot(playbackUserKey, result[0]);
                     queueHomeRender('remote-playback', function () {
@@ -18317,7 +18347,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     if (playbackReturnState.session !== callbackSession) return;
                     // Player.callback can fire before Lampa finishes removing its
                     // player controller. Verify the detail focus after that lifecycle.
-                    restorePlaybackInteraction(null, {retryDelays: [250, 700]});
+                    restorePlaybackInteraction(null, {timeout: 2400, interval: 120});
                 });
             }
             return true;
@@ -19205,7 +19235,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             goBack: function () {
                 goBack();
                 setTimeout(function () {
-                    restorePlaybackInteraction(object && object.return_snapshot, {retryDelays: [250, 700]});
+                    restorePlaybackInteraction(object && object.return_snapshot, {timeout: 2400, interval: 120});
                 }, 80);
             }
         });
@@ -19686,7 +19716,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 collection: externalRestoreState.collection
             };
             cancelExternalRestore();
-            restorePlaybackInteraction(snapshot, {retryDelays: [250, 700]});
+            restorePlaybackInteraction(snapshot, {timeout: 2400, interval: 120});
         }, delay);
     }
 

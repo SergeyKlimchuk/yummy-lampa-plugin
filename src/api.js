@@ -638,6 +638,17 @@
                 mutationKey: 'progress-batch'
             });
         },
+        lastWatches: function (watches, control) {
+            control = control || {};
+            var query = (watches || []).slice(0, 8).filter(Boolean).map(function (watch) {
+                return 'watches=' + encodeURIComponent(String(watch));
+            }).join('&');
+            return request('/video/last-watches' + (query ? '?' + query : ''), {
+                auth: true,
+                cache: false,
+                signal: control.signal
+            });
+        },
         watchHistory: function (limit, offset, control) {
             control = control || {};
             return request('/video/watch-history?limit=' + encodeURIComponent(limit || 30) + '&offset=' + encodeURIComponent(offset || 0), {

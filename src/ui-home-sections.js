@@ -151,6 +151,17 @@
         });
     }
 
+    function lastWatchTokens(saved, limit) {
+        return normalizeLocalHistory(saved).filter(function (entry) {
+            return Boolean(entry.video_id);
+        }).sort(function (left, right) {
+            return Number(right.updated_at || 0) - Number(left.updated_at || 0);
+        }).slice(0, Math.max(1, Number(limit || 8))).map(function (entry) {
+            var date = Math.max(0, Math.floor(Number(entry.updated_at || 0) / 1000));
+            return [entry.video_id, Math.max(0, Math.floor(Number(entry.time || 0))), date].join(':');
+        });
+    }
+
     // How many episodes a title has released changes at most once a week, but
     // Continue Watching asked the API for it on every single open - one request
     // per finished title, all of them awaited before the list could be drawn.
@@ -705,6 +716,7 @@
         fetchHistoryRange: fetchHistoryRange,
         normalizeRemoteHistory: normalizeRemoteHistory,
         normalizeLocalHistory: normalizeLocalHistory,
+        lastWatchTokens: lastWatchTokens,
         mergeHistory: mergeHistory,
         historyEntryKey: historyEntryKey,
         isContinueEntry: isContinueEntry,

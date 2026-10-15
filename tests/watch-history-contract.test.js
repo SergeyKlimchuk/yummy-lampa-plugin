@@ -22,7 +22,14 @@ const context = {
 vm.runInNewContext(fs.readFileSync('src/episode.js', 'utf8'), context);
 vm.runInNewContext(sectionsSource, context);
 const history = context.window.LampaYaniHomeSections;
+const lastWatchTokens = history.lastWatchTokens({
+    42: {video_id: 4207, time: 91.8, updated_at: 1700000000000},
+    43: {video_id: 4302, time: 10, updated_at: 1700000100000}
+}, 8);
+assert.deepStrictEqual(Array.from(lastWatchTokens), ['4302:10:1700000100', '4207:91:1700000000']);
 
+assert.match(api, /lastWatches: function \(watches, control\)/);
+assert.match(api, /\/video\/last-watches/);
 assert.match(api, /watchHistory: function \(limit, offset, control\)/);
 assert.match(api, /\/video\/watch-history\?limit=/);
 assert.match(api, /auth: true,[\s\S]{0,40}cache: false/);
@@ -41,7 +48,9 @@ assert.ok(!/fetchExcluded/.test(ui), 'the queue must not filter by user lists');
 assert.ok(!/loadContinueWatchingExclusions/.test(ui), 'the user-list filter must be gone');
 assert.match(ui, /function applyPlaybackSnapshot\(remoteEntries\)/);
 assert.match(ui, /setPreview\(homeButtons\.continue_watching, '', ''\)/, 'empty continue queue must clear the dashboard title');
+assert.match(ui, /LampaYaniApi\.lastWatches\(recentWatches, control\)/);
 assert.match(ui, /LampaYaniHomeSections\.fetchHistoryRange\(LampaYaniApi\.watchHistory, 300, 30, control\)/);
+assert.match(sectionsSource, /function lastWatchTokens\(saved, limit\)/);
 assert.match(ui, /readHomePlaybackSnapshot\(playbackUserKey\)/);
 assert.match(ui, /cacheHomePlaybackSnapshot\(playbackUserKey, result\[0\]\)/);
 assert.match(ui, /importRemoteEntries\(remoteEntries\)/);

@@ -33,10 +33,11 @@ assert.match(ui, /externalRestoreState\.session = playbackReturnState\.session/)
 assert.match(ui, /if \(!playbackReturnState\.active \|\| playbackReturnState\.session !== externalRestoreState\.session\)/);
 assert.match(ui, /var snapshot = \{/);
 assert.match(ui, /cancelExternalRestore\(\);\s*restorePlaybackInteraction\(snapshot/);
-assert.match(ui, /restorePlaybackInteraction\(snapshot, \{retryDelays: \[250, 700\]\}\)/);
-assert.match(menu, /function restorePlaybackInteraction\(snapshot, options\)[\s\S]{0,500}retryDelays/);
+assert.match(ui, /restorePlaybackInteraction\(snapshot, \{timeout: 2400, interval: 120\}\)/);
+assert.match(menu, /function restorePlaybackInteraction\(snapshot, options\)[\s\S]{0,500}var deadline = Date\.now\(\) \+ timeout/);
+assert.match(menu, /if \(Date\.now\(\) < deadline\) restore\(interval, true\)/);
 assert.match(menu, /activeController === expectedController && activeFocus && focusInCollection/);
-assert.match(ui, /Lampa\.Player\.callback\(function \(\) \{[\s\S]{0,700}restorePlaybackInteraction\(null, \{retryDelays: \[250, 700\]\}\)/);
+assert.match(ui, /Lampa\.Player\.callback\(function \(\) \{[\s\S]{0,700}restorePlaybackInteraction\(null, \{timeout: 2400, interval: 120\}\)/);
 ['Lampa.Android.openPlayer', 'Android.openPlayer', 'AndroidJS.openPlayer'].forEach((bridge) => {
     const start = ui.indexOf("tryExternalOpen('" + bridge + "'");
     assert.ok(start >= 0, bridge + ' bridge must exist');

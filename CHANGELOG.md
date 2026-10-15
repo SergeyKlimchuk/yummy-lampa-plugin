@@ -9,8 +9,14 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.11] - 2026-10-15
+
 ### Fixed
 
+- Fix CVH recovery by switching named CDN streams to the API-provided failover host after a playback failure
+- Fix generic CVH errors for region-blocked playlists by showing a specific unavailable-in-region message
+- Add the new Yani `/video/last-watches` endpoint to load the dashboard viewing preview in one request and reconcile the latest eight local positions
+- Fix title-page focus restoration on slow devices by retrying until navigation is ready instead of using two fixed delays
 - Fix identical dubbing teams on different players implying the same latest episode by showing source-specific episode availability
 
 ## [0.47.10] - 2026-10-01

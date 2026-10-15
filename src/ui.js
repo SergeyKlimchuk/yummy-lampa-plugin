@@ -1537,12 +1537,17 @@
 
             if (playbackNeedsRefresh) scheduleHomeTask(function () {
                 var control = homeRequestControl();
-                Promise.all([
-                    LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (error) {
-                        if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Server playback history is unavailable', error);
+                var recentWatches = LampaYaniHomeSections.lastWatchTokens(localHistory, 8);
+                var recentPlayback = LampaYaniApi.lastWatches(recentWatches, control).then(function (payload) {
+                    return LampaYaniHomeSections.normalizeRemoteHistory(payload);
+                }).catch(function (error) {
+                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Fast playback history is unavailable; falling back to full history', error);
+                    return LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (fallbackError) {
+                        if (!homeRequestCancelled(fallbackError)) console.warn('[YummyAnime Home] Server playback history is unavailable', fallbackError);
                         return null;
-                    })
-                ]).then(function (result) {
+                    });
+                });
+                Promise.all([recentPlayback]).then(function (result) {
                     if (destroyed) return;
                     if (result[0] !== null) cacheHomePlaybackSnapshot(playbackUserKey, result[0]);
                     queueHomeRender('remote-playback', function () {
@@ -3645,7 +3650,7 @@
                     if (playbackReturnState.session !== callbackSession) return;
                     // Player.callback can fire before Lampa finishes removing its
                     // player controller. Verify the detail focus after that lifecycle.
-                    restorePlaybackInteraction(null, {retryDelays: [250, 700]});
+                    restorePlaybackInteraction(null, {timeout: 2400, interval: 120});
                 });
             }
             return true;
@@ -4533,7 +4538,7 @@
             goBack: function () {
                 goBack();
                 setTimeout(function () {
-                    restorePlaybackInteraction(object && object.return_snapshot, {retryDelays: [250, 700]});
+                    restorePlaybackInteraction(object && object.return_snapshot, {timeout: 2400, interval: 120});
                 }, 80);
             }
         });
@@ -5014,7 +5019,7 @@
                 collection: externalRestoreState.collection
             };
             cancelExternalRestore();
-            restorePlaybackInteraction(snapshot, {retryDelays: [250, 700]});
+            restorePlaybackInteraction(snapshot, {timeout: 2400, interval: 120});
         }, delay);
     }
 

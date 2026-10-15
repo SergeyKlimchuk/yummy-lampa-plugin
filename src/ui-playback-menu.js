@@ -158,7 +158,9 @@
         function restorePlaybackInteraction(snapshot, options) {
             snapshot = snapshot && snapshot.controller ? snapshot : playbackReturnSnapshot();
             options = options || {};
-            var retryDelays = Array.isArray(options.retryDelays) ? options.retryDelays.slice() : [];
+            var timeout = Math.max(0, Number(options.timeout) || 2400);
+            var interval = Math.max(50, Number(options.interval) || 120);
+            var deadline = Date.now() + timeout;
             var session = playbackReturnState.session;
             if (restoreTimer) clearTimeout(restoreTimer);
             function restore(delay, verifyOnly) {
@@ -199,7 +201,7 @@
                         console.warn('[YummyAnime] Could not restore playback navigation', error);
                     } finally {
                         if (playbackReturnState.session !== session) return;
-                        if (retryDelays.length) restore(retryDelays.shift(), true);
+                        if (Date.now() < deadline) restore(interval, true);
                         else clearPlaybackReturn();
                     }
                 }, delay);
