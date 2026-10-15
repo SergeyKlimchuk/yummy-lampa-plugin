@@ -9,6 +9,15 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.13] - 2026-10-15
+
+### Changed
+
+- Fix queued progress and list updates being discarded on temporary HTTP 408, 425, and 429 responses 
+
+### Added
+- Add bounded server retry tracking while preserving mutation order
+
 ## [0.47.12] - 2026-10-15
 
 ### Fixed

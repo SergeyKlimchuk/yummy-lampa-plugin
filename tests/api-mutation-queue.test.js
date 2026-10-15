@@ -3,7 +3,7 @@ const fs = require('fs');
 const vm = require('vm');
 
 const values = {};
-let online = false;
+let responseMode = 'offline';
 const context = {
     window: {
         LampaYaniConfig: {
@@ -25,7 +25,11 @@ const context = {
         }
     },
     fetch: function () {
-        if (!online) return Promise.reject(new TypeError('offline'));
+        if (responseMode === 'offline') return Promise.reject(new TypeError('offline'));
+        if (responseMode !== 'online') {
+            const status = Number(responseMode);
+            return Promise.resolve({ok: false, status: status, json: function () { return Promise.resolve({}); }});
+        }
         return Promise.resolve({ok: true, status: 200, json: function () { return Promise.resolve({ok: true}); }});
     },
     setTimeout: setTimeout,
@@ -58,9 +62,30 @@ vm.runInNewContext(fs.readFileSync('src/api.js', 'utf8'), context);
     await api.syncVideoProgress(1001, 30, 120);
     await api.syncVideoProgress(1001, 60, 120);
     assert.strictEqual(api.pendingMutations(), 2, 'progress updates for one video must be coalesced');
-    online = true;
+    responseMode = '429';
+    const throttled = await api.flushMutations();
+    assert.strictEqual(throttled.retryable, true, 'HTTP 429 must stay queued for a later flush');
+    assert.strictEqual(api.pendingMutations(), 2, 'a temporary response must not drop queued mutations');
+    const queuedAfterThrottle = JSON.parse(values.yani_pending_mutations_v1);
+    assert.strictEqual(queuedAfterThrottle[0].attemptCount, 1, 'temporary server failures must have a bounded attempt count');
+
+    responseMode = 'online';
     const flushed = await api.flushMutations();
     assert.strictEqual(flushed.pending, 0);
+    assert.strictEqual(api.pendingMutations(), 0);
+
+    responseMode = 'offline';
+    await api.rate(42, 7);
+    responseMode = '500';
+    for (let attempt = 0; attempt < 8; attempt += 1) await api.flushMutations();
+    assert.strictEqual(api.pendingMutations(), 0, 'a persistent server failure must stop retrying after the bounded limit');
+
+    responseMode = 'offline';
+    await api.rate(42, 8);
+    assert.strictEqual(api.pendingMutations(), 1);
+    responseMode = '400';
+    const rejected = await api.flushMutations();
+    assert.strictEqual(rejected.pending, 0, 'a permanent 4xx rejection must be removed');
     assert.strictEqual(api.pendingMutations(), 0);
     assert.match(fs.readFileSync('src/api.js', 'utf8'), /item\.id === entry\.id/,
         'a completed older request must not delete a newer mutation with the same key');

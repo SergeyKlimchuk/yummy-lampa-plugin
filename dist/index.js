@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.12',
+        version: '0.47.13',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -1314,6 +1314,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     var pendingRefreshes = {};
     var mutationFlush = null;
     var MUTATION_QUEUE_KEY = 'yani_pending_mutations_v1';
+    var MUTATION_MAX_ATTEMPTS = 8;
 
     function readMutationQueue() {
         if (!window.Lampa || !Lampa.Storage) return [];
@@ -1338,7 +1339,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             method: options.method || 'POST',
             headers: options.headers || {},
             body: options.body,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            attemptCount: 0
         };
         var items = readMutationQueue().filter(function (item) { return item && item.key !== entry.key; });
         items.push(entry);
@@ -1562,6 +1564,21 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             });
             writeMutationQueue(current);
         }
+        function recordFailedAttempt(entry) {
+            var attempts = null;
+            var current = readMutationQueue().map(function (item) {
+                if (!item || item.id !== entry.id) return item;
+                attempts = Number(item.attemptCount || 0) + 1;
+                item.attemptCount = attempts;
+                return item;
+            });
+            writeMutationQueue(current);
+            return attempts;
+        }
+        function permanentMutationRejection(error) {
+            var status = Number(error && error.status || 0);
+            return status >= 400 && status < 500 && status !== 408 && status !== 425 && status !== 429;
+        }
         function next() {
             var items = readMutationQueue();
             if (!items.length) {
@@ -1579,11 +1596,19 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 removeFlushed(entry);
                 return next();
             }).catch(function (error) {
-                if (Number(error && error.status) >= 400 && Number(error.status) < 500) {
+                if (permanentMutationRejection(error)) {
                     removeFlushed(entry);
                     return next();
                 }
-                return {pending: readMutationQueue().length, failed: true};
+                var status = Number(error && error.status || 0);
+                if (status && recordFailedAttempt(entry) >= MUTATION_MAX_ATTEMPTS) {
+                    removeFlushed(entry);
+                    return next();
+                }
+                // Keep both network failures and temporary server responses in
+                // order. Skipping one entry could replay an older mutation over
+                // a newer state during the next flush.
+                return {pending: readMutationQueue().length, failed: true, retryable: true};
             });
         }
         mutationFlush = next().then(function (result) {
