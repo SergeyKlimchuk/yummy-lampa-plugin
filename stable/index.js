@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.18',
+        version: '0.47.19',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -18284,16 +18284,20 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     /**
-     * Alloha's player page starts paused and waits for a click on its own play
-     * button - which a remote cannot deliver, because the page lives in a
-     * cross-origin iframe nothing here can reach into. It does read `autoplay`
-     * out of the query string into its own settings, so asking for it up front
-     * is what makes the embedded page usable without a pointer.
+     * Autoplay makes Chromium start the cross-origin player muted. The iframe
+     * already receives real remote input, so leave playback to the viewer's OK
+     * press and strip stale mute flags from source URLs.
      */
-    function allohaAutoplayUrl(url) {
+    function allohaSoundUrl(url) {
         var value = String(url || '');
-        if (!value || /[?&]autoplay=/i.test(value)) return value;
-        return value + (value.indexOf('?') >= 0 ? '&' : '?') + 'autoplay=1';
+        if (!value) return value;
+        ['autoplay', 'mute', 'muted'].forEach(function (name) {
+            value = value.replace(new RegExp('([?&])' + name + '(?:=[^&#]*)?(?=&|#|$)', 'ig'), function (match, separator) {
+                return separator === '?' ? '?' : '';
+            });
+            value = value.replace('?&', '?').replace(/[?&](#|$)/, '$1');
+        });
+        return value;
     }
 
     /**
@@ -18307,7 +18311,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
      * No server anyone has to run.
      */
     function allohaEmbedUrl(url) {
-        var target = allohaAutoplayUrl(url);
+        var target = allohaSoundUrl(url);
         var bridge = window.LampaYaniConfig && LampaYaniConfig.allohaEmbedUrl;
         if (!target || !bridge) return target;
         return bridge + '?url=' + encodeURIComponent(target);

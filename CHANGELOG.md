@@ -9,6 +9,12 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.19] - 2026-10-18
+
+### Fixed
+
+- Fix the embedded Alloha player starting muted by removing forced autoplay and stale mute parameters
+
 ## [0.47.18] - 2026-10-16
 
 ### Added
