@@ -9,6 +9,12 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.20] - 2026-10-18
+
+### Fixed
+
+- The embedded Alloha player no longer starting by restoring autoplay; the page reads no mute parameter, so removing autoplay only stopped playback
+
 ## [0.47.19] - 2026-10-18
 
 ### Fixed

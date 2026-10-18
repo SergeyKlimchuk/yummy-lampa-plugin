@@ -59,11 +59,9 @@
         return fail('Этот адрес не относится к плееру Alloha.');
     }
 
-    // Forced autoplay is implemented by Chromium as muted playback. Lampa
-    // hands real remote input to this frame, so start normally with sound.
-    target.searchParams.delete('autoplay');
-    target.searchParams.delete('mute');
-    target.searchParams.delete('muted');
+    // The page starts paused and waits for a click on its own play button,
+    // which a remote cannot deliver.
+    if (!target.searchParams.has('autoplay')) target.searchParams.set('autoplay', '1');
 
     var frame = document.createElement('iframe');
     frame.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');

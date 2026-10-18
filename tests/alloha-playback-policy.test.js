@@ -60,22 +60,25 @@ assert.ok(episodePolicy.indexOf('numberA - numberB') < episodePolicy.indexOf('pl
 
 console.log('Alloha playback policy tests passed');
 
-// Chromium permits cross-origin autoplay by silently muting it. The embedded
-// player already receives genuine TV remote input, so it must start normally.
-assert.match(source, /function allohaSoundUrl\(url\)/, 'the embed must normalize sound parameters');
-assert.match(source, /allohaSoundUrl\(url\)/, 'the bridge must receive the sound-safe address');
-const soundStart = source.indexOf('function allohaSoundUrl');
-const soundBody = source.slice(soundStart, source.indexOf('function openAllohaEmbed', soundStart));
-const buildSoundUrl = new Function(soundBody + '; return allohaSoundUrl;')();
+// Alloha's page starts paused and waits for a click on its own play button,
+// which a remote cannot deliver: the page is a cross-origin iframe nothing here
+// can reach into. It does read `autoplay` from the query string, so the
+// embedded page is asked to start by itself.
+assert.match(source, /function allohaAutoplayUrl\(url\)/, 'the embed must ask the page to start itself');
+assert.match(source, /allohaAutoplayUrl\(url\)/, 'the embed must ask the page to start itself');
+const autoplayStart = source.indexOf('function allohaAutoplayUrl');
+const autoplayBody = source.slice(autoplayStart, source.indexOf('function openAllohaEmbed', autoplayStart));
+const buildAutoplayUrl = new Function(autoplayBody + '; return allohaAutoplayUrl;')();
 assert.strictEqual(
-    buildSoundUrl('https://alloha.yani.tv/?token_movie=abc&autoplay=1&mute=1'),
-    'https://alloha.yani.tv/?token_movie=abc'
+    buildAutoplayUrl('https://alloha.yani.tv/?token_movie=abc'),
+    'https://alloha.yani.tv/?token_movie=abc&autoplay=1'
 );
 assert.strictEqual(
-    buildSoundUrl('https://alloha.yani.tv/?muted=true&token_movie=abc#player'),
-    'https://alloha.yani.tv/?token_movie=abc#player'
+    buildAutoplayUrl('https://alloha.yani.tv/?autoplay=0'),
+    'https://alloha.yani.tv/?autoplay=0',
+    'an address that already states autoplay must be left alone'
 );
-assert.strictEqual(buildSoundUrl(''), '', 'an empty address must stay empty');
+assert.strictEqual(buildAutoplayUrl(''), '', 'an empty address must stay empty');
 
 // Alloha answers 404 to a request carrying no referrer, and Lampa's Android app
 // serves its interface locally, so an iframe opened straight from the app
@@ -103,12 +106,10 @@ assert.strictEqual(allowedHost.test('cdn.alloha.yani.tv'), true);
 assert.strictEqual(allowedHost.test('alloha.yani.tv.evil.example'), false, 'a lookalike host must be refused');
 assert.strictEqual(allowedHost.test('evil.example'), false);
 
-const bridgeStart = source.indexOf('function allohaSoundUrl');
+const bridgeStart = source.indexOf('function allohaAutoplayUrl');
 const buildBridgeUrl = new Function('window', 'LampaYaniConfig',
     source.slice(bridgeStart, source.indexOf('function openAllohaEmbed', bridgeStart)) + '; return allohaEmbedUrl;'
 )({LampaYaniConfig: {allohaEmbedUrl: 'https://pages.test/embed/alloha.html'}}, {allohaEmbedUrl: 'https://pages.test/embed/alloha.html'});
 const bridged = buildBridgeUrl('https://alloha.yani.tv/?token_movie=abc');
 assert.ok(bridged.indexOf('https://pages.test/embed/alloha.html?url=') === 0, 'the player must be opened through the bridge');
-assert.ok(decodeURIComponent(bridged).indexOf('autoplay=') < 0, 'forced autoplay must not mute the player');
-assert.match(bridgePage, /target\.searchParams\.delete\('autoplay'\)/, 'the bridge must also remove stale autoplay');
-assert.match(bridgePage, /target\.searchParams\.delete\('mute'\)/, 'the bridge must also remove stale mute');
+assert.ok(decodeURIComponent(bridged).indexOf('autoplay=1') > 0, 'autoplay must survive the wrapping');
