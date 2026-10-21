@@ -73,8 +73,16 @@ assert.match(source, /function recoverInternalPlayback\(/,
     'an interrupted signed stream must have a recovery path');
 assert.match(source, /LampaYaniStreamResolver\.resolve\(origin, \{force: true\}\)/,
     'recovery must bypass a stale signed-stream cache');
-assert.match(source, /state\.recoveryAttempts >= 1/,
-    'recovery must run at most once per playback launch');
+assert.match(source, /INTERNAL_PLAYBACK_RECOVERY_LIMIT = 3/,
+    'signed streams should receive the same bounded three-attempt recovery budget as YummyTV');
+assert.match(source, /state\.recoveryAttempts >= INTERNAL_PLAYBACK_RECOVERY_LIMIT/,
+    'fatal-error recovery must stop after the shared attempt budget is exhausted');
+assert.match(source, /state\.recoveryAttempts < INTERNAL_PLAYBACK_RECOVERY_LIMIT/,
+    'the CVH stall watchdog must use the same bounded recovery budget');
+assert.match(source, /INTERNAL_PLAYBACK_RECOVERY_READY_SECONDS = 3/,
+    'successful advancing playback should be confirmed before the retry budget is reset');
+assert.match(source, /context\.selected\.yani_internal_recovery = 0/,
+    'a recovered stream must receive a fresh budget for a later unrelated interruption');
 assert.match(source, /CVH_STARTUP_STALL_MS = 18000/,
     'CVH playback must detect a stream that never starts');
 assert.match(source, /CVH_PLAYBACK_STALL_MS = 15000/,

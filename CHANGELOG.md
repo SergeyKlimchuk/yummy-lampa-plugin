@@ -9,6 +9,12 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+## [0.47.21] - 2026-10-21
+
+### Fixed
+
+- Fix interrupted CVH playback by refreshing the signed failover stream up to three times while preserving the current position | Reset the bounded retry budget after playback is stable again
+
 ## [0.47.20] - 2026-10-18
 
 ### Fixed

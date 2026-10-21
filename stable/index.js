@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.20',
+        version: '0.47.21',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -18616,6 +18616,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     var playbackWatcher = null;
     var playbackWatcherGeneration = 0;
     var PLAYER_STARTUP_GRACE_MS = 120000;
+    var INTERNAL_PLAYBACK_RECOVERY_LIMIT = 3;
+    var INTERNAL_PLAYBACK_RECOVERY_READY_SECONDS = 3;
     var CVH_STARTUP_STALL_MS = 18000;
     var CVH_PLAYBACK_STALL_MS = 15000;
     var NEXT_PREFETCH_LEAD = 90;
@@ -18721,6 +18723,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             playerErrorHandler: null,
             returnRestoreScheduled: false,
             recoveryAttempts: Number(context.selected && context.selected.yani_internal_recovery || 0),
+            recoveryBaselinePosition: Number(context.selected && context.selected.watched && context.selected.watched.end_time || 0),
             recovering: false,
             startedAt: Date.now(),
             lastProgressAt: Date.now(),
@@ -19048,7 +19051,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     function recoverInternalPlayback(generation, context, state, event) {
         if (!event || !event.fatal || generation !== playbackWatcherGeneration || playbackWatcher !== state) return;
-        if (state.recovering || state.recoveryAttempts >= 1 || !context || !context.selected) return;
+        if (state.recovering || state.recoveryAttempts >= INTERNAL_PLAYBACK_RECOVERY_LIMIT || !context || !context.selected) return;
         var origin = videoResolverUrl(context.selected);
         if (!origin || isDirectVideoUrl(origin) || !window.LampaYaniStreamResolver ||
             !LampaYaniStreamResolver.canResolve(origin)) return;
@@ -19105,9 +19108,19 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var duration = Number(video.duration) || 0;
         var finalState = video.paused || video.ended || duration > 0 && position >= duration - 2;
         storeObservedPlayback(generation, context, state, {current: position, duration: duration}, finalState);
+        if (state.recoveryAttempts > 0 && !video.paused && !video.ended &&
+            position >= state.recoveryBaselinePosition + INTERNAL_PLAYBACK_RECOVERY_READY_SECONDS) {
+            // A few seconds of advancing playback mean the refreshed stream is
+            // healthy. Future, unrelated interruptions get a fresh bounded
+            // retry budget instead of inheriting attempts from an old outage.
+            state.recoveryAttempts = 0;
+            state.recoveryBaselinePosition = position;
+            context.selected.yani_internal_recovery = 0;
+        }
 
         var cvhSource = isCvhPlaybackSource(videoResolverUrl(context.selected), context.group);
-        if (cvhSource && !video.paused && !video.ended && !state.recovering && state.recoveryAttempts < 1) {
+        if (cvhSource && !video.paused && !video.ended && !state.recovering &&
+            state.recoveryAttempts < INTERNAL_PLAYBACK_RECOVERY_LIMIT) {
             var now = Date.now();
             var startupStalled = position <= 0.25 && now - state.startedAt >= CVH_STARTUP_STALL_MS;
             var playbackStalled = position > 0.25 && now - state.lastProgressAt >= CVH_PLAYBACK_STALL_MS;
