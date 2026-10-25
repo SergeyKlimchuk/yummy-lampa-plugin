@@ -51,6 +51,7 @@
             // DOM-level handler as a fallback so search results remain clickable.
             var rendered = cardRenderElement(element, card);
             rendered.attr('data-yani-card-id', String(card.yani_id || ''));
+            if (rendered[0]) rendered[0].yaniBoundCard = card;
             if (!rendered.closest('.yani-card-rails, .yani-user-lists-view, .yani-home').length) {
                 rendered.closest('.category-full, .items-cards').addClass('yani-card-grid');
             }

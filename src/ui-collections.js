@@ -200,8 +200,7 @@
             var label = display.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             var size = display.length > 18 ? 25 : display.length > 13 ? 28 : 32;
             var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="440" height="248" viewBox="0 0 440 248">' +
-                '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + colors[0] + '"/><stop offset="1" stop-color="' + colors[1] + '"/></linearGradient></defs>' +
-                '<rect width="440" height="248" rx="28" fill="url(#g)"/><circle cx="370" cy="40" r="125" fill="#fff" opacity=".1"/>' +
+                '<rect width="440" height="248" rx="14" fill="#333333"/>' +
                 '<path d="M48 65 112 38l64 27-64 27-64-27Zm0 40 64 27 64-27m-128 40 64 27 64-27" fill="none" stroke="#fff" stroke-opacity=".72" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
                 '<text x="205" y="205" fill="#fff" font-family="sans-serif" font-size="' + size + '" font-weight="700">' + label + '</text></svg>';
             return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
@@ -264,8 +263,8 @@
                     results: cards,
                     onMore: function () { deps.open(collection); },
                     visual: {
-                        from: '#a68af0',
-                        to: '#6653b4',
+                        from: '#333333',
+                        to: '#292929',
                         icon: '<path d="M4 6.5 12 3l8 3.5-8 3.5-8-3.5Z"/><path d="m4 11 8 3.5 8-3.5M4 15.5 12 19l8-3.5"/>'
                     }
                 };
@@ -288,7 +287,7 @@
 
         return window.LampaYaniCardRails.create(object, {
             id: 'collections:' + String(object && object.url || 'yani/collections'),
-            viewClass: 'yani-collections-hub',
+            viewClass: 'yani-collections-hub yani-lite-view',
             t: deps.t,
             openCard: deps.openCard,
             decorate: deps.decorate,
@@ -308,6 +307,7 @@
         var nextCatalogOffset = 0;
         var catalogDone = false;
         var catalogCards = [];
+        var pendingCards = [];
         var destroyed = false;
         var renderedSourcePath = '';
         var cacheUpdateHandler = null;
@@ -344,7 +344,7 @@
             catalogCards = uniqueCards(items);
             self.build({results: catalogCards, total_pages: maxPages, title: deps.t('collections')});
             if (self.activity && self.activity.loader) self.activity.loader(false);
-            if (self.render) self.render().addClass('yani-tile-catalog yani-collections-tile-catalog');
+            if (self.render) self.render().addClass('yani-tile-catalog yani-collections-tile-catalog').addClass('yani-lite-view');
             bindVisibleCollectionTiles(self, catalogCards);
             focusScope.bind(self.render());
         }
@@ -410,6 +410,10 @@
                     rendered = true;
                     renderedSourcePath = sourcePath || '';
                     buildInitial(self, items);
+                } else if (rendered && items && items.length) {
+                    // The feed can win with fewer items than the first catalog
+                    // page. Preserve unseen titles for the next native page.
+                    pendingCards = pendingCards.concat(uniqueCards(items));
                 }
                 if (completed === 2 && !rendered) failInitial(lastError || new Error('Collections are empty'));
             }
@@ -426,6 +430,7 @@
                 settleInitial([], error, '/feed');
             });
             deps.load(limit, 0, control).then(function (payload) {
+                if (destroyed) return;
                 var items = collectionItems(payload);
                 nextCatalogOffset = items.length;
                 catalogDone = items.length < limit;
@@ -436,7 +441,17 @@
         };
 
         comp.nextPageReuest = function (requestObject, resolve, reject) {
+            if (destroyed) return;
+            if (pendingCards.length) {
+                var pending = pendingCards;
+                pendingCards = [];
+                catalogCards = catalogCards.concat(pending);
+                if (catalogDone) requestObject.page = maxPages;
+                resolve({results: pending, total_pages: maxPages, title: deps.t('collections')});
+                return;
+            }
             function loadNext(attempt) {
+                if (destroyed) return;
                 if (catalogDone || attempt > 4) {
                     requestObject.page = maxPages;
                     resolve({results: [], total_pages: maxPages, title: deps.t('collections')});
@@ -450,6 +465,7 @@
                 }
                 requestedOffsets[offset] = true;
                 deps.load(limit, offset, {timeout: 8000, retry: false}).then(function (payload) {
+                    if (destroyed) return;
                     var raw = collectionItems(payload);
                     nextCatalogOffset = offset + raw.length;
                     catalogDone = raw.length < limit;
@@ -459,6 +475,7 @@
                     if (catalogDone) requestObject.page = maxPages;
                     resolve({results: cards, total_pages: maxPages, title: deps.t('collections')});
                 }).catch(function (error) {
+                    if (destroyed) return;
                     delete requestedOffsets[offset];
                     requestObject.page = Math.max(1, Number(requestObject.page || 2) - 1);
                     deps.error(deps.t('next_page_error'));
@@ -481,6 +498,8 @@
             destroyed = true;
             if (cacheUpdateHandler) document.removeEventListener('yani:cache-updated', cacheUpdateHandler);
             cacheUpdateHandler = null;
+            catalogCards = [];
+            pendingCards = [];
             focusScope.destroy();
             if (originalCatalogDestroy) originalCatalogDestroy.apply(this, arguments);
         };
@@ -522,7 +541,7 @@
                 if (anime.length < limit) object.page = maxPages;
                 self.build({results: cards, total_pages: maxPages, title: collection.title || deps.t('collection')});
                 if (self.activity && self.activity.loader) self.activity.loader(false);
-                if (self.render) self.render().addClass('yani-collection-view');
+                if (self.render) self.render().addClass('yani-collection-view yani-lite-view');
                 focusScope.bind(self.render());
                 if (!cards.length) deps.error(deps.t('collection_empty'));
             }).catch(function (error) {
@@ -533,13 +552,16 @@
             });
         };
         comp.nextPageReuest = function (requestObject, resolve, reject) {
+            if (destroyed) return;
             var offset = Math.max(0, (Number(requestObject.page || 2) - 1) * limit);
             deps.detail(object.collectionId, limit, offset).then(function (payload) {
+                if (destroyed) return;
                 var collection = responseValue(payload) || {};
                 var anime = Array.isArray(collection.animes) ? collection.animes : [];
                 if (anime.length < limit) requestObject.page = maxPages;
                 resolve({results: detailCards(collection), total_pages: maxPages, title: collection.title || deps.t('collection')});
             }).catch(function (error) {
+                if (destroyed) return;
                 requestObject.page = Math.max(1, Number(requestObject.page || 2) - 1);
                 deps.error(deps.t('next_page_error'));
                 reject(error);

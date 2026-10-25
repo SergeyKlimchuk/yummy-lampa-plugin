@@ -99,8 +99,8 @@
     }
 
     function create(object, deps) {
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
-        var html = $('<div class="yani-notifications"></div>');
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
+        var html = $('<div class="yani-notifications yani-lite-view"></div>');
         var content = $('<div class="yani-notifications__content"></div>');
         var list = $('<div class="yani-notifications__list"></div>');
         var summary;
@@ -109,7 +109,15 @@
         var pageSize = 30;
         var destroyed = false;
         var opening = false;
+        var paused = false;
         var lastDayGroup = '';
+        var batch = null;
+        var loadingMore = false;
+        var loadingInitial = false;
+        var mutationPending = false;
+        var generation = 0;
+        var ownerKey = deps.ownerKey ? deps.ownerKey() : '';
+        function current() { return !destroyed && (!deps.ownerKey || deps.ownerKey() === ownerKey); }
         scroll.minus();
 
         function focusable(element) {
@@ -119,7 +127,9 @@
 
         function refreshFocus(preferred) {
             setTimeout(function () {
-                if (destroyed) return;
+                if (!current() || paused) return;
+                var enabled = Lampa.Controller.enabled && Lampa.Controller.enabled();
+                if (enabled && enabled.name !== 'content') return;
                 var collection = scroll.render();
                 var target = preferred && preferred.offsetParent !== null ? preferred : (last && last.offsetParent !== null ? last : collection.find('.selector').first()[0]);
                 if (target) last = target;
@@ -146,6 +156,7 @@
         }
 
         function openNotification(notification, element) {
+            if (!current()) return;
             if (notification.unread && notification.id) {
                 notification.unread = false;
                 element.removeClass('unread').addClass('read');
@@ -163,7 +174,7 @@
             opening = true;
             element.addClass('loading');
             deps.resolveAnime(notification.anime_slug).then(function (payload) {
-                if (destroyed) return;
+                if (!current()) return;
                 var value = payload && payload.response !== undefined ? payload.response : payload;
                 var card = deps.toCard(value || {});
                 if (card && card.yani_id) deps.openDetail(card, false);
@@ -198,7 +209,7 @@
                 footer.append($('<span class="yani-notification__open"></span>').text(deps.t('notification_open_anime')));
             }
             body.append(footer);
-            item.append($('<span class="yani-notification__dot"></span>'), visual, body);
+            item.append(visual, body);
             if (isOpenable(notification)) item.append($('<span class="yani-notification__chevron">›</span>'));
             item.on('hover:enter click.yaniNotification', function () { openNotification(notification, item); });
             return item;
@@ -207,7 +218,7 @@
         function appendDayGroup(key) {
             if (!key || key === lastDayGroup) return;
             lastDayGroup = key;
-            list.append($('<div class="yani-notifications__day"></div>').text(deps.t('notifications_' + key)));
+            (batch || list).append($('<div class="yani-notifications__day"></div>').text(deps.t('notifications_' + key)));
         }
 
         function emptyState() {
@@ -231,15 +242,19 @@
         }
 
         function appendItems(items, append) {
+            if (!current()) return;
             list.find('.yani-notifications__more').remove();
             if (!append) {
                 list.empty();
                 lastDayGroup = '';
             }
+            batch = $(document.createDocumentFragment());
             items.forEach(function (notification) {
                 appendDayGroup(notificationDayGroup(notification));
-                list.append(notificationCard(notification));
+                batch.append(notificationCard(notification));
             });
+            list.append(batch);
+            batch = null;
             if (!list.children('.yani-notification').length) {
                 list.append(emptyState());
                 updateSummary();
@@ -249,13 +264,20 @@
                 var more = focusable($('<div class="yani-notifications__more selector"></div>'));
                 more.append('<span>＋</span>', $('<strong></strong>').text(deps.t('notifications_more')));
                 more.on('hover:enter click.yaniNotificationsMore', function () {
+                    if (!current() || loadingMore || mutationPending) return;
                     var previous = more.prev('.selector')[0];
+                    var requestGeneration = generation;
+                    loadingMore = true;
                     more.addClass('loading');
                     offset += items.length;
                     deps.fetch(pageSize, offset).then(function (payload) {
+                        if (!current() || requestGeneration !== generation) return;
+                        loadingMore = false;
                         appendItems(deps.normalize(payload), true);
                         refreshFocus(previous);
                     }).catch(function (error) {
+                        if (!current() || requestGeneration !== generation) return;
+                        loadingMore = false;
                         offset = Math.max(0, offset - items.length);
                         more.removeClass('loading');
                         console.warn('[YummyAnime Notifications] Could not load the next page', error);
@@ -269,9 +291,7 @@
         function buildHeader() {
             var hero = $('<div class="yani-notifications__hero"></div>');
             var identity = $('<div class="yani-notifications__identity"></div>');
-            identity.append($('<div class="yani-notifications__hero-icon"></div>').html(icon('system')));
             var copy = $('<div></div>');
-            copy.append($('<span class="yani-notifications__eyebrow"></span>').text('YUMMYANIME'));
             copy.append($('<div class="yani-notifications__title"></div>').text(deps.t('notifications_title')));
             copy.append($('<div class="yani-notifications__subtitle"></div>').text(deps.t('notifications_subtitle')));
             identity.append(copy);
@@ -282,7 +302,11 @@
             var mark = focusable($('<div class="yani-notifications__action selector"></div>'));
             mark.append('<span>✓</span>', $('<strong></strong>').text(deps.t('mark_all_read')));
             mark.on('hover:enter click.yaniNotificationsRead', function () {
+                if (!current() || mutationPending || loadingMore || loadingInitial) return;
+                mutationPending = true;
                 deps.markAllRead().then(function () {
+                    mutationPending = false;
+                    if (!current()) return;
                     list.find('.yani-notification').each(function () {
                         var notification = $(this).data('yani-notification');
                         if (notification) notification.unread = false;
@@ -291,28 +315,42 @@
                     updateSummary();
                     Lampa.Noty.show(deps.t('saved'));
                     refreshFocus(mark[0]);
-                });
+                }).catch(function () { mutationPending = false; if (current()) Lampa.Noty.show(deps.t('notifications_error')); });
             });
             var remove = focusable($('<div class="yani-notifications__action yani-notifications__action--danger selector"></div>'));
             remove.append('<span>×</span>', $('<strong></strong>').text(deps.t('delete_all_notifications')));
             remove.on('hover:enter click.yaniNotificationsDelete', function () {
+                if (!current() || mutationPending || loadingMore || loadingInitial) return;
+                mutationPending = true;
                 deps.deleteAll().then(function () {
+                    mutationPending = false;
+                    if (!current()) return;
+                    generation++;
+                    loadingMore = false;
+                    offset = 0;
+                    lastDayGroup = '';
                     list.empty().append(emptyState());
                     updateSummary();
                     refreshFocus(remove[0]);
-                });
+                }).catch(function () { mutationPending = false; if (current()) Lampa.Noty.show(deps.t('notifications_error')); });
             });
             actions.append(mark, remove);
             content.append(hero, actions, list);
         }
 
         function load(self) {
+            if (!current()) return;
+            var requestGeneration = ++generation;
+            loadingMore = false;
+            loadingInitial = true;
             offset = 0;
             list.empty();
             var loading = LampaYaniSectionState.create({t: deps.t});
             loading.show('loading', {skeleton: 'list'});
             list.append(loading.root);
             deps.fetch(pageSize, offset).then(function (payload) {
+                if (!current() || requestGeneration !== generation) return;
+                loadingInitial = false;
                 var items = deps.normalize(payload);
                 appendItems(items, false);
                 if (LampaYaniSectionState.fromCache(payload) && items.length) {
@@ -325,9 +363,11 @@
                     html.append(scroll.render(true));
                 }
                 self.activity.loader(false);
-                self.activity.toggle();
+                if (!paused) self.activity.toggle();
                 refreshFocus();
             }).catch(function (error) {
+                if (!current() || requestGeneration !== generation) return;
+                loadingInitial = false;
                 console.error('[YummyAnime Notifications]', error);
                 list.empty().append(offlineState(function () { load(self); }));
                 if (!scroll.render().parent().length) {
@@ -335,7 +375,7 @@
                     html.append(scroll.render(true));
                 }
                 self.activity.loader(false);
-                self.activity.toggle();
+                if (!paused) self.activity.toggle();
                 refreshFocus();
             });
         }
@@ -348,6 +388,8 @@
                 load(self);
             },
             start: function () {
+                if (!current()) return;
+                paused = false;
                 Lampa.Controller.add('content', {
                     toggle: function () {
                         Lampa.Controller.collectionSet(scroll.render(), false, true);
@@ -361,8 +403,10 @@
                 });
                 Lampa.Controller.toggle('content');
             },
+            pause: function () { paused = true; },
+            stop: function () { paused = true; },
             render: function (js) { return js ? html[0] : html; },
-            destroy: function () { destroyed = true; scroll.destroy(); html.remove(); }
+            destroy: function () { destroyed = true; generation++; last = null; batch = null; scroll.destroy(); html.remove(); }
         };
     }
 

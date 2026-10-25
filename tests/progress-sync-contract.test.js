@@ -2,6 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 
 const ui = fs.readFileSync('src/ui.js', 'utf8');
+const home = fs.readFileSync('src/ui-home.js', 'utf8');
 const history = fs.readFileSync('src/ui-playback-history.js', 'utf8');
 const i18n = fs.readFileSync('src/i18n.js', 'utf8');
 
@@ -10,7 +11,11 @@ assert.match(ui, /autoProgressSyncEnabled/);
 assert.match(history, /function autoProgressSyncEnabled\(\)/);
 assert.match(history, /function pullRemoteProgress/);
 assert.match(history, /pullRemoteProgress\(300\)/);
-assert.match(ui, /importRemoteEntries\(remoteEntries\)/);
+assert.match(history, /function importRemoteEntries\(remoteEntries\)[\s\S]{0,400}Home\.importRemoteIntoLocal\(playbackHistory\(\), remoteEntries\)/,
+    'the shared playback module must merge remote positions into the device history');
+assert.match(ui, /ensureRemoteHistory: ensureRemoteHistory/, 'the homepage adapter must reuse the shared synchronization entry point');
+assert.match(home, /Promise\.resolve\(deps\.ensureRemoteHistory\(\)\)/, 'the homepage must refresh from shared account progress');
+assert.doesNotMatch(home, /fetchHistoryRange|api\.watchHistory/, 'the homepage must not issue a second, competing history range pull');
 assert.match(history, /if \(!window\.LampaYaniAuth \|\| !window\.LampaYaniAuth\.token\(\)/, 'automatic server sync must require authorization');
 assert.match(ui, /lastLocalSync >= 10000/, 'local progress writes must be throttled');
 assert.match(ui, /lastServerSync >= 60000/, 'server progress writes must be throttled');

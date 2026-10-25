@@ -1,31 +1,33 @@
 const assert = require('assert');
 const fs = require('fs');
 
-const ui = fs.readFileSync('src/ui.js', 'utf8');
-const css = fs.readFileSync('style.css', 'utf8');
+// These are intentional rendering constraints for the TV landing page. Other
+// pages keep their own CSS and are outside this lightweight-home contract.
+const css = fs.readFileSync('style.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+const homeRules = Array.from(css.matchAll(/([^{}]+)\{([^{}]*)\}/g)).filter((match) =>
+    /\.yani-(?:lite-|home--lite)/.test(match[1]));
+assert.ok(homeRules.length > 0, 'production CSS must include the lightweight home');
+const homeCss = homeRules.map((match) => match[0]).join('\n');
+['#292929', '#333333', '#ff6666'].forEach((color) => {
+    assert.ok(homeCss.toLowerCase().includes(color), 'requested palette color must be present: ' + color);
+});
+homeRules.forEach((match) => {
+    const selector = match[1].trim();
+    const declarations = match[2];
+    const properties = Array.from(declarations.matchAll(/(?:^|;)\s*([\w-]+)\s*:\s*([^;]+)/g));
+    properties.forEach((property) => {
+        if (/^(?:-webkit-)?(?:backdrop-filter|filter)$/.test(property[1])) {
+            assert.match(property[2].trim(), /^none(?:\s*!important)?$/, selector + ' must not blur the TV surface');
+        }
+        if (/^(?:-webkit-)?animation(?:-name)?$/.test(property[1])) {
+            assert.match(property[2].trim(), /^(?:none|0(?:s|ms)?)(?:\s*!important)?$/, selector + ' must not animate continuously');
+        }
+    });
+});
 
-assert.match(ui, /matchMedia\('\(prefers-reduced-motion: reduce\)'\)/);
-assert.match(ui, /navigatorInfo\.deviceMemory/);
-assert.match(ui, /navigatorInfo\.hardwareConcurrency/);
-assert.match(ui, /yani-home--reduced-motion/);
-assert.match(ui, /yani-home--motion/);
-assert.match(css, /@keyframes yani-home-reveal/);
-assert.match(css, /@keyframes yani-home-wave-draw/);
-assert.match(css, /@keyframes yani-home-pulse/);
-assert.match(ui, /yani-home__waves/);
-assert.match(ui, /yani-home__wave--far/);
-assert.match(ui, /yani-home__wave--middle/);
-assert.match(ui, /yani-home__wave--near/);
-assert.match(ui, /yani-home__ambient--service/);
-assert.match(css, /\.yani-home__ambient \{/);
-assert.match(css, /\.yani-home--reduced-motion \.yani-home__ambient \{ transition: none; transform: none; \}/);
-assert.ok(ui.indexOf("key: 'user_lists'") < ui.indexOf("key: 'top_rated'"), 'My Lists must be dashboard item 6');
-assert.ok(ui.indexOf("key: 'notifications'") < ui.indexOf("key: 'account'"), 'Notifications must precede Account');
-assert.ok(ui.indexOf("key: 'account'") < ui.indexOf("key: 'status'"), 'Status must be the last dashboard item');
-assert.match(ui, /key: 'notifications'.*authorized: true/);
-assert.match(css, /\.yani-home--motion \.yani-home__item\.focus::before/);
-assert.match(css, /\.yani-home__item--for_you \.yani-home__icon/);
-assert.match(css, /\.yani-home__item--updates \.yani-home__icon/);
-assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+assert.doesNotMatch(css, /@(?:-webkit-)?keyframes\s+yani-home-/, 'obsolete wave/orbit/pulse animations must be removed');
+assert.doesNotMatch(homeCss, /(?:radial|linear)-gradient\(/, 'flat home surfaces must not retain decorative gradient layers');
+assert.ok(homeRules.some((match) => /\.focus(?:\b|:)/.test(match[1]) && /(?:outline|border-color)\s*:/.test(match[2])),
+    'TV remote focus needs a visible outline or border without a scaling animation');
 
-console.log('home motion contract checks passed');
+console.log('lightweight home palette and rendering-budget checks passed');

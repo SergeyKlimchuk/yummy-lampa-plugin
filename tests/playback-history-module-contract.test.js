@@ -8,6 +8,7 @@ assert.match(source, /persistHistory\(history\);[\s\S]{0,120}publishPlaybackHist
 assert.match(source, /if \(result\.imported\)[\s\S]{0,500}publishPlaybackHistoryChange\(null\)/);
 assert.match(source, /\$\(document\)\.trigger\('yani:watch-progress', \[changedCard \|\| null\]\)/);
 const ui = fs.readFileSync('src/ui.js', 'utf8');
+const home = fs.readFileSync('src/ui-home.js', 'utf8');
 const build = fs.readFileSync('build.js', 'utf8');
 
 assert.match(build, /src\/ui-playback-history\.js/);
@@ -38,7 +39,9 @@ assert.match(ui, /Lampa\.PlayerVideo\.video\(\)/, 'progress must use Lampa playe
 assert.match(ui, /listener\.follow\('timeupdate', state\.playerTimeHandler\)/, 'progress must follow Lampa player events');
 assert.match(ui, /listener\.follow\('destroy', state\.playerDestroyHandler\)/, 'the final position must be captured before Lampa destroys its media node');
 assert.match(ui, /listener\.remove\('timeupdate', state\.playerTimeHandler\)/, 'player listeners must be removed with the watcher');
-assert.match(ui, /yani:watch-progress\.yaniHome/, 'the dashboard must refresh when playback history changes');
+assert.match(home, /\$\(document\)\.on\('yani:watch-progress\.yaniLiteHome', onWatchProgress\)/, 'the homepage must subscribe to shared playback changes');
+assert.match(home, /function onWatchProgress\(\) \{[\s\S]{0,100}if \(active && !destroyed\) refreshContinue\(\)/, 'playback changes must refresh an active homepage without rebuilding a hidden one');
+assert.match(home, /\$\(document\)\.off\('yani:watch-progress\.yaniLiteHome', onWatchProgress\)/, 'the homepage must release its shared playback listener on teardown');
 
 const storage = {};
 const context = {

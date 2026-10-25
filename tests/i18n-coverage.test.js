@@ -8,14 +8,14 @@ const i18n = context.window.LampaYaniI18n;
 
 // The module reads the active language from Lampa.Storage; without Lampa it
 // falls back to Russian, which is the reference locale.
-const source = ['src/ui.js', 'src/ui-detail.js', 'src/ui-schedule.js', 'src/ui-media.js', 'src/ui-status.js', 'src/ui-notifications.js', 'src/ui-collections.js', 'src/ui-releases.js', 'src/ui-recommendations.js', 'src/ui-updates.js', 'src/ui-translations.js', 'src/ui-section-state.js']
+const source = ['src/ui.js', 'src/ui-home.js', 'src/ui-detail.js', 'src/ui-schedule.js', 'src/ui-media.js', 'src/ui-status.js', 'src/ui-notifications.js', 'src/ui-collections.js', 'src/ui-releases.js', 'src/ui-recommendations.js', 'src/ui-updates.js', 'src/ui-translations.js', 'src/ui-section-state.js']
     .map((file) => fs.readFileSync(file, 'utf8'))
     .join('\n');
 
 const used = new Set();
-const pattern = /\bt\(\s*'([a-z0-9_]+)'\s*\)/gi;
+const pattern = /\b(?:t\(\s*'([a-z0-9_]+)'\s*\)|text\(\s*'([a-z0-9_]+)'\s*,)/g;
 let match;
-while ((match = pattern.exec(source))) used.add(match[1]);
+while ((match = pattern.exec(source))) used.add(match[1] || match[2]);
 assert.ok(used.size > 50, `expected the UI to use many keys, found ${used.size}`);
 
 // A key that resolves to itself means the lookup fell through every locale: the

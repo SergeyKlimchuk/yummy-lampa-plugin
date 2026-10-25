@@ -9,6 +9,42 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ## [Unreleased]
 
+### Added
+
+- Interactive source-backed mockups for every plugin section and supported chooser, with explicit public snapshots and anonymized personal examples
+
+### Changed
+
+- Anime detail priorities to title, ratings, one-line type/tags, episode information, primary actions, labeled categories, synopsis, translations, metadata and comments; new cards focus Watch and reach the current category with one Down press
+- Readable category labels on search/catalog cards with account-scoped updates after list changes, independent favorites and protection against stale cached membership
+- Lightweight home branding to the official website SVG, embedded in the plugin bundle
+- Catalog, detail, personal lists, schedule, notifications and service screens to a shared static charcoal/coral style without decorative gradients, filters or shadows
+- Schedule to twenty-row batches with selected-row metadata loading; feeds to thirty-card pages and long episode choices to sixty entries per page while retaining the complete playback playlist
+- Account counters to compact statistics and reusable poster decoration with scale-aware layout caching
+
+### Fixed
+
+- Category switching flashing the complete list panel by keeping opacity and confirmed labels stable while saving, applying only changed state, and avoiding success-toast flashes
+- Category buttons and poster status bands to the six official YummyAnime dark-theme colors, with persistent band nodes and no poster replacement
+- Stale list membership after account mutations, late responses after account changes, and hidden detail/auth/service screens stealing remote focus
+- Collections lost when the home feed resolved before the first catalogue response
+- Development loader dependencies diverging from the built bundle
+
+## [0.47.22] - 2026-10-24
+
+### Added
+
+- An interactive TV home mockup and runtime performance regression coverage
+
+### Changed
+
+- The TV home to a flat charcoal and coral layout with bounded previews and static remote focus
+- Home category counters to request list statistics instead of downloading the full library
+
+### Fixed
+
+- Duplicate home history loading by reusing the shared synchronization
+
 ## [0.47.21] - 2026-10-21
 
 ### Fixed

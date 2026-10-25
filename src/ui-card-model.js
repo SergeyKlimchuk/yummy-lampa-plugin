@@ -4,6 +4,86 @@
     // Shared YummyAnime → Lampa card mapping used by catalog, detail, and
     // standard-card integration. Keeps rating/media/progress derivation in one place.
 
+    // Recent successful writes bridge cached search/detail payloads. The cache
+    // is bounded, account scoped, and never issues one request per poster.
+    var recentLists = {}, recentOrder = [], listOwner = null;
+    function own(value, key) { return Boolean(value && Object.prototype.hasOwnProperty.call(value, key)); }
+    function readListOwner() {
+        var auth = window.LampaYaniAuth, account = auth && auth.get ? auth.get() || {} : {};
+        return {id: String(account.user_id || ''), login: String(account.login || ''), token: auth && auth.token ? auth.token() || '' : ''};
+    }
+    function sameListOwner(a, b) {
+        if (!a || Boolean(a.token) !== Boolean(b.token)) return false;
+        return a.id && b.id ? a.id === b.id : a.login && b.login ? a.login === b.login : a.token === b.token;
+    }
+    function ensureListOwner() {
+        var owner = readListOwner();
+        if (!sameListOwner(listOwner, owner)) { recentLists = {}; recentOrder = []; }
+        listOwner = owner;
+        return owner;
+    }
+    function normalizedListState(item) {
+        item = item || {};
+        var result = {listKnown: false, listId: null, favoriteKnown: false, favorite: false};
+        var raw;
+        if (own(item, 'yani_list_id') && item.yani_list_known !== false) { raw = item.yani_list_id; result.listKnown = true; }
+        else {
+            var user = item.user;
+            if (user && own(user, 'list')) raw = user.list;
+            else if (own(item, 'user_list')) raw = item.user_list;
+            else if (own(item, 'list_state')) raw = item.list_state;
+            if (raw !== undefined) {
+                var holder = raw;
+                if (holder === null) result.listKnown = true;
+                else if (typeof holder === 'number') result.listKnown = true;
+                else if (typeof holder === 'object') {
+                    if (own(holder, 'list')) { raw = holder.list; result.listKnown = true; }
+                    else if (own(holder, 'id')) result.listKnown = true;
+                    ['is_fav', 'is_favorite', 'favorite'].some(function (key) {
+                        if (!own(holder, key)) return false;
+                        result.favoriteKnown = true; result.favorite = Boolean(holder[key]); return true;
+                    });
+                }
+            }
+        }
+        if (result.listKnown) {
+            var value = raw && typeof raw === 'object' ? raw.id : raw;
+            var id = value === null || value === '' || value === undefined ? null : Number(value);
+            result.listId = [0, 1, 2, 3, 5].indexOf(id) >= 0 ? id : null;
+        }
+        if (own(item, 'yani_is_favorite') && item.yani_favorite_known !== false) {
+            result.favoriteKnown = true; result.favorite = Boolean(item.yani_is_favorite);
+        }
+        return result;
+    }
+    function applyListState(card) {
+        if (!card) return card;
+        ensureListOwner();
+        var id = String(card.yani_id || card.anime_id || card.id || ''), recent = recentLists[id];
+        if (recent && Date.now() - recent.at < 5 * 60 * 1000) {
+            if (own(recent, 'listId')) { card.yani_list_id = recent.listId; card.yani_list_known = true; }
+            if (own(recent, 'favorite')) { card.yani_is_favorite = recent.favorite; card.yani_favorite_known = true; }
+        } else if (recent) delete recentLists[id];
+        return card;
+    }
+    function commitListState(card, patch, owner) {
+        var current = ensureListOwner();
+        if (owner && !sameListOwner(owner, current)) return false;
+        if (!card || !patch) return false;
+        var id = String(card.yani_id || card.anime_id || card.id || '');
+        if (!id) return false;
+        var recent = recentLists[id] || {};
+        if (own(patch, 'listId')) recent.listId = patch.listId === null ? null : Number(patch.listId);
+        if (own(patch, 'favorite')) recent.favorite = Boolean(patch.favorite);
+        if (!own(recent, 'listId') && !own(recent, 'favorite')) return false;
+        recent.at = Date.now(); recentLists[id] = recent;
+        var at = recentOrder.indexOf(id); if (at >= 0) recentOrder.splice(at, 1);
+        recentOrder.push(id); while (recentOrder.length > 160) delete recentLists[recentOrder.shift()];
+        applyListState(card);
+        if (typeof document !== 'undefined' && window.$) $(document).trigger('yani:list-state-changed', [{anime_id: id}]);
+        return true;
+    }
+
     function create(deps) {
         deps = deps || {};
         var t = deps.t || function (name) { return name; };
@@ -107,7 +187,7 @@
             var votes = typeof item.rating === 'object' ? item.rating.counters : item.rating_counters;
             var ratings = extractRatings(item.rating);
             var animeId = item.anime_id || item.animeId || item.id || item._id;
-            return {
+            var card = {
                 title: title,
                 original_title: item.original_title || item.japanese || title,
                 yani_titles: titles,
@@ -124,8 +204,8 @@
                 yani_id: animeId,
                 yani_url: item.anime_url || item.url,
                 yani_comments_count: Number(item.comments_count || 0),
-                yani_list_id: item.user && item.user.list && item.user.list.list ? Number(item.user.list.list.id) : null,
-                yani_is_favorite: Boolean(item.user && item.user.list && item.user.list.is_fav),
+                yani_list_id: null, yani_list_known: false,
+                yani_is_favorite: false, yani_favorite_known: false,
                 yani_user_rating: Number(item.user && (item.user.rate || item.user.rating || item.user.score) || item.user_rate || 0) || null,
                 yani_viewing_order: Array.isArray(item.viewing_order) ? item.viewing_order : [],
                 yani_genres: item.genres || item.genre || [],
@@ -143,6 +223,10 @@
                 yani_update_date: item.yani_update_date || item.updated_at || item.update_date || item.last_update || null,
                 yani_remote_ids: item.remote_ids || {}
             };
+            var state = normalizedListState(item);
+            card.yani_list_id = state.listId; card.yani_list_known = state.listKnown;
+            card.yani_is_favorite = state.favorite; card.yani_favorite_known = state.favoriteKnown;
+            return applyListState(card);
         }
 
         function createDetailRatings(ratings, votes) {
@@ -181,6 +265,11 @@
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.CardModel = window.LampaYaniCardModel = {
-        create: create
+        create: create,
+        normalizeListState: normalizedListState,
+        applyListState: applyListState,
+        commitListState: commitListState,
+        listOwner: readListOwner,
+        sameListOwner: sameListOwner
     };
 }(window));

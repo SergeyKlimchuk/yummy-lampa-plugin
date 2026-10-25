@@ -5,11 +5,33 @@
         var t = deps.t, locale = deps.locale, toCard = deps.toCard;
         var playbackSourceId = deps.playbackSourceId || function () { return ''; };
         var isPlaybackSourceEnabled = deps.isPlaybackSourceEnabled || function () { return true; };
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
         scroll.minus();
-        var html = $('<div class="yani-schedule"></div>');
+        var html = $('<div class="yani-schedule yani-lite-view"></div>');
         var content = $('<div class="yani-schedule__content"></div>');
         var last, dayGroups = [], selectedDay = 0, remoteShortcutHandler = null, cacheUpdateHandler = null, pendingPayload = null, destroyed = false, videosCache = {}, ratingCache = {};
+        var enrichmentTimer = null, enrichmentBusy = false, pendingEnrichment = null, loadGeneration = 0;
+        var dayPageSize = 20, renderedReleases = 0;
+        // A day may contain hundreds of releases. Only a focused row needs
+        // video/translation detail; keep one pair in flight and coalesce D-pad
+        // movement to the latest row instead of starting N detail requests.
+        function queueEnrichment(row, run) {
+            pendingEnrichment = {row: row, run: run};
+            if (enrichmentTimer) clearTimeout(enrichmentTimer);
+            enrichmentTimer = setTimeout(flushEnrichment, 140);
+        }
+        function flushEnrichment() {
+            enrichmentTimer = null;
+            if (destroyed || enrichmentBusy || !pendingEnrichment) return;
+            var work = pendingEnrichment;
+            pendingEnrichment = null;
+            if (!work.row[0] || !document.documentElement.contains(work.row[0]) || !work.row.hasClass('focus')) return;
+            enrichmentBusy = true;
+            Promise.resolve(work.run()).catch(function () {}).then(function () {
+                enrichmentBusy = false;
+                if (!destroyed && pendingEnrichment && !enrichmentTimer) enrichmentTimer = setTimeout(flushEnrichment, 140);
+            });
+        }
         var focusScope = LampaYaniNavigation.createScope({
             id: 'schedule:' + String(object && object.url || 'yani/schedule'),
             root: function () { return html; },
@@ -82,11 +104,12 @@
             return ratingCache[animeId];
         }
         function enrichItemRating(host, card) {
-            if (appendYummyRating(host, card)) return;
+            if (host.find('.yani-schedule__rating').length) return Promise.resolve();
+            if (appendYummyRating(host, card)) return Promise.resolve();
             var animeId = card && card.yani_id;
-            if (!animeId) return;
-            loadAnimeRatingCard(animeId).then(function (detailed) {
-                if (!detailed || !host[0] || !document.documentElement.contains(host[0])) return;
+            if (!animeId) return Promise.resolve();
+            return loadAnimeRatingCard(animeId).then(function (detailed) {
+                if (destroyed || !detailed || !host[0] || !document.documentElement.contains(host[0])) return;
                 appendYummyRating(host, detailed);
             });
         }
@@ -165,7 +188,9 @@
         function paintTranslations(host, groups) {
             host = host && host.jquery ? host : $(host);
             if (!host.length) return;
-            host.empty();
+            var signature = JSON.stringify(groups || {});
+            if (host.attr('data-yani-translations') === signature) return;
+            host.attr('data-yani-translations', signature).empty();
             var voices = renderTranslationRow('voices', t('voice_teams'), groups && groups.voices);
             var subtitles = renderTranslationRow('subtitles', t('subtitle_teams'), groups && groups.subtitles);
             if (!voices && !subtitles) {
@@ -184,33 +209,42 @@
             var episode = releaseEpisodeNumber(entry);
             var initial = translationGroupsFromVideos(Array.isArray(item.videos) ? item.videos : [], episode);
             paintTranslations(host, initial);
-            if (!animeId || !(episode > 0)) return;
-            loadAnimeVideos(animeId).then(function (videos) {
-                if (!host[0] || !document.documentElement.contains(host[0])) return;
+            if (!animeId || !(episode > 0)) return Promise.resolve();
+            return loadAnimeVideos(animeId).then(function (videos) {
+                if (destroyed || !host[0] || !document.documentElement.contains(host[0])) return;
                 paintTranslations(host, translationGroupsFromVideos(videos, episode));
             });
         }
         function createItem(entry) {
             var item = entry.item, card = toCard(item), episodes = item.episodes || {}, releaseDate = entry.date || new Date();
-            var row = $('<div class="yani-schedule__item selector"></div>'), poster = $('<img class="yani-schedule__poster" alt="">').attr('src', card.poster || '');
+            var row = $('<div class="yani-schedule__item selector"></div>').attr('data-yani-focus-key', 'release-' + String(card.yani_id || '') + '-' + releaseDate.getTime()), poster = $('<img class="yani-schedule__poster" alt="">').attr('src', card.poster || '');
             LampaYaniMedia.bindPosterFallback(poster, card);
             var info = $('<div class="yani-schedule__info"></div>'), release = $('<div class="yani-schedule__release"></div>');
             var translations = $('<div class="yani-schedule__translations"></div>').hide();
             var rating = $('<div class="yani-schedule__rating-slot"></div>');
             info.append($('<div class="yani-schedule__title"></div>').text(card.title));
             info.append(rating);
-            enrichItemRating(rating, card);
+            appendYummyRating(rating, card);
             info.append($('<div class="yani-schedule__episode"></div>').text(episodeLabel(entry)));
             info.append(translations);
             release.append($('<div class="yani-schedule__time"></div>').text(timeLabel(releaseDate))); release.append($('<div class="yani-schedule__timezone"></div>').text(t('local_time')));
             row.append(poster, info, release);
-            enrichItemTranslations(translations, entry);
+            paintTranslations(translations, translationGroupsFromVideos(Array.isArray(item.videos) ? item.videos : [], releaseEpisodeNumber(entry)));
             // A schedule item already has a YummyAnime id.  Opening its
             // native Lampa match first can show a transient "not found" page
             // before the inevitable YummyAnime fallback, so go straight to
             // the known detail card.
             var opened = false, open = function () { if (opened) return; opened = true; card.yani_schedule = episodeLabel(entry) + ', ' + dateTimeLabel(releaseDate); deps.openYummyDetail(card, false); setTimeout(function () { opened = false; }, 500); };
-            row.on('hover:focus', function (event) { var target = event.currentTarget || event.target; content.find('.yani-schedule__item.focus').removeClass('focus'); row.addClass('focus'); last = target; scroll.update($(target), true); });
+            row.on('hover:focus', function (event) {
+                var target = event.currentTarget || event.target;
+                content.find('.yani-schedule__item.focus').removeClass('focus');
+                row.addClass('focus');
+                last = target;
+                scroll.update($(target), true);
+                queueEnrichment(row, function () {
+                    return Promise.all([enrichItemRating(rating, card), enrichItemTranslations(translations, entry)]);
+                });
+            });
             row.on('hover:blur', function () { row.removeClass('focus'); }); row.on('hover:enter click.yaniSchedule', open);
             return row;
         }
@@ -251,8 +285,10 @@
             var chip = dayChipNodes().removeClass('selected').eq(selectedDay).addClass('selected');
             content.find('.yani-schedule__selected-title').text(dayLabel(group.day, group.relativeOffset));
             var releases = content.find('.yani-schedule__releases').empty();
+            renderedReleases = 0;
+            pendingEnrichment = null;
             if (!group.releases.length) releases.append($('<div class="yani-schedule__empty"></div>').text(t('no_releases')));
-            else group.releases.forEach(function (entry) { releases.append(createItem(entry)); });
+            else appendReleasePage(false);
             revealDayChip(chip);
             updateShortcutBadges();
             var collection = scroll.render();
@@ -264,6 +300,28 @@
             } else {
                 last = chip[0];
             }
+        }
+        function appendReleasePage(focusNew) {
+            var group = dayGroups[selectedDay];
+            if (destroyed || !group) return;
+            var releases = content.find('.yani-schedule__releases');
+            releases.find('.yani-schedule__more').remove();
+            var batch = group.releases.slice(renderedReleases, renderedReleases + dayPageSize).map(createItem);
+            renderedReleases += batch.length;
+            // Rows are built detached and attached in one operation.
+            releases.append(batch.map(function (row) { return row[0]; }));
+            if (renderedReleases < group.releases.length) {
+                var more = $('<div class="yani-schedule__more selector"></div>')
+                    .attr('data-yani-focus-key', 'more-' + selectedDay)
+                    .text(t('more') + ' · ' + (group.releases.length - renderedReleases));
+                more.on('hover:focus', function () { last = more[0]; scroll.update(more, true); });
+                more.on('hover:enter click.yaniScheduleMore', function (event) {
+                    if (event) { event.preventDefault(); event.stopPropagation(); }
+                    appendReleasePage(true);
+                });
+                releases.append(more);
+            }
+            if (focusNew && batch.length) refreshFocus(batch[0][0]);
         }
         function moveDay(delta) {
             var index = dayChipIndex(last);
@@ -397,6 +455,7 @@
             }
         }
         function applyPayload(payload, background) {
+            if (destroyed) return;
             var items = LampaYaniApi.normalize(payload);
             if (background && !items.length) return;
             if (background && focusScope && focusScope.remember) focusScope.remember(last);
@@ -425,13 +484,17 @@
             }
         }
         function load(forceRefresh) {
+            if (destroyed) return;
+            var requestGeneration = ++loadGeneration;
             content.empty();
             state.show('loading', {skeleton: 'rows'});
             ensureMounted();
             last = state.focus(scroll.render()) || last;
             LampaYaniApi.schedule({forceRefresh: forceRefresh === true}).then(function (payload) {
+                if (destroyed || requestGeneration !== loadGeneration) return;
                 applyPayload(payload, false);
             }).catch(function (error) {
+                if (destroyed || requestGeneration !== loadGeneration) return;
                 console.error('[YummyAnime]', error);
                 content.empty();
                 state.show('offline', {
@@ -500,6 +563,13 @@
             render: function (js) { return js ? html[0] : html; },
             destroy: function () {
                 destroyed = true;
+                loadGeneration++;
+                if (enrichmentTimer) clearTimeout(enrichmentTimer);
+                enrichmentTimer = null;
+                pendingEnrichment = null;
+                dayGroups = [];
+                videosCache = {};
+                ratingCache = {};
                 if (remoteShortcutHandler) document.removeEventListener('keydown', remoteShortcutHandler, true);
                 remoteShortcutHandler = null;
                 if (cacheUpdateHandler) document.removeEventListener('yani:cache-updated', cacheUpdateHandler);

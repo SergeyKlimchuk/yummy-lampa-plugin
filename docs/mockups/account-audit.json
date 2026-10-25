@@ -1,0 +1,176 @@
+{
+  "scope": "Account, profile/statistics, lists, history/continue, subscriptions, notifications, auth, status, settings and usage policy",
+  "repository": "/mnt/main/projects/external/yummy-lampa-plugin",
+  "method": "Read current source, registered routes and existing anonymized API fixtures. No account requests or repository writes.",
+  "mockup_rules": [
+    "Use actual plugin fields and actions below. Missing optional data must be omitted or shown with the existing fallback, not invented.",
+    "All fixture identities, titles and counts are anonymized synthetic examples; they are not this user's account data.",
+    "Statistics is currently a section within Account, not a separately registered screen.",
+    "Only display LG/webOS settings on the TV mockup; external Android player selection and YummyTV integration are platform-conditional.",
+    "Dates are display values in these screens. No editable date/time fields exist here."
+  ],
+  "screens": [
+    {
+      "id": "account",
+      "label": "Аккаунт / профиль",
+      "route": "yani/account",
+      "component": "yani_account",
+      "source": ["src/ui.js :: Account", "src/ui.js :: renderAccount", "src/ui.js :: openAccount", "src/ui.js :: logoutFromAccount"],
+      "data": ["GET /profile", "GET /users/{id}/stats/lists", "GET /users/{id}/lists", "GET /users/{id}/stats/genres", "GET /users/{id}/stats/ratings", "GET /users/{id}/stats/types-v2"],
+      "required_for_function": ["profile.id: used to request account statistics/lists"],
+      "displayed_fields": {
+        "identity": ["nickname (fallback YummyAnime User)", "id", "authorized state"],
+        "optional_identity": ["avatars.big/full/small", "about", "banned warning"],
+        "information": ["register_date", "last_online", "roles[] (fallback user)", "messages.unread_count (count only)", "notifications.count", "total anime rows = lists.length"],
+        "category_summaries": ["Six list definitions: Watching 0, Planned 1, Completed 2, Dropped 3, Favorite 4, Postponed 5", "counts derived from anime.user.list.list.id and anime.user.list.is_fav", "watch time from matching stats[].list.id and stats[].seconds"]
+      },
+      "actions": ["Open Notifications", "Open Subscriptions", "Open a category's full account list", "Open My Reviews selector, then an anime detail", "Manual history synchronization only when automatic progress sync is off", "Sign out and replace stale Account activity", "Guest sign-in action opens yani_auth with refresh_account_on_authorized:true"],
+      "states": ["loading", "guest with sign-in action", "authorized profile", "optional statistics sections absent when arrays are empty", "profile load failure with account_load_error/account_retry notice"],
+      "not_supported_here": ["Edit nickname/about/avatar", "Send/read messages (only unread count is displayed)", "Manage friends", "Purchase/subscription plan", "Standalone statistics route"]
+    },
+    {
+      "id": "statistics",
+      "label": "Статистика аккаунта",
+      "route": "yani/account (section, no separate route)",
+      "component": "yani_account",
+      "source": ["src/ui.js :: renderAccountStatistics", "src/ui.js :: renderAccount"],
+      "displayed_fields": {"genres": ["title || name", "count"], "ratings": ["rating", "count"], "types": ["type.name || type.shortname || name", "count"], "limits": ["Up to 12 rows for each non-empty statistics array"]},
+      "actions": ["Read-only focusable rows", "Six category summary tiles above statistics can open lists"],
+      "states": ["Any missing/empty genre/rating/type group is omitted", "Whole extended statistics section is omitted if all groups empty"],
+      "not_supported_here": ["Activity-by-day heatmap", "Average score trend over time", "Ranking against other users", "Drilldown action on genre/rating/type statistic rows", "Time period selectors"]
+    },
+    {
+      "id": "user-lists",
+      "label": "Мои списки",
+      "route": "yani/user-lists",
+      "component": "yani_user_lists",
+      "source": ["src/ui-account-lists.js :: userLists", "src/ui.js :: loadUserListRows", "src/ui.js :: openUserLists"],
+      "required_for_function": ["Authorized account", "Each row has title, definition or history flag, total and results[]"],
+      "displayed_fields": ["Six category rows plus watch-history row", "Row title with total if numeric", "Up to 10 anime preview cards per row", "An extra More card opens full category/history", "Poster, title and existing card metadata/progress overlays"],
+      "actions": ["Open anime detail", "More opens category list", "History More opens full history", "Remote numeric keys 1 Watching,2 Planned,3 Completed,4 Dropped,5 Favorite,6 Postponed,0 History", "Remote color shortcuts red Watching,green Planned,yellow Favorite,blue History"],
+      "states": ["guest shows login_required and returns", "loading", "populated/empty category previews", "load failure notice"],
+      "not_supported_here": ["Create or rename custom categories", "Drag-and-drop reordering", "Batch category editing", "Automatic import of native Lampa favorite marks"]
+    },
+    {
+      "id": "account-list",
+      "label": "Содержимое категории",
+      "route": "yani/account/list/{definition.key}",
+      "component": "yani_account_list",
+      "source": ["src/ui-account-lists.js :: accountList", "src/ui-account-list-controls.js :: create", "src/ui.js :: openUserListShortcut", "src/ui.js :: loadUserListShortcutItems"],
+      "required_for_function": ["definition.id/key/title", "items[] or lazy=true plus shared loadItems"],
+      "displayed_fields": ["Anime poster/title/card metadata", "Category identity", "Total loaded anime count", "Progress from user.list.watched_episodes/episodes_watched/watched/progress and episodes.count/total", "Category title"],
+      "actions": ["Open anime detail (category/favorite changes are made there)", "Sort: recent, progress, rating, year, title", "Local pages of 30 cards", "Sort selection replaces activity with /sort/{sort} and retains loaded rows"],
+      "states": ["loading", "empty list", "sorted populated pages", "API failure builds an empty list and calls error notice"],
+      "not_supported_here": ["Search inside the list", "Multi-select or bulk delete", "Free-form tags", "Per-card editing sidebar"]
+    },
+    {
+      "id": "continue-watching",
+      "label": "Продолжить просмотр",
+      "route": "yani/continue-watching",
+      "component": "yani_history",
+      "route_parameters": {"mode": "continue"},
+      "source": ["src/ui-home-sections.js :: history", "src/ui-home-sections.js :: continueWatchingEntries", "src/ui-home-sections.js :: attachHistoryEntry", "src/ui-playback-history.js :: bindHistoryCardRender", "src/ui.js :: openContinueWatching"],
+      "data": ["Merged device-local playback history and remote GET /video/watch-history", "Continue-mode remote range up to 300 records", "Shared cached episode ceilings; detail requests can enrich missing card metadata"],
+      "required_for_function": ["anime_id", "video_id or normalized episode number as resume target"],
+      "displayed_fields": ["Anime title/poster", "Episode number/title when known", "Saved position and duration/progress", "Player and dubbing when known", "Next episode flag for a finished episode with a remaining/unknown ceiling"],
+      "actions": ["Resume/open episode options through existing history-card action", "Back to parent"],
+      "states": ["local-only history works signed out", "remote/local merged history", "ongoing episode resumes saved position", "finished episode advances to next episode without moving backwards on a rewatch", "fully finished known title omitted", "empty or remote history failure notice with local fallback"],
+      "not_supported_here": ["Separate custom folders", "Delete one watch record from this screen", "A promise that every source can resume exactly (iframe player progress can be limited)"]
+    },
+    {
+      "id": "watch-history",
+      "label": "История просмотра",
+      "route": "yani/history",
+      "component": "yani_history",
+      "route_parameters": {"mode": "history"},
+      "source": ["src/ui-home-sections.js :: history", "src/ui-home-sections.js :: normalizeRemoteHistory", "src/ui-playback-history.js :: rememberPlayback", "src/ui.js :: openWatchHistory"],
+      "displayed_fields": ["Anime title/poster", "Episode number", "Watch position/duration", "Dubbing/player if present", "Updated date internally used for most-recent sorting"],
+      "actions": ["Open/resume anime through history card", "Remote pagination in 30-record pages", "Back"],
+      "states": ["local cache", "remote/local merged chronological history", "empty", "remote unavailable with local fallback"],
+      "not_supported_here": ["Per-day grouping in current UI", "Date range picker", "Per-row cloud deletion", "Clear remote history from the settings action (settings clear only local cache)"]
+    },
+    {
+      "id": "subscriptions",
+      "label": "Подписки",
+      "route": "yani/subscriptions",
+      "component": "yani_subscriptions",
+      "route_parameters": {"userId": "Current profile ID"},
+      "source": ["src/ui-account-lists.js :: subscriptions", "src/ui.js :: openSubscriptions", "src/api.js :: subscriptions"],
+      "data": ["GET /users/{id}/lists/subs"],
+      "displayed_fields": ["Anime cards normalized from response array or anime/items/data/subscriptions envelope", "Nested source may be item.anime, item.title_data or item.object", "Poster/title and existing card metadata"],
+      "actions": ["Open anime detail through standard Yummy card handler", "Back"],
+      "states": ["loading", "anime grid", "subscriptions_empty notice", "subscriptions_error notice"],
+      "not_supported_here": ["Subscribe/unsubscribe management buttons in this component", "Subscription tier/billing", "Per-subscription notification frequency controls", "Follower/social-user list"]
+    },
+    {
+      "id": "notifications",
+      "label": "Уведомления",
+      "route": "yani/notifications",
+      "component": "yani_notifications",
+      "source": ["src/ui-notifications.js :: create", "src/ui-notifications.js :: normalize", "src/ui-notifications.js :: openNotification", "src/ui.js :: Notifications", "src/api.js :: notifications/markNotificationRead/markAllNotificationsRead/deleteAllNotifications"],
+      "data": ["GET /profile/notifications?limit=30&offset=N", "POST /profile/notifications/{id}/read", "POST /profile/notifications/read", "DELETE /profile/notifications"],
+      "displayed_fields": ["title_html/titleHtml/title sanitized to text", "text_html/textHtml/text/message sanitized to text", "date/date_seconds/dateSeconds if present", "type+sub_type mapped to episode/comment/social/news/system", "viewed/read mapped to unread", "Today/Yesterday/Earlier grouping", "Unread count of currently rendered notifications"],
+      "optional_navigation_fields": ["anime_id or animeId opens anime detail", "Episode notification with click_uri containing /catalog/item/{slug} resolves anime then opens detail"],
+      "actions": ["Open notification marks that notification read", "Open an anime only when a recognized anime target exists", "Mark all read", "Delete all notifications", "Load 30 more", "Retry after load failure/cached state"],
+      "states": ["loading skeleton", "cached read data with retry", "empty with hint", "offline with retry", "read/unread cards", "loading more", "resolving anime target"],
+      "not_supported_here": ["Notification filtering tabs", "Delete individual item button (API helper exists but current screen has no action)", "Open arbitrary click_uri externally", "Open comment thread/user profile from a generic notification", "Confirmation before delete-all is not currently implemented"]
+    },
+    {
+      "id": "auth",
+      "label": "Вход в YummyAnime",
+      "route": "yani/auth",
+      "component": "yani_auth",
+      "source": ["src/ui-auth.js :: create", "src/ui.js :: AuthPage", "src/ui.js :: openSettingsLogin", "src/ui.js :: openAccountLogin", "src/auth.js :: login/refresh/logout"],
+      "displayed_fields": ["Authorization state", "Login/email field (existing login prefilled)", "Password field masked as bullets", "Current login when authorized", "Site/account hint"],
+      "actions": ["Edit login/email using shared input", "Edit password using masked shared input", "Sign in when unauthorized", "Refresh token when authorized", "Sign out when authorized", "Successful sign-in refreshes shared history and can replace stale Account screen"],
+      "states": ["signed out", "field empty validation", "submitting/loading", "login error", "authorized", "token refreshed/error", "logged out/local token removed"],
+      "not_supported_here": ["QR-code/device-code pairing", "OAuth provider buttons", "Registration form", "Password reset form", "2FA form", "Embedded CAPTCHA UI", "Own application API-key field (official plugin already supplies public application header)"]
+    },
+    {
+      "id": "status",
+      "label": "Статус сервисов",
+      "route": "yani/status",
+      "component": "yani_status",
+      "source": ["src/ui-status.js :: create", "src/api.js :: status", "src/config.js :: statusUrl", "status/status.json"],
+      "required_for_function": ["Snapshot JSON: periods[period] or legacy flat snapshot"],
+      "displayed_fields": ["Period: 3hour/day/week/month", "summary.status (up/down/degraded/unknown)", "summary.uptime_percent", "summary.average_ms", "summary.failed", "summary.checks", "generated_at", "domains[].domain/status/average_ms/ping_ms", "domains[].history[].time/status", "YummyStatus source/snapshot notice"],
+      "actions": ["Choose period locally", "Refresh snapshot", "Retry after network failure", "Back"],
+      "states": ["loading", "up/down/degraded/unknown summary", "no monitoring data", "offline/retry"],
+      "not_supported_here": ["Live ping directly from TV", "Edit API/domain settings", "Fix network automatically", "CPU/RAM or stream bandwidth telemetry", "Per-device diagnostics"]
+    },
+    {
+      "id": "settings",
+      "label": "Настройки YummyAnime",
+      "route": "Lampa.Settings.create('yani')",
+      "component": "Lampa shared SettingsApi section 'yani'",
+      "source": ["src/ui.js :: addSettings", "src/ui.js :: playbackSourceDefaultEnabled", "tests/settings-structure-contract.test.js"],
+      "sections": [
+        {"name": "Аккаунт", "fields": [{"key": "yani_account_state", "kind": "button", "action": "Open auth screen"}, {"key": "yani_auto_sync_progress", "kind": "toggle", "default": true}]},
+        {"name": "Интерфейс", "fields": [{"key": "yani_language", "kind": "select", "values": ["ru", "uk", "en"], "default": "ru"}]},
+        {"name": "Воспроизведение", "fields": [{"key": "yani_playback_target", "kind": "select", "only": "Android", "values": ["ask", "internal", "external"], "default": "ask"}, {"key": "yani_playback_target_locked", "kind": "informational button", "only": "Non-Android including LG webOS", "value": "internal"}, {"key": "yani_aniskip", "kind": "select", "values": ["off", "op", "ed", "op_ed", "suggest"], "default": "off"}, {"key": "yani_auto_next", "kind": "toggle", "default": false}, {"key": "yani_add_to_lampa_history", "kind": "toggle", "default": true}, {"key": "yani_clear_playback_history", "kind": "button", "action": "Clear local yani_playback_history only"}]},
+        {"name": "Источники", "fields": [{"key": "yani_source_kodik", "kind": "toggle", "default": true}, {"key": "yani_source_vk", "kind": "toggle", "default": true}, {"key": "yani_source_alloha", "kind": "toggle", "default": false, "note": "Experimental warning"}, {"key": "yani_source_cvh", "kind": "toggle", "default": "true on Android or webOS, false elsewhere", "note": "Experimental warning"}, {"key": "yani_source_sibnet", "kind": "toggle", "default": true}, {"key": "yani_source_aksor", "kind": "toggle", "default": true}]},
+        {"name": "Интеграции", "fields": [{"key": "yani_yummytv_enabled", "kind": "toggle", "only": "Android TV", "default": false}, {"key": "yani_resolver_server", "kind": "button/input", "action": "Edit resolver server URL"}, {"key": "yani_resolver_check", "kind": "button", "only": "Resolver URL configured", "action": "Health check"}, {"key": "yani_lampac_server", "kind": "button/input", "action": "Edit Lampac URL"}, {"key": "yani_alloha_iframe", "kind": "toggle", "default": false}]},
+        {"name": "Карточки Lampa", "fields": [{"key": "yani_lampa_card_rating", "kind": "toggle", "default": true}, {"key": "yani_lampa_card_button", "kind": "toggle", "default": true}]},
+        {"name": "Разделы главной", "fields": [{"key_pattern": "yani_section_{section}", "kind": "toggle", "default": true, "sections": ["catalog", "genres", "search", "schedule", "new_translations", "continue_watching", "user_lists", "new_releases", "top_rated", "for_you", "updates", "collections", "notifications", "account", "status"]}]},
+        {"name": "О плагине", "fields": [{"key": "yani_about", "kind": "button", "action": "Open official website; shows plugin version"}, {"key": "yani_usage_policy", "kind": "button", "action": "Open usage-policy overlay"}, {"key": "yani_repo_notice", "kind": "non-interactive title", "action": "Repository reference text"}]}
+      ],
+      "not_supported_here": ["Theme/color editor", "Developer API application setup", "Update plugin button", "Cloud-history deletion", "Android external player controls on LG"]
+    },
+    {
+      "id": "policy",
+      "label": "Условия использования",
+      "route": "showUsagePolicy() overlay; legacy yani_policy component remains registered",
+      "component": "yani_policy controller / .yani-policy-layer",
+      "source": ["src/ui.js :: showUsagePolicy", "src/ui.js :: closeUsagePolicy", "src/ui.js :: UsagePolicy", "tests/usage-policy-contract.test.js"],
+      "displayed_fields": ["usage_policy_title", "usage_policy_as_is", "usage_policy_information", "usage_policy_legal", "usage_policy_responsibility"],
+      "actions": ["usage_policy_accept button closes overlay", "Back closes overlay and restores previous controller"],
+      "states": ["manual overlay opened from settings", "closed"],
+      "not_supported_here": ["Mandatory onboarding acceptance gate", "Stored terms revision/acceptance status", "Periodic prompts", "Account registration"]
+    }
+  ],
+  "fixture_notes": [
+    {"path": "tests/fixtures/yani-api/lists.json", "usable": ["list_items[].anime_id or nested anime", "title/year/rating.average/episodes/poster", "user.list.list.id/is_fav/progress/watched_episodes", "date"], "caution": "fixture lists.response is a synthetic category catalogue; actual GET /users/{id}/lists is consumed as anime rows. fixture list_stats uses id/count/time, while current Account renderer expects list.id/seconds. Do not fabricate Account watch-time totals from this mismatched fixture."},
+    {"path": "tests/fixtures/yani-api/notifications.json", "usable": ["HTML title/text variants", "viewed", "date", "type/sub_type", "click_uri catalogue slug", "counts.unread_count/count"], "caution": "object_id alone is not used as anime_id by current notification UI. A comment notification containing a catalogue slug is not an episode notification and is not automatically openable."},
+    {"path": "tests/fixtures/yani-api/history-progress.json", "usable": ["anime_id/animeId", "video_id/videoId", "episode/number", "end_time/time", "duration", "title/anime_title", "dub_title/dubbing", "player_title/player", "poster/screenshot", "date/updated_at"], "caution": "Use positions/durations only when supplied; no date-picker or per-item deletion UI is implemented."}
+  ]
+}

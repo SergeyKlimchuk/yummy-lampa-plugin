@@ -20,20 +20,29 @@
         }
 
         function addCardMediaBadges(element, card) {
-            var requested = false;
+            if (!card) return;
             var cardRender = cardRenderElement(element, card);
+            var host = cardRender[0];
+            if (!host) return;
+            var requestKey = String(card.yani_id || '');
+            var sameRequest = host.yaniMediaRequest === requestKey && host.yaniMediaCard === card;
+            // A mounted card node may be reused, even for an already-loaded
+            // replacement. Retire the previous request before any early return.
+            host.yaniMediaRequest = requestKey;
+            host.yaniMediaCard = card;
+            if (!sameRequest) cardRender.off('hover:focus.yaniMedia');
             renderCardMediaBadges(element, card, card.yani_media || mediaMeta(card));
-            if (!card.yani_id || (card.yani_media && card.yani_media.loaded)) return;
+            if (!card.yani_id || (card.yani_media && card.yani_media.loaded) || sameRequest) return;
 
-            cardRender.off('hover:focus.yaniMedia').one('hover:focus.yaniMedia', function () {
-                if (requested) return;
-                requested = true;
+            cardRender.one('hover:focus.yaniMedia', function () {
                 loadVideos(card.yani_id).then(function (payload) {
+                    if (host.yaniMediaRequest !== requestKey || host.yaniMediaCard !== card) return;
+                    if (host.isConnected === false) { host.yaniMediaRequest = ''; return; }
                     var videos = payload && payload.response ? payload.response : payload;
                     card.yani_media = mediaMeta({videos: Array.isArray(videos) ? videos : []});
                     card.yani_media.loaded = true;
                     renderCardMediaBadges(element, card, card.yani_media);
-                }).catch(function () {});
+                }).catch(function () { if (host.yaniMediaRequest === requestKey && host.yaniMediaCard === card) host.yaniMediaRequest = ''; });
             });
         }
 
@@ -51,11 +60,13 @@
         function renderCardMediaBadges(element, card, meta) {
             meta = meta || {};
             var genreTop = genreTopPosition(card);
-            if (!meta.quality && !meta.voices && !genreTop) return;
             var render = cardRenderElement(element, card);
             var view = $('.card__view', render).first();
             if (!view.length) return;
             var block = $('.yani-card-media', view);
+            var signature = JSON.stringify([meta.quality || '', meta.voices || 0, genreTop, card && card.yani_genre_top && card.yani_genre_top.genre || '', t('voices_short'), t('genre_top_position')]);
+            if (sameCardPaint(view, 'media', signature, block, !meta.quality && !meta.voices && !genreTop)) return;
+            if (!meta.quality && !meta.voices && !genreTop) { block.remove(); return; }
             if (!block.length) block = $('<div class="yani-card-media"></div>').appendTo(view);
             block.empty();
             if (genreTop) {
@@ -70,7 +81,6 @@
             }
             if (meta.quality || meta.voices) {
                 var availability = $('<span class="yani-card-media__availability"></span>');
-                if (cardMediaMotionAllowed()) availability.addClass('yani-card-media__availability--motion');
                 if (meta.quality) {
                     var quality = $('<span class="yani-card-media__availability-part yani-card-media__quality"></span>');
                     quality.append('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v11H4zM8 20h8M12 16.5V20"/></svg>');
@@ -90,12 +100,21 @@
             }
         }
 
+        // Stable markup on a repeated Lampa cardRender call avoids replacing
+        // SVGs/text and forcing style/layout work during remote navigation.
+        // Keep this state on the card node so it is collected with the card.
+        function sameCardPaint(view, key, signature, existing, empty) {
+            var node = view && view[0];
+            if (!node) return false;
+            var paints = node.yaniCardPaints || (node.yaniCardPaints = {});
+            if (paints[key] === signature && (empty || existing.length)) return true;
+            paints[key] = signature;
+            return false;
+        }
+
         function cardMediaMotionAllowed() {
-            var navigatorInfo = window.navigator || {};
-            var reduced = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-            var lowMemory = Number(navigatorInfo.deviceMemory || 0) > 0 && Number(navigatorInfo.deviceMemory) <= 2;
-            var lowCpu = Number(navigatorInfo.hardwareConcurrency || 0) > 0 && Number(navigatorInfo.hardwareConcurrency) <= 2;
-            return !reduced && !lowMemory && !lowCpu;
+            // Even capable desktops use the same static TV presentation.
+            return false;
         }
 
         function genreTopPosition(card) {
@@ -260,19 +279,25 @@
             var hasTopEnd = Boolean(update || history);
             var hasTopStart = Boolean((media && media.children && media.children.length) || recommendation);
 
+            var width = root.clientWidth || root.offsetWidth || 0;
+            var height = root.clientHeight || root.offsetHeight || 0;
+            var fontSize = 16;
+            try { fontSize = parseFloat(window.getComputedStyle(root).fontSize) || fontSize; } catch (error) {}
+            fontSize = Math.max(fontSize, 1);
+            var signature = [width, height, fontSize, Boolean(list), Boolean(playback), Boolean(history), hasProgress,
+                hasRatings, Boolean(update), Boolean(update && update.querySelector('.yani-card-update__freshness')),
+                Boolean(availability), Boolean(voices), Boolean(genreTop), Boolean(recommendation)].join(':');
+            // Size and inherited font both affect the em-based priority plan.
+            // Stable cards avoid class writes; scale changes remain correct.
+            if (root.yaniOverlayPaint === signature) return view;
+            root.yaniOverlayPaint = signature;
+
             root.classList.toggle('yani-card-view--has-footer', hasFooter);
+            root.classList.toggle('yani-card-view--has-list', Boolean(list));
             root.classList.toggle('yani-card-view--has-progress', hasProgress);
             root.classList.toggle('yani-card-view--has-ratings', hasRatings);
             root.classList.toggle('yani-card-view--has-top-end', hasTopEnd);
             root.classList.toggle('yani-card-view--has-top-start', hasTopStart);
-
-            var width = root.clientWidth || root.offsetWidth || 0;
-            var height = root.clientHeight || root.offsetHeight || 0;
-            var fontSize = 16;
-            try {
-                fontSize = parseFloat(window.getComputedStyle(root).fontSize) || fontSize;
-            } catch (error) {}
-            fontSize = Math.max(fontSize, 1);
 
             var plan = cardOverlayPriorityPlan({
                 width: width,
@@ -382,26 +407,38 @@
         }
 
         function addCardListBadge(element, card) {
-            if (!card || (card.yani_list_id === null && !card.yani_is_favorite)) return;
+            if (window.LampaYaniCardModel && LampaYaniCardModel.applyListState) LampaYaniCardModel.applyListState(card);
+            if (!card) return;
             var render = cardRenderElement(element, card);
             var view = $('.card__view', render).first();
             if (!view.length) return;
             var key = listBadgeKey(card);
-            if (!key && !card.yani_is_favorite) return;
             var labels = {0: t('watching'), 1: t('planned'), 2: t('completed'), 3: t('dropped'), 5: t('postponed')};
-            var label = labels[card.yani_list_id] || (card.yani_is_favorite ? t('favorite') : '');
-            if (card.yani_is_favorite && labels[card.yani_list_id]) label += ' · ' + t('favorite');
+            var label = labels[card.yani_list_id] || (card.yani_is_favorite ? t('favorites') : '');
+            if (card.yani_is_favorite && labels[card.yani_list_id]) label += ' · ' + t('favorites');
+            var visibleLabel = label || (card.yani_list_known ? t('not_in_lists') : '');
+            var colorKey = key || (card.yani_is_favorite ? 'favorites' : 'none');
             var badge = $('.yani-card-list', view);
-            if (!badge.length) badge = $('<span class="yani-card-list"></span>').appendTo(view);
-            badge.empty()
-                .removeClass('yani-card-list--watching yani-card-list--planned yani-card-list--completed yani-card-list--dropped yani-card-list--postponed yani-card-list--favorites')
-                .addClass('yani-card-list--' + (key || 'favorites'))
-                .attr('title', label)
-                .attr('aria-label', label);
-            badge.append($('<span class="yani-card-list__icon"></span>').html(listBadgeIcon(key || 'favorites')));
-            if (card.yani_is_favorite && key && key !== 'favorites') {
-                badge.append($('<span class="yani-card-list__icon yani-card-list__icon--fav"></span>').html(listBadgeIcon('favorites')));
+            if (sameCardPaint(view, 'list', JSON.stringify([colorKey, visibleLabel]), badge, !visibleLabel)) return;
+            if (!visibleLabel) { badge.remove(); return; }
+            // Retain one bottom band and its label node across category changes.
+            // Never replace the poster or clear/rebuild the card's contents.
+            if (!badge.length) {
+                badge = $('<span class="yani-card-list"></span>')
+                    .append('<span class="yani-card-list__icon" aria-hidden="true"></span>')
+                    .append('<span class="yani-card-list__label yani-card-category"></span>')
+                    .appendTo(view);
             }
+            var previousKey = badge.attr('data-yani-list-key');
+            if (previousKey !== colorKey) {
+                badge.removeClass('yani-card-list--watching yani-card-list--planned yani-card-list--completed yani-card-list--dropped yani-card-list--postponed yani-card-list--favorites yani-card-list--none')
+                    .addClass('yani-card-list--' + colorKey).attr('data-yani-list-key', colorKey);
+                var icon = badge.find('.yani-card-list__icon');
+                icon.html(colorKey === 'none' ? '' : listBadgeIcon(colorKey)).css('display', colorKey === 'none' ? 'none' : 'block');
+            }
+            var text = badge.find('.yani-card-list__label');
+            if (text.text() !== visibleLabel) text.text(visibleLabel);
+            if (badge.attr('title') !== visibleLabel) badge.attr('title', visibleLabel).attr('aria-label', visibleLabel);
         }
 
         function syncCardEpisodesMeta(element, card) {
@@ -446,14 +483,17 @@
             if (!view.length) return;
             var existing = view.find('.yani-card-playback, .yani-card-playback-progress');
             if (!state) {
+                sameCardPaint(view, 'progress', '', existing, true);
                 if (existing.length) existing.remove();
                 return;
             }
-            existing.remove();
             var parts = [];
             if (state.episode) parts.push((state.next ? '▶ ' : '') + t('episode') + ' ' + state.episode);
             if (state.percent) parts.push(state.percent + '%');
             else if (state.reached) parts.push(t('episodes_watched') + ' ' + state.reached);
+            var signature = JSON.stringify([parts, state.progress > 0, state.percent]);
+            if (sameCardPaint(view, 'progress', signature, existing, false)) return;
+            existing.remove();
             view.append($('<span class="yani-card-playback"></span>').text(parts.join(' · ')));
             if (state.progress > 0) {
                 view.append($('<span class="yani-card-playback-progress"><span></span></span>')
@@ -486,14 +526,17 @@
 
         function addCardRatings(element, card) {
             var ratings = visibleCardRatings(card && card.yani_ratings);
-            if (!ratings.length || !card) return;
+            if (!card) return;
             var render = cardRenderElement(element, card);
             var view = $('.card__view', render).first();
             if (!view.length) return;
-            // Lampa may call cardRender repeatedly for the same node. Keep the
-            // first compact panel instead of rebuilding chips on every paint.
-            if (view.find('.yani-card-ratings').length) return;
-
+            var existing = view.find('.yani-card-ratings');
+            var signature = JSON.stringify(ratings.map(function (rating) {
+                return [rating.key, rating.value, rating.short || '', rating.title || ''];
+            }));
+            if (sameCardPaint(view, 'ratings', signature, existing, !ratings.length)) return;
+            existing.remove();
+            if (!ratings.length) { $('.card__vote', render).show(); return; }
             $('.card__vote', render).hide();
             var block = $('<div class="yani-card-ratings" role="group" aria-label="ratings"></div>');
             ratings.forEach(function (rating) {

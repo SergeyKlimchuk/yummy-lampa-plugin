@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>YummyAnime — макеты разделов</title>
+  <link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+  <div class="ya-shell">
+    <header class="ya-header">
+      <button class="ya-brand" data-screen="home" aria-label="YummyAnime — главная"><img class="ya-logo" src="assets/yummyanime-official.svg" alt="YummyAnime"></button>
+      <div class="ya-toolbar">
+        <button class="ya-button" data-screen="search">Поиск</button>
+        <button class="ya-button" data-screen="account">Аккаунт</button>
+        <button class="ya-button" data-screen="settings">Настройки</button>
+      </div>
+    </header>
+    <aside class="ya-sidebar" aria-label="Разделы YummyAnime"><nav class="ya-nav" id="ya-navigation"></nav></aside>
+    <main class="ya-main" id="ya-main">
+      <div class="ya-prototype-controls" aria-label="Управление макетом">
+        <span>Макет</span>
+        <label>Экран <select id="ya-screen-select" aria-label="Экран макета"></select></label>
+        <label>Состояние <select id="ya-state-select" aria-label="Состояние экрана"></select></label>
+        <button class="ya-button" data-action="screen-map">Все экраны</button>
+      </div>
+      <div id="ya-view"></div>
+      <div class="ya-demo-bar"><span id="ya-data-label"></span><button class="ya-button" data-action="provenance">На чём основан экран</button></div>
+      <section class="ya-provenance" id="ya-provenance" hidden aria-label="Источники и возможности экрана"></section>
+      <noscript>Для переходов между макетами включите JavaScript. Макет не подключается к аккаунту и не меняет списки на сайте.</noscript>
+    </main>
+  </div>
+  <dialog class="ya-dialog" id="ya-dialog" aria-labelledby="ya-dialog-title"><h2 id="ya-dialog-title"></h2><div id="ya-dialog-body"></div><div class="ya-toolbar"><button class="ya-button" data-action="close-dialog">Закрыть</button></div></dialog>
+  <script src="prototype-data.js"></script>
+  <script src="prototype-contracts.js"></script>
+  <script src="content-screens.js"></script>
+  <script src="account-screens.js"></script>
+  <script src="prototype.js"></script>
+</body>
+</html>

@@ -252,17 +252,20 @@
         function renderHistoryProgress(rendered, playback) {
             var view = $('.card__view', rendered).first();
             if (!view.length) return;
-            view.find('.yani-card-history, .yani-card-history-progress').remove();
             var duration = Math.max(0, Number(playback.duration || 0));
             var position = Math.max(0, Number(playback.time || 0));
             var percent = duration > 0 ? Math.min(100, Math.round(position / duration * 100)) : 0;
             var episode = playback.last_watched_episode || playback.number;
             var label = episode ? t('episode') + ' ' + episode : t('continue_watching');
             if (percent) label += ' · ' + percent + '%';
-            view.append($('<span class="yani-card-history"></span>').text(label));
+            var badge = view.find('.yani-card-history');
+            if (!badge.length) badge = $('<span class="yani-card-history"></span>').appendTo(view);
+            if (badge.text() !== label) badge.text(label);
+            var progress = view.find('.yani-card-history-progress');
             if (duration > 0) {
-                view.append($('<span class="yani-card-history-progress"><span></span></span>').find('span').css('width', percent + '%').end());
-            }
+                if (!progress.length) progress = $('<span class="yani-card-history-progress"><span></span></span>').appendTo(view);
+                progress.find('span').css('width', percent + '%');
+            } else if (progress.length) progress.remove();
             syncCardOverlayLayout(rendered);
         }
 

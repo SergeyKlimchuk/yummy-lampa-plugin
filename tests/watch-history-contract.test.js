@@ -4,6 +4,7 @@ const vm = require('vm');
 
 const api = fs.readFileSync('src/api.js', 'utf8');
 const ui = fs.readFileSync('src/ui.js', 'utf8');
+const home = fs.readFileSync('src/ui-home.js', 'utf8');
 const model = fs.readFileSync('src/ui-card-model.js', 'utf8');
 const historySource = fs.readFileSync('src/ui-playback-history.js', 'utf8');
 const menuSource = fs.readFileSync('src/ui-playback-menu.js', 'utf8');
@@ -46,20 +47,18 @@ assert.match(historySource, /duration: Math\.max\(0, Number\(video\.duration \|\
 // unwatched episodes left, so the queue must not consult the lists at all.
 assert.ok(!/fetchExcluded/.test(ui), 'the queue must not filter by user lists');
 assert.ok(!/loadContinueWatchingExclusions/.test(ui), 'the user-list filter must be gone');
-assert.match(ui, /function applyPlaybackSnapshot\(remoteEntries\)/);
-assert.match(ui, /setPreview\(homeButtons\.continue_watching, '', ''\)/, 'empty continue queue must clear the dashboard title');
-assert.match(ui, /LampaYaniHomeSections\.fetchHistoryRange\(LampaYaniApi\.watchHistory, 300, 30, control\)/);
-assert.doesNotMatch(ui, /var recentWatches = LampaYaniHomeSections\.lastWatchTokens/,
-    'dashboard history refresh must discover titles watched on other devices');
 assert.match(sectionsSource, /function lastWatchTokens\(saved, limit\)/);
-assert.match(ui, /readHomePlaybackSnapshot\(playbackUserKey\)/);
-assert.match(ui, /cacheHomePlaybackSnapshot\(playbackUserKey, result\[0\]\)/);
-assert.match(ui, /importRemoteEntries\(remoteEntries\)/);
 assert.match(ui, /importRemote: importRemoteEntries/);
 assert.match(historySource, /function pullRemoteProgress/);
+// The landing page reuses the shared session pull; only the complete history
+// page may start its own paginated request for an explicitly opened section.
+assert.match(home, /deps\.ensureRemoteHistory/);
+assert.doesNotMatch(home, /fetchHistoryRange|api\.watchHistory/, 'home must not launch a duplicate 300-entry history pull');
+assert.match(historySource, /function ensureRemoteHistory\(force\)/);
+assert.match(historySource, /pullRemoteProgress\(300\)/);
+assert.match(historySource, /REMOTE_PULL_TTL = 5 \* 60 \* 1000/);
 assert.match(historySource, /function importVideosProgress/);
 assert.match(sectionsSource, /function importRemoteIntoLocal/);
-assert.match(ui, /homePlaybackCacheLifetime = 300000/);
 assert.ok(!/yani_continue_excluded_/.test(ui), 'the user-list exclusion cache must be gone with the filter');
 assert.ok(!/\[2, 3\]\.forEach\(function \(listId\)/.test(ui), 'membership of the completed or dropped list must not decide the queue');
 assert.match(model, /window\.LampaYaniUiUtils\.posterSources/, 'poster URLs must go through the shared picker');
@@ -83,7 +82,6 @@ assert.match(sectionsSource, /self\.build\([\s\S]{0,200}enrichCards\(ready\)/,
 assert.match(sectionsSource, /rails\.mapLimit\(pending, 6, mapper\)/,
     'background enrichment may run wider than the old three-at-a-time crawl');
 assert.match(historySource, /playback\.last_watched_episode \|\| playback\.number/);
-assert.match(ui, /yani_home_playback_snapshot_v2/);
 
 const remote = history.normalizeRemoteHistory({response: [{
     anime_id: 42,

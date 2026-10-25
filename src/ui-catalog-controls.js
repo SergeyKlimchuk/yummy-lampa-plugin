@@ -42,6 +42,7 @@
         var controlsReady = false;
         var lastCatalogCard = null;
         var shortcutHandler = null;
+        var destroyed = false, revealTimer = null, navigationLayout = null;
         var focusScope = LampaYaniNavigation.createScope({
             id: 'catalog:' + cleanCatalogRoute(),
             root: function () { return comp.render(); },
@@ -194,7 +195,7 @@
         }
 
         function syncNavigationCollection() {
-            if (!controlsReady) return;
+            if (destroyed || !controlsReady) return;
             var controller = activeCatalogController();
             var ownsController = controller && (controller.yaniCatalogOwner === comp || controller.link === comp);
             if (!ownsController) return;
@@ -245,25 +246,41 @@
         function revealCatalogCard(card) {
             if (!card || !card.length) return;
             if (comp.scroll && comp.scroll.update) comp.scroll.update(card, true);
-            // Lampa 0.47 may align only the focused point and leave the title or
-            // poster edge outside the viewport. Measure after its own update and
-            // scroll just the missing distance so the whole TV card stays visible.
-            setTimeout(function () { ensureCardFullyVisible(card); }, 0);
+            // Coalesce visibility measurement to the latest focused card.
+            if (revealTimer) clearTimeout(revealTimer);
+            revealTimer = setTimeout(function () {
+                revealTimer = null;
+                if (!destroyed) ensureCardFullyVisible(card);
+            }, 0);
         }
 
+        function cardLayout(collection) {
+            var cards = collection.find('.card.selector');
+            var width = collection[0] && collection[0].clientWidth || window.innerWidth;
+            var shape = [window.innerWidth, window.innerHeight, cards[0] && cards[0].offsetWidth, cards[0] && cards[0].offsetHeight].join(':');
+            if (navigationLayout && navigationLayout.shape === shape && navigationLayout.width === width && navigationLayout.nodes.length === cards.length && navigationLayout.nodes[0] === cards[0] && navigationLayout.nodes[cards.length - 1] === cards[cards.length - 1]) return navigationLayout;
+            var rects = [];
+            cards.each(function () { rects.push(this.offsetParent === null ? null : this.getBoundingClientRect()); });
+            // Scroll translates every card equally. Relative row/column distances
+            // stay valid until grid/card dimensions or the mounted set changes.
+            navigationLayout = {nodes: cards, rects: rects, width: width, shape: shape};
+            return navigationLayout;
+        }
         function focusCardInDirection(direction) {
             var collection = comp.scroll && comp.scroll.render ? comp.scroll.render() : comp.render();
             var current = focusedCatalogCard();
             if (!collection || !collection.length || !current.length) return false;
-            var currentRect = current[0].getBoundingClientRect();
+            var layout = cardLayout(collection);
+            var currentRect = layout.rects[layout.nodes.index(current[0])];
+            if (!currentRect) return false;
             var currentCenterX = currentRect.left + currentRect.width / 2;
             var currentCenterY = currentRect.top + currentRect.height / 2;
             var verticalThreshold = Math.max(12, currentRect.height * 0.25);
             var target = null;
             var score = Infinity;
-            collection.find('.card.selector').each(function () {
-                if (this === current[0] || this.offsetParent === null) return;
-                var rect = this.getBoundingClientRect();
+            layout.nodes.each(function (index) {
+                var rect = layout.rects[index];
+                if (this === current[0] || !rect) return;
                 var centerY = rect.top + rect.height / 2;
                 var distanceY = centerY - currentCenterY;
                 var isCorrectDirection = direction === 'down' ? distanceY > verticalThreshold : distanceY < -verticalThreshold;
@@ -291,12 +308,14 @@
         function isFirstCardRow(card) {
             if (!card || !card.length) return false;
             var collection = comp.scroll && comp.scroll.render ? comp.scroll.render() : comp.render();
-            var currentRect = card[0].getBoundingClientRect();
+            var layout = cardLayout(collection);
+            var currentRect = layout.rects[layout.nodes.index(card[0])];
+            if (!currentRect) return false;
             var currentCenter = currentRect.top + currentRect.height / 2;
             var firstCenter = currentCenter;
-            collection.find('.card.selector').each(function () {
-                if (this.offsetParent === null) return;
-                var rect = this.getBoundingClientRect();
+            layout.nodes.each(function (index) {
+                var rect = layout.rects[index];
+                if (!rect) return;
                 firstCenter = Math.min(firstCenter, rect.top + rect.height / 2);
             });
             return Math.abs(currentCenter - firstCenter) < Math.max(20, currentRect.height * 0.45);
@@ -370,11 +389,11 @@
         }
 
         function install() {
-            if (controlsReady) return;
+            if (destroyed || controlsReady) return;
             var root = comp.render();
             if (!root || !root.length) return;
             controlsReady = true;
-            root.addClass('yani-catalog-view');
+            root.addClass('yani-catalog-view yani-lite-view');
             toolbar = $('<div class="yani-catalog-command-deck"></div>');
             var heading = $('<div class="yani-catalog-command-deck__heading"></div>');
             heading.append('<span class="yani-catalog-command-deck__mark"></span>');
@@ -472,6 +491,10 @@
             install: install,
             sync: syncNavigationCollection,
             destroy: function () {
+                destroyed = true;
+                if (revealTimer) clearTimeout(revealTimer);
+                revealTimer = null;
+                navigationLayout = null;
                 if (shortcutHandler) document.removeEventListener('keydown', shortcutHandler, true);
                 shortcutHandler = null;
                 focusScope.destroy();

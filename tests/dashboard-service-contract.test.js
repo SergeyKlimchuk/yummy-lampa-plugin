@@ -1,10 +1,11 @@
+// Data-model/authentication coverage is retained; homepage layout and lifecycle
+// behavior are covered by the lightweight-home runtime tests.
 const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('src/ui-home-insights.js', 'utf8');
 const ui = fs.readFileSync('src/ui.js', 'utf8');
-const css = fs.readFileSync('style.css', 'utf8');
 const context = {window: {}, Promise, Date};
 vm.runInNewContext(source, context);
 const insights = context.window.LampaYaniHomeInsights;
@@ -18,20 +19,7 @@ assert.equal(insights.notificationCount({response: [{viewed: false}, {viewed: tr
 assert.equal(insights.unreadFromNotifications({response: [{viewed: false}, {viewed: true}, {read: false}]}), 2);
 assert.equal(insights.resolveNotificationCount({response: {count: 0}}, {response: [{viewed: false}, {viewed: true}]}), 1);
 assert.equal(insights.resolveNotificationCount({response: {unread_count: 5}}, {response: [{viewed: false}]}), 5);
-assert.match(ui, /LampaYaniApi\.notificationCounts\(homeRequestControl\(\)\)/);
-assert.match(ui, /LampaYaniApi\.notifications\(30, 0\)/);
-assert.match(ui, /resolveNotificationCount/);
-assert.match(ui, /notificationCache\.count === 0/);
 assert.match(ui, /onUnreadCount:/);
-assert.match(ui, /yani_home_notification_count/);
-assert.match(ui, /setServiceState\(homeButtons\.status, serviceState\)/);
-assert.match(ui, /yani-home__service-hub/);
-assert.match(ui, /setServiceHub\(serviceState, serviceTitle/);
-assert.match(css, /\.yani-home__service-state--up/);
-assert.match(css, /\.yani-home__service-state--degraded/);
-assert.match(css, /\.yani-home__service-state--down/);
-assert.match(css, /\.yani-home__service-constellation/);
-assert.match(css, /@keyframes yani-home-service-orbit/);
 
 (async () => {
     const partial = await insights.dashboard({

@@ -30,13 +30,30 @@
     }
 
     function component(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, generation = 0, pageSize = 30, visibleCards = [], gridTitle = '';
+        function buildGrid(self, cards, title) {
+            visibleCards = cards;
+            gridTitle = title;
+            self.build({results: cards.slice(0, pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: title});
+            if (self.render) self.render().addClass('yani-lite-view yani-releases-view');
+        }
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (destroyed) return;
+            var page = Math.max(2, Number(requestObject.page) || 2);
+            resolve({results: visibleCards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(visibleCards.length / pageSize)), title: gridTitle});
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.create = function () {
             var self = this;
             var states = LampaYaniSectionState.forActivity(self.activity, deps);
             function load() {
+                if (destroyed) return;
+                var requestGeneration = ++generation;
                 states.loading('cards');
                 deps.feed().then(function (payload) {
+                    if (destroyed || requestGeneration !== generation) return;
                     var cards = normalize(payload, deps.toCard);
                     if (!cards.length) {
                         states.empty({
@@ -47,10 +64,11 @@
                         states.focus();
                         return;
                     }
-                    self.build({results: cards, total_pages: 1, title: deps.t('new_releases')});
+                    buildGrid(self, cards, deps.t('new_releases'));
                     if (LampaYaniSectionState.fromCache(payload)) states.cached({onRetry: load});
                     else states.ready();
                 }).catch(function (error) {
+                    if (destroyed || requestGeneration !== generation) return;
                     console.error('[YummyAnime New Releases]', error);
                     states.offline({
                         title: deps.t('new_releases_error'),
@@ -63,6 +81,13 @@
             load();
         };
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            generation++;
+            visibleCards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 

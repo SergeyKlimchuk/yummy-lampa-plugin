@@ -67,14 +67,20 @@
         function cacheGet(key) {
             var entry = cache[key];
             if (!entry || Date.now() - entry.time > CACHE_TTL) {
-                if (entry) delete cache[key];
+                if (entry) {
+                    delete cache[key];
+                    var expired = cacheOrder.indexOf(key);
+                    if (expired >= 0) cacheOrder.splice(expired, 1);
+                }
                 return null;
             }
             return entry.cards;
         }
 
         function cacheSet(key, cards) {
-            if (!cache[key]) cacheOrder.push(key);
+            var previous = cacheOrder.indexOf(key);
+            if (previous >= 0) cacheOrder.splice(previous, 1);
+            cacheOrder.push(key);
             cache[key] = {time: Date.now(), cards: cards};
             while (cacheOrder.length > CACHE_LIMIT) delete cache[cacheOrder.shift()];
         }

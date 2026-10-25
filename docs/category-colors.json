@@ -1,0 +1,17 @@
+{
+  "verified": "2026-10-25",
+  "theme": "official dark theme",
+  "sources": [
+    "https://ru.yummyani.me/assets/CHSXHab6.css",
+    "https://ru.yummyani.me/assets/index-DJAM4AVz.js"
+  ],
+  "mapping": {
+    "watching": "#ff6666",
+    "planned": "#af75e4",
+    "completed": "#3cce7b",
+    "dropped": "#6c6c6c",
+    "postponed": "#f2b800",
+    "favorites": "#be46c6"
+  },
+  "notes": "Site selected icon fill is white; plugin adds contrasting readable labels. Gray #6c6c6c is the dark-theme dropped color; blue is subscriptions, not planned."
+}

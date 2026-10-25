@@ -3,7 +3,7 @@ function pluginYummyAnime() {
     window.plugin_yummy_anime_ready = true;
 
     var style = document.createElement('style');
-    style.textContent = ".yani-catalog-view .category-full,\n.yani-catalog-view .items-cards,\n.yani-genre-catalog-view .category-full,\n.yani-genre-catalog-view .items-cards,\n.yani-account-list-view .category-full,\n.yani-account-list-view .items-cards,\n.yani-collection-view .category-full,\n.yani-collection-view .items-cards,\n.category-full.yani-card-grid,\n.items-cards.yani-card-grid {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(12.6em, 1fr));\n    justify-content: center;\n    width: 100%;\n    max-width: 100%;\n    box-sizing: border-box;\n    margin: 0;\n    padding-left: .45em;\n    padding-right: .45em;\n    row-gap: 2.8em;\n}\n\n/* Keep the final row fully scrollable above Lampa's viewport edge. */\n.yani-catalog-view .category-full,\n.yani-catalog-view .items-cards,\n.yani-genre-catalog-view .category-full,\n.yani-genre-catalog-view .items-cards {\n    padding-bottom: 14em;\n    scroll-padding-bottom: 14em;\n}\n\n.yani-catalog-view .category-full .card,\n.yani-catalog-view .items-cards .card,\n.yani-genre-catalog-view .category-full .card,\n.yani-genre-catalog-view .items-cards .card,\n.yani-account-list-view .category-full .card,\n.yani-account-list-view .items-cards .card,\n.yani-collection-view .category-full .card,\n.yani-collection-view .items-cards .card,\n.category-full.yani-card-grid .card,\n.items-cards.yani-card-grid .card {\n    float: none;\n    width: auto;\n    max-width: none;\n    box-sizing: border-box;\n    padding-bottom: .2em;\n}\n\n.yani-catalog-view .card .card__title,\n.yani-genre-catalog-view .card .card__title,\n.yani-account-list-view .card .card__title,\n.yani-collection-view .card .card__title,\n.category-full.yani-card-grid .card .card__title,\n.items-cards.yani-card-grid .card .card__title {\n    margin-top: .85em;\n}\n\n.yani-catalog-view .card .card__age,\n.yani-genre-catalog-view .card .card__age,\n.yani-account-list-view .card .card__age,\n.yani-collection-view .card .card__age,\n.category-full.yani-card-grid .card .card__age,\n.items-cards.yani-card-grid .card .card__age,\n.yani-catalog-view .card .yani-card-meta,\n.yani-genre-catalog-view .card .yani-card-meta,\n.yani-account-list-view .card .yani-card-meta,\n.yani-collection-view .card .yani-card-meta,\n.category-full.yani-card-grid .card .yani-card-meta,\n.items-cards.yani-card-grid .card .yani-card-meta {\n    margin-top: .28em;\n}\n\n.yani-catalog-view .card .card__img,\n.yani-catalog-view .card .card__view img,\n.yani-genre-catalog-view .card .card__img,\n.yani-genre-catalog-view .card .card__view img,\n.yani-account-list-view .card .card__img,\n.yani-account-list-view .card .card__view img,\n.yani-collection-view .card .card__view img,\n.yani-collection-view .card .card__img,\n.category-full.yani-card-grid .card .card__img,\n.items-cards.yani-card-grid .card .card__img,\n.yani-card-rails .card .card__img,\n.yani-card-rails .card .card__view img,\n.yani-detail__poster {\n    background-size: cover;\n    background-position: center top;\n    background-repeat: no-repeat;\n    image-rendering: auto;\n    -ms-interpolation-mode: bicubic;\n}\n\n.yani-card-rails .category-full,\n.yani-card-rails .items-cards,\n.yani-card-rails .items-cards.yani-card-grid,\n.yani-user-lists-view .category-full,\n.yani-user-lists-view .items-cards,\n.yani-user-lists-view .items-cards.yani-card-grid {\n    display: flex;\n    flex-wrap: nowrap;\n    align-items: flex-start;\n    grid-template-columns: none;\n    justify-content: unset;\n    width: auto;\n    max-width: none;\n    margin: 0;\n    padding-left: 0;\n    padding-right: 0;\n    row-gap: 0;\n}\n\n.yani-card-rails .items-cards .card,\n.yani-card-rails .items-cards.yani-card-grid .card,\n.yani-user-lists-view .items-cards .card,\n.yani-user-lists-view .items-cards.yani-card-grid .card {\n    flex: 0 0 12.75em;\n    width: 12.75em;\n    max-width: none;\n}\n\n@media (min-width: 70em) {\n    .yani-catalog-view .category-full,\n    .yani-catalog-view .items-cards,\n    .yani-genre-catalog-view .category-full,\n    .yani-genre-catalog-view .items-cards,\n    .yani-account-list-view .category-full,\n    .yani-account-list-view .items-cards,\n    .yani-collection-view .category-full,\n    .yani-collection-view .items-cards,\n    .category-full.yani-card-grid,\n    .items-cards.yani-card-grid {\n        grid-template-columns: repeat(7, minmax(0, 1fr));\n    }\n}\n\n.yani-catalog-view {\n    position: relative;\n    height: 100%;\n}\n\n/* A short director/studio result must keep the same card width as a full catalog. */\n.yani-subject-catalog-view .category-full,\n.yani-subject-catalog-view .items-cards {\n    grid-template-columns: repeat(auto-fill, minmax(12.6em, 12.6em));\n    justify-content: start;\n}\n\n.yani-catalog-command-deck {\n    position: relative;\n    z-index: 4;\n    display: flex;\n    align-items: center;\n    gap: .65em;\n    margin: 0 .85em .8em;\n    padding: .48em .55em;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: 1em;\n    background: linear-gradient(112deg, rgba(22,25,38,.88), rgba(58,39,61,.76) 55%, rgba(26,51,70,.75));\n    box-shadow: 0 .65em 1.8em rgba(0,0,0,.18), inset 0 .08em 0 rgba(255,255,255,.08);\n    backdrop-filter: blur(1em);\n}\n\n.yani-catalog-command-deck::after {\n    content: '';\n    position: absolute;\n    right: -3em;\n    top: -4em;\n    width: 11em;\n    height: 11em;\n    border: .08em solid rgba(96,196,255,.13);\n    border-radius: 50%;\n    box-shadow: 0 0 0 1.5em rgba(239,100,112,.035), 0 0 0 3em rgba(96,196,255,.025);\n    pointer-events: none;\n}\n\n.yani-catalog-command-deck__heading {\n    position: relative;\n    z-index: 1;\n    flex: 0 0 auto;\n    display: flex;\n    align-items: center;\n    gap: .45em;\n    min-width: 6.6em;\n    padding: 0 .35em;\n    color: rgba(255,255,255,.82);\n    font-size: .82em;\n    font-weight: 700;\n    letter-spacing: .04em;\n    text-transform: uppercase;\n}\n\n.yani-catalog-command-deck__mark {\n    width: .55em;\n    height: .55em;\n    border-radius: 50%;\n    background: #ef6470;\n    box-shadow: 0 0 0 .22em rgba(239,100,112,.16), 0 0 1em rgba(239,100,112,.5);\n}\n\n.yani-catalog-command-deck__rail {\n    position: relative;\n    z-index: 1;\n    display: flex;\n    flex: 1 1 auto;\n    flex-direction: row;\n    gap: .38em;\n    min-width: 0;\n    overflow-x: auto;\n    overflow-y: hidden;\n    scrollbar-width: none;\n}\n\n.yani-catalog-command-deck__rail::-webkit-scrollbar {\n    display: none;\n}\n\n.yani-catalog-shortcut-badge {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    gap: .28em;\n    flex: 0 0 auto;\n    min-width: 1.45em;\n    height: 1.45em;\n    margin-left: auto;\n    padding: 0 .38em;\n    border: .07em solid rgba(255,255,255,.13);\n    border-radius: .55em;\n    color: rgba(255,255,255,.9);\n    background: rgba(9,11,17,.42);\n    box-shadow: inset 0 .06em 0 rgba(255,255,255,.07), 0 .18em .5em rgba(0,0,0,.16);\n}\n\n.yani-catalog-shortcut-badge__color {\n    display: block;\n    width: .56em;\n    height: .56em;\n    flex: 0 0 auto;\n    border-radius: 50%;\n    box-shadow: 0 0 .5em currentColor;\n}\n\n.yani-catalog-shortcut-badge__color--red { color: #ff7180; background: #ef6470; }\n.yani-catalog-shortcut-badge__color--green { color: #62dda0; background: #55d795; }\n.yani-catalog-shortcut-badge__color--yellow { color: #f4ce66; background: #efc35b; }\n.yani-catalog-shortcut-badge__color--blue { color: #73caff; background: #62b8ff; }\n\n.yani-catalog-shortcut-badge__number {\n    font-size: .68em;\n    font-weight: 800;\n    line-height: 1;\n}\n\n.yani-catalog-sort {\n    position: relative;\n    flex: 0 0 auto;\n    display: flex;\n    align-items: center;\n    justify-content: flex-start;\n    gap: .42em;\n    min-width: 7.2em;\n    height: 2.75em;\n    padding: 0 .72em;\n    border: .08em solid transparent;\n    cursor: pointer;\n    border-radius: .72em;\n    color: rgba(255,255,255,.74);\n    background: rgba(255,255,255,.06);\n    transition: color .16s ease, background .16s ease, border-color .16s ease, transform .16s ease;\n}\n\n.yani-catalog-sort__icon {\n    width: 1.2em;\n    height: 1.2em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.yani-catalog-sort__icon svg {\n    width: 100%;\n    height: 100%;\n    fill: none;\n    stroke: currentColor;\n    stroke-width: 1.7;\n    stroke-linecap: round;\n    stroke-linejoin: round;\n}\n\n.yani-catalog-sort--active {\n    color: #fff;\n    border-color: rgba(239,100,112,.55);\n    background: linear-gradient(135deg, rgba(239,100,112,.65), rgba(184,64,104,.48));\n}\n\n.yani-catalog-filter__count {\n    position: absolute;\n    right: -.22em;\n    top: -.28em;\n    min-width: 1.25em;\n    height: 1.25em;\n    padding: 0 .24em;\n    border: .12em solid rgba(25,24,32,.9);\n    border-radius: 2em;\n    color: #fff;\n    background: #ef6470;\n    font-size: .68em;\n    font-weight: 700;\n    line-height: 1.05em;\n    text-align: center;\n}\n\n.yani-catalog-sort.focus {\n    color: #17151c;\n    border-color: #fff;\n    background: #fff;\n    box-shadow: 0 0 0 .16em rgba(255,255,255,.2), 0 .45em 1.1em rgba(0,0,0,.24);\n    transform: translateY(-.08em);\n}\n\n.yani-catalog-sort.focus .yani-catalog-shortcut-badge,\n.yani-catalog-top.focus .yani-catalog-shortcut-badge {\n    color: #fff;\n    border-color: rgba(255,255,255,.32);\n    background: rgba(24,24,31,.82);\n}\n\n.yani-catalog-sort__title {\n    display: block;\n    position: static;\n    min-width: 0;\n    overflow: hidden;\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    font-size: .82em;\n    font-weight: 600;\n}\n\n.yani-catalog-top {\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: flex-start;\n    gap: .42em;\n    flex: 0 0 auto;\n    min-width: 6.5em;\n    height: 2.75em;\n    margin: 0;\n    padding: 0 .72em;\n    border: .08em solid rgba(255,255,255,.2);\n    border-radius: .78em;\n    color: #fff;\n    background: rgba(25,24,32,.82);\n    box-shadow: 0 .7em 1.8em rgba(0,0,0,.28);\n    cursor: pointer;\n    backdrop-filter: blur(.8em);\n}\n\n.yani-catalog-top.focus {\n    color: #17151c;\n    background: #fff;\n    border-color: #fff;\n}\n\n.yani-catalog-top__icon {\n    font-size: 1.25em;\n    line-height: 1;\n}\n\n.yani-catalog-top__title {\n    display: block;\n    position: static;\n    white-space: nowrap;\n    font-size: .82em;\n    font-weight: 600;\n}\n\n@media (max-width: 700px) {\n    .yani-catalog-command-deck {\n        display: block;\n        margin: 0 .65em .65em;\n    }\n    .yani-catalog-command-deck__heading {\n        margin-bottom: .45em;\n    }\n    .yani-catalog-sort,\n    .yani-catalog-top {\n        min-width: 7em;\n        height: 2.55em;\n    }\n    .yani-catalog-view .category-full,\n    .yani-catalog-view .items-cards,\n    .yani-genre-catalog-view .category-full,\n    .yani-genre-catalog-view .items-cards,\n    .yani-account-list-view .category-full,\n    .yani-account-list-view .items-cards,\n    .yani-collection-view .category-full,\n    .yani-collection-view .items-cards,\n    .category-full.yani-card-grid,\n    .items-cards.yani-card-grid {\n        grid-template-columns: repeat(3, minmax(0, 1fr));\n        padding-left: .35em;\n        padding-right: .35em;\n    }\n}\n\n.icon-yani {\n    width: 2.4em;\n    height: 2.4em;\n    background: center / contain no-repeat url('./assets/yummyanime.svg');\n}\n\n.yani-home {\n    position: relative;\n    min-height: calc(100vh - 5.5em);\n    overflow: hidden;\n    isolation: isolate;\n}\n\n.yani-home__waves {\n    position: absolute;\n    z-index: -1;\n    inset: 0;\n    overflow: hidden;\n    pointer-events: none;\n    opacity: .9;\n}\n\n.yani-home__waves::before {\n    content: '';\n    position: absolute;\n    width: 42em;\n    height: 42em;\n    left: -12em;\n    top: -19em;\n    border-radius: 44% 56% 63% 37% / 38% 42% 58% 62%;\n    background: radial-gradient(circle at 62% 68%, rgba(239,100,112,.22), rgba(145,50,104,.08) 43%, transparent 69%);\n    transform: rotate(-14deg);\n}\n\n.yani-home__waves::after {\n    content: '';\n    position: absolute;\n    width: 52em;\n    height: 34em;\n    right: -18em;\n    bottom: -17em;\n    border-radius: 61% 39% 35% 65% / 57% 64% 36% 43%;\n    background: radial-gradient(circle at 25% 28%, rgba(73,155,255,.16), rgba(92,75,180,.06) 47%, transparent 70%);\n    transform: rotate(11deg);\n}\n\n.yani-home__ambient {\n    position: absolute;\n    z-index: 0;\n    inset: -5%;\n    opacity: 0;\n    transition: opacity .18s ease;\n}\n\n.yani-home__ambient--explore {\n    background:\n        radial-gradient(ellipse at 18% 38%, rgba(239,100,112,.18), transparent 43%),\n        radial-gradient(ellipse at 86% 55%, rgba(73,155,255,.12), transparent 46%);\n}\n\n.yani-home__ambient--episode_flow {\n    background:\n        radial-gradient(ellipse at 27% 46%, rgba(67,171,255,.18), transparent 44%),\n        radial-gradient(ellipse at 82% 34%, rgba(126,100,237,.14), transparent 45%);\n}\n\n.yani-home__ambient--library {\n    background:\n        radial-gradient(ellipse at 26% 48%, rgba(85,215,149,.16), transparent 43%),\n        radial-gradient(ellipse at 83% 58%, rgba(54,185,188,.12), transparent 46%);\n}\n\n.yani-home__ambient--discover {\n    background:\n        radial-gradient(ellipse at 22% 42%, rgba(191,114,233,.17), transparent 43%),\n        radial-gradient(ellipse at 80% 55%, rgba(239,100,151,.13), transparent 46%);\n}\n\n.yani-home__ambient--service {\n    background:\n        radial-gradient(ellipse at 23% 43%, rgba(236,176,85,.13), transparent 43%),\n        radial-gradient(ellipse at 84% 55%, rgba(92,155,190,.11), transparent 47%);\n}\n\n.yani-home[data-yani-section=\"explore\"] .yani-home__ambient--explore,\n.yani-home[data-yani-section=\"episode_flow\"] .yani-home__ambient--episode_flow,\n.yani-home[data-yani-section=\"library\"] .yani-home__ambient--library,\n.yani-home[data-yani-section=\"discover\"] .yani-home__ambient--discover,\n.yani-home[data-yani-section=\"service\"] .yani-home__ambient--service {\n    opacity: 1;\n}\n\n.yani-home__waves svg {\n    position: absolute;\n    z-index: 1;\n    width: 112%;\n    height: 100%;\n    left: -6%;\n    top: 0;\n    overflow: visible;\n}\n\n.yani-home__wave {\n    fill: none;\n    vector-effect: non-scaling-stroke;\n    stroke-linecap: round;\n    stroke-dasharray: 1900;\n    stroke-dashoffset: 0;\n    transition: none;\n}\n\n.yani-home__wave--far { stroke: rgba(255,255,255,.09); stroke-width: 34; }\n.yani-home__wave--middle { stroke: rgba(239,100,112,.16); stroke-width: 70; }\n.yani-home__wave--near { stroke: rgba(93,153,255,.11); stroke-width: 110; }\n\n.yani-home[data-yani-section=\"episode_flow\"] .yani-home__wave--middle { stroke: rgba(67,171,255,.17); }\n.yani-home[data-yani-section=\"episode_flow\"] .yani-home__wave--near { stroke: rgba(126,100,237,.12); }\n.yani-home[data-yani-section=\"library\"] .yani-home__wave--middle { stroke: rgba(85,215,149,.16); }\n.yani-home[data-yani-section=\"library\"] .yani-home__wave--near { stroke: rgba(54,185,188,.11); }\n.yani-home[data-yani-section=\"discover\"] .yani-home__wave--middle { stroke: rgba(191,114,233,.16); }\n.yani-home[data-yani-section=\"discover\"] .yani-home__wave--near { stroke: rgba(239,100,151,.11); }\n.yani-home[data-yani-section=\"service\"] .yani-home__wave--middle { stroke: rgba(236,176,85,.14); }\n.yani-home[data-yani-section=\"service\"] .yani-home__wave--near { stroke: rgba(92,155,190,.1); }\n\n.yani-home__pulse {\n    position: absolute;\n    z-index: 2;\n    width: .55em;\n    height: .55em;\n    border: .12em solid rgba(255,255,255,.32);\n    border-radius: 50%;\n    box-shadow: 0 0 0 .45em rgba(239,100,112,.05), 0 0 1.4em rgba(239,100,112,.2);\n}\n\n.yani-home__pulse--one { left: 12%; top: 66%; }\n.yani-home__pulse--two { right: 14%; top: 19%; }\n\n.yani-home__grid {\n    position: relative;\n    z-index: 1;\n    display: grid;\n    grid-template-columns: repeat(12, minmax(0, 1fr));\n    gap: 1.15em;\n    padding: 2.2em;\n    max-width: 94em;\n    margin: 0 auto;\n}\n\n.yani-home__section-rail { position: absolute; z-index: 5; top: 50%; right: .72em; display: flex; flex-direction: column; align-items: flex-end; gap: .68em; padding: .72em .42em; border: .07em solid rgba(255,255,255,.1); border-radius: 1.2em .55em 1.1em .62em; background: rgba(13,14,22,.38); box-shadow: 0 .8em 2em rgba(0,0,0,.16), inset 0 .06em 0 rgba(255,255,255,.08); backdrop-filter: blur(.55em); transform: translateY(-50%); pointer-events: auto; }\n.yani-home__section-rail::before { content: ''; position: absolute; top: 1.05em; right: .69em; bottom: 1.05em; width: .08em; border-radius: 1em; background: linear-gradient(180deg, rgba(98,184,255,.28), rgba(239,100,112,.38), rgba(85,215,149,.28)); }\n.yani-home__section-rail-node { position: relative; display: flex; min-height: .72em; align-items: center; justify-content: flex-end; }\n.yani-home__section-rail-node:nth-child(2) { margin-right: .16em; }\n.yani-home__section-rail-node:nth-child(3) { margin-right: .28em; }\n.yani-home__section-rail-node:nth-child(4) { margin-right: .15em; }\n.yani-home__section-rail-node i { position: relative; z-index: 1; display: flex; width: .48em; height: .48em; align-items: center; justify-content: center; border: .09em solid rgba(255,255,255,.36); border-radius: 50%; background: #242735; box-sizing: border-box; transition: width .22s ease, height .22s ease, border-radius .22s ease, transform .2s ease, background .2s ease, box-shadow .2s ease; }\n.yani-home__section-rail-node i small { display: block; color: #17151c; font-size: .4em; font-style: normal; font-weight: 900; letter-spacing: .08em; line-height: 1; opacity: 0; transform: translateY(.02em); transition: opacity .14s ease; }\n.yani-home__section-rail-node b { position: absolute; right: 1.15em; max-width: 0; overflow: hidden; padding: .25em 0; border-radius: .36em; color: rgba(255,255,255,.82); font-size: .52em; font-weight: 650; line-height: 1; opacity: 0; text-overflow: ellipsis; white-space: nowrap; transition: right .22s ease, max-width .22s ease, padding .22s ease, opacity .18s ease; }\n.yani-home__section-rail-node--passed i { border-color: rgba(255,255,255,.52); background: rgba(255,255,255,.38); }\n.yani-home__section-rail-node--active i { width: 1.82em; height: 1.02em; border-color: #fff; border-radius: .68em .32em .62em .38em; background: #ef6470; box-shadow: 0 0 0 .16em rgba(239,100,112,.12), 0 0 1em rgba(239,100,112,.55); }\n.yani-home__section-rail-node--active i small { opacity: 1; }\n.yani-home__section-rail-node--active b { right: 2.48em; max-width: 13em; padding: .3em .55em; background: rgba(18,19,29,.82); opacity: 1; }\n.yani-home__section-rail-node.focus i { width: 2.18em; height: 1.22em; border-color: #fff; border-radius: .72em .34em .66em .4em; background: #fff; box-shadow: 0 0 0 .28em rgba(255,255,255,.28), 0 0 1.35em rgba(255,255,255,.78); transform: translateX(-.12em) scale(1.04); }\n.yani-home__section-rail-node.focus i small { opacity: 1; color: #17151c; }\n.yani-home__section-rail-node.focus b { right: 2.88em; max-width: 13em; padding: .34em .62em; background: #fff; color: #17151c; opacity: 1; box-shadow: 0 .35em .9em rgba(0,0,0,.28); }\n.yani-home__section-rail-node--episode_flow.yani-home__section-rail-node--active i { background: #62b8ff; box-shadow: 0 0 0 .24em rgba(98,184,255,.14), 0 0 1em rgba(98,184,255,.5); }\n.yani-home__section-rail-node--library.yani-home__section-rail-node--active i { background: #55d795; box-shadow: 0 0 0 .24em rgba(85,215,149,.14), 0 0 1em rgba(85,215,149,.5); }\n.yani-home__section-rail-node--discover.yani-home__section-rail-node--active i { background: #bf72e9; box-shadow: 0 0 0 .24em rgba(191,114,233,.14), 0 0 1em rgba(191,114,233,.5); }\n.yani-home__section-rail-node--service.yani-home__section-rail-node--active i { background: #ecb055; box-shadow: 0 0 0 .16em rgba(236,176,85,.12), 0 0 1em rgba(236,176,85,.45); }\n\n.yani-home__intro {\n    position: relative;\n    grid-column: span 12;\n    min-height: 7.2em;\n    display: flex;\n    align-items: center;\n    gap: 1.25em;\n    padding: 1.3em 1.6em;\n    box-sizing: border-box;\n    border: .08em solid rgba(255,255,255,.12);\n    border-radius: 1.2em 2.2em 1.25em 2.15em;\n    background: linear-gradient(112deg, rgba(15,17,27,.62), rgba(120,47,91,.28) 55%, rgba(43,92,154,.2));\n    box-shadow: inset 0 .08em 0 rgba(255,255,255,.1), 0 1em 2.8em rgba(0,0,0,.14);\n    overflow: hidden;\n}\n\n.yani-home__intro-mark {\n    flex: 0 0 4.4em;\n    width: 4.4em;\n    height: 4.4em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: .85em;\n    box-sizing: border-box;\n    border-radius: 1.25em .72em 1.15em .82em;\n    background: linear-gradient(145deg, #ff727a, #c94267);\n    color: #231d25;\n    transform: rotate(-3deg);\n    box-shadow: 0 .65em 1.4em rgba(46,8,28,.28), inset 0 .08em 0 rgba(255,255,255,.28);\n}\n\n.yani-home__intro-mark svg { width: 100%; height: 100%; fill: currentColor; }\n.yani-home__intro-copy { position: relative; z-index: 2; flex: 1 1 24%; min-width: 0; }\n.yani-home__intro-brand { display: flex; min-width: 0; align-items: center; gap: .58em; color: #ff8d96; font-size: .78em; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }\n.yani-home__intro-brand span { flex: 0 0 auto; }\n.yani-home__intro-brand i { flex: 0 0 1.9em; width: 1.9em; height: .12em; border-radius: 99em; background: currentColor; box-shadow: 0 0 .7em currentColor; opacity: .55; transition: width .24s ease, color .24s ease; }\n.yani-home__intro-brand em { overflow: hidden; color: rgba(255,255,255,.54); font-size: .82em; font-style: normal; font-weight: 650; letter-spacing: .1em; text-overflow: ellipsis; white-space: nowrap; transition: color .24s ease; }\n.yani-home__intro[data-yani-section=\"episode_flow\"] .yani-home__intro-brand { color: #62b8ff; }\n.yani-home__intro[data-yani-section=\"library\"] .yani-home__intro-brand { color: #55d795; }\n.yani-home__intro[data-yani-section=\"discover\"] .yani-home__intro-brand { color: #bf72e9; }\n.yani-home__intro[data-yani-section=\"service\"] .yani-home__intro-brand { color: #ecb055; }\n.yani-home__intro[data-yani-section=\"episode_flow\"] .yani-home__intro-brand em,\n.yani-home__intro[data-yani-section=\"library\"] .yani-home__intro-brand em,\n.yani-home__intro[data-yani-section=\"discover\"] .yani-home__intro-brand em,\n.yani-home__intro[data-yani-section=\"service\"] .yani-home__intro-brand em { color: rgba(255,255,255,.68); }\n.yani-home__intro-title { overflow: hidden; margin-top: .16em; font-size: 1.75em; font-weight: 720; line-height: 1.08; text-overflow: ellipsis; white-space: nowrap; transition: color .2s ease; }\n.yani-home__intro-subtitle { overflow: hidden; margin-top: .42em; color: rgba(255,255,255,.6); font-size: .88em; text-overflow: ellipsis; white-space: nowrap; transition: color .2s ease; }\n.yani-home__intro-context-art { position: absolute; z-index: 0; top: -35%; right: -2%; bottom: -35%; width: 52%; background-position: center 24%; background-repeat: no-repeat; background-size: cover; opacity: 0; -webkit-mask-image: linear-gradient(90deg, transparent, rgba(0,0,0,.72) 35%, #000); mask-image: linear-gradient(90deg, transparent, rgba(0,0,0,.72) 35%, #000); pointer-events: none; }\n.yani-home__intro-context-art--visible { opacity: .22; }\n.yani-home__intro[data-yani-context=\"schedule\"] .yani-home__intro-mark,\n.yani-home__intro[data-yani-context=\"new_translations\"] .yani-home__intro-mark { background: linear-gradient(145deg, #72c7ff, #7259c8); }\n.yani-home__intro[data-yani-context=\"continue_watching\"] .yani-home__intro-mark,\n.yani-home__intro[data-yani-context=\"user_lists\"] .yani-home__intro-mark,\n.yani-home__intro[data-yani-context=\"updates\"] .yani-home__intro-mark { background: linear-gradient(145deg, #73dfa9, #3d8f83); }\n.yani-home__intro[data-yani-context=\"new_releases\"] .yani-home__intro-mark,\n.yani-home__intro[data-yani-context=\"top_rated\"] .yani-home__intro-mark,\n.yani-home__intro[data-yani-context=\"for_you\"] .yani-home__intro-mark,\n.yani-home__intro[data-yani-context=\"collections\"] .yani-home__intro-mark { background: linear-gradient(145deg, #ff8b76, #b84ca0); }\n.yani-home__intro-data { display: none; align-items: center; gap: .38em; margin-top: .48em; color: rgba(255,255,255,.52); font-size: .57em; line-height: 1; }\n.yani-home__intro-data--visible { display: flex; }\n.yani-home__intro-data i { flex: 0 0 .48em; width: .48em; height: .48em; border-radius: 50%; background: #8390a6; box-shadow: 0 0 .7em rgba(131,144,166,.3); }\n.yani-home__intro-data--live i { background: #55d795; box-shadow: 0 0 .7em rgba(85,215,149,.55); }\n.yani-home__intro-data--partial i { background: #f0b45e; box-shadow: 0 0 .7em rgba(240,180,94,.48); }\n.yani-home__intro-data--cached i { background: #62b8ff; box-shadow: 0 0 .7em rgba(98,184,255,.42); }\n.yani-home__intro-data--offline i { background: #d84e63; box-shadow: 0 0 .7em rgba(216,78,99,.5); }\n.yani-home__intro-summary { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .52em; width: min(38em, 48%); margin-left: auto; }\n.yani-home__intro-metric { min-width: 0; display: flex; align-items: center; gap: .52em; padding: .58em .68em; box-sizing: border-box; border: .07em solid rgba(255,255,255,.12); border-radius: .72em .42em .68em .46em; background: linear-gradient(132deg, rgba(255,255,255,.11), rgba(255,255,255,.045)); box-shadow: inset 0 .06em 0 rgba(255,255,255,.09); cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease; }\n.yani-home__intro-metric-icon { flex: 0 0 1.65em; width: 1.65em; height: 1.65em; display: flex; align-items: center; justify-content: center; border-radius: .48em .28em .44em .32em; background: rgba(239,100,112,.17); color: #ff8d96; }\n.yani-home__intro-metric-icon svg { width: .92em; height: .92em; fill: currentColor; }\n.yani-home__intro-metric-copy { min-width: 0; display: flex; flex-direction: column; }\n.yani-home__intro-metric-copy small { display: -webkit-box; min-height: 2.2em; overflow: hidden; color: rgba(255,255,255,.55); font-size: .48em; line-height: 1.1; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }\n.yani-home__intro-metric-copy b { margin-top: .08em; color: rgba(255,255,255,.46); font-size: 1.02em; font-weight: 760; line-height: 1; }\n.yani-home__intro-metric-copy em { display: none; max-width: 12em; overflow: hidden; margin-top: .28em; color: rgba(255,255,255,.5); font-size: .42em; font-style: normal; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__intro-metric-copy em.yani-home__intro-metric-detail--visible { display: block; }\n.yani-home__intro-metric-arrow { flex: 0 0 auto; margin-left: auto; color: rgba(255,255,255,.38); font-size: 1.15em; line-height: 1; opacity: 0; transform: translateX(-.2em); transition: opacity .16s ease, transform .16s ease; }\n.yani-home__intro-metric--ready .yani-home__intro-metric-copy b { color: #fff; }\n.yani-home__intro-metric--active { border-color: rgba(255,255,255,.2); background: linear-gradient(132deg, rgba(255,255,255,.15), rgba(255,255,255,.065)); }\n.yani-home__intro-metric--unknown { border-style: dashed; opacity: .62; }\n.yani-home__intro-metric.focus { z-index: 3; border-color: rgba(255,255,255,.96); background: linear-gradient(132deg, #fff, rgba(255,255,255,.86)); box-shadow: 0 0 0 .16em rgba(255,255,255,.22), 0 .6em 1.4em rgba(0,0,0,.26); opacity: 1; }\n.yani-home__intro-metric.focus .yani-home__intro-metric-copy small,\n.yani-home__intro-metric.focus .yani-home__intro-metric-copy b,\n.yani-home__intro-metric.focus .yani-home__intro-metric-copy em { color: rgba(22,21,27,.84); }\n.yani-home__intro-metric.focus .yani-home__intro-metric-icon { box-shadow: 0 .22em .55em rgba(0,0,0,.16); }\n.yani-home__intro-metric.focus .yani-home__intro-metric-arrow { color: #a92f53; opacity: 1; transform: translateX(0); }\n.yani-home__intro-metric--today .yani-home__intro-metric-icon { background: rgba(98,184,255,.17); color: #7bc7ff; }\n.yani-home__intro-metric--translations .yani-home__intro-metric-icon { background: rgba(188,119,255,.17); color: #cfa0ff; }\n.yani-home__intro-metric--continue .yani-home__intro-metric-icon { background: rgba(85,215,149,.15); color: #6be1a5; }\n\n.yani-home__intro-orbit { position: absolute; right: 2em; top: 50%; width: 12em; height: 12em; transform: translateY(-50%) rotate(-12deg); border: .1em solid rgba(255,255,255,.08); border-radius: 48% 52% 44% 56% / 58% 42% 58% 42%; }\n.yani-home__intro-orbit::before { content: ''; position: absolute; inset: 2.2em; border: .1em solid rgba(239,100,112,.18); border-radius: 58% 42% 52% 48% / 44% 60% 40% 56%; }\n.yani-home__intro-orbit i { position: absolute; width: .55em; height: .55em; border-radius: 50%; background: #ef6470; box-shadow: 0 0 1.2em rgba(239,100,112,.7); }\n.yani-home__intro-orbit i:nth-child(1) { left: 1em; top: 3em; }\n.yani-home__intro-orbit i:nth-child(2) { right: 1.5em; bottom: 2.2em; background: #62b8ff; }\n.yani-home__intro-orbit i:nth-child(3) { left: 5.7em; bottom: .7em; width: .34em; height: .34em; background: #fff; }\n\n.yani-home__panel {\n    position: relative;\n    min-width: 0;\n    padding: 1em;\n    box-sizing: border-box;\n    border: .08em solid rgba(255,255,255,.11);\n    border-radius: 1.45em .82em 1.35em .92em;\n    background: linear-gradient(132deg, rgba(255,255,255,.09), rgba(255,255,255,.035));\n    box-shadow: inset 0 .08em 0 rgba(255,255,255,.07), 0 .75em 2em rgba(0,0,0,.09);\n    transition: border-color .12s ease;\n}\n\n.yani-home__panel--active { border-color: rgba(255,255,255,.25); background: linear-gradient(132deg, rgba(255,255,255,.13), rgba(239,100,112,.055)); }\n.yani-home[data-yani-section=\"episode_flow\"] .yani-home__panel--active { border-color: rgba(98,184,255,.38); box-shadow: inset 0 .08em 0 rgba(255,255,255,.08), 0 .75em 2.2em rgba(38,119,190,.11); }\n.yani-home[data-yani-section=\"library\"] .yani-home__panel--active { border-color: rgba(85,215,149,.36); box-shadow: inset 0 .08em 0 rgba(255,255,255,.08), 0 .75em 2.2em rgba(42,160,105,.1); }\n.yani-home[data-yani-section=\"discover\"] .yani-home__panel--active { border-color: rgba(191,114,233,.37); box-shadow: inset 0 .08em 0 rgba(255,255,255,.08), 0 .75em 2.2em rgba(142,67,184,.11); }\n.yani-home[data-yani-section=\"service\"] .yani-home__panel--active { border-color: rgba(236,176,85,.34); box-shadow: inset 0 .08em 0 rgba(255,255,255,.08), 0 .75em 2.2em rgba(177,118,42,.09); }\n.yani-home__panel-head { display: flex; align-items: center; gap: .8em; min-height: 1.7em; margin: 0 .25em .75em; }\n.yani-home__panel-chapter { flex: 0 0 auto; min-width: 2.15em; padding: .26em .44em; box-sizing: border-box; border: .07em solid rgba(255,141,150,.34); border-radius: .62em .28em .56em .34em; background: rgba(239,100,112,.12); color: #ff8d96; font-size: .62em; font-weight: 850; letter-spacing: .12em; line-height: 1; text-align: center; box-shadow: inset 0 .06em 0 rgba(255,255,255,.08); transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease; }\n.yani-home__panel--episode-flow .yani-home__panel-chapter { border-color: rgba(98,184,255,.34); background: rgba(98,184,255,.11); color: #79c4ff; }\n.yani-home__panel--library .yani-home__panel-chapter { border-color: rgba(85,215,149,.34); background: rgba(85,215,149,.11); color: #6de2a9; }\n.yani-home__panel--discover .yani-home__panel-chapter { border-color: rgba(191,114,233,.34); background: rgba(191,114,233,.11); color: #cf8cf2; }\n.yani-home__panel--service .yani-home__panel-chapter { border-color: rgba(236,176,85,.34); background: rgba(236,176,85,.1); color: #f0bd70; }\n.yani-home__panel--active .yani-home__panel-chapter { border-color: currentColor; background: rgba(255,255,255,.13); transform: translateY(-.08em); }\n.yani-home__chapter-state { flex: 0 0 auto; display: flex; max-width: 10em; align-items: center; gap: .34em; padding: .25em .46em; border: .07em solid rgba(255,255,255,.1); border-radius: 99em; background: rgba(10,12,19,.2); color: rgba(255,255,255,.55); }\n.yani-home__chapter-state i { flex: 0 0 .42em; width: .42em; height: .42em; border-radius: 50%; background: currentColor; box-shadow: 0 0 .55em currentColor; }\n.yani-home__chapter-state b { overflow: hidden; font-size: .54em; font-weight: 650; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__chapter-state--loading { color: #62b8ff; }\n.yani-home__chapter-state--ready { color: #55d795; }\n.yani-home__chapter-state--partial { color: #efbb68; }\n.yani-home__chapter-state--empty { color: #9ba3b3; }\n.yani-home__chapter-state--cached { color: #79a9ff; }\n.yani-home__chapter-state--offline { color: #e56c7d; }\n.yani-home--motion .yani-home__chapter-state--loading i { animation: yani-home-chapter-loading 1.35s ease-in-out infinite; }\n@keyframes yani-home-chapter-loading { 0%, 100% { opacity: .35; transform: scale(.72); } 50% { opacity: 1; transform: scale(1.18); } }\n.yani-home__panel-title { flex: 0 0 auto; color: rgba(255,255,255,.82); font-size: 1.08em; font-weight: 680; letter-spacing: .015em; }\n.yani-home__panel-line { height: .08em; flex: 1; background: linear-gradient(90deg, rgba(255,255,255,.18), transparent); }\n.yani-home__panel-items { display: grid; gap: .8em; }\n.yani-home__panel--explore { grid-column: span 12; overflow: hidden; background: radial-gradient(circle at 16% 130%, rgba(239,100,112,.15), transparent 18em), linear-gradient(132deg, rgba(255,255,255,.09), rgba(255,255,255,.035)); }\n.yani-home__panel--explore .yani-home__panel-items { grid-template-columns: 1.7fr .92fr 1.08fr; }\n.yani-home__panel--explore .yani-home__item { min-height: 7.2em; padding-right: 5.6em; }\n.yani-home__panel--explore .yani-home__item--catalog { padding-right: 8.2em; background: linear-gradient(125deg, rgba(239,100,112,.26), rgba(129,49,106,.14) 70%); }\n.yani-home__panel--explore .yani-home__item--genres { background: linear-gradient(135deg, rgba(126,93,211,.19), rgba(57,45,87,.1)); }\n.yani-home__panel--explore .yani-home__item--search { background: linear-gradient(135deg, rgba(52,155,203,.19), rgba(32,70,118,.1)); }\n.yani-home__item > .yani-home__explore-art { position: absolute; z-index: 1; right: .85em; top: 50%; width: 4.1em; height: 4.6em; transform: translateY(-50%); pointer-events: none; }\n.yani-home__item > .yani-home__explore-art--catalog { right: 1em; width: 6.8em; perspective: 12em; }\n.yani-home__explore-art--catalog i { position: absolute; top: .35em; width: 2.15em; height: 3.45em; border: .07em solid rgba(255,255,255,.2); border-radius: .34em .18em .3em .2em; background: linear-gradient(155deg, rgba(255,255,255,.28), rgba(255,255,255,.055)); box-shadow: 0 .4em .8em rgba(0,0,0,.18); transform-origin: bottom center; transition: transform .3s cubic-bezier(.2,.8,.2,1), border-color .2s ease; }\n.yani-home__explore-art--catalog i:nth-child(1) { left: .1em; transform: translateY(.38em) rotate(-10deg); background: linear-gradient(155deg, rgba(176,132,239,.38), rgba(98,72,171,.13)); }\n.yani-home__explore-art--catalog i:nth-child(2) { left: 1.55em; transform: translateY(.08em) rotate(-3deg); background: linear-gradient(155deg, rgba(255,139,118,.44), rgba(184,76,160,.16)); }\n.yani-home__explore-art--catalog i:nth-child(3) { left: 3.05em; transform: translateY(.02em) rotate(4deg); background: linear-gradient(155deg, rgba(114,199,255,.36), rgba(83,97,212,.14)); }\n.yani-home__explore-art--catalog i:nth-child(4) { left: 4.5em; transform: translateY(.42em) rotate(11deg); background: linear-gradient(155deg, rgba(100,224,178,.34), rgba(38,132,129,.12)); }\n.yani-home__explore-art--catalog b { position: absolute; left: .48em; right: .42em; bottom: .15em; height: .12em; border-radius: 99em; background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent); filter: blur(.04em); }\n.yani-home__item--catalog.focus .yani-home__explore-art--catalog i:nth-child(1) { transform: translate(-.22em,.25em) rotate(-14deg); }\n.yani-home__item--catalog.focus .yani-home__explore-art--catalog i:nth-child(2) { transform: translate(-.08em,-.14em) rotate(-5deg); }\n.yani-home__item--catalog.focus .yani-home__explore-art--catalog i:nth-child(3) { transform: translate(.08em,-.14em) rotate(6deg); }\n.yani-home__item--catalog.focus .yani-home__explore-art--catalog i:nth-child(4) { transform: translate(.22em,.25em) rotate(15deg); }\n.yani-home__explore-art--genres i { position: absolute; display: block; height: .66em; border: .07em solid rgba(255,255,255,.2); border-radius: 99em; background: rgba(255,255,255,.1); transform: rotate(-7deg); transition: transform .24s ease, background .2s ease; }\n.yani-home__explore-art--genres i::before { content: ''; position: absolute; left: .28em; top: 50%; width: .22em; height: .22em; border-radius: 50%; background: currentColor; transform: translateY(-50%); }\n.yani-home__explore-art--genres i:nth-child(1) { left: .2em; top: .45em; width: 3em; color: #cfa0ff; }\n.yani-home__explore-art--genres i:nth-child(2) { right: .05em; top: 1.42em; width: 2.7em; color: #ff9e8b; transform: rotate(6deg); }\n.yani-home__explore-art--genres i:nth-child(3) { left: .05em; top: 2.48em; width: 3.55em; color: #7bc7ff; transform: rotate(4deg); }\n.yani-home__explore-art--genres i:nth-child(4) { right: .38em; top: 3.55em; width: 2.85em; color: #6be1a5; transform: rotate(-5deg); }\n.yani-home__explore-art--genres b { position: absolute; inset: .05em; border: .06em dashed rgba(255,255,255,.1); border-radius: 43% 57% 48% 52% / 56% 45% 55% 44%; transform: rotate(14deg); }\n.yani-home__item--genres.focus .yani-home__explore-art--genres i { transform: translateX(-.18em) rotate(0); background: rgba(255,255,255,.22); }\n.yani-home__item--genres.focus .yani-home__explore-art--genres i:nth-child(even) { transform: translateX(.18em) rotate(0); }\n.yani-home__explore-art--search i { position: absolute; left: .28em; top: .36em; width: 2.55em; height: 2.55em; border: .18em solid rgba(123,199,255,.7); border-radius: 50%; box-shadow: inset 0 0 1.2em rgba(67,182,216,.16), 0 0 1em rgba(67,182,216,.12); transition: transform .25s ease, box-shadow .25s ease; }\n.yani-home__explore-art--search i::after { content: ''; position: absolute; right: -.82em; bottom: -.52em; width: 1.15em; height: .19em; border-radius: 99em; background: rgba(123,199,255,.8); transform: rotate(45deg); transform-origin: left center; }\n.yani-home__explore-art--search b { position: absolute; left: -.3em; right: -.2em; top: 1.7em; height: .12em; background: linear-gradient(90deg, transparent, rgba(123,199,255,.75), transparent); box-shadow: 0 0 .7em rgba(123,199,255,.45); opacity: .5; transform: rotate(-12deg); transition: transform .28s ease, opacity .2s ease; }\n.yani-home__explore-art--search em { position: absolute; right: .2em; bottom: .2em; width: .52em; height: .52em; border: .08em solid rgba(255,255,255,.32); border-radius: 50%; }\n.yani-home__item--search.focus .yani-home__explore-art--search i { box-shadow: inset 0 0 1.2em rgba(67,182,216,.25), 0 0 1.2em rgba(67,182,216,.5); transform: scale(1.08); }\n.yani-home__item--search.focus .yani-home__explore-art--search b { opacity: 1; transform: translateY(.55em) rotate(-12deg); }\n.yani-home__panel--library { grid-column: span 4; overflow: hidden; background: radial-gradient(circle at 88% 3%, rgba(85,215,149,.14), transparent 11em), linear-gradient(145deg, rgba(33,55,54,.28), rgba(255,255,255,.035)); }\n.yani-home__panel--library .yani-home__panel-items { position: relative; grid-template-columns: 1fr; padding-left: .55em; }\n.yani-home__panel--library .yani-home__panel-items::before { content: ''; position: absolute; z-index: 0; left: .15em; top: .8em; bottom: .8em; width: .08em; border-radius: 99em; background: linear-gradient(180deg, rgba(85,215,149,.1), rgba(85,215,149,.65) 45%, rgba(114,199,255,.32)); box-shadow: 0 0 .7em rgba(85,215,149,.18); }\n.yani-home__panel--library .yani-home__item { min-height: 5.65em; padding: .9em 1em; border-radius: .95em .55em .9em .62em; }\n.yani-home__panel--library .yani-home__item::after { content: ''; position: absolute; z-index: 2; left: -.68em; top: 50%; width: .42em; height: .42em; border: .08em solid rgba(19,28,29,.7); border-radius: 50%; background: rgba(255,255,255,.38); box-shadow: 0 0 0 .13em rgba(85,215,149,.08); transform: translateY(-50%); transition: background .18s ease, box-shadow .18s ease, transform .18s ease; }\n.yani-home__panel--library .yani-home__item.focus::after { background: #55d795; box-shadow: 0 0 0 .18em rgba(85,215,149,.18), 0 0 .8em rgba(85,215,149,.6); transform: translateY(-50%) scale(1.24); }\n.yani-home__panel--library .yani-home__icon { flex-basis: 2.65em; width: 2.65em; height: 2.65em; }\n.yani-home__library-pulse { position: relative; display: grid; grid-template-columns: 3.3em minmax(0, 1fr); align-items: center; gap: .72em; min-height: 3.35em; margin: -.05em .15em .72em; padding: .55em .72em .7em; box-sizing: border-box; border: .07em solid rgba(255,255,255,.12); border-radius: .8em 1.2em .76em 1.05em; background: linear-gradient(125deg, rgba(85,215,149,.13), rgba(55,48,74,.25)); box-shadow: inset 0 .06em 0 rgba(255,255,255,.08); }\n.yani-home__library-pulse-wave { display: flex; align-items: center; justify-content: center; gap: .13em; width: 3.3em; height: 2.2em; color: rgba(85,215,149,.7); }\n.yani-home__library-pulse-wave i { display: block; width: .16em; height: .5em; border-radius: 99em; background: currentColor; box-shadow: 0 0 .45em rgba(85,215,149,.2); transform-origin: center; }\n.yani-home__library-pulse-wave i:nth-child(2), .yani-home__library-pulse-wave i:nth-child(5) { height: 1.05em; }\n.yani-home__library-pulse-wave i:nth-child(3) { height: 1.7em; }\n.yani-home__library-pulse-wave i:nth-child(4) { height: 1.32em; }\n.yani-home__library-pulse-copy { min-width: 0; }\n.yani-home__library-pulse-copy small, .yani-home__library-pulse-copy b, .yani-home__library-pulse-copy em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__library-pulse-copy small { color: rgba(255,255,255,.46); font-size: .48em; font-weight: 760; letter-spacing: .06em; text-transform: uppercase; }\n.yani-home__library-pulse-copy b { margin-top: .08em; color: rgba(255,255,255,.56); font-size: 1em; line-height: 1; }\n.yani-home__library-pulse-copy em { margin-top: .24em; color: rgba(255,255,255,.48); font-size: .48em; font-style: normal; line-height: 1.1; }\n.yani-home__library-pulse-meter { position: absolute; left: .72em; right: .72em; bottom: .28em; height: .1em; overflow: hidden; border-radius: 99em; background: rgba(255,255,255,.1); }\n.yani-home__library-pulse-meter i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #55d795, #72c7ff); transition: width .35s cubic-bezier(.2,.8,.2,1); }\n.yani-home__library-pulse--active .yani-home__library-pulse-copy b { color: #fff; }\n.yani-home--motion .yani-home__library-pulse--active .yani-home__library-pulse-wave i { animation: yani-home-library-pulse 1.8s ease-in-out infinite alternate; }\n.yani-home--motion .yani-home__library-pulse--active .yani-home__library-pulse-wave i:nth-child(2) { animation-delay: -.45s; }\n.yani-home--motion .yani-home__library-pulse--active .yani-home__library-pulse-wave i:nth-child(3) { animation-delay: -.9s; }\n.yani-home--motion .yani-home__library-pulse--active .yani-home__library-pulse-wave i:nth-child(4) { animation-delay: -1.35s; }\n.yani-home__library-preview { display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .42em; margin: -.05em .15em .72em; }\n.yani-home__library-preview--visible { display: grid; }\n.yani-home__library-mini { position: relative; min-width: 0; height: 4.15em; overflow: hidden; border: .07em solid rgba(255,255,255,.13); border-radius: .72em .42em .68em .48em; background: linear-gradient(145deg, rgba(239,100,112,.19), rgba(45,35,61,.72)); box-shadow: inset 0 .06em 0 rgba(255,255,255,.1); cursor: pointer; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }\n.yani-home__library-mini-art, .yani-home__library-mini-shade { position: absolute; inset: 0; pointer-events: none; }\n.yani-home__library-mini-art { background-position: center 22%; background-repeat: no-repeat; background-size: cover; opacity: .76; }\n.yani-home__library-mini-shade { background: linear-gradient(180deg, rgba(12,10,18,.08), rgba(12,10,18,.94)); }\n.yani-home__library-mini-title { position: absolute; z-index: 1; left: .45em; right: 1.65em; bottom: .48em; overflow: hidden; color: #fff; font-size: .57em; font-weight: 650; line-height: 1.18; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__library-mini-episode { position: absolute; z-index: 1; top: .35em; left: .38em; max-width: calc(100% - .76em); overflow: hidden; padding: .13em .3em; border-radius: .3em; background: rgba(12,10,18,.7); color: rgba(255,255,255,.86); font-size: .47em; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__library-mini-play { position: absolute; z-index: 3; right: .4em; bottom: .38em; display: flex; align-items: center; justify-content: center; width: 1.05em; height: 1.05em; border: .06em solid rgba(255,255,255,.4); border-radius: 50%; background: rgba(12,10,18,.72); color: #fff; }\n.yani-home__library-mini-play svg { width: .58em; height: .58em; margin-left: .08em; fill: currentColor; }\n.yani-home__library-mini-progress { position: absolute; z-index: 2; left: .4em; right: .4em; bottom: .22em; height: .11em; overflow: hidden; border-radius: 1em; background: rgba(255,255,255,.18); }\n.yani-home__library-mini-progress i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ef6470, #ffb36b); }\n.yani-home__library-mini.focus { z-index: 4; border-color: rgba(255,255,255,.95); box-shadow: 0 0 0 .15em rgba(255,255,255,.3), 0 .55em 1.3em rgba(0,0,0,.32); transform: translateY(-.12em) scale(1.035); }\n.yani-home__library-mini.focus .yani-home__library-mini-play { border-color: #ef6470; background: #ef6470; box-shadow: 0 0 0 .18em rgba(239,100,112,.22); }\n.yani-home__library-mini.focus .yani-home__library-mini-progress i { background: linear-gradient(90deg, #fff, #ffd2a5); }\n.yani-home__panel--service {\n    grid-column: span 12;\n    overflow: hidden;\n    background:\n        radial-gradient(circle at 9% 58%, rgba(239,100,112,.15), transparent 17em),\n        linear-gradient(125deg, rgba(25,22,34,.86), rgba(54,42,68,.55));\n}\n.yani-home__panel--service::before { content: ''; position: absolute; left: 8.2em; right: 2.6em; top: 58%; height: .08em; background: linear-gradient(90deg, rgba(239,100,112,.42), rgba(124,113,218,.3) 48%, rgba(85,215,149,.32)); pointer-events: none; }\n.yani-home__service-constellation { position: relative; display: grid; grid-template-columns: 8.4em minmax(0, 1fr); gap: 1em; align-items: stretch; }\n.yani-home__panel--service .yani-home__panel-items { position: relative; z-index: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); }\n.yani-home__panel--service .yani-home__item { min-height: 5.4em; padding: .85em 1em; border-radius: 1.1em .68em 1.05em .72em; background: linear-gradient(138deg, rgba(255,255,255,.13), rgba(255,255,255,.045)); }\n.yani-home__service-hub { position: relative; z-index: 2; display: flex; align-items: center; min-width: 0; min-height: 5.4em; padding: .75em; box-sizing: border-box; border: .08em solid rgba(255,255,255,.14); border-radius: 50% 43% 49% 40% / 46% 52% 42% 54%; background: radial-gradient(circle at 35% 28%, rgba(255,255,255,.16), rgba(18,16,25,.88) 67%); box-shadow: inset 0 .08em 0 rgba(255,255,255,.1), 0 .65em 1.4em rgba(0,0,0,.18); transition: border-color .25s ease, box-shadow .25s ease; }\n.yani-home__service-hub-logo { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; flex: 0 0 2.15em; width: 2.15em; height: 2.15em; margin-right: .58em; border-radius: .65em .42em .62em .46em; background: linear-gradient(145deg, #ef6470, #a92f53); box-shadow: 0 .35em .8em rgba(169,47,83,.3); color: #fff; }\n.yani-home__service-hub-logo svg { width: 1.35em; height: 1.35em; fill: currentColor; }\n.yani-home__service-hub-copy { position: relative; z-index: 2; display: block; min-width: 0; }\n.yani-home__service-hub-copy small, .yani-home__service-hub-copy b, .yani-home__service-hub-copy em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__service-hub-copy small { color: rgba(255,255,255,.42); font-size: .48em; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }\n.yani-home__service-hub-copy b { margin-top: .22em; color: rgba(255,255,255,.92); font-size: .68em; line-height: 1.15; }\n.yani-home__service-hub-copy em { margin-top: .3em; color: rgba(255,255,255,.5); font-size: .52em; font-style: normal; line-height: 1.1; }\n.yani-home__service-hub-orbit { position: absolute; inset: -.35em; border: .07em solid rgba(255,255,255,.11); border-radius: 48% 52% 43% 57% / 56% 44% 56% 44%; transform: rotate(-9deg); pointer-events: none; }\n.yani-home__service-hub-orbit i { position: absolute; display: block; width: .34em; height: .34em; border: .08em solid rgba(20,18,27,.55); border-radius: 50%; background: rgba(255,255,255,.42); box-shadow: 0 0 .5em currentColor; }\n.yani-home__service-hub-orbit i:nth-child(1) { left: 9%; top: 12%; }\n.yani-home__service-hub-orbit i:nth-child(2) { right: 4%; top: 49%; }\n.yani-home__service-hub-orbit i:nth-child(3) { left: 38%; bottom: -3%; }\n.yani-home__service-hub--up { border-color: rgba(85,215,149,.4); box-shadow: inset 0 .08em 0 rgba(255,255,255,.1), 0 0 1.4em rgba(85,215,149,.12); }\n.yani-home__service-hub--up .yani-home__service-hub-orbit i { color: #55d795; background: #55d795; }\n.yani-home__service-hub--attention { border-color: rgba(239,100,112,.48); }\n.yani-home__service-hub--attention .yani-home__service-hub-orbit i { color: #ef6470; background: #ef6470; }\n.yani-home__service-hub--degraded { border-color: rgba(240,180,94,.5); }\n.yani-home__service-hub--degraded .yani-home__service-hub-orbit i { color: #f0b45e; background: #f0b45e; }\n.yani-home__service-hub--down { border-color: rgba(216,78,99,.52); }\n.yani-home__service-hub--down .yani-home__service-hub-orbit i { color: #d84e63; background: #d84e63; }\n.yani-home--motion .yani-home__service-hub-orbit { animation: yani-home-service-orbit 14s linear infinite; }\n\n.yani-home__item {\n    position: relative;\n    min-height: 8.3em;\n    padding: 1.35em 1.5em;\n    border: 0.08em solid rgba(255, 255, 255, 0.12);\n    border-radius: 1.55em .85em 1.45em .9em;\n    background: linear-gradient(128deg, rgba(255,255,255,.16), rgba(255,255,255,.055) 72%);\n    box-shadow: 0 0.7em 1.8em rgba(0, 0, 0, .12), inset 0 0.08em 0 rgba(255,255,255,.12);\n    display: flex;\n    align-items: center;\n    gap: 1em;\n    overflow: hidden;\n    transition: border-color .12s ease;\n}\n\n.yani-home__episode-flow {\n    position: relative;\n    grid-column: span 8;\n    min-width: 0;\n    padding: 1em;\n    background: linear-gradient(132deg, rgba(33,141,120,.17), rgba(83,97,212,.12) 58%, rgba(255,255,255,.035));\n}\n\n.yani-home__episode-flow-title {\n    position: static;\n    color: rgba(255,255,255,.78);\n    font-size: 1.1em;\n    font-weight: 650;\n    letter-spacing: .02em;\n}\n\n.yani-home__episode-flow-live { margin-left: auto; display: none; align-items: center; justify-content: center; gap: .38em; max-width: 54%; padding: .32em .52em; border: .07em solid rgba(239,100,112,.35); border-radius: 999px; background: rgba(239,100,112,.1); }\n.yani-home__episode-flow-live--visible { display: flex; }\n.yani-home__episode-flow-live i { width: .48em; height: .48em; border-radius: 50%; background: #ef6470; box-shadow: 0 0 0 .28em rgba(239,100,112,.12), 0 0 1em rgba(239,100,112,.55); }\n.yani-home__episode-flow-live b { overflow: hidden; color: rgba(255,255,255,.76); font-size: .58em; font-weight: 650; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__episode-flow-live--upcoming { border-color: rgba(98,184,255,.34); background: rgba(98,184,255,.1); }\n.yani-home__episode-flow-live--upcoming i { background: #62b8ff; box-shadow: 0 0 .8em rgba(98,184,255,.65); }\n.yani-home__episode-flow-live--aired { border-color: rgba(85,215,149,.34); background: rgba(85,215,149,.1); }\n.yani-home__episode-flow-live--aired i { background: #55d795; box-shadow: 0 0 .8em rgba(85,215,149,.62); }\n.yani-home--motion .yani-home__episode-flow-live i { animation: yani-home-flow-pulse 2.4s ease-in-out infinite; }\n\n.yani-home__episode-flow-items {\n    position: relative;\n    z-index: 1;\n    display: grid;\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n    gap: 1.05em;\n}\n\n.yani-home__episode-timeline {\n    position: relative;\n    z-index: 2;\n    display: grid;\n    grid-template-columns: repeat(3, minmax(0, 1fr));\n    gap: .72em;\n    margin: .1em 0 .9em;\n}\n\n.yani-home__episode-stage {\n    position: relative;\n    display: flex;\n    align-items: center;\n    min-width: 0;\n    min-height: 4.15em;\n    padding: .62em .72em;\n    border: .07em solid rgba(255,255,255,.1);\n    border-radius: .95em .58em .9em .62em;\n    background: rgba(10,18,28,.22);\n    box-sizing: border-box;\n}\n\n.yani-home__episode-stage-marker {\n    display: flex;\n    flex: 0 0 2.15em;\n    align-items: center;\n    justify-content: center;\n    width: 2.15em;\n    height: 2.15em;\n    margin-right: .65em;\n    border: .08em solid rgba(255,255,255,.18);\n    border-radius: 50%;\n    background: rgba(255,255,255,.08);\n    color: rgba(255,255,255,.62);\n}\n\n.yani-home__episode-stage-marker svg { width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.yani-home__episode-stage--scheduled .yani-home__episode-stage-marker { border-color: rgba(75,184,225,.42); background: rgba(75,184,225,.14); color: #7bd8f0; }\n.yani-home__episode-stage--waiting .yani-home__episode-stage-marker { border-color: rgba(244,176,76,.48); background: rgba(244,176,76,.14); color: #ffc568; }\n.yani-home__episode-stage--ready .yani-home__episode-stage-marker { border-color: rgba(68,202,146,.48); background: rgba(68,202,146,.14); color: #6ee0ad; }\n.yani-home__episode-stage-copy { min-width: 0; }\n.yani-home__episode-stage-label { color: rgba(255,255,255,.48); font-size: .58em; font-weight: 750; letter-spacing: .04em; line-height: 1.15; text-transform: uppercase; }\n.yani-home__episode-stage-title { overflow: hidden; margin-top: .22em; color: rgba(255,255,255,.88); font-size: .72em; font-weight: 650; line-height: 1.16; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__episode-stage-meta { overflow: hidden; margin-top: .2em; color: rgba(255,255,255,.48); font-size: .6em; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__episode-stage.selector { cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease; }\n.yani-home__episode-stage.selector.focus { z-index: 3; border-color: rgba(255,255,255,.9); background: rgba(255,255,255,.14); box-shadow: 0 0 0 .14em rgba(255,255,255,.2), 0 .45em 1em rgba(0,0,0,.18); transform: translateY(-.08em) scale(1.02); }\n.yani-home__episode-stage.selector.focus .yani-home__episode-stage-title { color: #fff; }\n.yani-home__episode-stage.selector.focus .yani-home__episode-stage-marker { border-color: #fff; box-shadow: 0 0 0 .18em rgba(255,255,255,.16); }\n.yani-home__episode-stage-link { position: absolute; top: 50%; left: -.74em; width: .74em; height: .15em; background: rgba(255,255,255,.14); transform: translateY(-50%); }\n.yani-home__episode-stage-link i { position: absolute; right: -.02em; top: 50%; width: .3em; height: .3em; border-top: .08em solid rgba(255,255,255,.4); border-right: .08em solid rgba(255,255,255,.4); transform: translateY(-50%) rotate(45deg); }\n.yani-home--motion .yani-home__episode-stage--waiting .yani-home__episode-stage-marker { animation: yani-home-stage-wait 2.8s ease-in-out infinite; }\n\n.yani-home__discover {\n    position: relative;\n    grid-column: span 12;\n    min-width: 0;\n    padding: 1.1em;\n    border: .08em solid rgba(255,255,255,.12);\n    border-radius: 1.8em .95em 1.65em 1.05em;\n    background: linear-gradient(118deg, rgba(239,100,112,.10), rgba(99,76,170,.12) 48%, rgba(255,255,255,.045));\n    box-shadow: inset 0 .08em 0 rgba(255,255,255,.08), 0 .8em 2em rgba(0,0,0,.1);\n    overflow: hidden;\n}\n\n.yani-home__discover::after {\n    content: '';\n    position: absolute;\n    right: -4.5em;\n    top: -7em;\n    width: 16em;\n    height: 16em;\n    border: .18em solid rgba(255,255,255,.09);\n    border-radius: 44% 56% 36% 64% / 61% 39% 61% 39%;\n    transform: rotate(24deg);\n    pointer-events: none;\n}\n\n.yani-home__discover-head {\n    position: relative;\n    z-index: 1;\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    min-height: 1.8em;\n    margin: 0 .35em .8em;\n}\n\n.yani-home__discover-title {\n    color: rgba(255,255,255,.84);\n    font-size: 1.1em;\n    font-weight: 650;\n    letter-spacing: .02em;\n}\n\n.yani-home__discover-mark { display: flex; align-items: center; gap: .34em; }\n.yani-home__discover-mark i { display: block; width: .42em; height: .42em; border: .09em solid rgba(255,255,255,.5); border-radius: 50%; }\n.yani-home__discover-mark i:nth-child(2) { width: .62em; height: .62em; border-color: rgba(239,100,112,.78); }\n\n.yani-home__discover-preview {\n    position: relative;\n    z-index: 1;\n    display: none;\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n    gap: .8em;\n    margin-bottom: .8em;\n}\n.yani-home__discover-preview--visible { display: grid; }\n.yani-home__discover-preview-card {\n    position: relative;\n    min-width: 0;\n    min-height: 4.4em;\n    overflow: hidden;\n    padding: .75em 2.5em .75em 5.2em;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: .82em 1.25em .82em 1.1em;\n    background: linear-gradient(112deg, rgba(13,12,20,.88), rgba(55,43,73,.76));\n    box-shadow: inset 0 .06em 0 rgba(255,255,255,.08);\n    cursor: pointer;\n    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;\n}\n.yani-home__discover-preview-card--collection { background: linear-gradient(112deg, rgba(29,22,42,.9), rgba(91,48,76,.72)); }\n.yani-home__discover-preview-art { position: absolute; inset: 0 auto 0 0; width: 4.4em; background-position: center; background-size: cover; opacity: .86; }\n.yani-home__discover-preview-card::after { content: ''; position: absolute; inset: 0 auto 0 3.1em; width: 3.1em; background: linear-gradient(90deg, transparent, rgba(20,17,28,.94)); pointer-events: none; }\n.yani-home__discover-preview-card > * { position: relative; z-index: 1; }\n.yani-home__discover-preview-card .yani-home__discover-preview-kicker { display: block; overflow: hidden; color: rgba(255,255,255,.48); font-size: .55em; font-weight: 750; letter-spacing: .08em; line-height: 1.1; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }\n.yani-home__discover-preview-card b { display: block; overflow: hidden; margin-top: .18em; color: rgba(255,255,255,.94); font-size: .82em; line-height: 1.18; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__discover-preview-card small { display: block; overflow: hidden; margin-top: .28em; color: rgba(255,255,255,.56); font-size: .62em; font-style: normal; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }\n.yani-home__discover-preview-card > i { position: absolute; right: .72em; top: 50%; color: rgba(255,255,255,.52); font-size: 1.45em; font-style: normal; transform: translateY(-50%); }\n.yani-home__discover-preview-card.focus { z-index: 3; border-color: #fff; box-shadow: 0 0 0 .14em rgba(255,255,255,.2), 0 .55em 1.2em rgba(0,0,0,.22); transform: translateY(-.08em) scale(1.012); }\n.yani-home__discover-preview-card.focus > i { color: #fff; }\n\n.yani-home__discover-items {\n    position: relative;\n    z-index: 1;\n    display: grid;\n    grid-template-columns: repeat(4, minmax(0, 1fr));\n    gap: .8em;\n}\n\n.yani-home__discover .yani-home__item {\n    min-height: 6.6em;\n    padding: 1em;\n    border-radius: 1.05em .62em 1em .68em;\n    background: linear-gradient(138deg, rgba(255,255,255,.15), rgba(255,255,255,.055));\n}\n\n.yani-home__discover .yani-home__icon { flex-basis: 2.8em; width: 2.8em; height: 2.8em; }\n.yani-home__discover .yani-home__icon svg { width: 1.4em; height: 1.4em; }\n.yani-home__discover .yani-home__title { font-size: 1.02em; }\n.yani-home__discover .yani-home__arrow { font-size: 1.55em; }\n\n@keyframes yani-home-flow-pulse {\n    0%, 100% { opacity: .55; transform: scale(.8); }\n    50% { opacity: 1; transform: scale(1.3); }\n}\n\n@keyframes yani-home-stage-wait {\n    0%, 100% { box-shadow: 0 0 0 0 rgba(244,176,76,0); }\n    50% { box-shadow: 0 0 0 .28em rgba(244,176,76,.10); }\n}\n\n@keyframes yani-home-service-orbit {\n    from { transform: rotate(-9deg); }\n    to { transform: rotate(351deg); }\n}\n\n@keyframes yani-home-library-pulse {\n    from { opacity: .42; transform: scaleY(.62); }\n    to { opacity: 1; transform: scaleY(1.08); }\n}\n\n.yani-home__item::before {\n    content: '';\n    position: absolute;\n    z-index: 0;\n    width: 72%;\n    height: 160%;\n    right: -58%;\n    bottom: -116%;\n    pointer-events: none;\n    border: .18em solid rgba(255,255,255,.22);\n    border-radius: 42% 58% 67% 33% / 55% 38% 62% 45%;\n    background: rgba(239,100,112,.09);\n    transform: rotate(-18deg) scale(.8);\n    transition: none;\n}\n\n.yani-home__panel--episode-flow .yani-home__item::before { background: rgba(98,184,255,.09); }\n.yani-home__panel--library .yani-home__item::before { background: rgba(85,215,149,.085); }\n.yani-home__panel--discover .yani-home__item::before { background: rgba(191,114,233,.085); }\n.yani-home__panel--service .yani-home__item::before { background: rgba(236,176,85,.075); }\n\n.yani-home__item > * { position: relative; z-index: 1; }\n.yani-home__item > .yani-home__item-art {\n    position: absolute;\n    z-index: 0;\n    inset: 0;\n    display: block;\n    background-position: center right;\n    background-repeat: no-repeat;\n    background-size: cover;\n    opacity: .76;\n    pointer-events: none;\n    transition: opacity .22s ease, transform .35s cubic-bezier(.2,.8,.2,1);\n}\n.yani-home__item--artwork::before { opacity: .38; }\n.yani-home__item--artwork.focus .yani-home__item-art { opacity: .12; }\n.yani-home__item--priority:not(.focus) { border-color: rgba(239,100,112,.46); box-shadow: 0 0 0 .08em rgba(239,100,112,.1), 0 .8em 2em rgba(0,0,0,.16); }\n.yani-home__item > .yani-home__priority {\n    position: absolute;\n    z-index: 3;\n    right: .72em;\n    top: .58em;\n    max-width: 48%;\n    overflow: hidden;\n    padding: .24em .5em;\n    border: .07em solid rgba(255,255,255,.2);\n    border-radius: 99em;\n    background: rgba(239,100,112,.2);\n    color: rgba(255,255,255,.88);\n    font-size: .56em;\n    font-weight: 750;\n    line-height: 1;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n.yani-home__item.focus .yani-home__priority { border-color: rgba(169,47,83,.2); background: rgba(239,100,112,.14); color: #a92f53; }\n.yani-home--motion .yani-home__item { animation: yani-home-reveal .46s cubic-bezier(.18,.82,.22,1) backwards; }\n.yani-home--motion .yani-home__item:nth-child(2) { animation-delay: .035s; }\n.yani-home--motion .yani-home__item:nth-child(3) { animation-delay: .07s; }\n.yani-home--motion .yani-home__item:nth-child(4) { animation-delay: .105s; }\n.yani-home--motion .yani-home__item:nth-child(5) { animation-delay: .14s; }\n.yani-home--motion .yani-home__item:nth-child(6) { animation-delay: .175s; }\n.yani-home--motion .yani-home__item:nth-child(7) { animation-delay: .21s; }\n.yani-home--motion .yani-home__item:nth-child(8) { animation-delay: .245s; }\n.yani-home--motion .yani-home__item:nth-child(9) { animation-delay: .28s; }\n.yani-home--motion .yani-home__item:nth-child(10) { animation-delay: .315s; }\n.yani-home--motion .yani-home__item:nth-child(11) { animation-delay: .35s; }\n\n@keyframes yani-home-reveal {\n    from { opacity: 0; transform: translateY(1.2em) rotate(.6deg); }\n    to { opacity: 1; transform: translateY(0) scale(1); }\n}\n\n.yani-home--motion .yani-home__wave { animation: yani-home-wave-draw 1.15s cubic-bezier(.24,.76,.28,1) backwards; }\n.yani-home--motion .yani-home__wave--middle { animation-delay: .08s; }\n.yani-home--motion .yani-home__wave--near { animation-delay: .16s; }\n.yani-home--motion .yani-home__pulse { animation: yani-home-pulse 3.2s ease-in-out infinite; }\n.yani-home--motion .yani-home__pulse--two { animation-delay: -1.6s; }\n\n@keyframes yani-home-wave-draw {\n    from { opacity: 0; stroke-dashoffset: 1900; transform: translateY(1.5em); }\n    to { opacity: 1; stroke-dashoffset: 0; transform: translateY(0); }\n}\n\n@keyframes yani-home-pulse {\n    0%, 100% { opacity: .28; transform: scale(.8); }\n    50% { opacity: .8; transform: scale(1.18); }\n}\n\n.yani-home__item.focus {\n    background: linear-gradient(135deg, #fff, rgba(255,255,255,.82));\n    color: #16151b;\n    border-color: rgba(255,255,255,.95);\n    box-shadow: 0 0 0 .18em rgba(255,255,255,.22), 0 1em 2.4em rgba(0,0,0,.25);\n    border-radius: .85em 1.55em .9em 1.45em;\n}\n\n.yani-home__panel--explore .yani-home__item.focus { border-color: rgba(239,100,112,.8); box-shadow: 0 0 0 .2em rgba(239,100,112,.2), 0 1em 2.4em rgba(0,0,0,.25); }\n.yani-home__panel--episode-flow .yani-home__item.focus { border-color: rgba(98,184,255,.82); box-shadow: 0 0 0 .2em rgba(98,184,255,.2), 0 1em 2.4em rgba(0,0,0,.25); }\n.yani-home__panel--library .yani-home__item.focus { border-color: rgba(85,215,149,.82); box-shadow: 0 0 0 .2em rgba(85,215,149,.2), 0 1em 2.4em rgba(0,0,0,.25); }\n.yani-home__panel--discover .yani-home__item.focus { border-color: rgba(191,114,233,.82); box-shadow: 0 0 0 .2em rgba(191,114,233,.2), 0 1em 2.4em rgba(0,0,0,.25); }\n.yani-home__panel--service .yani-home__item.focus { border-color: rgba(236,176,85,.82); box-shadow: 0 0 0 .2em rgba(236,176,85,.18), 0 1em 2.4em rgba(0,0,0,.25); }\n\n.yani-home--motion .yani-home__item.focus::before {\n    opacity: .55;\n}\n\n.yani-home__icon {\n    flex: 0 0 3.35em;\n    width: 3.35em;\n    height: 3.35em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    border-radius: .85em;\n    background: rgba(0,0,0,.18);\n    color: #fff;\n    box-shadow: inset 0 0 0 .08em rgba(255,255,255,.12);\n    transition: transform .24s ease, box-shadow .24s ease;\n}\n\n.yani-home__icon svg {\n    width: 1.65em;\n    height: 1.65em;\n    fill: none;\n    stroke: currentColor;\n    stroke-width: 1.8;\n    stroke-linecap: round;\n    stroke-linejoin: round;\n}\n\n.yani-home__title {\n    min-width: 0;\n    font-size: 1.3em;\n    font-weight: 600;\n    line-height: 1.2;\n}\n\n.yani-home__text { min-width: 0; }\n.yani-home__subtitle {\n    margin-top: .38em;\n    color: rgba(255,255,255,.58);\n    font-size: .78em;\n    line-height: 1.2;\n}\n.yani-home__item.focus .yani-home__subtitle { color: rgba(22,21,27,.62); }\n\n.yani-home__item-insight {\n    max-width: 30em;\n    margin-top: .58em;\n    padding-top: .48em;\n    border-top: .08em solid rgba(255,255,255,.12);\n}\n\n.yani-home__item-insight-title {\n    overflow: hidden;\n    color: rgba(255,255,255,.9);\n    font-size: .77em;\n    font-weight: 650;\n    line-height: 1.2;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.yani-home__item-insight-meta {\n    overflow: hidden;\n    margin-top: .24em;\n    color: rgba(255,255,255,.52);\n    font-size: .68em;\n    line-height: 1.2;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.yani-home__item.focus .yani-home__item-insight { border-top-color: rgba(22,21,27,.13); }\n.yani-home__item.focus .yani-home__item-insight-title { color: rgba(22,21,27,.88); }\n.yani-home__item.focus .yani-home__item-insight-meta { color: rgba(22,21,27,.58); }\n.yani-home__episode-flow .yani-home__item--with-insight { min-height: 9.2em; align-items: flex-start; }\n\n.yani-home__arrow {\n    margin-left: auto;\n    color: rgba(255,255,255,.55);\n    font-size: 2em;\n    line-height: 1;\n    transition: transform .2s ease, color .2s ease;\n}\n\n.yani-home__count {\n    display: none;\n    flex: 0 0 auto;\n    min-width: 1.65em;\n    padding: .24em .42em;\n    border: .08em solid rgba(255,255,255,.2);\n    border-radius: 99em;\n    background: rgba(12,12,18,.34);\n    color: rgba(255,255,255,.9);\n    font-size: .72em;\n    font-weight: 750;\n    line-height: 1;\n    text-align: center;\n    box-shadow: inset 0 .08em 0 rgba(255,255,255,.08);\n}\n\n.yani-home__count--visible { display: inline-block; }\n.yani-home__item.focus .yani-home__count { border-color: rgba(239,100,112,.32); background: rgba(239,100,112,.14); color: #a92f53; }\n.yani-home__discover .yani-home__count { font-size: .64em; }\n\n.yani-home__service-state {\n    display: block;\n    flex: 0 0 .62em;\n    width: .62em;\n    height: .62em;\n    margin-left: auto;\n    border: .08em solid rgba(255,255,255,.34);\n    border-radius: 50%;\n    background: rgba(255,255,255,.28);\n    box-shadow: 0 0 0 .2em rgba(255,255,255,.04);\n}\n.yani-home__service-state + .yani-home__arrow { margin-left: .45em; }\n.yani-home__service-state--up { background: #55d795; box-shadow: 0 0 0 .2em rgba(85,215,149,.11), 0 0 .75em rgba(85,215,149,.32); }\n.yani-home__service-state--attention { background: #ef6470; box-shadow: 0 0 0 .2em rgba(239,100,112,.11), 0 0 .75em rgba(239,100,112,.32); }\n.yani-home__service-state--degraded { background: #f0b45e; box-shadow: 0 0 0 .2em rgba(240,180,94,.11), 0 0 .75em rgba(240,180,94,.3); }\n.yani-home__service-state--down { background: #d84e63; box-shadow: 0 0 0 .2em rgba(216,78,99,.12), 0 0 .75em rgba(216,78,99,.35); }\n.yani-home__item.focus .yani-home__service-state { border-color: rgba(22,21,27,.34); }\n\n.yani-home__item.focus .yani-home__arrow {\n    color: #ef6470;\n}\n.yani-home__panel--episode-flow .yani-home__item.focus .yani-home__arrow { color: #2679c2; }\n.yani-home__panel--library .yani-home__item.focus .yani-home__arrow { color: #218d78; }\n.yani-home__panel--discover .yani-home__item.focus .yani-home__arrow { color: #8f4fd1; }\n.yani-home__panel--service .yani-home__item.focus .yani-home__arrow { color: #b07124; }\n\n.yani-home__item--catalog .yani-home__icon { background: linear-gradient(135deg, #ef6470, #b84068); }\n.yani-home__item--genres .yani-home__icon { background: linear-gradient(135deg, #9b75e8, #6548b7); }\n.yani-home__item--search .yani-home__icon { background: linear-gradient(135deg, #43b6d8, #2679c2); }\n.yani-home__item--schedule .yani-home__icon { background: linear-gradient(135deg, #42c68a, #218d78); }\n.yani-home__item--new_translations .yani-home__icon { background: linear-gradient(135deg, #49bfe3, #5361d4); }\n.yani-home__item--new_releases .yani-home__icon { background: linear-gradient(135deg, #ff9e54, #e34f6f); }\n.yani-home__item--continue_watching .yani-home__icon { background: linear-gradient(135deg, #f0af54, #d87742); }\n.yani-home__item--status .yani-home__icon { background: linear-gradient(135deg, #48c7a0, #238d8d); }\n.yani-home__item--top_rated .yani-home__icon { background: linear-gradient(135deg, #f5c95e, #d97939); }\n.yani-home__item--for_you .yani-home__icon { background: linear-gradient(135deg, #ff7b93, #a7427f); }\n.yani-home__item--updates .yani-home__icon { background: linear-gradient(135deg, #5eb7ff, #5861c5); }\n.yani-home__item--collections .yani-home__icon { background: linear-gradient(135deg, #ff8f70, #8f4fd1); }\n.yani-home__item--user_lists .yani-home__icon { background: linear-gradient(135deg, #6f8ff3, #5750bb); }\n.yani-home__item--notifications .yani-home__icon { background: linear-gradient(135deg, #ff8b62, #d74c65); }\n.yani-home__item--account .yani-home__icon { background: linear-gradient(135deg, #e77ab3, #9d4b9c); }\n\n.yani-home__item.focus .yani-home__icon {\n    color: #fff;\n    box-shadow: 0 .35em .8em rgba(0,0,0,.2);\n}\n\n.yani-home--reduced-motion .yani-home__item,\n.yani-home--reduced-motion .yani-home__item::before,\n.yani-home--reduced-motion .yani-home__icon,\n.yani-home--reduced-motion .yani-home__arrow,\n.yani-home--reduced-motion .yani-home__wave,\n.yani-home--reduced-motion .yani-home__pulse { animation: none; transition: none; }\n.yani-home--reduced-motion .yani-home__episode-stage-marker { animation: none; }\n.yani-home--reduced-motion .yani-home__item-art { display: none; }\n.yani-home--reduced-motion .yani-home__library-mini-art { display: none; }\n.yani-home--reduced-motion .yani-home__intro-metric { transition: none; }\n.yani-home--reduced-motion .yani-home__intro-context-art { display: none; }\n.yani-home--reduced-motion .yani-home__intro-brand i,\n.yani-home--reduced-motion .yani-home__intro-brand em { transition: none; }\n.yani-home--reduced-motion .yani-home__chapter-state i { animation: none; }\n.yani-home--reduced-motion .yani-home__ambient { transition: none; transform: none; }\n.yani-home--reduced-motion .yani-home__section-rail-node i,\n.yani-home--reduced-motion .yani-home__section-rail-node b { transition: none; }\n.yani-home--reduced-motion .yani-home__section-rail { background: rgba(13,14,22,.78); backdrop-filter: none; }\n\n@media (prefers-reduced-motion: reduce) {\n    .yani-home__item,\n    .yani-home__item::before,\n    .yani-home__icon,\n    .yani-home__arrow,\n    .yani-home__wave,\n    .yani-home__pulse { animation: none !important; transition: none !important; }\n    .yani-home__ambient { transition: none !important; transform: none !important; }\n    .yani-home__episode-stage-marker { animation: none !important; }\n}\n\n.yani-policy-layer {\n    position: fixed;\n    z-index: 10050;\n    inset: 0;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 2em;\n    box-sizing: border-box;\n    background: rgba(4, 5, 9, .72);\n}\n\n.yani-policy-layer .yani-policy { margin: 0; }\n\n.yani-policy {\n    width: min(54em, calc(100% - 3em));\n    margin: 2.5em auto;\n    padding: 2.2em 2.5em;\n    box-sizing: border-box;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: 1.2em;\n    background: linear-gradient(145deg, rgba(35,35,42,.96), rgba(18,18,23,.94));\n    box-shadow: 0 1.4em 4em rgba(0,0,0,.35);\n    color: #f7f7fa;\n}\n\n.yani-policy__mark {\n    width: 4.5em;\n    height: 4.5em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 1.2em;\n    padding: .9em;\n    box-sizing: border-box;\n    border-radius: 1.1em;\n    background: linear-gradient(135deg, #ff6871, #c74766);\n    color: #24242a;\n}\n\n.yani-policy__mark svg { width: 100%; height: 100%; fill: currentColor; }\n.yani-policy__title { width: fit-content; max-width: 100%; padding: .12em .25em; margin: 0 0 .75em -.25em; border-radius: .25em; font-size: 2.25em; font-weight: 700; }\n.yani-policy__title.focus { box-shadow: 0 0 0 .1em rgba(255,104,113,.9); background: rgba(255,104,113,.16); }\n.yani-policy__content { color: rgba(255,255,255,.82); font-size: 1.12em; line-height: 1.55; }\n.yani-policy__paragraph + .yani-policy__paragraph { margin-top: .8em; }\n.yani-policy__accept { width: fit-content; margin-top: 1.6em; padding: .78em 1.35em; border-radius: .55em; background: #ef6470; color: #fff; font-weight: 600; }\n.yani-policy__accept.focus { background: #fff; color: #17171b; box-shadow: 0 0 0 .16em #ef6470; transform: scale(1.035); }\n\n.yani-skip-prompt {\n    position: absolute;\n    right: 2.2em;\n    bottom: 6.4em;\n    z-index: 40;\n    display: none;\n    padding: .72em 1.25em;\n    border: .08em solid rgba(255,255,255,.28);\n    border-radius: .55em;\n    background: rgba(18,18,23,.82);\n    box-shadow: 0 .6em 1.6em rgba(0,0,0,.35);\n    color: #fff;\n    font-size: 1.05em;\n    font-weight: 650;\n    letter-spacing: .01em;\n    pointer-events: auto;\n}\nbody > .yani-skip-prompt {\n    position: fixed;\n    z-index: 10040;\n}\n.yani-skip-prompt--visible { display: block; }\n.yani-skip-prompt.focus,\n.yani-skip-prompt:hover {\n    border-color: #fff;\n    background: #fff;\n    color: #17171b;\n}\n\n@media (max-width: 700px) {\n    .yani-policy { width: calc(100% - 1.4em); margin: 1em auto; padding: 1.4em; }\n    .yani-policy__title { font-size: 1.75em; }\n}\n\n@media (max-width: 700px) {\n    .yani-home__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); padding: 1.2em; }\n    .yani-home__intro { min-height: 6.5em; padding: 1em; }\n    .yani-home__intro-mark { flex-basis: 3.6em; width: 3.6em; height: 3.6em; }\n    .yani-home__intro-title { font-size: 1.35em; }\n    .yani-home__intro-subtitle, .yani-home__intro-orbit { display: none; }\n    .yani-home__intro-summary { width: auto; margin-left: auto; gap: .3em; }\n    .yani-home__intro-context-art { display: none; }\n    .yani-home__intro-metric { padding: .45em; }\n    .yani-home__intro-metric-icon { flex-basis: 1.45em; width: 1.45em; height: 1.45em; }\n    .yani-home__intro-metric-copy small { display: none; }\n    .yani-home__intro-metric-copy em { display: none !important; }\n    .yani-home__intro-metric-copy b { font-size: .82em; }\n    .yani-home__panel--explore, .yani-home__episode-flow, .yani-home__panel--library, .yani-home__discover, .yani-home__panel--service { grid-column: span 12; }\n    .yani-home__panel--explore .yani-home__panel-items, .yani-home__episode-flow-items, .yani-home__discover-items, .yani-home__panel--service .yani-home__panel-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-home__service-constellation { grid-template-columns: 6.8em minmax(0, 1fr); }\n    .yani-home__panel--service::before { left: 6.6em; }\n    .yani-home__panel--explore .yani-home__item--catalog { grid-column: span 2; }\n    .yani-home__panel--library .yani-home__panel-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-home__discover-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-home__discover-preview { grid-template-columns: minmax(0, 1fr); }\n    .yani-home__item { min-height: 7em; padding: 1em; }\n    .yani-home__icon { flex-basis: 2.8em; width: 2.8em; height: 2.8em; }\n    .yani-home__episode-stage { padding: .55em; }\n    .yani-home__episode-stage-marker { flex-basis: 1.8em; width: 1.8em; height: 1.8em; margin-right: .45em; }\n    .yani-home__episode-stage-label { font-size: .5em; }\n    .yani-home__episode-stage-title { font-size: .62em; }\n    .yani-home__episode-stage-meta { font-size: .52em; }\n}\n\n@media (min-width: 701px) and (max-width: 1100px) {\n    .yani-home__section-rail { display: none; }\n    .yani-home__intro-summary { width: min(32em, 54%); }\n    .yani-home__intro-metric-copy small { font-size: .43em; }\n    .yani-home__episode-flow, .yani-home__panel--library { grid-column: span 12; }\n    .yani-home__panel--library .yani-home__panel-items { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n}\n\n@media (max-width: 700px) {\n    .yani-home__section-rail { display: none; }\n    .yani-home__chapter-state { max-width: none; padding: .34em; }\n    .yani-home__chapter-state b { display: none; }\n    .yani-home__panel--explore .yani-home__item { padding-right: 4.4em; }\n    .yani-home__panel--explore .yani-home__item--catalog { padding-right: 6.2em; }\n    .yani-home__item > .yani-home__explore-art { right: .45em; transform: translateY(-50%) scale(.82); transform-origin: right center; }\n    .yani-home__item > .yani-home__explore-art--catalog { right: .25em; }\n    .yani-home__service-constellation { grid-template-columns: minmax(0, 1fr); }\n    .yani-home__service-hub { min-height: 4.4em; border-radius: 1.1em .72em 1em .78em; }\n    .yani-home__panel--service::before { display: none; }\n}\n\n.yani-detail {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 2.5em;\n    padding: 2em;\n    max-width: 100%;\n    box-sizing: border-box;\n    color: #f4f7fb;\n    opacity: 1;\n    filter: none;\n}\n\n.yani-detail__poster-column {\n    display: flex;\n    flex: 0 0 16em;\n    flex-direction: column;\n    align-items: stretch;\n    min-width: 0;\n}\n.yani-detail__poster {\n    width: 16em;\n    max-width: 100%;\n    max-height: 24em;\n    object-fit: cover;\n    border-radius: 0.8em;\n    cursor: pointer;\n    transition: box-shadow .16s ease, transform .16s ease;\n}\n.yani-detail__poster.focus {\n    box-shadow: 0 0 0 .28em #fff, 0 0 0 .52em #ef6470, 0 1em 2.4em rgba(0,0,0,.4);\n    transform: scale(1.025);\n}\n.yani-poster-viewer-open { overflow: hidden; }\n.yani-poster-viewer {\n    position: fixed;\n    z-index: 10000;\n    inset: 0;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 2em;\n    box-sizing: border-box;\n    background: rgba(4, 5, 9, .94);\n    backdrop-filter: blur(1.1em);\n}\n.yani-poster-viewer__image {\n    display: block;\n    max-width: 100%;\n    max-height: 100%;\n    object-fit: contain;\n    border-radius: .55em;\n    box-shadow: 0 1.5em 5em rgba(0,0,0,.65);\n}\n\n.yani-detail__info { min-width: 0; max-width: 48em; flex: 1 1 auto; }\n.yani-detail__title { font-size: 2.2em; font-weight: 600; border-radius: .22em; padding: .08em .16em; margin: -.08em -.16em; width: fit-content; max-width: 100%; }\n.yani-detail__title.focus { background: rgba(239,100,112,.22); box-shadow: 0 0 0 .12em #ef6470; color: #fff; }\n.yani-detail__alternative-titles { margin-top: 0.35em; color: rgba(255,255,255,.68); line-height: 1.35; overflow-wrap: anywhere; }\n.yani-detail__genres { display: flex; flex-wrap: wrap; gap: .36em; margin-top: .55em; }\n.yani-detail__type { display: inline-flex; margin-top: .55em; padding: .25em .58em; border: .08em solid rgba(239,100,112,.62); border-radius: 999px; background: rgba(239,100,112,.16); color: rgba(255,255,255,.92); font-size: .78em; font-weight: 700; line-height: 1.2; }\n.yani-detail__genre { padding: .24em .5em; border: .08em solid rgba(255,255,255,.28); border-radius: .35em; color: rgba(255,255,255,.82); font-size: .78em; line-height: 1.2; }\n.yani-detail__genre.focus { background: #fff; border-color: #fff; box-shadow: 0 0 0 .14em #ef6470; color: #111; transform: scale(1.04); }\n.yani-detail__credits { display: grid; gap: .38em; margin-top: .62em; }\n.yani-detail__credit-row { display: flex; align-items: flex-start; gap: .55em; min-width: 0; }\n.yani-detail__credit-label { flex: 0 0 5.8em; padding-top: .28em; color: rgba(255,255,255,.54); font-size: .74em; font-weight: 700; }\n.yani-detail__credit-values { display: flex; flex-wrap: wrap; gap: .34em; min-width: 0; }\n.yani-detail__credit { padding: .25em .52em; border: .08em solid rgba(111,197,232,.34); border-radius: 999px; background: rgba(52,92,116,.2); color: rgba(231,248,255,.9); font-size: .76em; line-height: 1.2; }\n.yani-detail__credit.focus { border-color: #fff; background: #fff; color: #111; box-shadow: 0 0 0 .14em #6fc5e8, 0 0 .8em rgba(111,197,232,.35); transform: scale(1.04); }\n.yani-detail__meta { margin: 0.8em 0 1.2em; font-size: 1.2em; }\n.yani-detail__episode-summary { display: flex; flex-wrap: wrap; gap: .38em; width: fit-content; max-width: 100%; margin: -.45em 0 .85em; padding: .34em; border: .08em solid rgba(255,255,255,.14); border-radius: .55em; background: rgba(0,0,0,.2); box-sizing: border-box; }\n.yani-detail__episode-summary.focus { border-color: #ef6470; background: rgba(239,100,112,.16); box-shadow: 0 0 0 .1em rgba(239,100,112,.55); }\n.yani-detail__episode-summary.loading { opacity: .72; }\n.yani-detail__episode-stat { display: inline-flex; align-items: center; gap: .28em; padding: .28em .48em; border-radius: .38em; background: rgba(255,255,255,.1); color: rgba(255,255,255,.9); font-size: .76em; font-weight: 600; line-height: 1.15; white-space: nowrap; }\n.yani-detail__episode-stat--watched { max-width: min(22em, 100%); }\n.yani-detail__episode-stat-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }\n.yani-detail__episode-stat-icon { display: inline-flex; width: 1em; height: 1em; color: #ef8992; }\n.yani-detail__episode-stat-icon svg { display: block; width: 100%; height: 100%; fill: currentColor; }\n.yani-detail__translations { width: 100%; margin: 0 0 .9em; padding: .7em .78em; border: .08em solid rgba(255,255,255,.14); border-radius: .72em; box-sizing: border-box; background: linear-gradient(125deg, rgba(18,22,33,.62), rgba(61,43,73,.48)); box-shadow: inset 0 .06em 0 rgba(255,255,255,.08); }\n.yani-detail__translations.focus { border-color: rgba(239,100,112,.86); box-shadow: 0 0 0 .1em rgba(239,100,112,.4), inset 0 .06em 0 rgba(255,255,255,.12); }\n.yani-detail__translations-title { margin-bottom: .55em; color: rgba(255,255,255,.9); font-size: .86em; font-weight: 750; letter-spacing: .025em; }\n.yani-detail__translation-row { display: grid; grid-template-columns: 8.5em minmax(0,1fr); align-items: start; gap: .55em; padding: .34em 0; }\n.yani-detail__translation-heading { display: flex; align-items: center; gap: .38em; min-height: 1.75em; color: rgba(255,255,255,.7); font-size: .72em; font-weight: 650; }\n.yani-detail__translation-heading svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-detail__translation-heading b { min-width: 1.45em; padding: .18em .36em; border-radius: 999px; background: rgba(255,255,255,.1); color: #fff; font-size: .86em; text-align: center; }\n.yani-detail__translation-row--voices .yani-detail__translation-heading { color: #91d9ff; }\n.yani-detail__translation-row--subtitles .yani-detail__translation-heading { color: #d3afff; }\n.yani-detail__translation-list { display: flex; flex-wrap: wrap; gap: .3em; min-width: 0; }\n.yani-detail__translation-list span { overflow: hidden; max-width: 14em; padding: .3em .52em; border: .06em solid rgba(255,255,255,.13); border-radius: .42em; background: rgba(255,255,255,.08); color: rgba(255,255,255,.9); font-size: .7em; font-weight: 600; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }\n.yani-detail__translations--motion .yani-detail__translation-list span { animation: yani-translation-chip-in .28s cubic-bezier(.2,.8,.2,1) both; }\n.yani-detail__translation-row--voices .yani-detail__translation-list span { border-color: rgba(93,190,240,.2); background: rgba(63,153,207,.12); }\n.yani-detail__translation-row--subtitles .yani-detail__translation-list span { border-color: rgba(191,143,242,.22); background: rgba(137,84,191,.13); }\n.yani-detail__translations-empty { color: rgba(255,255,255,.55); font-size: .72em; }\n.yani-detail__translations-skeleton { display: flex; gap: .35em; }\n.yani-detail__translations-skeleton i { width: 6em; height: 1.35em; border-radius: .38em; background: rgba(255,255,255,.09); }\n.yani-detail__translations--motion .yani-detail__translations-skeleton i { animation: yani-translation-skeleton 1.2s ease-in-out infinite alternate; }\n.yani-detail__translations-skeleton i:nth-child(2) { width: 8em; animation-delay: .14s; }\n.yani-detail__translations-skeleton i:nth-child(3) { width: 5em; animation-delay: .28s; }\n@keyframes yani-translation-chip-in { from { opacity: 0; transform: translateY(.28em); } to { opacity: 1; transform: none; } }\n@keyframes yani-translation-skeleton { from { opacity: .35; } to { opacity: .8; } }\n@media (max-width: 720px) { .yani-detail__translation-row { grid-template-columns: 1fr; gap: .25em; } }\n@media (prefers-reduced-motion: reduce) { .yani-detail__translation-list span, .yani-detail__translations-skeleton i { animation: none; } }\n.yani-detail__overview { line-height: 1.45; margin-bottom: 1.5em; }\n.yani-detail__actions { display: flex; flex-wrap: wrap; gap: 0.7em; max-width: 100%; }\n.yani-detail__button { display: block; max-width: 100%; box-sizing: border-box; padding: 0.8em 1.2em; border: 0.12em solid transparent; border-radius: 0.5em; background: rgba(255,255,255,.15); overflow-wrap: anywhere; }\n.yani-detail__button--watch { background: #ef6470; color: #fff; }\n.yani-detail__button--lampa, .yani-detail__button--external { display: inline-flex; align-items: center; gap: .58em; }\n.yani-detail__button-icon { display: inline-flex; width: 1.25em; height: 1.25em; flex: 0 0 1.25em; }\n.yani-detail__button-icon svg { display: block; width: 100%; height: 100%; fill: currentColor; }\n.yani-detail__button.focus { background: #fff; color: #111; border-color: #fff; box-shadow: 0 0 0 0.2em rgba(239, 100, 112, .95), 0 0 1.2em rgba(255, 255, 255, .55); transform: scale(1.02); }\n.yani-detail__list-dock { margin-top: .8em; padding: .62em; border: .08em solid rgba(255,255,255,.14); border-radius: .68em; background: linear-gradient(145deg, rgba(35,31,43,.9), rgba(17,20,28,.82)); box-shadow: inset 0 .06em 0 rgba(255,255,255,.06); }\n.yani-detail__list-dock-title { margin: 0 .18em .48em; color: rgba(255,255,255,.62); font-size: .7em; font-weight: 700; letter-spacing: .035em; }\n.yani-detail__list-panel { display: flex; width: 100%; overflow: hidden; border: .1em solid rgba(255,255,255,.18); border-radius: .45em; background: rgba(0,0,0,.24); box-sizing: border-box; }\n.yani-detail__list-action { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; height: 2.35em; flex: 1 1 0; border-right: .08em solid rgba(255,255,255,.15); color: rgba(255,255,255,.72); background: transparent; }\n.yani-detail__list-action:last-child { border-right: 0; }\n.yani-detail__list-action.active { color: #fff; background: #ef6470; }\n.yani-detail__list-action.focus { color: #111; background: #fff; box-shadow: inset 0 0 0 .18em #ef6470; transform: scale(1.06); position: relative; z-index: 1; }\n.yani-detail__list-icon { width: 1.25em; height: 1.25em; }\n.yani-detail__list-icon svg { display: block; width: 100%; height: 100%; fill: currentColor; }\n.yani-detail__list-shortcut { position: absolute; top: .24em; right: .24em; width: .42em; height: .42em; border: .06em solid rgba(255,255,255,.72); border-radius: 50%; box-shadow: 0 0 .42em currentColor; }\n.yani-detail__list-shortcut--red { color: #ff7180; background: #ef6470; }\n.yani-detail__list-shortcut--green { color: #62dda0; background: #55d795; }\n.yani-detail__list-shortcut--yellow { color: #f4ce66; background: #efc35b; }\n.yani-detail__list-shortcut--blue { color: #73caff; background: #62b8ff; }\n\n.yani-detail__comments { margin-top: 1.5em; padding-top: 1em; border-top: 0.08em solid rgba(255, 255, 255, .18); }\n.yani-detail__comments-title { margin-bottom: 0.7em; font-size: 1.35em; font-weight: 600; }\n.yani-detail__comments-list { display: grid; gap: 0.55em; }\n.yani-detail__comment, .yani-detail__comments-loading, .yani-detail__comments-empty, .yani-detail__comments-error { padding: 0.7em 0.85em; border-radius: 0.45em; background: rgba(255, 255, 255, .08); }\n.yani-detail__comment.focus { background: #fff; color: #111; outline: 0.18em solid #ef6470; }\n.yani-detail__comment-title { line-height: 1.35; }\n.yani-detail__comment-stats { margin-top: 0.25em; opacity: .6; font-size: .82em; }\n.yani-detail__comments-loading, .yani-detail__comments-empty, .yani-detail__comments-error { opacity: .7; }\n\n.yani-detail__order { margin-top: 1.5em; padding: 1em 0; border-top: 0.08em solid rgba(255, 255, 255, .18); border-bottom: 0.08em solid rgba(255, 255, 255, .18); }\n.yani-detail__order-title { margin-bottom: 0.65em; font-size: 1.35em; font-weight: 600; }\n.yani-detail__order-list { display: grid; gap: 0.4em; }\n.yani-detail__order-item { display: flex; align-items: baseline; gap: 0.45em; padding: 0.55em 0.7em; border-radius: 0.4em; background: rgba(255, 255, 255, .07); }\n.yani-detail__order-item.focus { background: #fff; color: #111; outline: 0.16em solid #ef6470; }\n.yani-detail__order-index { opacity: .65; }\n.yani-detail__order-name { font-weight: 600; }\n.yani-detail__order-rating { flex: none; margin-left: auto; padding-left: 0.8em; }\n.yani-detail__order-year, .yani-detail__order-relation { opacity: .7; }\n\n.yani-detail__extra { margin-top: 1.5em; }\n.yani-detail__extra-title { margin-bottom: .65em; font-size: 1.35em; font-weight: 600; }\n.yani-detail__recommendations-list { display: flex; gap: .65em; max-width: 100%; overflow-x: auto; padding: .25em .1em .7em; }\n.yani-detail__recommendation { flex: 0 0 8em; padding-bottom: .45em; border-radius: .45em; background: rgba(255, 255, 255, .08); overflow: hidden; }\n.yani-detail__recommendation.focus { outline: .16em solid #ef6470; background: #fff; color: #111; }\n.yani-detail__recommendation-poster { display: block; width: 8em; height: 11em; object-fit: cover; }\n.yani-detail__recommendation-title { padding: .35em .45em 0; font-size: .82em; font-weight: 600; line-height: 1.2; }\n.yani-detail__recommendation-year { padding: .2em .45em 0; font-size: .75em; opacity: .65; }\n.yani-detail__trailers-list { display: grid; gap: .45em; }\n.yani-detail__trailer { padding: .7em .85em; border-radius: .45em; background: rgba(255, 255, 255, .08); }\n.yani-detail__trailer.focus { background: #fff; color: #111; outline: .16em solid #ef6470; }\n.yani-detail__collection { padding: .7em .85em; border-radius: .45em; background: rgba(255, 255, 255, .08); }\n.yani-detail__collection.focus { background: #fff; color: #111; outline: .16em solid #ef6470; }\n.yani-detail__collection-title { font-weight: 700; }\n.yani-detail__collection-description { margin-top: .25em; opacity: .72; font-size: .85em; white-space: pre-wrap; }\n.yani-detail__collection-count { margin-top: .3em; opacity: .7; font-size: .78em; }\n.yani-detail__order-item.selector:focus,\n.yani-detail__comment.selector:focus,\n.yani-detail__recommendation.selector:focus,\n.yani-detail__trailer.selector:focus { outline: .16em solid #ef6470; }\n\n.yani-trailers {\n    min-height: 100%;\n    padding: 7em 2em 2em;\n    box-sizing: border-box;\n}\n\n.yani-trailers__list {\n    display: grid;\n    gap: .7em;\n    max-width: 62em;\n}\n\n.yani-trailers__item,\n.yani-trailers__empty {\n    display: flex;\n    align-items: center;\n    gap: .9em;\n    min-height: 4.2em;\n    padding: .8em 1em;\n    border-radius: .45em;\n    background: rgba(15, 22, 31, .78);\n    color: #fff;\n    box-sizing: border-box;\n}\n\n.yani-trailers__item.focus,\n.yani-trailers__empty.focus {\n    background: #fff;\n    color: #111;\n    box-shadow: 0 0 0 .16em #ef6470;\n}\n\n.yani-trailers__icon {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 2.4em;\n    height: 2.4em;\n    flex: 0 0 2.4em;\n}\n\n.yani-trailers__icon svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.yani-trailers__body {\n    min-width: 0;\n}\n\n.yani-trailers__title {\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    font-size: 1.18em;\n    font-weight: 600;\n}\n\n.yani-trailers__host {\n    margin-top: .18em;\n    color: rgba(255, 255, 255, .62);\n    font-size: .86em;\n}\n\n.yani-trailers__item.focus .yani-trailers__host {\n    color: rgba(0, 0, 0, .56);\n}\n\n@media (max-width: 700px) {\n    .yani-detail { gap: 1em; padding: 1em; }\n    .yani-detail__poster-column { flex-basis: 10em; }\n    .yani-detail__poster { width: 10em; }\n    .yani-detail__list-panel { display: grid; grid-template-columns: repeat(3, 1fr); }\n    .yani-detail__list-action { border-bottom: .08em solid rgba(255,255,255,.15); }\n    .yani-detail__list-action:nth-child(3n) { border-right: 0; }\n    .yani-detail__list-action:nth-last-child(-n+3) { border-bottom: 0; }\n}\n\n.yani-player {\n    position: fixed;\n    /* Above Lampa's own header: it kept drawing its clock and icons over the\n       video, and the back button landed on top of the title. */\n    z-index: 9000;\n    inset: 0;\n    width: 100vw;\n    height: 100vh;\n    background: #000;\n}\n\n/* Belt and braces for skins whose header sits in a stacking context of its own,\n   where raising our z-index alone would not be enough. */\nbody.yani-player-open .head,\nbody.yani-player-open .head--simple {\n    display: none !important;\n}\n\n.yani-player__iframe {\n    display: block;\n    width: 100%;\n    height: 100%;\n    border: 0;\n    background: #000;\n}\n\n/* Nothing of the plugin's own is drawn over the embedded page. A control here\n   would also be the only focusable element in Lampa's collection, so it would\n   receive every OK press and the page's own buttons could never be reached\n   with a remote. Back on the remote closes this screen. */\n.yani-player__iframe:focus {\n    outline: none;\n}\n\n/* Pointer platforms only (webOS): a strip along the top edge that reveals the\n   exit control when the Magic Remote cursor reaches it. It sits above the\n   frame so the cursor leaving the page lands on this document again. */\n.yani-player__edge {\n    position: absolute;\n    z-index: 2;\n    top: 0;\n    left: 0;\n    right: 0;\n    height: 6vh;\n}\n\n/* Hidden until the pointer asks for it; never a `.selector`, so it can never\n   take the OK press that belongs to the embedded page. */\n.yani-player__back {\n    position: absolute;\n    z-index: 3;\n    top: .9em;\n    left: .9em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 2.4em;\n    height: 2.4em;\n    border-radius: 50%;\n    color: #fff;\n    background: rgba(20, 20, 24, .78);\n    cursor: pointer;\n    opacity: 0;\n    pointer-events: none;\n    transition: opacity .2s ease;\n}\n\n.yani-player__back svg {\n    width: 1.3em;\n    height: 1.3em;\n}\n\n.yani-player__back--visible {\n    opacity: 1;\n    pointer-events: auto;\n}\n\n.yani-player__back:hover {\n    color: #18181b;\n    background: #fff;\n}\n\n.full-start__buttons .full-start__button.view--yummyanime,\n.full-start-new__buttons .full-start__button.view--yummyanime {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    box-sizing: border-box;\n    order: -1;\n    background: #ef6470;\n    color: #fff;\n    min-width: 3.72em;\n}\n\n.view--yummyanime__icon {\n    box-sizing: border-box;\n    display: inline-flex !important;\n    align-items: center;\n    justify-content: center;\n    width: 1.8em !important;\n    height: 1.8em !important;\n    min-width: 1.8em !important;\n    min-height: 1.8em !important;\n    margin: 0 !important;\n    color: #fff;\n}\n\n.view--yummyanime__icon svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.full-start__rate .yani-full-rating-label {\n    color: #ef6470;\n    font-weight: 700;\n    font-size: 0.85em;\n    letter-spacing: 0.04em;\n    line-height: 1.1;\n}\n\n.yani-schedule__content {\n    padding: 1.2em 2em 3em;\n    color: #f4f7fb !important;\n    opacity: 1 !important;\n    filter: none !important;\n}\n\n.yani-schedule { color: #f4f7fb !important; opacity: 1 !important; filter: none !important; }\n\n.yani-schedule__shortcut-badge,\n.yani-user-list-card__shortcut { position: absolute; z-index: 5; top: .42em; right: .42em; display: inline-flex; align-items: center; justify-content: center; gap: .25em; min-width: 1.4em; height: 1.4em; padding: 0 .38em; border: .07em solid rgba(255,255,255,.16); border-radius: .52em; color: #fff; background: rgba(11,14,22,.68); box-shadow: inset 0 .06em 0 rgba(255,255,255,.08), 0 .25em .65em rgba(0,0,0,.22); pointer-events: none; }\n.yani-schedule__shortcut-color,\n.yani-user-list-card__shortcut-color { display: block; width: .58em; height: .58em; border-radius: 50%; box-shadow: 0 0 .52em currentColor; }\n.yani-schedule__shortcut-color--red, .yani-user-list-card__shortcut-color--red { color: #ff7180; background: #ef6470; }\n.yani-schedule__shortcut-color--green, .yani-user-list-card__shortcut-color--green { color: #62dda0; background: #55d795; }\n.yani-schedule__shortcut-color--yellow, .yani-user-list-card__shortcut-color--yellow { color: #f4ce66; background: #efc35b; }\n.yani-schedule__shortcut-color--blue, .yani-user-list-card__shortcut-color--blue { color: #73caff; background: #62b8ff; }\n.yani-user-list-card__shortcut b { font-size: .72em; font-weight: 800; line-height: 1; }\n\n.yani-schedule__days {\n    display: flex;\n    gap: 0.65em;\n    margin-bottom: 1.2em;\n    overflow-x: auto;\n    padding: 0.2em 0.15em 0.5em;\n}\n\n.yani-schedule__day-chip {\n    position: relative;\n    flex: 0 0 auto;\n    min-width: 5.8em;\n    padding: 0.55em 0.75em;\n    border: 0.1em solid rgba(255, 255, 255, .16);\n    border-radius: 0.7em;\n    background: rgba(20, 31, 43, .9);\n    color: #b9c7d5;\n    text-align: center;\n    transition: transform .15s ease, background .15s ease, border-color .15s ease;\n}\n\n.yani-schedule__day-chip.selected {\n    background: #287da9;\n    border-color: #72d8ff;\n    color: #ffffff;\n}\n\n.yani-schedule__day-chip.focus {\n    transform: scale(1.05);\n    border-color: #ffffff;\n    box-shadow: 0 0 0 .14em rgba(98, 201, 255, .65);\n}\n\n.yani-schedule__day-name {\n    font-size: 0.95em;\n    font-weight: 700;\n    white-space: nowrap;\n}\n\n.yani-schedule__day-count {\n    margin-top: 0.25em;\n    color: #72d8ff;\n    font-size: 1.2em;\n    font-weight: 800;\n}\n\n.yani-schedule__day-chip.selected .yani-schedule__day-count { color: #ffffff; }\n\n.yani-schedule__selected-title {\n    margin: 0.3em 0 0.7em;\n    color: #ffffff;\n    font-size: 1.45em;\n    font-weight: 700;\n    text-transform: capitalize;\n}\n\n.yani-schedule__day-title {\n    margin-bottom: 0.7em;\n    font-size: 1.55em;\n    font-weight: 600;\n    color: #ffffff;\n    text-transform: capitalize;\n}\n\n.yani-schedule__item {\n    position: relative;\n    display: flex;\n    align-items: center;\n    min-height: 9.3em;\n    margin-bottom: 0.65em;\n    padding: 0.65em 1em;\n    border-radius: 0.65em;\n    color: #f4f7fb !important;\n    background: linear-gradient(100deg, #19222d, #313c48) !important;\n    border: 0.08em solid rgba(255, 255, 255, .14);\n    box-shadow: 0 .35em 1em rgba(0, 0, 0, .2);\n    opacity: 1 !important;\n    filter: none !important;\n}\n\n.yani-schedule__item.focus {\n    background: linear-gradient(100deg, #ffffff, #eaf5ff);\n    color: #101820;\n    border-color: #62c9ff;\n    box-shadow: 0 0 0 .14em rgba(98, 201, 255, .75), 0 .5em 1.4em rgba(0, 0, 0, .35);\n}\n\n.yani-schedule__poster {\n    width: 7.2em;\n    height: 9.9em;\n    margin-right: 1em;\n    border-radius: 0.35em;\n    object-fit: cover;\n    background: rgba(255, 255, 255, 0.08);\n}\n\n.yani-schedule__info {\n    flex: 1;\n    min-width: 0;\n}\n\n.yani-schedule__title {\n    overflow: hidden;\n    font-size: 1.15em;\n    font-weight: 500;\n    color: inherit;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.yani-schedule__rating {\n    display: inline-flex;\n    margin-top: 0.28em;\n}\n\n.yani-schedule__episode {\n    margin-top: 0.4em;\n    color: #cbd8e5;\n    opacity: 1;\n}\n\n.yani-schedule__translations {\n    width: 100%;\n    margin-top: 0.55em;\n    padding: 0.55em 0.6em;\n    border: 0.07em solid rgba(255, 255, 255, 0.12);\n    border-radius: 0.58em;\n    box-sizing: border-box;\n    background: rgba(12, 18, 28, 0.42);\n}\n\n.yani-schedule__translations-title {\n    margin-bottom: 0.4em;\n    color: rgba(255, 255, 255, 0.82);\n    font-size: 0.78em;\n    font-weight: 750;\n    letter-spacing: 0.02em;\n}\n\n.yani-schedule__translation-row {\n    display: grid;\n    grid-template-columns: 7.6em minmax(0, 1fr);\n    align-items: start;\n    gap: 0.45em;\n    padding: 0.28em 0;\n}\n\n.yani-schedule__translation-heading {\n    display: flex;\n    align-items: center;\n    gap: 0.32em;\n    min-height: 1.55em;\n    color: rgba(255, 255, 255, 0.68);\n    font-size: 0.68em;\n    font-weight: 650;\n}\n\n.yani-schedule__translation-heading svg {\n    width: 1.1em;\n    height: 1.1em;\n    fill: none;\n    stroke: currentColor;\n    stroke-width: 1.7;\n    stroke-linecap: round;\n    stroke-linejoin: round;\n}\n\n.yani-schedule__translation-heading b {\n    min-width: 1.3em;\n    padding: 0.14em 0.3em;\n    border-radius: 999px;\n    background: rgba(255, 255, 255, 0.1);\n    color: #fff;\n    font-size: 0.86em;\n    text-align: center;\n}\n\n.yani-schedule__translation-row--voices .yani-schedule__translation-heading { color: #91d9ff; }\n.yani-schedule__translation-row--subtitles .yani-schedule__translation-heading { color: #d3afff; }\n\n.yani-schedule__translation-list {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 0.28em;\n    min-width: 0;\n}\n\n.yani-schedule__translation-list span {\n    overflow: hidden;\n    max-width: 12em;\n    padding: 0.26em 0.46em;\n    border: 0.06em solid rgba(255, 255, 255, 0.13);\n    border-radius: 0.38em;\n    background: rgba(255, 255, 255, 0.08);\n    color: rgba(255, 255, 255, 0.9);\n    font-size: 0.66em;\n    font-weight: 600;\n    line-height: 1.15;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.yani-schedule__translation-row--voices .yani-schedule__translation-list span {\n    border-color: rgba(93, 190, 240, 0.2);\n    background: rgba(63, 153, 207, 0.12);\n}\n\n.yani-schedule__translation-row--subtitles .yani-schedule__translation-list span {\n    border-color: rgba(191, 143, 242, 0.22);\n    background: rgba(137, 84, 191, 0.13);\n}\n\n.yani-schedule__item.focus .yani-schedule__episode,\n.yani-schedule__item.focus .yani-schedule__timezone { color: #41566b; }\n\n.yani-schedule__item.focus .yani-schedule__translations {\n    border-color: rgba(22, 117, 165, 0.28);\n    background: rgba(255, 255, 255, 0.72);\n}\n\n.yani-schedule__item.focus .yani-schedule__translations-title { color: #2a4054; }\n.yani-schedule__item.focus .yani-schedule__translation-heading { color: #3a5368; }\n.yani-schedule__item.focus .yani-schedule__translation-row--voices .yani-schedule__translation-heading { color: #1675a5; }\n.yani-schedule__item.focus .yani-schedule__translation-row--subtitles .yani-schedule__translation-heading { color: #6b4a96; }\n.yani-schedule__item.focus .yani-schedule__translation-heading b { background: rgba(16, 24, 32, 0.1); color: #101820; }\n.yani-schedule__item.focus .yani-schedule__translation-list span {\n    border-color: rgba(16, 24, 32, 0.12);\n    background: rgba(16, 24, 32, 0.06);\n    color: #101820;\n}\n\n@media (max-width: 720px) {\n    .yani-schedule__translation-row { grid-template-columns: 1fr; gap: 0.22em; }\n}\n\n.yani-schedule__release {\n    min-width: 8em;\n    margin-left: 1em;\n    text-align: right;\n}\n\n.yani-schedule__time {\n    font-size: 1.25em;\n    font-weight: 600;\n    color: #72d8ff;\n}\n\n.yani-schedule__item.focus .yani-schedule__time { color: #1675a5; }\n\n.yani-schedule__timezone,\n.yani-schedule__empty {\n    color: #b9c7d5;\n    opacity: 1;\n}\n\n.yani-schedule__empty {\n    padding: 1em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.06);\n}\n\n.yani-detail__schedule {\n    margin-bottom: 1.2em;\n    font-size: 1.15em;\n    font-weight: 600;\n}\n\n.yani-detail__community { margin: 1em 0 1.2em; }\n.yani-detail__rating-action { display: inline-flex; align-items: center; gap: .4em; width: fit-content; margin: .5em 0; padding: .45em .7em; border: .1em solid rgba(255,210,122,.35); border-radius: .45em; background: rgba(240,175,84,.14); color: rgba(255,255,255,.86); font-weight: 700; }\n.yani-detail__rating-action.active { background: rgba(240,175,84,.22); color: #ffd27a; }\n.yani-detail__rating-action.focus { border-color: #fff; background: #fff; color: #171717; box-shadow: 0 0 0 .16em #ef6470; transform: scale(1.03); }\n.yani-detail__rating-icon { color: #ffd27a; font-size: 1.08em; line-height: 1; }\n.yani-detail__rating-action.focus .yani-detail__rating-icon { color: #ef9d29; }\n.yani-detail__community-title { margin-bottom: .55em; color: #fff; font-size: 1.15em; font-weight: 700; }\n.yani-detail__community-grid { display: flex; flex-wrap: wrap; gap: .45em; }\n.yani-detail__community-item { padding: .45em .7em; border-radius: .45em; background: rgba(255,255,255,.1); color: #d9e7f2; }\n\n.yani-rating-ya {\n    display: inline-flex;\n    align-items: baseline;\n    gap: 0.28em;\n    color: #ef6470;\n    font-weight: 700;\n    line-height: 1.1;\n    white-space: nowrap;\n}\n\n.yani-rating-ya b {\n    font-size: 0.82em;\n    letter-spacing: 0.04em;\n}\n\n.yani-detail__order-item.focus .yani-rating-ya {\n    color: #ef6470;\n}\n\n.yani-card-ratings {\n    position: absolute;\n    right: 0.35em;\n    bottom: 0.35em;\n    left: auto;\n    z-index: 2;\n    display: flex;\n    flex-wrap: wrap;\n    justify-content: flex-end;\n    gap: 0.18em;\n    max-width: calc(100% - 0.7em);\n    pointer-events: none;\n}\n\n.yani-card-media {\n    position: absolute;\n    top: 0.35em;\n    left: 0.35em;\n    right: auto;\n    z-index: 3;\n    display: flex;\n    flex-wrap: wrap;\n    gap: 0.25em;\n    max-width: calc(100% - 0.7em);\n    pointer-events: none;\n}\n\n.yani-card-media__badge {\n    padding: 0.22em 0.38em;\n    border-radius: 0.25em;\n    background: rgba(0, 0, 0, 0.82);\n    color: #fff;\n    font-size: 0.62em;\n    font-weight: 700;\n    line-height: 1.1;\n}\n\n.yani-card-media__availability { display: inline-flex; align-items: stretch; overflow: hidden; border: .06em solid rgba(255,255,255,.24); border-radius: .42em; background: linear-gradient(125deg, rgba(19,22,33,.92), rgba(49,42,69,.9)); box-shadow: 0 .22em .65em rgba(0,0,0,.34), inset 0 .06em 0 rgba(255,255,255,.12); color: #fff; font-size: .62em; font-weight: 700; line-height: 1; transition: border-color .18s ease, box-shadow .18s ease; }\n.yani-card-media__availability--motion { animation: yani-card-availability-in .34s cubic-bezier(.2,.8,.2,1) both; }\n.yani-card-media__availability-part { display: inline-flex; align-items: center; gap: .28em; min-height: 1.72em; padding: .24em .42em; white-space: nowrap; }\n.yani-card-media__availability-part + .yani-card-media__availability-part { border-left: .06em solid rgba(255,255,255,.18); }\n.yani-card-media__availability-part svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.yani-card-media__availability-part b { font: inherit; letter-spacing: .025em; }\n.yani-card-media__availability-part small { color: rgba(255,255,255,.66); font-size: .82em; font-weight: 600; }\n.yani-card-media__quality { color: #ffe38a; }\n.yani-card-media__voices { color: #91d9ff; }\n.card.focus .yani-card-media__availability { border-color: rgba(255,255,255,.62); box-shadow: 0 .24em .72em rgba(0,0,0,.38), 0 0 .55em rgba(133,193,255,.2), inset 0 .06em 0 rgba(255,255,255,.2); }\n@keyframes yani-card-availability-in { from { opacity: 0; transform: translateY(-.35em) scale(.94); } to { opacity: 1; transform: none; } }\n@media (prefers-reduced-motion: reduce) { .yani-card-media__availability { transition: none; } .yani-card-media__availability--motion { animation: none; } }\n.yani-card-media__genre-top { display: inline-flex; align-items: center; gap: .24em; border: .06em solid rgba(255,224,132,.65); background: linear-gradient(135deg, rgba(106,69,18,.96), rgba(206,143,35,.96)); box-shadow: 0 .18em .5em rgba(0,0,0,.3); color: #fff5ce; }\n.yani-card-media__genre-top svg { width: .95em; height: .95em; fill: currentColor; }\n.yani-card-media__genre-top b { font: inherit; letter-spacing: .02em; }\n.yani-card-meta__native-age { display: none !important; }\n.yani-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: .22em .48em; min-height: 1.15em; margin-top: .18em; overflow: hidden; color: rgba(255,255,255,.66); font-size: .72em; line-height: 1.15; white-space: nowrap; }\n.yani-card-meta span { position: relative; overflow: hidden; max-width: 10em; text-overflow: ellipsis; }\n.yani-card-meta span + span::before { position: absolute; left: -.34em; content: '·'; color: rgba(255,255,255,.36); }\n.yani-card-meta__status { color: rgba(205,214,225,.9); }\n.yani-card-meta__status--ongoing { color: #72dfad; }\n.yani-card-meta__status--released { color: #85bff5; }\n.yani-card-meta__status--announced { color: #f2bf69; }\n.yani-card-meta__episodes { color: rgba(142,205,247,.94); }\n.card.focus .yani-card-meta { color: rgba(255,255,255,.88); }\n.yani-card-update { position: absolute; top: 0.35em; right: 0.35em; z-index: 5; display: flex; align-items: center; gap: .38em; max-width: calc(100% - 0.7em); padding: 0.25em 0.42em; border: .06em solid rgba(255,255,255,.16); border-radius: .38em; background: rgba(28,27,38,.9); color: #fff; font-size: 0.62em; font-weight: 700; line-height: 1.1; box-shadow: 0 .2em .6em rgba(0,0,0,.28); white-space: nowrap; }\n.yani-card-update__label { overflow: hidden; text-overflow: ellipsis; }\n.yani-card-update__freshness { flex: none; padding-left: .38em; border-left: .08em solid rgba(255,255,255,.22); color: #ffc7cd; font-size: .86em; font-weight: 600; }\n.yani-card-update--fresh { border-color: rgba(255,151,166,.5); background: linear-gradient(115deg, rgba(217,67,91,.96), rgba(108,62,145,.94)); }\n.yani-card-update--fresh .yani-card-update__freshness { color: #fff; }\n.yani-card--fresh .card__view { box-shadow: inset 0 0 0 .08em rgba(244,112,133,.58); }\n.yani-card--fresh.focus .card__view { box-shadow: inset 0 0 0 .08em rgba(244,112,133,.7), 0 0 0 .12em #fff; }\n.yani-card-recommendation { position: absolute; top: .35em; left: .35em; z-index: 2; max-width: calc(100% - .7em); padding: .22em .42em; border-radius: .3em; background: rgba(81, 61, 143, .94); color: #fff; font-size: .58em; font-weight: 700; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.yani-card-list { position: absolute; left: 0.35em; bottom: 0.42em; z-index: 6; display: inline-flex; align-items: center; gap: .12em; max-width: none; padding: 0.22em; border: .06em solid rgba(255,255,255,.18); border-radius: 0.38em; background: rgba(21,20,29,.86); color: #fff; font-size: 0.68em; font-weight: 700; line-height: 1; box-shadow: 0 .18em .5em rgba(0,0,0,.28); }\n.yani-card-list__icon { display: block; width: 1.05em; height: 1.05em; }\n.yani-card-list__icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.yani-card-list--watching { color: #ffd0d6; background: linear-gradient(135deg, rgba(217,67,91,.96), rgba(108,62,145,.94)); }\n.yani-card-list--planned { color: #d7f3ff; background: linear-gradient(135deg, rgba(53,126,186,.96), rgba(62,86,176,.94)); }\n.yani-card-list--completed { color: #d9ffe9; background: linear-gradient(135deg, rgba(50,141,117,.96), rgba(56,122,88,.94)); }\n.yani-card-list--dropped { color: #e4e8f0; background: linear-gradient(135deg, rgba(85,95,120,.96), rgba(62,70,90,.94)); }\n.yani-card-list--postponed { color: #fff1d4; background: linear-gradient(135deg, rgba(189,117,70,.96), rgba(150,88,48,.94)); }\n.yani-card-list--favorites { color: #ffe0ee; background: linear-gradient(135deg, rgba(181,63,118,.96), rgba(140,48,96,.94)); }\n.card.focus .yani-card-list { border-color: rgba(255,255,255,.62); }\n.yani-card-history { position: absolute; top: 0.35em; right: 0.35em; z-index: 6; max-width: calc(100% - 0.7em); padding: 0.25em 0.45em; border-radius: 0.3em; background: rgba(239, 100, 112, 0.94); color: #fff; font-size: 0.68em; font-weight: 700; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.yani-card-history-progress { position: absolute; right: 0; bottom: 0; left: 0; z-index: 7; height: 0.24em; overflow: hidden; background: rgba(255, 255, 255, 0.25); }\n.yani-card-history-progress span { display: block; height: 100%; background: #ef6470; }\n.yani-card-playback { position: absolute; right: .35em; bottom: .42em; z-index: 6; max-width: 48%; overflow: hidden; padding: .22em .42em; border: .06em solid rgba(255,255,255,.18); border-radius: .34em; background: rgba(21,20,29,.86); color: rgba(255,255,255,.96); font-size: .6em; font-weight: 700; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; box-shadow: 0 .18em .5em rgba(0,0,0,.28); }\n.yani-card-list + .yani-card-playback { max-width: 48%; }\n.yani-card-playback-progress { position: absolute; right: 0; bottom: 0; left: 0; z-index: 7; height: .25em; overflow: hidden; background: rgba(255,255,255,.2); }\n.yani-card-playback-progress span { display: block; height: 100%; border-radius: 0 .2em .2em 0; background: linear-gradient(90deg, #ef6470, #a975e7); box-shadow: 0 0 .45em rgba(239,100,112,.5); }\n.card.focus .yani-card-playback { border-color: rgba(255,255,255,.65); background: rgba(34,28,45,.94); }\n\n/* Keep top-start media and top-end fresh/history badges in separate lanes. */\n.yani-card-view--has-top-end .yani-card-media { max-width: 52%; }\n.yani-card-view--has-top-start .yani-card-update,\n.yani-card-view--has-top-start .yani-card-history { max-width: 46%; }\n\n/* Lift ratings above list/playback/progress so chips never collide. */\n.yani-card-view--has-footer .yani-card-ratings { bottom: 1.72em; }\n.yani-card-view--has-progress .yani-card-ratings { bottom: 1.55em; }\n.yani-card-view--has-footer.yani-card-view--has-progress .yani-card-ratings { bottom: 1.95em; }\n.yani-card-view--has-progress .yani-card-list,\n.yani-card-view--has-progress .yani-card-playback { bottom: .48em; }\n.yani-card-view--has-ratings.yani-card-view--has-footer .yani-card-playback { max-width: 48%; }\n\n/* Priority hide rules: secondary poster data disappears before list/progress. */\n.yani-card-view--hide-recommendation .yani-card-recommendation,\n.yani-card-view--hide-ratings .yani-card-ratings,\n.yani-card-view--hide-genre-top .yani-card-media__genre-top,\n.yani-card-view--hide-voices .yani-card-media__voices,\n.yani-card-view--hide-availability .yani-card-media__availability,\n.yani-card-view--hide-update-freshness .yani-card-update__freshness,\n.yani-card-view--hide-update .yani-card-update { display: none !important; }\n.yani-collection-card__previews { position: absolute; right: .38em; bottom: 2.15em; z-index: 4; display: flex; gap: .22em; }\n.yani-collection-card__previews span { width: 2.15em; height: 3.1em; border: .08em solid rgba(255,255,255,.72); border-radius: .28em; background-position: center; background-size: cover; box-shadow: 0 .25em .7em rgba(0,0,0,.45); }\n.yani-collection-card__meta { position: absolute; right: .35em; bottom: .35em; left: .35em; z-index: 5; overflow: hidden; padding: .3em .45em; border-radius: .32em; background: rgba(21,20,29,.82); color: #fff; font-size: .62em; font-weight: 650; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }\n.yani-collection-card.focus .yani-collection-card__meta { background: #ef6470; }\n\n.yani-card-rating {\n    display: inline-flex;\n    align-items: center;\n    gap: 0.22em;\n    min-height: 1.55em;\n    padding: 0.1em 0.32em 0.1em 0.1em;\n    border: 0.06em solid rgba(255, 255, 255, 0.18);\n    border-radius: 0.34em;\n    background: rgba(16, 15, 24, 0.9);\n    color: #fff;\n    font-size: 0.62em;\n    line-height: 1;\n}\n\n.yani-rating-logo {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    flex: none;\n    width: 1.55em;\n    min-width: 1.55em;\n    height: 1.55em;\n    padding: 0;\n    box-sizing: border-box;\n    border-radius: 0.28em;\n    background: #fff;\n    color: #111;\n    font-size: 0.72em;\n    font-weight: 800;\n    letter-spacing: -0.04em;\n    line-height: 1;\n}\n\n.yani-rating-logo--yummy { background: #ef6470; color: #fff; }\n.yani-rating-logo--kp { background: #f2c94c; color: #171717; }\n.yani-rating-logo--shikimori { background: #8b6fc9; color: #fff; }\n.yani-rating-logo--anidub { background: #3b9bd9; color: #fff; }\n.yani-rating-logo--mal { background: #2e5d93; color: #fff; }\n.yani-rating-logo--worldart { background: #f28c28; color: #fff; }\n.yani-rating-logo--yummy,\n.yani-rating-logo--kp,\n.yani-rating-logo--shikimori,\n.yani-rating-logo--anidub,\n.yani-rating-logo--mal,\n.yani-rating-logo--worldart {\n    overflow: hidden;\n}\n\n.yani-card-rating__logo {\n    margin-right: 0;\n}\n\n.yani-card-rating__value {\n    font-weight: 700;\n    letter-spacing: 0.01em;\n}\n\n.card.focus .yani-card-rating {\n    border-color: rgba(255, 255, 255, 0.62);\n}\n\n.yani-ratings {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 0.45em;\n    margin: 0.85em 0 1.2em;\n}\n\n.yani-ratings__item {\n    display: inline-flex;\n    align-items: center;\n    gap: 0.35em;\n    min-height: 2.1em;\n    padding: 0.28em 0.55em 0.28em 0.28em;\n    border: 0.06em solid rgba(255, 255, 255, 0.14);\n    border-radius: 0.45em;\n    background: rgba(255, 255, 255, 0.08);\n    color: #fff;\n}\n\n.yani-ratings__logo {\n    width: 1.7em;\n    min-width: 1.7em;\n    height: 1.7em;\n    font-size: 0.78em;\n}\n\n.yani-ratings__value {\n    font-size: 1.05em;\n    font-weight: 700;\n    line-height: 1;\n}\n\n/* YummyAnime score bands: below 5 red, 5 to 7 amber, 7 and up green. Only the\n   YummyAnime rating is banded - it is the one this plugin owns, and colouring\n   every source would turn the row into a traffic light. */\n.yani-ratings__value--low,\n.yani-card-rating__value--low {\n    color: #F66;\n}\n\n.yani-ratings__value--mid,\n.yani-card-rating__value--mid {\n    color: #F2B800;\n}\n\n.yani-ratings__value--high,\n.yani-card-rating__value--high {\n    color: #3CCE7B;\n}\n\n.yani-ratings__votes {\n    margin-left: 0.1em;\n    color: rgba(255, 255, 255, 0.58);\n    font-size: 0.72em;\n    font-weight: 600;\n    line-height: 1.1;\n    white-space: nowrap;\n}\n\n.yani-account__content {\n    padding: 1.5em 2em 3em;\n}\n\n.yani-account__notification-button {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    margin: 1em 0;\n    padding: 1em 1.2em;\n    border: 0.08em solid rgba(255,255,255,.16);\n    border-radius: .7em;\n    background: rgba(36, 58, 78, .85);\n}\n\n.yani-account__notification-button.focus { background: #287da9; box-shadow: 0 0 0 .14em rgba(98,201,255,.65); }\n.yani-account__notification-button span { color: #72d8ff; }\n.yani-account__logout-button {\n    margin-top: 2.2em;\n    border-color: rgba(255, 112, 132, .38);\n    background: rgba(105, 35, 49, .72);\n}\n.yani-account__logout-button span { color: rgba(255, 218, 224, .76); }\n.yani-account__logout-button.focus {\n    background: #cf4960;\n    box-shadow: 0 0 0 .14em rgba(255, 137, 157, .7);\n}\n.yani-notifications__content {\n    width: min(78em, calc(100vw - 4em));\n    margin: 0 auto;\n    padding: 1.5em 2em 4em;\n}\n\n.yani-notifications__hero {\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    min-height: 7.2em;\n    padding: 1.2em 1.5em;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: 1.05em;\n    background:\n        radial-gradient(circle at 88% 12%, rgba(104,219,255,.24), transparent 30%),\n        linear-gradient(120deg, rgba(243,86,112,.26), rgba(40,69,101,.66));\n    box-shadow: 0 1em 2.6em rgba(0,0,0,.18);\n}\n\n.yani-notifications__hero:after {\n    content: '';\n    position: absolute;\n    right: -3em;\n    bottom: -6em;\n    width: 20em;\n    height: 12em;\n    border: .1em solid rgba(255,255,255,.09);\n    border-radius: 50%;\n    transform: rotate(-12deg);\n}\n\n.yani-notifications__identity { position: relative; z-index: 1; display: flex; align-items: center; gap: 1.1em; min-width: 0; }\n.yani-notifications__hero-icon {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    flex: 0 0 4.2em;\n    width: 4.2em;\n    height: 4.2em;\n    border-radius: 1.1em;\n    color: #fff;\n    background: linear-gradient(145deg, #ff647b, #c94264);\n    box-shadow: 0 .8em 1.8em rgba(199,47,81,.3);\n}\n.yani-notifications__hero-icon svg { width: 2.15em; height: 2.15em; }\n.yani-notifications__eyebrow { display: block; margin-bottom: .25em; color: #ff9daf; font-size: .7em; font-weight: 800; letter-spacing: .18em; }\n.yani-notifications__title { color: #fff; font-size: 1.7em; font-weight: 750; line-height: 1.05; }\n.yani-notifications__subtitle { margin-top: .38em; color: rgba(230,239,247,.7); font-size: .88em; }\n.yani-notifications__summary {\n    position: relative;\n    z-index: 1;\n    display: grid;\n    grid-template-columns: auto auto;\n    align-items: baseline;\n    gap: .5em;\n    min-width: 9em;\n    padding: .75em 1em;\n    border-radius: .8em;\n    background: rgba(7,18,30,.42);\n    border: .08em solid rgba(255,255,255,.12);\n}\n.yani-notifications__summary strong { color: #a8eaff; font-size: 1.7em; line-height: 1; }\n.yani-notifications__summary span { color: rgba(230,239,247,.72); font-size: .78em; }\n.yani-notifications__summary.has-unread strong { color: #ff879a; }\n\n.yani-notifications__actions { display: flex; gap: .75em; margin: 1.15em 0 1.35em; }\n.yani-notifications__action {\n    display: flex;\n    align-items: center;\n    gap: .65em;\n    min-height: 2.8em;\n    padding: .55em 1em;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: .72em;\n    color: #dce8f3;\n    background: rgba(23,37,52,.72);\n}\n.yani-notifications__action > span { display: flex; align-items: center; justify-content: center; width: 1.45em; height: 1.45em; border-radius: 50%; color: #88dcff; background: rgba(71,190,235,.15); font-weight: 800; }\n.yani-notifications__action strong { font-size: .88em; font-weight: 650; }\n.yani-notifications__action--danger > span { color: #ff879a; background: rgba(255,91,117,.14); }\n.yani-notifications__action.focus { color: #152535; background: #fff; box-shadow: 0 0 0 .16em rgba(116,218,255,.8); }\n.yani-notifications__action.focus > span { color: #fff; background: #e84f6a; }\n\n.yani-notifications__list { display: grid; gap: .72em; }\n.yani-notifications__day {\n    display: flex;\n    align-items: center;\n    gap: .7em;\n    margin: .55em .15em -.08em;\n    color: rgba(225,236,245,.66);\n    font-size: .76em;\n    font-weight: 750;\n    letter-spacing: .08em;\n    text-transform: uppercase;\n}\n.yani-notifications__day:after { content: ''; flex: 1; height: .08em; background: linear-gradient(90deg, rgba(255,255,255,.14), transparent); }\n.yani-notification {\n    --notification-accent: #9db0c2;\n    --notification-accent-soft: rgba(157,176,194,.14);\n    --notification-accent-border: rgba(157,176,194,.62);\n    position: relative;\n    display: grid;\n    grid-template-columns: 3.4em minmax(0, 1fr) 1.3em;\n    align-items: center;\n    gap: 1em;\n    min-height: 6.4em;\n    padding: 1em 1.15em;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.11);\n    border-radius: .9em;\n    color: #eef5fb;\n    background: linear-gradient(110deg, rgba(22,34,47,.93), rgba(35,50,66,.76));\n    box-shadow: 0 .45em 1.25em rgba(0,0,0,.12);\n}\n.yani-notification--episode { --notification-accent: #ff738b; --notification-accent-soft: rgba(255,115,139,.14); --notification-accent-border: rgba(255,115,139,.62); }\n.yani-notification--comment { --notification-accent: #6fd8ff; --notification-accent-soft: rgba(111,216,255,.14); --notification-accent-border: rgba(111,216,255,.62); }\n.yani-notification--social { --notification-accent: #af92ff; --notification-accent-soft: rgba(175,146,255,.14); --notification-accent-border: rgba(175,146,255,.62); }\n.yani-notification--news { --notification-accent: #ffd166; --notification-accent-soft: rgba(255,209,102,.14); --notification-accent-border: rgba(255,209,102,.62); }\n.yani-notification__dot { position: absolute; top: 0; bottom: 0; left: 0; width: .25em; background: var(--notification-accent); opacity: .35; }\n.yani-notification.unread { border-color: var(--notification-accent-border); background: linear-gradient(110deg, rgba(31,48,65,.97), rgba(43,59,77,.88)); }\n.yani-notification.unread .yani-notification__dot { opacity: 1; }\n.yani-notification__visual { display: flex; align-items: center; justify-content: center; width: 3.4em; height: 3.4em; border-radius: .9em; color: var(--notification-accent); background: var(--notification-accent-soft); }\n.yani-notification__visual svg { width: 1.75em; height: 1.75em; }\n.yani-notification__body { min-width: 0; }\n.yani-notification__meta { display: flex; align-items: center; gap: .65em; margin-bottom: .28em; }\n.yani-notification__kind { color: var(--notification-accent); font-size: .7em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }\n.yani-notification__date { color: #8297aa; font-size: .72em; }\n.yani-notification__date:before { content: '•'; margin-right: .65em; opacity: .55; }\n.yani-notification__title { overflow: hidden; color: #f7fbff; font-size: 1.08em; font-weight: 750; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }\n.yani-notification__text { display: -webkit-box; margin-top: .28em; overflow: hidden; color: #b8c7d5; font-size: .86em; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }\n.yani-notification__footer { display: flex; gap: .7em; margin-top: .52em; color: #7f94a7; font-size: .68em; font-weight: 650; }\n.yani-notification__state { padding: .18em .5em; border-radius: .38em; background: rgba(255,255,255,.07); }\n.yani-notification.unread .yani-notification__state { color: #ff9bad; background: rgba(255,103,130,.13); }\n.yani-notification__open { color: var(--notification-accent); }\n.yani-notification__chevron { color: #71879a; font-size: 2em; line-height: 1; }\n.yani-notification:not(.is-actionable) { grid-template-columns: 3.4em minmax(0, 1fr); }\n.yani-notification.loading:after,\n.yani-notifications__more.loading:after { content: ''; position: absolute; inset: 0; background: rgba(12,20,29,.38); }\n.yani-notification.focus { color: #152535; background: #fff; border-color: #fff; box-shadow: 0 0 0 .17em var(--notification-accent), 0 .8em 2em rgba(0,0,0,.25); }\n.yani-notification.focus .yani-notification__title { color: #142333; }\n.yani-notification.focus .yani-notification__text { color: #4d6174; }\n.yani-notification.focus .yani-notification__date,\n.yani-notification.focus .yani-notification__footer { color: #61778a; }\n.yani-notification.focus .yani-notification__visual { background: var(--notification-accent-soft); }\n.yani-notification.focus .yani-notification__chevron { color: #243b4e; transform: translateX(.12em); }\n\n.yani-notifications__more,\n.yani-notifications__empty {\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    gap: .7em;\n    min-height: 3.6em;\n    margin-top: .35em;\n    border: .08em dashed rgba(255,255,255,.18);\n    border-radius: .85em;\n    color: #c6d5e2;\n    background: rgba(20,32,44,.62);\n}\n.yani-notifications__more > span { color: #72d8ff; font-size: 1.35em; }\n.yani-notifications__more.focus { color: #162636; background: #fff; border-style: solid; box-shadow: 0 0 0 .15em rgba(114,216,255,.75); }\n.yani-notifications__empty { flex-direction: column; min-height: 13em; }\n.yani-notifications__empty-icon { display: flex; align-items: center; justify-content: center; width: 4em; height: 4em; border-radius: 50%; color: #8da5b8; background: rgba(255,255,255,.07); }\n.yani-notifications__empty-icon svg { width: 2em; height: 2em; }\n.yani-notifications__empty strong { font-size: 1.15em; }\n.yani-notifications__empty > span:last-child { color: #879baa; font-size: .8em; }\n.yani-notifications__empty.focus { border-color: rgba(114,216,255,.75); box-shadow: 0 0 0 .12em rgba(114,216,255,.45); }\n\n@media (max-width: 720px) {\n    .yani-notifications__content { width: auto; padding: 1em 1em 3em; }\n    .yani-notifications__hero { min-height: 5.8em; padding: 1em; }\n    .yani-notifications__hero-icon { flex-basis: 3.4em; width: 3.4em; height: 3.4em; }\n    .yani-notifications__title { font-size: 1.35em; }\n    .yani-notifications__subtitle { display: none; }\n    .yani-notifications__summary { min-width: auto; grid-template-columns: auto; gap: .12em; padding: .55em .7em; text-align: center; }\n    .yani-notifications__summary span { font-size: .62em; }\n    .yani-notifications__actions { display: grid; grid-template-columns: 1fr 1fr; }\n    .yani-notifications__action { justify-content: center; padding: .5em .65em; }\n    .yani-notification { grid-template-columns: 2.8em minmax(0,1fr); gap: .75em; padding: .85em; }\n    .yani-notification__visual { width: 2.8em; height: 2.8em; }\n    .yani-notification__chevron { display: none; }\n    .yani-notification__title { white-space: normal; }\n}\n\n.yani-account__profile {\n    display: flex;\n    align-items: center;\n    padding: 1.2em;\n    border-radius: 0.8em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-account__profile.focus,\n.yani-account__info.focus,\n.yani-account__list.focus,\n.yani-account__notice.focus {\n    background: #fff;\n    color: #111;\n}\n\n.yani-account__avatar {\n    width: 7em;\n    height: 7em;\n    margin-right: 1.2em;\n    border-radius: 50%;\n    object-fit: cover;\n}\n\n.yani-account__name {\n    font-size: 1.8em;\n    font-weight: 600;\n}\n\n.yani-account__id,\n.yani-account__about {\n    margin-top: 0.35em;\n    opacity: 0.7;\n}\n\n.yani-account__warning {\n    margin-top: 0.5em;\n    color: #ff6868;\n    font-weight: 600;\n}\n\n.yani-account__grid,\n.yani-account__lists {\n    display: grid;\n    grid-template-columns: repeat(3, minmax(10em, 1fr));\n    gap: 0.7em;\n    margin-top: 1em;\n}\n\n.yani-account__info,\n.yani-account__list,\n.yani-account__notice {\n    padding: 1em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-account__info-title,\n.yani-account__list-time,\n.yani-account__notice-text {\n    opacity: 0.65;\n}\n\n.yani-account__info-value,\n.yani-account__list-count,\n.yani-account__notice-title {\n    margin-top: 0.3em;\n    font-size: 1.2em;\n    font-weight: 600;\n}\n\n.yani-account__list-title {\n    font-size: 1.15em;\n    font-weight: 600;\n}\n\n.yani-account__list-time {\n    margin-top: 0.35em;\n}\n\n.yani-account__section-title {\n    margin-top: 1.5em;\n    font-size: 1.45em;\n    font-weight: 600;\n}\n\n.yani-user-lists__heading {\n    font-size: 2em;\n    font-weight: 700;\n}\n\n.yani-user-lists__description {\n    max-width: 48em;\n    margin-top: .35em;\n    color: rgba(255, 255, 255, .68);\n    font-size: 1.05em;\n}\n\n.yani-user-lists__tile {\n    display: flex;\n    align-items: center;\n    min-height: 5.4em;\n}\n\n.yani-user-lists__icon {\n    width: 2.7em;\n    height: 2.7em;\n    margin-right: 1em;\n    flex: 0 0 auto;\n    color: #ff6674;\n}\n\n.yani-user-lists__icon svg {\n    width: 100%;\n    height: 100%;\n    fill: currentColor;\n}\n\n.yani-user-lists__tile.focus .yani-user-lists__icon {\n    color: #cf3f50;\n}\n\n.yani-user-lists__body {\n    min-width: 0;\n    flex: 1 1 auto;\n}\n\n.yani-user-lists__count {\n    font-size: 1em;\n}\n\n.yani-user-lists-view { --yani-list-accent: #ff6878; }\n.yani-user-list-card { --yani-list-accent: #a68af0; }\n.yani-user-list-card--watching { --yani-list-accent: #ff6878; }\n.yani-user-list-card--planned { --yani-list-accent: #59bfea; }\n.yani-user-list-card--completed { --yani-list-accent: #62d39a; }\n.yani-user-list-card--dropped { --yani-list-accent: #97a1b5; }\n.yani-user-list-card--favorites { --yani-list-accent: #f174ae; }\n.yani-user-list-card--postponed { --yani-list-accent: #efbd68; }\n.yani-user-list-card--history { --yani-list-accent: #a68af0; }\n.yani-user-list-card .card__view { position: relative; overflow: hidden; }\n.yani-user-list-card .card__view::after {\n    position: absolute;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    height: .22em;\n    background: var(--yani-list-accent);\n    box-shadow: 0 -.2em .7em rgba(0, 0, 0, .2);\n    content: '';\n    pointer-events: none;\n}\n.yani-user-list-card__badge {\n    position: absolute;\n    z-index: 3;\n    top: .48em;\n    right: .48em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 1.72em;\n    height: 1.72em;\n    border: .08em solid rgba(255, 255, 255, .22);\n    border-radius: .58em;\n    color: #fff;\n    background: rgba(12, 14, 23, .72);\n    box-shadow: 0 .3em .8em rgba(0, 0, 0, .28), inset 0 -.16em 0 var(--yani-list-accent);\n    pointer-events: none;\n}\n.yani-user-list-card__badge svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-user-list-card__progress {\n    position: absolute;\n    z-index: 4;\n    right: .5em;\n    bottom: .5em;\n    left: .5em;\n    height: .27em;\n    overflow: hidden;\n    border-radius: 99em;\n    background: rgba(9, 11, 18, .6);\n    pointer-events: none;\n}\n.yani-user-list-card__progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--yani-list-accent); box-shadow: 0 0 .65em var(--yani-list-accent); }\n.yani-user-list-card--more .yani-user-list-card__badge { display: none; }\n.yani-user-list-card.focus .card__view { box-shadow: 0 0 0 .17em #fff, 0 0 0 .34em var(--yani-list-accent), 0 .8em 1.7em rgba(0, 0, 0, .3); }\n\n.yani-account-list-sort-panel { margin: .15em 1em .9em; --yani-list-accent: #ff6878; }\n.yani-account-list-sort-panel--watching { --yani-list-accent: #ff6878; }\n.yani-account-list-sort-panel--planned { --yani-list-accent: #59bfea; }\n.yani-account-list-sort-panel--completed { --yani-list-accent: #62d39a; }\n.yani-account-list-sort-panel--dropped { --yani-list-accent: #97a1b5; }\n.yani-account-list-sort-panel--favorites { --yani-list-accent: #f174ae; }\n.yani-account-list-sort-panel--postponed { --yani-list-accent: #efbd68; }\n\n.yani-account-list-sort-trigger {\n    position: relative;\n    display: flex;\n    align-items: center;\n    min-height: 3.25em;\n    padding: .48em .72em;\n    overflow: hidden;\n    border: .08em solid rgba(255, 255, 255, .12);\n    border-radius: 1em;\n    background: radial-gradient(circle at 94% 0, rgba(255, 104, 120, .18), transparent 35%), linear-gradient(125deg, rgba(34, 35, 48, .94), rgba(24, 22, 32, .9));\n    box-shadow: 0 .8em 2.2em rgba(0, 0, 0, .22), inset 0 .06em 0 rgba(255, 255, 255, .08);\n    backdrop-filter: blur(.8em);\n    transition: background .16s ease, border-color .16s ease, transform .16s ease;\n}\n.yani-account-list-sort-panel__list-icon { display: flex; align-items: center; justify-content: center; width: 1.9em; height: 1.9em; margin-right: .55em; border-radius: .58em; color: #fff; background: var(--yani-list-accent); box-shadow: 0 .25em .7em rgba(0, 0, 0, .2); }\n.yani-account-list-sort-panel__list-icon svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-account-list-sort-trigger__copy { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; }\n.yani-account-list-sort-panel__title { overflow: hidden; font-size: .92em; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }\n.yani-account-list-sort-trigger__meta { margin-top: .12em; color: rgba(255, 255, 255, .5); font-size: .68em; }\n.yani-account-list-sort-trigger__label { margin-left: 1em; color: rgba(255, 255, 255, .65); font-size: .75em; font-weight: 650; }\n.yani-account-list-sort-trigger__chevron { display: flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; margin-left: .55em; border-radius: 50%; color: #fff; background: rgba(255, 255, 255, .1); transition: transform .18s ease; }\n.yani-account-list-sort-trigger.focus { color: #17151c; border-color: #fff; background: #fff; box-shadow: 0 0 0 .15em rgba(255, 255, 255, .2), 0 .65em 1.5em rgba(0, 0, 0, .24); transform: translateY(-.08em); }\n.yani-account-list-sort-trigger.focus .yani-account-list-sort-trigger__meta,\n.yani-account-list-sort-trigger.focus .yani-account-list-sort-trigger__label { color: rgba(23, 21, 28, .58); }\n.yani-account-list-sort-trigger.focus .yani-account-list-sort-trigger__chevron { color: #fff; background: var(--yani-list-accent); }\n.yani-account-list-sort-panel.is-expanded .yani-account-list-sort-trigger__chevron { transform: rotate(180deg); }\n\n.yani-account-list-sort-rail { display: grid; grid-template-columns: repeat(5, minmax(7.2em, 1fr)); gap: .42em; max-height: 0; margin-top: 0; padding: 0 .12em; overflow: hidden; opacity: 0; scrollbar-width: none; transform: translateY(-.4em); transition: max-height .2s ease, margin .2s ease, padding .2s ease, opacity .16s ease, transform .2s ease; }\n.yani-account-list-sort-panel.is-expanded .yani-account-list-sort-rail { max-height: 5.2em; margin-top: .42em; padding: .12em; overflow-x: auto; opacity: 1; transform: none; }\n.yani-account-list-sort-rail::-webkit-scrollbar { display: none; }\n.yani-account-list-sort-option { position: relative; display: grid; grid-template-columns: 2.25em 1fr; grid-template-rows: 1fr auto; min-height: 3.65em; padding: .48em .56em; overflow: hidden; border: .08em solid rgba(255, 255, 255, .09); border-radius: .82em; background: rgba(255, 255, 255, .055); transition: transform .15s ease, background .15s ease, box-shadow .15s ease; }\n.yani-account-list-sort-option__index { position: absolute; right: .55em; top: .42em; color: rgba(255, 255, 255, .24); font-size: .6em; font-weight: 800; letter-spacing: .08em; }\n.yani-account-list-sort-option__icon { display: flex; grid-row: 1 / span 2; align-self: center; align-items: center; justify-content: center; width: 1.9em; height: 1.9em; border-radius: .58em; color: #ff8794; background: rgba(255, 255, 255, .08); }\n.yani-account-list-sort-option:nth-child(2) .yani-account-list-sort-option__icon { color: #60c7ed; }\n.yani-account-list-sort-option:nth-child(3) .yani-account-list-sort-option__icon { color: #f0c467; }\n.yani-account-list-sort-option:nth-child(4) .yani-account-list-sort-option__icon { color: #6bd6a4; }\n.yani-account-list-sort-option:nth-child(5) .yani-account-list-sort-option__icon { color: #b79af0; }\n.yani-account-list-sort-option__icon svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-account-list-sort-option__title { align-self: end; overflow: hidden; font-size: .78em; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }\n.yani-account-list-sort-option__state { align-self: start; width: 1.5em; height: .18em; margin-top: .25em; border-radius: 99em; background: rgba(255, 255, 255, .13); }\n.yani-account-list-sort-option.active { border-color: rgba(255, 104, 120, .45); background: rgba(255, 104, 120, .1); }\n.yani-account-list-sort-option.active .yani-account-list-sort-option__state { background: var(--yani-list-accent); box-shadow: 0 0 .55em var(--yani-list-accent); }\n.yani-account-list-sort-option.focus { color: #17151c; border-color: #fff; background: #fff; box-shadow: 0 0 0 .15em rgba(255, 255, 255, .2), 0 .6em 1.35em rgba(0, 0, 0, .25); transform: translateY(-.12em); }\n.yani-account-list-sort-option.focus .yani-account-list-sort-option__index { color: rgba(23, 21, 28, .3); }\n.yani-account-list-sort-option.focus .yani-account-list-sort-option__icon { color: #fff; background: var(--yani-list-accent); }\n.yani-account-list-sort-option.focus .yani-account-list-sort-option__state { background: #a84374; box-shadow: none; }\n\n.yani-genre-catalog-header { position: relative; z-index: 4; display: flex; align-items: flex-start; min-height: 5.8em; margin: .1em 1em .75em; padding: .72em 1em; overflow: hidden; border: .08em solid rgba(255, 255, 255, .13); border-radius: 1.15em; background: linear-gradient(120deg, rgba(36, 26, 44, .94), rgba(31, 43, 59, .9)); box-shadow: 0 .8em 2em rgba(0, 0, 0, .2), inset 0 .06em 0 rgba(255, 255, 255, .08); backdrop-filter: blur(.8em); }\n.yani-genre-catalog-header::after { position: absolute; right: -5em; top: -7em; width: 18em; height: 18em; border: .08em solid rgba(111, 197, 232, .18); border-radius: 50%; box-shadow: 0 0 0 2.7em rgba(181, 102, 225, .06), 0 0 0 5.4em rgba(255, 104, 120, .045); content: ''; }\n.yani-genre-catalog-header__orb { position: relative; display: block; flex: 0 0 3.35em; width: 3.35em; height: 3.35em; margin: .15em .9em 0 0; border-radius: 1em; background: linear-gradient(145deg, #ff6878, #825ed8); box-shadow: 0 .55em 1.25em rgba(139, 69, 129, .36); }\n.yani-genre-catalog-header__orb.is-subject { height: 3.65em; border-radius: .82em; }\n.yani-genre-catalog-header__orb.is-studio { flex-basis: 5.5em; width: 5.5em; }\n.yani-genre-catalog-header__orb.is-director { flex-basis: 3.05em; width: 3.05em; }\n.yani-genre-catalog-header__orb img { display: none; width: 100%; height: 100%; padding: .16em; box-sizing: border-box; object-fit: contain; object-position: center; border-radius: inherit; background: rgba(255,255,255,.94); }\n.yani-genre-catalog-header__orb.is-director img { padding: 0; background: rgba(20,22,29,.72); }\n.yani-genre-catalog-header__orb b { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; color: #fff; font-size: 1.18em; font-weight: 850; letter-spacing: -.04em; text-shadow: 0 .12em .35em rgba(0,0,0,.28); }\n.yani-genre-catalog-header__orb.is-subject b { display: flex; }\n.yani-genre-catalog-header__orb.is-subject i { display: none; }\n.yani-genre-catalog-header__orb.has-image img { display: block; }\n.yani-genre-catalog-header__orb.has-image b,\n.yani-genre-catalog-header__orb.has-image i { display: none; }\n.yani-genre-catalog-header__orb i { position: absolute; border: .13em solid rgba(255, 255, 255, .84); border-radius: 50%; }\n.yani-genre-catalog-header__orb i:nth-child(1) { width: 1.45em; height: 1.45em; left: .45em; top: .48em; }\n.yani-genre-catalog-header__orb i:nth-child(2) { width: 1.2em; height: 1.2em; right: .38em; bottom: .38em; }\n.yani-genre-catalog-header__orb i:nth-child(3) { width: .42em; height: .42em; right: .5em; top: .5em; background: #fff; }\n.yani-genre-catalog-header__copy { position: relative; z-index: 1; min-width: 0; flex: 1 1 auto; }\n.yani-genre-catalog-header__eyebrow { display: block; color: #f07d94; font-size: .64em; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }\n.yani-genre-catalog-header__title { display: block; margin-top: .06em; font-size: 1.35em; line-height: 1.08; }\n.yani-genre-catalog-header__description { max-width: 62em; margin: .32em 0 0; color: rgba(255, 255, 255, .68); font-size: .78em; line-height: 1.38; white-space: normal; }\n\n/* Per-card selectors (when cardRender successfully adds the class) */\n.yani-card-rails .items-cards .card.yani-genre-tile-card {\n    flex-basis: 11.2em;\n    width: 11.2em;\n}\n.yani-genre-tile-card .card__view {\n    padding-bottom: 45.45% !important;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .75em;\n    box-shadow: 0 .45em 1.15em rgba(0,0,0,.24);\n}\n.yani-genre-tile-card .card__img,\n.yani-genre-tile-card .card__view img {\n    border-radius: .68em;\n    object-fit: cover;\n}\n.yani-genre-tile-card .card__title,\n.yani-genre-tile-card .card__age,\n.yani-genre-tile-card .yani-card-meta { display: none !important; }\n.yani-genre-tile-card.focus .card__view {\n    border-color: #fff;\n    box-shadow: 0 0 0 .16em #fff, 0 0 0 .34em rgba(255,104,120,.52), 0 .65em 1.4em rgba(0,0,0,.32);\n    transform: translateY(-.12em) scale(1.035);\n}\n/* Row-level selectors (primary path — applied by markTilesLines after build) */\n.yani-genre-tiles-line .card {\n    flex: 0 0 11.2em !important;\n    width: 11.2em !important;\n}\n.yani-genre-tiles-line .card .card__view {\n    padding-bottom: 45.45% !important;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .75em;\n    box-shadow: 0 .45em 1.15em rgba(0,0,0,.24);\n}\n.yani-genre-tiles-line .card .card__img,\n.yani-genre-tiles-line .card .card__view img {\n    border-radius: .68em;\n    object-fit: cover;\n}\n.yani-genre-tiles-line .card .card__title,\n.yani-genre-tiles-line .card .card__age,\n.yani-genre-tiles-line .card .yani-card-meta { display: none !important; }\n.yani-genre-tiles-line .card.focus .card__view {\n    border-color: #fff;\n    box-shadow: 0 0 0 .16em #fff, 0 0 0 .34em rgba(255,104,120,.52), 0 .65em 1.4em rgba(0,0,0,.32);\n    transform: translateY(-.12em) scale(1.035);\n}\n.yani-genre-tiles-line .card.focus .card__view::after,\n.yani-genre-tiles-line .card.hover .card__view::after { display: none; }\n/* Per-card selectors (when cardRender successfully adds the class) */\n.yani-card-rails .items-cards .card.yani-collection-tile-card {\n    flex-basis: 13.2em;\n    width: 13.2em;\n}\n.yani-collection-tile-card .card__view {\n    padding-bottom: 56.25% !important;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .78em;\n    box-shadow: 0 .45em 1.15em rgba(0,0,0,.24);\n}\n.yani-collection-tile-card .card__view::after {\n    position: absolute;\n    z-index: 2;\n    inset: 30% 0 0;\n    background: linear-gradient(180deg, transparent, rgba(11,10,18,.92));\n    content: '';\n    pointer-events: none;\n}\n.yani-collection-tile-card .card__img,\n.yani-collection-tile-card .card__view img {\n    border-radius: .7em;\n    object-fit: cover;\n}\n.yani-collection-tile-card > .card__title,\n.yani-collection-tile-card .card__age,\n.yani-collection-tile-card > .yani-card-meta { display: none !important; }\n.yani-collection-tile-card__copy {\n    position: absolute;\n    z-index: 3;\n    right: .65em;\n    bottom: .58em;\n    left: .65em;\n    display: flex;\n    flex-direction: column;\n    min-width: 0;\n    color: #fff;\n    pointer-events: none;\n}\n.yani-collection-tile-card__copy strong {\n    overflow: hidden;\n    font-size: .78em;\n    line-height: 1.15;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n.yani-collection-tile-card__copy span {\n    margin-top: .16em;\n    color: rgba(255,255,255,.68);\n    font-size: .58em;\n    font-weight: 600;\n}\n.yani-collection-tile-card.focus .card__view {\n    border-color: #fff;\n    box-shadow: 0 0 0 .16em #fff, 0 0 0 .34em rgba(166,138,240,.55), 0 .65em 1.4em rgba(0,0,0,.32);\n    transform: translateY(-.12em) scale(1.035);\n}\n\n/* Genres and collections are intentionally simple TV-first tile catalogs. */\n.yani-tile-catalog .category-full,\n.yani-tile-catalog .items-cards {\n    display: grid !important;\n    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;\n    gap: 1.05em .9em !important;\n    width: 100% !important;\n    padding: .7em 1em 2.5em !important;\n    box-sizing: border-box;\n}\n.yani-tile-catalog .card {\n    width: auto !important;\n    max-width: none !important;\n    margin: 0 !important;\n    padding: 0 !important;\n}\n.yani-tile-catalog .card__view {\n    padding-bottom: 56.25% !important;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: 1em;\n    background: rgba(255,255,255,.055);\n    box-shadow: 0 .65em 1.6em rgba(0,0,0,.22), inset 0 .06em 0 rgba(255,255,255,.08);\n    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;\n}\n.yani-tile-catalog .card__img,\n.yani-tile-catalog .card__view img {\n    width: 100%;\n    height: 100%;\n    border-radius: .94em;\n    object-fit: cover;\n}\n.yani-tile-catalog .card > .card__title,\n.yani-tile-catalog .card__age,\n.yani-tile-catalog .card > .yani-card-meta,\n.yani-tile-catalog .yani-collection-card__meta,\n.yani-tile-catalog .yani-collection-card__previews { display: none !important; }\n.yani-tile-catalog .card.focus .card__view {\n    border-color: #fff;\n    box-shadow: 0 0 0 .16em #fff, 0 0 0 .38em rgba(255,104,120,.5), 0 .9em 2em rgba(0,0,0,.34);\n    transform: translateY(-.18em) scale(1.025);\n}\n.yani-collections-tile-catalog .card__view::after {\n    position: absolute;\n    z-index: 2;\n    inset: 18% 0 0;\n    border-radius: 0 0 .94em .94em;\n    background:\n        linear-gradient(180deg, transparent 0%, rgba(10,9,17,.34) 34%, rgba(10,9,17,.92) 73%, rgba(10,9,17,.98) 100%);\n    content: '';\n    pointer-events: none;\n    transition: background .18s ease;\n}\n.yani-collections-tile-catalog .card {\n    position: relative;\n}\n.yani-collections-tile-catalog .card > .card__title {\n    display: none !important;\n}\n.yani-collections-tile-catalog .yani-collection-tile-card__copy {\n    right: 1em;\n    bottom: .82em;\n    left: 1em;\n    z-index: 4;\n    display: flex;\n    padding-left: .72em;\n    border-left: .16em solid #ef6470;\n    text-shadow: 0 .1em .28em rgba(0,0,0,.95);\n    transition: border-color .18s ease, transform .18s ease;\n}\n.yani-collections-tile-catalog .yani-collection-tile-card__copy strong {\n    display: -webkit-box;\n    overflow: hidden;\n    max-height: 2.5em;\n    color: #fff;\n    font-size: 1.08em;\n    font-weight: 750;\n    line-height: 1.16;\n    letter-spacing: -.015em;\n    text-overflow: ellipsis;\n    white-space: normal;\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 2;\n}\n.yani-collections-tile-catalog .yani-collection-tile-card__copy span {\n    margin-top: .34em;\n    color: rgba(255,255,255,.76);\n    font-size: .64em;\n    font-weight: 650;\n    letter-spacing: .025em;\n}\n.yani-collections-tile-catalog .card.focus .yani-collection-tile-card__copy {\n    border-color: #fff;\n    transform: translateX(.12em);\n}\n.yani-collections-tile-catalog .card.focus .card__view::after {\n    background:\n        linear-gradient(180deg, transparent 0%, rgba(25,15,35,.28) 28%, rgba(24,13,34,.9) 70%, rgba(20,11,29,.99) 100%);\n}\n.yani-genres-tile-catalog .card__view { padding-bottom: 45.45% !important; }\n\n@media (min-width: 100em) {\n    .yani-tile-catalog .category-full,\n    .yani-tile-catalog .items-cards { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }\n}\n@media (max-width: 70em) {\n    .yani-tile-catalog .category-full,\n    .yani-tile-catalog .items-cards { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }\n}\n@media (max-width: 42em) {\n    .yani-tile-catalog .category-full,\n    .yani-tile-catalog .items-cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: .75em .58em !important; padding: .55em .5em 2em !important; }\n}\n/* Row-level selectors (primary path — applied by markTilesLines after build) */\n.yani-collection-tiles-line .card {\n    flex: 0 0 13.2em !important;\n    width: 13.2em !important;\n}\n.yani-collection-tiles-line .card .card__view {\n    padding-bottom: 56.25% !important;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .78em;\n    box-shadow: 0 .45em 1.15em rgba(0,0,0,.24);\n}\n.yani-collection-tiles-line .card .card__view::after {\n    position: absolute;\n    z-index: 2;\n    inset: 30% 0 0;\n    background: linear-gradient(180deg, transparent, rgba(11,10,18,.92));\n    content: '';\n    pointer-events: none;\n}\n.yani-collection-tiles-line .card .card__img,\n.yani-collection-tiles-line .card .card__view img {\n    border-radius: .7em;\n    object-fit: cover;\n}\n.yani-collection-tiles-line .card .card__title,\n.yani-collection-tiles-line .card .card__age,\n.yani-collection-tiles-line .card .yani-card-meta { display: none !important; }\n.yani-collection-tiles-line .card.focus .card__view {\n    border-color: #fff;\n    box-shadow: 0 0 0 .16em #fff, 0 0 0 .34em rgba(166,138,240,.55), 0 .65em 1.4em rgba(0,0,0,.32);\n    transform: translateY(-.12em) scale(1.035);\n}\n\n@media (max-width: 700px) {\n    .yani-account-list-sort-panel { margin: .1em .6em .65em; }\n    .yani-account-list-sort-trigger__label { display: none; }\n    .yani-account-list-sort-rail { grid-template-columns: repeat(5, minmax(8.4em, 1fr)); }\n    .yani-genre-catalog-header { margin: .1em .6em .65em; }\n    .yani-genre-catalog-header__description { white-space: normal; }\n}\n\n.yani-account__stats {\n    display: inline-flex;\n    flex-direction: column;\n    width: min(100%, 34em);\n    margin: 0.7em 0.7em 0 0;\n    padding: 0.8em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.08);\n    vertical-align: top;\n}\n\n.yani-account__stats-title {\n    margin-bottom: 0.45em;\n    font-size: 1.1em;\n    font-weight: 600;\n}\n\n.yani-account__stats-row {\n    display: flex;\n    justify-content: space-between;\n    gap: 1em;\n    padding: 0.4em 0.55em;\n    border-radius: 0.35em;\n}\n\n.yani-account__stats-row.focus {\n    background: #fff;\n    color: #111;\n}\n\n.yani-auth__content {\n    width: min(100%, 42em);\n    margin: 0 auto;\n    padding: 2em;\n}\n\n.yani-auth__title {\n    margin-bottom: 0.35em;\n    font-size: 2em;\n    font-weight: 600;\n}\n\n.yani-auth__status {\n    margin-bottom: 1.4em;\n    color: #f0a33b;\n    opacity: 0.9;\n}\n\n.yani-auth__status.is-authorized {\n    color: #4caf50;\n}\n\n.yani-auth__form,\n.yani-auth__actions {\n    display: grid;\n    gap: 0.7em;\n}\n\n.yani-auth__field,\n.yani-auth__button {\n    padding: 1em 1.2em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-auth__field.focus,\n.yani-auth__button.focus {\n    background: #fff;\n    color: #111;\n    outline: 0.16em solid #ef6470;\n}\n\n.yani-auth__field-title {\n    margin-bottom: 0.3em;\n    opacity: 0.65;\n}\n\n.yani-auth__field-value {\n    font-size: 1.15em;\n    font-weight: 600;\n}\n\n.yani-auth__button {\n    text-align: center;\n    font-weight: 600;\n}\n\n.yani-auth__button--primary {\n    background: #ef6470;\n    color: #fff;\n}\n\n.yani-auth__account,\n.yani-auth__hint {\n    margin-top: 1em;\n    opacity: 0.65;\n}\n\n.yani-status__content {\n    padding: 1.4em 2em 3em;\n}\n\n.yani-status__periods {\n    display: flex;\n    gap: 0.65em;\n    margin-bottom: 1em;\n}\n\n.yani-status__period {\n    padding: 0.65em 1.15em;\n    border-radius: 0.55em;\n    background: rgba(255, 255, 255, 0.14);\n}\n\n.yani-status__period.active {\n    background: #ef6470;\n    color: #fff;\n}\n\n.yani-status__period.focus {\n    box-shadow: 0 0 0 0.16em #fff;\n}\n\n.yani-status__summary {\n    display: flex;\n    align-items: center;\n    gap: 2em;\n    padding: 1.4em;\n    border-radius: 0.8em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-status__summary.focus,\n.yani-status__domain.focus,\n.yani-status__refresh.focus,\n.yani-status__error.focus {\n    background: #fff;\n    color: #111;\n}\n\n.yani-status__ring {\n    display: flex;\n    flex: 0 0 10em;\n    align-items: center;\n    justify-content: center;\n    width: 10em;\n    height: 10em;\n    border-radius: 50%;\n}\n\n.yani-status__ring-center {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    width: 7em;\n    height: 7em;\n    border-radius: 50%;\n    background: #292929;\n    color: #fff;\n}\n\n.yani-status__ring-center strong {\n    font-size: 1.65em;\n}\n\n.yani-status__ring-center span {\n    margin-top: 0.2em;\n    opacity: 0.7;\n}\n\n.yani-status__summary-info {\n    flex: 1;\n}\n\n.yani-status__headline {\n    margin-bottom: 0.7em;\n    font-size: 1.8em;\n    font-weight: 700;\n}\n\n.yani-status__metrics {\n    display: grid;\n    grid-template-columns: repeat(4, minmax(8em, 1fr));\n    gap: 0.6em;\n}\n\n.yani-status__metric {\n    padding: 0.65em;\n    border-radius: 0.45em;\n    background: rgba(0, 0, 0, 0.18);\n}\n\n.yani-status__metric span,\n.yani-status__metric strong {\n    display: block;\n}\n\n.yani-status__metric span {\n    margin-bottom: 0.25em;\n    opacity: 0.65;\n}\n\n.yani-status__metric strong {\n    font-size: 1.1em;\n}\n\n.yani-status__legend {\n    display: flex;\n    align-items: center;\n    gap: 0.45em;\n    margin: 1.1em 0 0.7em;\n    opacity: 0.75;\n}\n\n.yani-status__dot,\n.yani-status__state {\n    display: inline-block;\n    width: 0.7em;\n    height: 0.7em;\n    border-radius: 50%;\n}\n\n.yani-status__dot--up,\n.yani-status--up .yani-status__state,\n.yani-status__bar--up { background: #4caf50; }\n.yani-status__dot--degraded,\n.yani-status--degraded .yani-status__state,\n.yani-status__bar--degraded { background: #f0a33b; }\n.yani-status__dot--down,\n.yani-status--down .yani-status__state,\n.yani-status__bar--down { background: #db4455; }\n.yani-status__bar--unknown { background: #777; }\n\n.yani-status__domain {\n    margin-bottom: 0.65em;\n    padding: 0.85em 1em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-status__domain-head,\n.yani-status__domain-name,\n.yani-status__domain-values {\n    display: flex;\n    align-items: center;\n}\n\n.yani-status__domain-head {\n    justify-content: space-between;\n    margin-bottom: 0.6em;\n}\n\n.yani-status__domain-name {\n    gap: 0.55em;\n}\n\n.yani-status__domain-name strong {\n    font-size: 1.1em;\n}\n\n.yani-status__domain-name small {\n    opacity: 0.5;\n}\n\n.yani-status__domain-values {\n    gap: 1em;\n    opacity: 0.7;\n}\n\n.yani-status__history {\n    display: flex;\n    gap: 0.12em;\n    width: 100%;\n    height: 1.35em;\n}\n\n.yani-status__bar {\n    flex: 1 1 0;\n    min-width: 0.18em;\n    border-radius: 0.15em;\n}\n\n.yani-status__refresh,\n.yani-status__error {\n    margin-top: 1em;\n    padding: 0.9em 1.1em;\n    border-radius: 0.6em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-status__source {\n    margin-top: 0.8em;\n    opacity: 0.55;\n}\n\n.yani-status__refresh {\n    display: inline-block;\n}\n\n.yani-status__error strong,\n.yani-status__error span {\n    display: block;\n}\n\n.yani-status__error span {\n    margin-top: 0.4em;\n    opacity: 0.65;\n}\n\n.yani-section-state-host {\n    position: relative;\n    z-index: 6;\n    margin: .85em 1em 0;\n}\n\n.yani-section-state {\n    position: relative;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.12);\n    border-radius: 1em;\n    background: linear-gradient(145deg, rgba(22,25,38,.92), rgba(48,36,58,.86) 58%, rgba(24,42,58,.88));\n    box-shadow: 0 .55em 1.6em rgba(0,0,0,.22), inset 0 .08em 0 rgba(255,255,255,.06);\n    color: #dce7f2;\n}\n\n.yani-section-state[hidden] { display: none !important; }\n\n.yani-section-state--banner {\n    display: flex;\n    align-items: center;\n    min-height: 0;\n    margin-bottom: .75em;\n    border-radius: .75em;\n    background: linear-gradient(115deg, rgba(74, 92, 58, .92), rgba(36, 54, 68, .9));\n}\n\n.yani-section-state__panel {\n    display: flex;\n    align-items: center;\n    gap: .85em;\n    width: 100%;\n    min-height: 8.5em;\n    padding: 1.1em 1.15em;\n    box-sizing: border-box;\n}\n\n.yani-section-state--banner .yani-section-state__panel { min-height: 0; padding: .7em .9em; }\n\n.yani-section-state__icon {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    flex: none;\n    width: 2.8em;\n    height: 2.8em;\n    border-radius: 50%;\n    background: rgba(255,255,255,.08);\n    color: #9ec8ff;\n}\n\n.yani-section-state--offline .yani-section-state__icon,\n.yani-section-state--error .yani-section-state__icon { color: #ffb4b4; background: rgba(239,100,112,.14); }\n.yani-section-state--cached .yani-section-state__icon { color: #d7ef9d; background: rgba(164, 196, 86, .16); }\n.yani-section-state--empty .yani-section-state__icon { color: #9eb0c2; }\n\n.yani-section-state__icon svg { width: 1.45em; height: 1.45em; }\n.yani-section-state__copy { display: flex; flex-direction: column; gap: .28em; min-width: 0; flex: 1; }\n.yani-section-state__copy strong { color: #fff; font-size: 1.05em; font-weight: 700; line-height: 1.2; }\n.yani-section-state__copy span { color: rgba(220,231,242,.72); font-size: .78em; line-height: 1.35; }\n\n.yani-section-state__retry {\n    flex: none;\n    padding: .55em .9em;\n    border: .08em solid rgba(255,255,255,.28);\n    border-radius: .55em;\n    background: rgba(255,255,255,.08);\n    color: #fff;\n    font-size: .78em;\n    font-weight: 700;\n    white-space: nowrap;\n}\n\n.yani-section-state__panel.focus,\n.yani-section-state__retry.focus {\n    border-color: #fff;\n    box-shadow: 0 0 0 .12em rgba(239,100,112,.55);\n}\n\n.yani-section-state__loading-copy {\n    padding: 0 1em 1em;\n    color: rgba(220,231,242,.7);\n    font-size: .78em;\n    font-weight: 600;\n}\n\n.yani-section-state__skeleton {\n    display: grid;\n    gap: .7em;\n    padding: 1em;\n}\n\n.yani-section-state__skeleton--cards {\n    grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n\n.yani-section-state__skeleton--cards i {\n    display: block;\n    aspect-ratio: 2 / 3;\n    border-radius: .55em;\n    background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.14), rgba(255,255,255,.06));\n    background-size: 200% 100%;\n    animation: yani-section-skeleton 1.2s ease-in-out infinite;\n}\n\n.yani-section-state__skeleton--rows,\n.yani-section-state__skeleton--list { grid-template-columns: 1fr; }\n\n.yani-section-state__skeleton--rows i,\n.yani-section-state__skeleton--list i {\n    display: block;\n    height: 3.2em;\n    border-radius: .55em;\n    background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.14), rgba(255,255,255,.06));\n    background-size: 200% 100%;\n    animation: yani-section-skeleton 1.2s ease-in-out infinite;\n}\n\n.yani-section-state__skeleton--list i { height: 4.2em; }\n.yani-section-state__skeleton i:nth-child(2) { animation-delay: .12s; }\n.yani-section-state__skeleton i:nth-child(3) { animation-delay: .24s; }\n.yani-section-state__skeleton i:nth-child(4) { animation-delay: .36s; }\n.yani-section-state__skeleton i:nth-child(5) { animation-delay: .48s; }\n.yani-section-state__skeleton i:nth-child(6) { animation-delay: .6s; }\n\n@keyframes yani-section-skeleton {\n    from { background-position: 100% 0; opacity: .72; }\n    to { background-position: 0 0; opacity: 1; }\n}\n\n@media (prefers-reduced-motion: reduce) {\n    .yani-section-state__skeleton i { animation: none; }\n}\n\n@media (max-width: 700px) {\n    .yani-section-state__skeleton--cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-section-state__panel { flex-wrap: wrap; }\n    .yani-section-state__retry { width: 100%; text-align: center; }\n}\n\n@media (max-width: 700px) {\n    .yani-schedule__content { padding: 1em; }\n    .yani-schedule__release { min-width: 5em; }\n    .yani-schedule__timezone { display: none; }\n    .yani-ratings { gap: 0.35em; }\n    .yani-ratings__votes { display: none; }\n    .yani-account__content { padding: 1em; }\n    .yani-account__grid,\n    .yani-account__lists { grid-template-columns: repeat(2, minmax(8em, 1fr)); }\n    .yani-status__content { padding: 1em; }\n    .yani-status__summary { align-items: flex-start; gap: 1em; }\n    .yani-status__ring { flex-basis: 7em; width: 7em; height: 7em; }\n    .yani-status__ring-center { width: 5em; height: 5em; }\n    .yani-status__metrics { grid-template-columns: repeat(2, minmax(7em, 1fr)); }\n    .yani-status__domain-name small { display: none; }\n}\n\n/* Portrait emulator windows share the narrow-column layout even above 700px. */\n@media (orientation: portrait), (max-aspect-ratio: 3/4) {\n    .yani-home__section-rail { display: none; }\n    .yani-home__intro-orbit,\n    .yani-home__intro-context-art { display: none; }\n    .yani-home__intro-summary { width: auto; max-width: none; margin-left: 0; }\n    .yani-home__panel--explore,\n    .yani-home__episode-flow,\n    .yani-home__panel--library,\n    .yani-home__discover,\n    .yani-home__panel--service { grid-column: span 12; }\n    .yani-home__panel--explore .yani-home__panel-items,\n    .yani-home__episode-flow-items,\n    .yani-home__discover-items,\n    .yani-home__panel--service .yani-home__panel-items,\n    .yani-home__panel--library .yani-home__panel-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-home__service-constellation { grid-template-columns: minmax(0, 1fr); }\n    .yani-home__panel--service::before { display: none; }\n    .yani-detail { gap: 1.2em; padding: 1.2em; }\n    .yani-detail__poster { width: 11em; }\n    .yani-account__grid,\n    .yani-account__lists { grid-template-columns: repeat(2, minmax(8em, 1fr)); }\n    .yani-section-state__skeleton--cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-catalog-view .category-full,\n    .yani-catalog-view .items-cards,\n    .yani-genre-catalog-view .category-full,\n    .yani-genre-catalog-view .items-cards,\n    .yani-account-list-view .category-full,\n    .yani-account-list-view .items-cards,\n    .yani-collection-view .category-full,\n    .yani-collection-view .items-cards,\n    .category-full.yani-card-grid,\n    .items-cards.yani-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n}\n\n/* Short 720p-class viewports: keep the first screen denser, not taller. */\n@media (max-height: 820px) {\n    .yani-home { min-height: calc(100vh - 4.2em); }\n    .yani-home__grid { gap: .85em; padding: 1.35em; }\n    .yani-home__intro { min-height: 5.4em; padding: .95em 1.15em; }\n    .yani-home__intro-orbit { display: none; }\n    .yani-home__intro-title { font-size: 1.45em; }\n    .yani-home__panel-head { margin-bottom: .55em; }\n    .yani-home__item { min-height: 5.8em; }\n    .yani-section-state__panel { min-height: 6.2em; padding: .9em 1em; }\n    .yani-notifications__hero { min-height: 5.4em; }\n    .yani-status__ring { flex-basis: 6.4em; width: 6.4em; height: 6.4em; }\n}\n\n/* 4K / ultra-wide: stop endless stretch so em-based chrome stays readable. */\n@media (min-width: 2500px) {\n    .yani-home__grid { max-width: 112em; }\n    .yani-notifications__content,\n    .yani-schedule__content,\n    .yani-status__content,\n    .yani-account__content { max-width: 78em; margin-left: auto; margin-right: auto; }\n    .yani-detail { max-width: 96em; margin-left: auto; margin-right: auto; }\n}\n";
+    style.textContent = ".yani-catalog-view .category-full,\n.yani-catalog-view .items-cards,\n.yani-genre-catalog-view .category-full,\n.yani-genre-catalog-view .items-cards,\n.yani-account-list-view .category-full,\n.yani-account-list-view .items-cards,\n.yani-collection-view .category-full,\n.yani-collection-view .items-cards,\n.category-full.yani-card-grid,\n.items-cards.yani-card-grid {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(12.6em, 1fr));\n    justify-content: center;\n    width: 100%;\n    max-width: 100%;\n    box-sizing: border-box;\n    margin: 0;\n    padding-left: .45em;\n    padding-right: .45em;\n    row-gap: 2.8em;\n}\n\n/* Keep the final row fully scrollable above Lampa's viewport edge. */\n.yani-catalog-view .category-full,\n.yani-catalog-view .items-cards,\n.yani-genre-catalog-view .category-full,\n.yani-genre-catalog-view .items-cards {\n    padding-bottom: 14em;\n    scroll-padding-bottom: 14em;\n}\n\n.yani-catalog-view .category-full .card,\n.yani-catalog-view .items-cards .card,\n.yani-genre-catalog-view .category-full .card,\n.yani-genre-catalog-view .items-cards .card,\n.yani-account-list-view .category-full .card,\n.yani-account-list-view .items-cards .card,\n.yani-collection-view .category-full .card,\n.yani-collection-view .items-cards .card,\n.category-full.yani-card-grid .card,\n.items-cards.yani-card-grid .card {\n    float: none;\n    width: auto;\n    max-width: none;\n    box-sizing: border-box;\n    padding-bottom: .2em;\n}\n\n.yani-catalog-view .card .card__title,\n.yani-genre-catalog-view .card .card__title,\n.yani-account-list-view .card .card__title,\n.yani-collection-view .card .card__title,\n.category-full.yani-card-grid .card .card__title,\n.items-cards.yani-card-grid .card .card__title {\n    margin-top: .85em;\n}\n\n.yani-catalog-view .card .card__age,\n.yani-genre-catalog-view .card .card__age,\n.yani-account-list-view .card .card__age,\n.yani-collection-view .card .card__age,\n.category-full.yani-card-grid .card .card__age,\n.items-cards.yani-card-grid .card .card__age,\n.yani-catalog-view .card .yani-card-meta,\n.yani-genre-catalog-view .card .yani-card-meta,\n.yani-account-list-view .card .yani-card-meta,\n.yani-collection-view .card .yani-card-meta,\n.category-full.yani-card-grid .card .yani-card-meta,\n.items-cards.yani-card-grid .card .yani-card-meta {\n    margin-top: .28em;\n}\n\n.yani-catalog-view .card .card__img,\n.yani-catalog-view .card .card__view img,\n.yani-genre-catalog-view .card .card__img,\n.yani-genre-catalog-view .card .card__view img,\n.yani-account-list-view .card .card__img,\n.yani-account-list-view .card .card__view img,\n.yani-collection-view .card .card__view img,\n.yani-collection-view .card .card__img,\n.category-full.yani-card-grid .card .card__img,\n.items-cards.yani-card-grid .card .card__img,\n.yani-card-rails .card .card__img,\n.yani-card-rails .card .card__view img,\n.yani-detail__poster {\n    background-size: cover;\n    background-position: center top;\n    background-repeat: no-repeat;\n    image-rendering: auto;\n    -ms-interpolation-mode: bicubic;\n}\n\n.yani-card-rails .category-full,\n.yani-card-rails .items-cards,\n.yani-card-rails .items-cards.yani-card-grid,\n.yani-user-lists-view .category-full,\n.yani-user-lists-view .items-cards,\n.yani-user-lists-view .items-cards.yani-card-grid {\n    display: flex;\n    flex-wrap: nowrap;\n    align-items: flex-start;\n    grid-template-columns: none;\n    justify-content: unset;\n    width: auto;\n    max-width: none;\n    margin: 0;\n    padding-left: 0;\n    padding-right: 0;\n    row-gap: 0;\n}\n\n.yani-card-rails .items-cards .card,\n.yani-card-rails .items-cards.yani-card-grid .card,\n.yani-user-lists-view .items-cards .card,\n.yani-user-lists-view .items-cards.yani-card-grid .card {\n    flex: 0 0 12.75em;\n    width: 12.75em;\n    max-width: none;\n}\n\n@media (min-width: 70em) {\n    .yani-catalog-view .category-full,\n    .yani-catalog-view .items-cards,\n    .yani-genre-catalog-view .category-full,\n    .yani-genre-catalog-view .items-cards,\n    .yani-account-list-view .category-full,\n    .yani-account-list-view .items-cards,\n    .yani-collection-view .category-full,\n    .yani-collection-view .items-cards,\n    .category-full.yani-card-grid,\n    .items-cards.yani-card-grid {\n        grid-template-columns: repeat(7, minmax(0, 1fr));\n    }\n}\n\n.yani-catalog-view {\n    position: relative;\n    height: 100%;\n}\n\n/* A short director/studio result must keep the same card width as a full catalog. */\n.yani-subject-catalog-view .category-full,\n.yani-subject-catalog-view .items-cards {\n    grid-template-columns: repeat(auto-fill, minmax(12.6em, 12.6em));\n    justify-content: start;\n}\n\n.yani-catalog-command-deck {\n    position: relative;\n    z-index: 4;\n    display: flex;\n    align-items: center;\n    gap: .65em;\n    margin: 0 .85em .8em;\n    padding: .48em .55em;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: 1em;\n    background: #333333;\n    box-shadow: none;\n    backdrop-filter: none;\n}\n\n.yani-catalog-command-deck::after {\n    content: '';\n    position: absolute;\n    right: -3em;\n    top: -4em;\n    width: 11em;\n    height: 11em;\n    border: .08em solid rgba(96,196,255,.13);\n    border-radius: 50%;\n    box-shadow: none;\n    pointer-events: none;\n}\n\n.yani-catalog-command-deck__heading {\n    position: relative;\n    z-index: 1;\n    flex: 0 0 auto;\n    display: flex;\n    align-items: center;\n    gap: .45em;\n    min-width: 6.6em;\n    padding: 0 .35em;\n    color: rgba(255,255,255,.82);\n    font-size: .82em;\n    font-weight: 700;\n    letter-spacing: .04em;\n    text-transform: uppercase;\n}\n\n.yani-catalog-command-deck__mark {\n    width: .55em;\n    height: .55em;\n    border-radius: 50%;\n    background: #ff6666;\n    box-shadow: none;\n}\n\n.yani-catalog-command-deck__rail {\n    position: relative;\n    z-index: 1;\n    display: flex;\n    flex: 1 1 auto;\n    flex-direction: row;\n    gap: .38em;\n    min-width: 0;\n    overflow-x: auto;\n    overflow-y: hidden;\n    scrollbar-width: none;\n}\n\n.yani-catalog-command-deck__rail::-webkit-scrollbar {\n    display: none;\n}\n\n.yani-catalog-shortcut-badge {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    gap: .28em;\n    flex: 0 0 auto;\n    min-width: 1.45em;\n    height: 1.45em;\n    margin-left: auto;\n    padding: 0 .38em;\n    border: .07em solid rgba(255,255,255,.13);\n    border-radius: .55em;\n    color: rgba(255,255,255,.9);\n    background: rgba(9,11,17,.42);\n    box-shadow: none;\n}\n\n.yani-catalog-shortcut-badge__color {\n    display: block;\n    width: .56em;\n    height: .56em;\n    flex: 0 0 auto;\n    border-radius: 50%;\n    box-shadow: none;\n}\n\n.yani-catalog-shortcut-badge__color--red { color: #ff7180; background: #ff6666; }\n.yani-catalog-shortcut-badge__color--green { color: #62dda0; background: #55d795; }\n.yani-catalog-shortcut-badge__color--yellow { color: #f4ce66; background: #efc35b; }\n.yani-catalog-shortcut-badge__color--blue { color: #73caff; background: #62b8ff; }\n\n.yani-catalog-shortcut-badge__number {\n    font-size: .68em;\n    font-weight: 800;\n    line-height: 1;\n}\n\n.yani-catalog-sort {\n    position: relative;\n    flex: 0 0 auto;\n    display: flex;\n    align-items: center;\n    justify-content: flex-start;\n    gap: .42em;\n    min-width: 7.2em;\n    height: 2.75em;\n    padding: 0 .72em;\n    border: .08em solid transparent;\n    cursor: pointer;\n    border-radius: .72em;\n    color: rgba(255,255,255,.74);\n    background: rgba(255,255,255,.06);\n    transition: none;\n}\n\n.yani-catalog-sort__icon {\n    width: 1.2em;\n    height: 1.2em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.yani-catalog-sort__icon svg {\n    width: 100%;\n    height: 100%;\n    fill: none;\n    stroke: currentColor;\n    stroke-width: 1.7;\n    stroke-linecap: round;\n    stroke-linejoin: round;\n}\n\n.yani-catalog-sort--active {\n    color: #fff;\n    border-color: rgba(239,100,112,.55);\n    background: #333333;\n}\n\n.yani-catalog-filter__count {\n    position: absolute;\n    right: -.22em;\n    top: -.28em;\n    min-width: 1.25em;\n    height: 1.25em;\n    padding: 0 .24em;\n    border: .12em solid rgba(25,24,32,.9);\n    border-radius: 2em;\n    color: #fff;\n    background: #ff6666;\n    font-size: .68em;\n    font-weight: 700;\n    line-height: 1.05em;\n    text-align: center;\n}\n\n.yani-catalog-sort.focus {\n    color: #17151c;\n    border-color: #fff;\n    background: #fff;\n    box-shadow: none;\n    transform: none;\n}\n\n.yani-catalog-sort.focus .yani-catalog-shortcut-badge,\n.yani-catalog-top.focus .yani-catalog-shortcut-badge {\n    color: #fff;\n    border-color: rgba(255,255,255,.32);\n    background: rgba(24,24,31,.82);\n}\n\n.yani-catalog-sort__title {\n    display: block;\n    position: static;\n    min-width: 0;\n    overflow: hidden;\n    white-space: nowrap;\n    text-overflow: ellipsis;\n    font-size: .82em;\n    font-weight: 600;\n}\n\n.yani-catalog-top {\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: flex-start;\n    gap: .42em;\n    flex: 0 0 auto;\n    min-width: 6.5em;\n    height: 2.75em;\n    margin: 0;\n    padding: 0 .72em;\n    border: .08em solid rgba(255,255,255,.2);\n    border-radius: .78em;\n    color: #fff;\n    background: rgba(25,24,32,.82);\n    box-shadow: none;\n    cursor: pointer;\n    backdrop-filter: none;\n}\n\n.yani-catalog-top.focus {\n    color: #17151c;\n    background: #fff;\n    border-color: #fff;\n}\n\n.yani-catalog-top__icon {\n    font-size: 1.25em;\n    line-height: 1;\n}\n\n.yani-catalog-top__title {\n    display: block;\n    position: static;\n    white-space: nowrap;\n    font-size: .82em;\n    font-weight: 600;\n}\n\n@media (max-width: 700px) {\n    .yani-catalog-command-deck {\n        display: block;\n        margin: 0 .65em .65em;\n    }\n    .yani-catalog-command-deck__heading {\n        margin-bottom: .45em;\n    }\n    .yani-catalog-sort,\n    .yani-catalog-top {\n        min-width: 7em;\n        height: 2.55em;\n    }\n    .yani-catalog-view .category-full,\n    .yani-catalog-view .items-cards,\n    .yani-genre-catalog-view .category-full,\n    .yani-genre-catalog-view .items-cards,\n    .yani-account-list-view .category-full,\n    .yani-account-list-view .items-cards,\n    .yani-collection-view .category-full,\n    .yani-collection-view .items-cards,\n    .category-full.yani-card-grid,\n    .items-cards.yani-card-grid {\n        grid-template-columns: repeat(3, minmax(0, 1fr));\n        padding-left: .35em;\n        padding-right: .35em;\n    }\n}\n\n.icon-yani {\n    width: 2.4em;\n    height: 2.4em;\n    background: center / contain no-repeat url('./assets/yummyanime.svg');\n}\n\n/* Compact TV home. Keep these rules scoped: the catalog, player and Lampa Scroll\n   wrappers retain their own layout and transforms. */\n.yani-home.yani-home--lite {\n    --yani-lite-bg: #292929;\n    --yani-lite-surface: #333333;\n    --yani-lite-accent: #ff6666;\n    --yani-lite-text: #f1f1f1;\n    --yani-lite-muted: #b8b8b8;\n    --yani-lite-line: #484848;\n    position: relative;\n    min-height: calc(100vh - 5.5em);\n    background: var(--yani-lite-bg);\n    color: var(--yani-lite-text);\n    line-height: 1.35;\n    overflow: visible;\n}\n\n.yani-home.yani-home--lite .yani-lite-header {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 1em;\n    min-height: 2.65em;\n    padding: .6em 1.15em;\n    border-bottom: .04em solid var(--yani-lite-line);\n}\n\n.yani-home.yani-home--lite .yani-lite-brand {\n    flex: 0 0 auto;\n    font-size: 1.1em;\n    line-height: 1.2;\n    font-weight: 600;\n}\n\n.yani-home.yani-home--lite .yani-lite-brand img {\n    display: block;\n    width: auto;\n    height: 1.9em;\n    max-width: 11em;\n}\n\n.yani-home.yani-home--lite .yani-lite-header-actions {\n    display: flex;\n    align-items: center;\n    gap: .5em;\n}\n\n.yani-home.yani-home--lite .yani-lite-layout {\n    display: grid;\n    grid-template-columns: 8em minmax(0, 1fr);\n}\n\n.yani-home.yani-home--lite .yani-lite-sidebar {\n    padding: 1.15em .65em;\n    border-right: .04em solid var(--yani-lite-line);\n}\n\n.yani-home.yani-home--lite .yani-lite-nav {\n    display: block;\n    min-height: 2.65em;\n    padding: .65em .65em;\n    margin-bottom: .45em;\n    border: .06em solid transparent;\n    border-radius: .18em;\n    font-size: .78em;\n    line-height: 1.3;\n    color: var(--yani-lite-muted);\n}\n\n.yani-home.yani-home--lite .yani-lite-main {\n    min-width: 0;\n    padding: 1.05em 1.35em 1.15em;\n}\n\n.yani-home.yani-home--lite .yani-lite-section {\n    margin: 0 0 1em;\n}\n\n.yani-home.yani-home--lite .yani-lite-section:last-child {\n    margin-bottom: 0;\n}\n\n.yani-home.yani-home--lite .yani-lite-section-head {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: 1em;\n    margin-bottom: .65em;\n}\n\n.yani-home.yani-home--lite .yani-lite-section-title {\n    margin: 0;\n    font-size: 1.1em;\n    font-weight: 500;\n    line-height: 1.2;\n}\n\n.yani-home.yani-home--lite .yani-lite-link,\n.yani-home.yani-home--lite .yani-lite-button {\n    flex: 0 0 auto;\n    padding: .5em .65em;\n    border: .06em solid transparent;\n    border-radius: .18em;\n    font-size: .72em;\n    line-height: 1.3;\n    color: var(--yani-lite-muted);\n    white-space: nowrap;\n}\n\n.yani-home.yani-home--lite .yani-lite-button {\n    background: var(--yani-lite-surface);\n    color: var(--yani-lite-text);\n}\n\n.yani-home.yani-home--lite .yani-lite-continue {\n    display: grid;\n    grid-template-columns: repeat(3, minmax(0, 1fr));\n    gap: .75em;\n}\n\n.yani-home.yani-home--lite .yani-lite-resume {\n    display: flex;\n    align-items: center;\n    gap: .7em;\n    min-width: 0;\n    min-height: 5.25em;\n    padding: .5em;\n    background: var(--yani-lite-surface);\n    border: .06em solid transparent;\n    border-radius: .22em;\n}\n\n.yani-home.yani-home--lite .yani-lite-resume-poster {\n    width: 2.7em;\n    height: 4.05em;\n    flex: 0 0 2.7em;\n    overflow: hidden;\n    background: var(--yani-lite-line);\n    border-radius: .12em;\n}\n\n.yani-home.yani-home--lite .yani-lite-resume-poster img {\n    display: block;\n    width: 100%;\n    height: 100%;\n    object-fit: cover;\n}\n\n.yani-home.yani-home--lite .yani-lite-resume-copy {\n    flex: 1 1 auto;\n    min-width: 0;\n}\n\n.yani-home.yani-home--lite .yani-lite-title {\n    display: -webkit-box;\n    overflow: hidden;\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 2;\n    min-height: 2.5em;\n    color: var(--yani-lite-text);\n    font-size: .8em;\n    font-weight: 500;\n    line-height: 1.25;\n}\n\n.yani-home.yani-home--lite .yani-lite-meta {\n    margin-top: .4em;\n    color: var(--yani-lite-muted);\n    font-size: .64em;\n    line-height: 1.3;\n}\n\n.yani-home.yani-home--lite .yani-lite-progress {\n    width: 100%;\n    height: .12em;\n    min-height: .12em;\n    margin-top: .5em;\n    background: var(--yani-lite-line);\n}\n\n.yani-home.yani-home--lite .yani-lite-progress i {\n    display: block;\n    height: 100%;\n    background: var(--yani-lite-accent);\n}\n\n.yani-home.yani-home--lite .yani-lite-categories {\n    display: grid;\n    grid-template-columns: repeat(6, minmax(0, 1fr));\n    gap: .5em;\n}\n\n.yani-home.yani-home--lite .yani-lite-category {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    gap: .5em;\n    min-width: 0;\n    min-height: 2.65em;\n    padding: .65em .65em;\n    background: var(--yani-lite-surface);\n    border: .06em solid transparent;\n    border-radius: .2em;\n    font-size: .78em;\n    line-height: 1.25;\n    color: var(--yani-lite-text);\n}\n\n.yani-home.yani-home--lite .yani-lite-category-title {\n    min-width: 0;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.yani-home.yani-home--lite .yani-lite-category-count {\n    flex: 0 0 auto;\n    color: var(--yani-lite-muted);\n    font-size: .88em;\n    font-variant-numeric: tabular-nums;\n}\n\n.yani-home.yani-home--lite .yani-lite-posters {\n    display: grid;\n    grid-template-columns: repeat(6, minmax(0, 1fr));\n    gap: .8em;\n}\n\n.yani-home.yani-home--lite .yani-lite-card {\n    min-width: 0;\n    padding: 0;\n    border: .06em solid transparent;\n    border-radius: .2em;\n}\n\n.yani-home.yani-home--lite .yani-lite-poster {\n    height: 12em;\n    max-height: 27vh;\n    overflow: hidden;\n    background: var(--yani-lite-surface);\n    border-radius: .18em;\n}\n\n.yani-home.yani-home--lite .yani-lite-poster img {\n    display: block;\n    width: 100%;\n    height: 100%;\n    object-fit: contain;\n}\n\n.yani-home.yani-home--lite .yani-lite-card .yani-lite-title {\n    margin-top: .5em;\n}\n\n.yani-home.yani-home--lite .yani-lite-state {\n    min-height: 4.5em;\n    padding: .9em 1em;\n    color: var(--yani-lite-muted);\n    background: var(--yani-lite-surface);\n    border-radius: .2em;\n    font-size: .78em;\n    line-height: 1.45;\n}\n\n/* Only home leaves opt out of motion. In particular, never reset .scroll or\n   ancestors: their transforms are Lampa's remote-navigation scroll mechanism. */\n.yani-home.yani-home--lite .yani-lite-button,\n.yani-home.yani-home--lite .yani-lite-nav,\n.yani-home.yani-home--lite .yani-lite-link,\n.yani-home.yani-home--lite .yani-lite-category,\n.yani-home.yani-home--lite .yani-lite-resume,\n.yani-home.yani-home--lite .yani-lite-card {\n    background-image: none;\n    box-shadow: none;\n    text-shadow: none;\n    filter: none;\n    animation: none;\n    transition: none;\n    transform: none;\n}\n\n.yani-home.yani-home--lite .selector.focus {\n    outline: .11em solid var(--yani-lite-accent) !important;\n    outline-offset: .12em;\n    border-color: transparent;\n    color: var(--yani-lite-text);\n}\n\n@media (max-width: 1450px) {\n    .yani-home.yani-home--lite .yani-lite-layout { grid-template-columns: 7.3em minmax(0, 1fr); }\n    .yani-home.yani-home--lite .yani-lite-header { padding: .55em .9em; }\n    .yani-home.yani-home--lite .yani-lite-main { padding: .95em 1em 1.1em; }\n    .yani-home.yani-home--lite .yani-lite-nav { font-size: .74em; }\n    .yani-home.yani-home--lite .yani-lite-continue { gap: .55em; }\n    .yani-home.yani-home--lite .yani-lite-resume { gap: .5em; padding: .45em; }\n    .yani-home.yani-home--lite .yani-lite-resume-poster { width: 2.45em; height: 3.7em; flex-basis: 2.45em; }\n    .yani-home.yani-home--lite .yani-lite-category { padding: .65em .5em; font-size: .75em; }\n    .yani-home.yani-home--lite .yani-lite-posters { gap: .65em; }\n}\n\n@media (max-width: 1000px) {\n    .yani-home.yani-home--lite .yani-lite-layout { grid-template-columns: 6.8em minmax(0, 1fr); }\n    .yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-home.yani-home--lite .yani-lite-categories { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(4, minmax(0, 1fr)); }\n    .yani-home.yani-home--lite .yani-lite-poster { max-height: none; height: 12em; }\n}\n\n@media (max-width: 700px) {\n    .yani-home.yani-home--lite .yani-lite-header { flex-wrap: wrap; }\n    .yani-home.yani-home--lite .yani-lite-layout { display: block; }\n    .yani-home.yani-home--lite .yani-lite-sidebar { display: flex; flex-wrap: wrap; gap: .45em; padding: .75em; border-right: 0; border-bottom: .04em solid var(--yani-lite-line); }\n    .yani-home.yani-home--lite .yani-lite-nav { margin: 0; min-height: 2.3em; }\n    .yani-home.yani-home--lite .yani-lite-main { padding: .85em .75em 1em; }\n    .yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: 1fr; }\n    .yani-home.yani-home--lite .yani-lite-categories { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n    .yani-home.yani-home--lite .yani-lite-section-title { font-size: 1em; }\n}\n\n@media (max-width: 480px) {\n    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-home.yani-home--lite .yani-lite-section-head { flex-wrap: wrap; gap: .4em; }\n}\n\n.yani-policy-layer {\n    position: fixed;\n    z-index: 10050;\n    inset: 0;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 2em;\n    box-sizing: border-box;\n    background: rgba(4, 5, 9, .72);\n}\n\n.yani-policy-layer .yani-policy { margin: 0; }\n\n.yani-policy {\n    width: min(54em, calc(100% - 3em));\n    margin: 2.5em auto;\n    padding: 2.2em 2.5em;\n    box-sizing: border-box;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: 1.2em;\n    background: #333333;\n    box-shadow: none;\n    color: #f7f7fa;\n}\n\n.yani-policy__mark {\n    width: 4.5em;\n    height: 4.5em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 1.2em;\n    padding: .9em;\n    box-sizing: border-box;\n    border-radius: 1.1em;\n    background: #333333;\n    color: #24242a;\n}\n\n.yani-policy__mark svg { width: 100%; height: 100%; fill: currentColor; }\n.yani-policy__title { width: fit-content; max-width: 100%; padding: .12em .25em; margin: 0 0 .75em -.25em; border-radius: .25em; font-size: 2.25em; font-weight: 700; }\n.yani-policy__title.focus { box-shadow: none; background: rgba(255,104,113,.16); }\n.yani-policy__content { color: rgba(255,255,255,.82); font-size: 1.12em; line-height: 1.55; }\n.yani-policy__paragraph + .yani-policy__paragraph { margin-top: .8em; }\n.yani-policy__accept { width: fit-content; margin-top: 1.6em; padding: .78em 1.35em; border-radius: .55em; background: #ff6666; color: #fff; font-weight: 600; }\n.yani-policy__accept.focus { background: #fff; color: #17171b; box-shadow: none; transform: none; }\n\n.yani-skip-prompt {\n    position: absolute;\n    right: 2.2em;\n    bottom: 6.4em;\n    z-index: 40;\n    display: none;\n    padding: .72em 1.25em;\n    border: .08em solid rgba(255,255,255,.28);\n    border-radius: .55em;\n    background: rgba(18,18,23,.82);\n    box-shadow: none;\n    color: #fff;\n    font-size: 1.05em;\n    font-weight: 650;\n    letter-spacing: .01em;\n    pointer-events: auto;\n}\nbody > .yani-skip-prompt {\n    position: fixed;\n    z-index: 10040;\n}\n.yani-skip-prompt--visible { display: block; }\n.yani-skip-prompt.focus,\n.yani-skip-prompt:hover {\n    border-color: #fff;\n    background: #fff;\n    color: #17171b;\n}\n\n@media (max-width: 700px) {\n    .yani-policy { width: calc(100% - 1.4em); margin: 1em auto; padding: 1.4em; }\n    .yani-policy__title { font-size: 1.75em; }\n}\n\n.yani-detail {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 2.5em;\n    padding: 2em;\n    max-width: 100%;\n    box-sizing: border-box;\n    color: #f4f7fb;\n    opacity: 1;\n    filter: none;\n}\n\n.yani-detail__poster-column {\n    display: flex;\n    flex: 0 0 16em;\n    flex-direction: column;\n    align-items: stretch;\n    min-width: 0;\n}\n.yani-detail__poster {\n    width: 16em;\n    max-width: 100%;\n    max-height: 24em;\n    object-fit: cover;\n    border-radius: 0.8em;\n    cursor: pointer;\n    transition: none;\n}\n.yani-detail__poster.focus {\n    box-shadow: none;\n    transform: none;\n}\n.yani-poster-viewer-open { overflow: hidden; }\n.yani-poster-viewer {\n    position: fixed;\n    z-index: 10000;\n    inset: 0;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    padding: 2em;\n    box-sizing: border-box;\n    background: rgba(4, 5, 9, .94);\n    backdrop-filter: none;\n}\n.yani-poster-viewer__image {\n    display: block;\n    max-width: 100%;\n    max-height: 100%;\n    object-fit: contain;\n    border-radius: .55em;\n    box-shadow: none;\n}\n\n.yani-detail__info { min-width: 0; max-width: 48em; flex: 1 1 auto; }\n.yani-detail__title { font-size: 2.2em; font-weight: 600; border-radius: .22em; padding: .08em .16em; margin: -.08em -.16em; width: fit-content; max-width: 100%; }\n.yani-detail__title.focus { background: rgba(239,100,112,.22); box-shadow: none; color: #fff; }\n.yani-detail__alternative-titles { margin-top: 0.35em; color: rgba(255,255,255,.68); line-height: 1.35; overflow-wrap: anywhere; }\n.yani-detail__genres { display: flex; flex-wrap: wrap; gap: .36em; margin-top: .55em; }\n.yani-detail__type { display: inline-flex; margin-top: .55em; padding: .25em .58em; border: .08em solid rgba(239,100,112,.62); border-radius: 999px; background: rgba(239,100,112,.16); color: rgba(255,255,255,.92); font-size: .78em; font-weight: 700; line-height: 1.2; }\n.yani-detail__genre { padding: .24em .5em; border: .08em solid rgba(255,255,255,.28); border-radius: .35em; color: rgba(255,255,255,.82); font-size: .78em; line-height: 1.2; }\n.yani-detail__genre.focus { background: #fff; border-color: #fff; box-shadow: none; color: #111; transform: none; }\n.yani-detail__credits { display: grid; gap: .38em; margin-top: .62em; }\n.yani-detail__credit-row { display: flex; align-items: flex-start; gap: .55em; min-width: 0; }\n.yani-detail__credit-label { flex: 0 0 5.8em; padding-top: .28em; color: rgba(255,255,255,.54); font-size: .74em; font-weight: 700; }\n.yani-detail__credit-values { display: flex; flex-wrap: wrap; gap: .34em; min-width: 0; }\n.yani-detail__credit { padding: .25em .52em; border: .08em solid rgba(111,197,232,.34); border-radius: 999px; background: rgba(52,92,116,.2); color: rgba(231,248,255,.9); font-size: .76em; line-height: 1.2; }\n.yani-detail__credit.focus { border-color: #fff; background: #fff; color: #111; box-shadow: none; transform: none; }\n.yani-detail__meta { margin: 0.8em 0 1.2em; font-size: 1.2em; }\n.yani-detail__episode-summary { display: flex; flex-wrap: wrap; gap: .38em; width: fit-content; max-width: 100%; margin: -.45em 0 .85em; padding: .34em; border: .08em solid rgba(255,255,255,.14); border-radius: .55em; background: rgba(0,0,0,.2); box-sizing: border-box; }\n.yani-detail__episode-summary.focus { border-color: #ff6666; background: rgba(239,100,112,.16); box-shadow: none; }\n.yani-detail__episode-summary.loading { opacity: .72; }\n.yani-detail__episode-stat { display: inline-flex; align-items: center; gap: .28em; padding: .28em .48em; border-radius: .38em; background: rgba(255,255,255,.1); color: rgba(255,255,255,.9); font-size: .76em; font-weight: 600; line-height: 1.15; white-space: nowrap; }\n.yani-detail__episode-stat--watched { max-width: min(22em, 100%); }\n.yani-detail__episode-stat-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }\n.yani-detail__episode-stat-icon { display: inline-flex; width: 1em; height: 1em; color: #ef8992; }\n.yani-detail__episode-stat-icon svg { display: block; width: 100%; height: 100%; fill: currentColor; }\n.yani-detail__translations { width: 100%; margin: 0 0 .9em; padding: .7em .78em; border: .08em solid rgba(255,255,255,.14); border-radius: .72em; box-sizing: border-box; background: #333333; box-shadow: none; }\n.yani-detail__translations.focus { border-color: rgba(239,100,112,.86); box-shadow: none; }\n.yani-detail__translations-title { margin-bottom: .55em; color: rgba(255,255,255,.9); font-size: .86em; font-weight: 750; letter-spacing: .025em; }\n.yani-detail__translation-row { display: grid; grid-template-columns: 8.5em minmax(0,1fr); align-items: start; gap: .55em; padding: .34em 0; }\n.yani-detail__translation-heading { display: flex; align-items: center; gap: .38em; min-height: 1.75em; color: rgba(255,255,255,.7); font-size: .72em; font-weight: 650; }\n.yani-detail__translation-heading svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-detail__translation-heading b { min-width: 1.45em; padding: .18em .36em; border-radius: 999px; background: rgba(255,255,255,.1); color: #fff; font-size: .86em; text-align: center; }\n.yani-detail__translation-row--voices .yani-detail__translation-heading { color: #91d9ff; }\n.yani-detail__translation-row--subtitles .yani-detail__translation-heading { color: #d3afff; }\n.yani-detail__translation-list { display: flex; flex-wrap: wrap; gap: .3em; min-width: 0; }\n.yani-detail__translation-list span { overflow: hidden; max-width: 14em; padding: .3em .52em; border: .06em solid rgba(255,255,255,.13); border-radius: .42em; background: rgba(255,255,255,.08); color: rgba(255,255,255,.9); font-size: .7em; font-weight: 600; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }\n.yani-detail__translations--motion .yani-detail__translation-list span { animation: none; }\n.yani-detail__translation-row--voices .yani-detail__translation-list span { border-color: rgba(93,190,240,.2); background: rgba(63,153,207,.12); }\n.yani-detail__translation-row--subtitles .yani-detail__translation-list span { border-color: rgba(191,143,242,.22); background: rgba(137,84,191,.13); }\n.yani-detail__translations-empty { color: rgba(255,255,255,.55); font-size: .72em; }\n.yani-detail__translations-skeleton { display: flex; gap: .35em; }\n.yani-detail__translations-skeleton i { width: 6em; height: 1.35em; border-radius: .38em; background: rgba(255,255,255,.09); }\n.yani-detail__translations--motion .yani-detail__translations-skeleton i { animation: none; }\n.yani-detail__translations-skeleton i:nth-child(2) { width: 8em; animation-delay: .14s; }\n.yani-detail__translations-skeleton i:nth-child(3) { width: 5em; animation-delay: .28s; }\n\n\n@media (max-width: 720px) { .yani-detail__translation-row { grid-template-columns: 1fr; gap: .25em; } }\n@media (prefers-reduced-motion: reduce) { .yani-detail__translation-list span, .yani-detail__translations-skeleton i { animation: none; } }\n.yani-detail__overview { line-height: 1.45; margin-bottom: 1.5em; }\n.yani-detail__actions { display: flex; flex-wrap: wrap; gap: 0.7em; max-width: 100%; }\n.yani-detail__button { display: block; max-width: 100%; box-sizing: border-box; padding: 0.8em 1.2em; border: 0.12em solid transparent; border-radius: 0.5em; background: rgba(255,255,255,.15); overflow-wrap: anywhere; }\n.yani-detail__button--watch { background: #ff6666; color: #fff; }\n.yani-detail__button--lampa, .yani-detail__button--external { display: inline-flex; align-items: center; gap: .58em; }\n.yani-detail__button-icon { display: inline-flex; width: 1.25em; height: 1.25em; flex: 0 0 1.25em; }\n.yani-detail__button-icon svg { display: block; width: 100%; height: 100%; fill: currentColor; }\n.yani-detail__button.focus { background: #fff; color: #111; border-color: #fff; box-shadow: none; transform: none; }\n.yani-detail__list-dock { margin-top: .8em; padding: .62em; border: .08em solid rgba(255,255,255,.14); border-radius: .68em; background: #333333; box-shadow: none; }\n.yani-detail__list-dock-title { margin: 0 .18em .48em; color: rgba(255,255,255,.62); font-size: .7em; font-weight: 700; letter-spacing: .035em; }\n.yani-detail__list-panel { display: flex; width: 100%; overflow: hidden; border: .1em solid rgba(255,255,255,.18); border-radius: .45em; background: rgba(0,0,0,.24); box-sizing: border-box; }\n.yani-detail__list-action { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; height: 2.35em; flex: 1 1 0; border-right: .08em solid rgba(255,255,255,.15); color: rgba(255,255,255,.72); background: transparent; }\n.yani-detail__list-action:last-child { border-right: 0; }\n.yani-detail__list-action.active { color: #fff; background: #ff6666; }\n.yani-detail__list-action.focus { color: #111; background: #fff; box-shadow: none; transform: none; position: relative; z-index: 1; }\n.yani-detail__list-icon { width: 1.25em; height: 1.25em; }\n.yani-detail__list-icon svg { display: block; width: 100%; height: 100%; fill: currentColor; }\n.yani-detail__list-shortcut { position: absolute; top: .24em; right: .24em; width: .42em; height: .42em; border: .06em solid rgba(255,255,255,.72); border-radius: 50%; box-shadow: none; }\n.yani-detail__list-shortcut--red { color: #ff7180; background: #ff6666; }\n.yani-detail__list-shortcut--green { color: #62dda0; background: #55d795; }\n.yani-detail__list-shortcut--yellow { color: #f4ce66; background: #efc35b; }\n.yani-detail__list-shortcut--blue { color: #73caff; background: #62b8ff; }\n\n.yani-detail__comments { margin-top: 1.5em; padding-top: 1em; border-top: 0.08em solid rgba(255, 255, 255, .18); }\n.yani-detail__comments-title { margin-bottom: 0.7em; font-size: 1.35em; font-weight: 600; }\n.yani-detail__comments-list { display: grid; gap: 0.55em; }\n.yani-detail__comment, .yani-detail__comments-loading, .yani-detail__comments-empty, .yani-detail__comments-error { padding: 0.7em 0.85em; border-radius: 0.45em; background: rgba(255, 255, 255, .08); }\n.yani-detail__comment.focus { background: #fff; color: #111; outline: 0.18em solid #ff6666; }\n.yani-detail__comment-title { line-height: 1.35; }\n.yani-detail__comment-stats { margin-top: 0.25em; opacity: .6; font-size: .82em; }\n.yani-detail__comments-loading, .yani-detail__comments-empty, .yani-detail__comments-error { opacity: .7; }\n\n.yani-detail__order { margin-top: 1.5em; padding: 1em 0; border-top: 0.08em solid rgba(255, 255, 255, .18); border-bottom: 0.08em solid rgba(255, 255, 255, .18); }\n.yani-detail__order-title { margin-bottom: 0.65em; font-size: 1.35em; font-weight: 600; }\n.yani-detail__order-list { display: grid; gap: 0.4em; }\n.yani-detail__order-item { display: flex; align-items: baseline; gap: 0.45em; padding: 0.55em 0.7em; border-radius: 0.4em; background: rgba(255, 255, 255, .07); }\n.yani-detail__order-item.focus { background: #fff; color: #111; outline: 0.16em solid #ff6666; }\n.yani-detail__order-index { opacity: .65; }\n.yani-detail__order-name { font-weight: 600; }\n.yani-detail__order-rating { flex: none; margin-left: auto; padding-left: 0.8em; }\n.yani-detail__order-year, .yani-detail__order-relation { opacity: .7; }\n\n.yani-detail__extra { margin-top: 1.5em; }\n.yani-detail__extra-title { margin-bottom: .65em; font-size: 1.35em; font-weight: 600; }\n.yani-detail__recommendations-list { display: flex; gap: .65em; max-width: 100%; overflow-x: auto; padding: .25em .1em .7em; }\n.yani-detail__recommendation { flex: 0 0 8em; padding-bottom: .45em; border-radius: .45em; background: rgba(255, 255, 255, .08); overflow: hidden; }\n.yani-detail__recommendation.focus { outline: .16em solid #ff6666; background: #fff; color: #111; }\n.yani-detail__recommendation-poster { display: block; width: 8em; height: 11em; object-fit: cover; }\n.yani-detail__recommendation-title { padding: .35em .45em 0; font-size: .82em; font-weight: 600; line-height: 1.2; }\n.yani-detail__recommendation-year { padding: .2em .45em 0; font-size: .75em; opacity: .65; }\n.yani-detail__trailers-list { display: grid; gap: .45em; }\n.yani-detail__trailer { padding: .7em .85em; border-radius: .45em; background: rgba(255, 255, 255, .08); }\n.yani-detail__trailer.focus { background: #fff; color: #111; outline: .16em solid #ff6666; }\n.yani-detail__collection { padding: .7em .85em; border-radius: .45em; background: rgba(255, 255, 255, .08); }\n.yani-detail__collection.focus { background: #fff; color: #111; outline: .16em solid #ff6666; }\n.yani-detail__collection-title { font-weight: 700; }\n.yani-detail__collection-description { margin-top: .25em; opacity: .72; font-size: .85em; white-space: pre-wrap; }\n.yani-detail__collection-count { margin-top: .3em; opacity: .7; font-size: .78em; }\n.yani-detail__order-item.selector:focus,\n.yani-detail__comment.selector:focus,\n.yani-detail__recommendation.selector:focus,\n.yani-detail__trailer.selector:focus { outline: .16em solid #ff6666; }\n\n.yani-trailers {\n    min-height: 100%;\n    padding: 7em 2em 2em;\n    box-sizing: border-box;\n}\n\n.yani-trailers__list {\n    display: grid;\n    gap: .7em;\n    max-width: 62em;\n}\n\n.yani-trailers__item,\n.yani-trailers__empty {\n    display: flex;\n    align-items: center;\n    gap: .9em;\n    min-height: 4.2em;\n    padding: .8em 1em;\n    border-radius: .45em;\n    background: rgba(15, 22, 31, .78);\n    color: #fff;\n    box-sizing: border-box;\n}\n\n.yani-trailers__item.focus,\n.yani-trailers__empty.focus {\n    background: #fff;\n    color: #111;\n    box-shadow: none;\n}\n\n.yani-trailers__icon {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 2.4em;\n    height: 2.4em;\n    flex: 0 0 2.4em;\n}\n\n.yani-trailers__icon svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.yani-trailers__body {\n    min-width: 0;\n}\n\n.yani-trailers__title {\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    font-size: 1.18em;\n    font-weight: 600;\n}\n\n.yani-trailers__host {\n    margin-top: .18em;\n    color: rgba(255, 255, 255, .62);\n    font-size: .86em;\n}\n\n.yani-trailers__item.focus .yani-trailers__host {\n    color: rgba(0, 0, 0, .56);\n}\n\n@media (max-width: 700px) {\n    .yani-detail { gap: 1em; padding: 1em; }\n    .yani-detail__poster-column { flex-basis: 10em; }\n    .yani-detail__poster { width: 10em; }\n    .yani-detail__list-panel { display: grid; grid-template-columns: repeat(3, 1fr); }\n    .yani-detail__list-action { border-bottom: .08em solid rgba(255,255,255,.15); }\n    .yani-detail__list-action:nth-child(3n) { border-right: 0; }\n    .yani-detail__list-action:nth-last-child(-n+3) { border-bottom: 0; }\n}\n\n.yani-player {\n    position: fixed;\n    /* Above Lampa's own header: it kept drawing its clock and icons over the\n       video, and the back button landed on top of the title. */\n    z-index: 9000;\n    inset: 0;\n    width: 100vw;\n    height: 100vh;\n    background: #000;\n}\n\n/* Belt and braces for skins whose header sits in a stacking context of its own,\n   where raising our z-index alone would not be enough. */\nbody.yani-player-open .head,\nbody.yani-player-open .head--simple {\n    display: none !important;\n}\n\n.yani-player__iframe {\n    display: block;\n    width: 100%;\n    height: 100%;\n    border: 0;\n    background: #000;\n}\n\n/* Nothing of the plugin's own is drawn over the embedded page. A control here\n   would also be the only focusable element in Lampa's collection, so it would\n   receive every OK press and the page's own buttons could never be reached\n   with a remote. Back on the remote closes this screen. */\n.yani-player__iframe:focus {\n    outline: none;\n}\n\n/* Pointer platforms only (webOS): a strip along the top edge that reveals the\n   exit control when the Magic Remote cursor reaches it. It sits above the\n   frame so the cursor leaving the page lands on this document again. */\n.yani-player__edge {\n    position: absolute;\n    z-index: 2;\n    top: 0;\n    left: 0;\n    right: 0;\n    height: 6vh;\n}\n\n/* Hidden until the pointer asks for it; never a `.selector`, so it can never\n   take the OK press that belongs to the embedded page. */\n.yani-player__back {\n    position: absolute;\n    z-index: 3;\n    top: .9em;\n    left: .9em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 2.4em;\n    height: 2.4em;\n    border-radius: 50%;\n    color: #fff;\n    background: rgba(20, 20, 24, .78);\n    cursor: pointer;\n    opacity: 0;\n    pointer-events: none;\n    transition: none;\n}\n\n.yani-player__back svg {\n    width: 1.3em;\n    height: 1.3em;\n}\n\n.yani-player__back--visible {\n    opacity: 1;\n    pointer-events: auto;\n}\n\n.yani-player__back:hover {\n    color: #18181b;\n    background: #fff;\n}\n\n.full-start__buttons .full-start__button.view--yummyanime,\n.full-start-new__buttons .full-start__button.view--yummyanime {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    box-sizing: border-box;\n    order: -1;\n    background: #ff6666;\n    color: #fff;\n    min-width: 3.72em;\n}\n\n.view--yummyanime__icon {\n    box-sizing: border-box;\n    display: inline-flex !important;\n    align-items: center;\n    justify-content: center;\n    width: 1.8em !important;\n    height: 1.8em !important;\n    min-width: 1.8em !important;\n    min-height: 1.8em !important;\n    margin: 0 !important;\n    color: #fff;\n}\n\n.view--yummyanime__icon svg {\n    display: block;\n    width: 100%;\n    height: 100%;\n}\n\n.full-start__rate .yani-full-rating-label {\n    color: #ff6666;\n    font-weight: 700;\n    font-size: 0.85em;\n    letter-spacing: 0.04em;\n    line-height: 1.1;\n}\n\n.yani-schedule__content {\n    padding: 1.2em 2em 3em;\n    color: #f4f7fb !important;\n    opacity: 1 !important;\n    filter: none !important;\n}\n\n.yani-schedule { color: #f4f7fb !important; opacity: 1 !important; filter: none !important; }\n\n.yani-schedule__shortcut-badge,\n.yani-user-list-card__shortcut { position: absolute; z-index: 5; top: .42em; right: .42em; display: inline-flex; align-items: center; justify-content: center; gap: .25em; min-width: 1.4em; height: 1.4em; padding: 0 .38em; border: .07em solid rgba(255,255,255,.16); border-radius: .52em; color: #fff; background: rgba(11,14,22,.68); box-shadow: none; pointer-events: none; }\n.yani-schedule__shortcut-color,\n.yani-user-list-card__shortcut-color { display: block; width: .58em; height: .58em; border-radius: 50%; box-shadow: none; }\n.yani-schedule__shortcut-color--red, .yani-user-list-card__shortcut-color--red { color: #ff7180; background: #ff6666; }\n.yani-schedule__shortcut-color--green, .yani-user-list-card__shortcut-color--green { color: #62dda0; background: #55d795; }\n.yani-schedule__shortcut-color--yellow, .yani-user-list-card__shortcut-color--yellow { color: #f4ce66; background: #efc35b; }\n.yani-schedule__shortcut-color--blue, .yani-user-list-card__shortcut-color--blue { color: #73caff; background: #62b8ff; }\n.yani-user-list-card__shortcut b { font-size: .72em; font-weight: 800; line-height: 1; }\n\n.yani-schedule__days {\n    display: flex;\n    gap: 0.65em;\n    margin-bottom: 1.2em;\n    overflow-x: auto;\n    padding: 0.2em 0.15em 0.5em;\n}\n\n.yani-schedule__day-chip {\n    position: relative;\n    flex: 0 0 auto;\n    min-width: 5.8em;\n    padding: 0.55em 0.75em;\n    border: 0.1em solid rgba(255, 255, 255, .16);\n    border-radius: 0.7em;\n    background: rgba(20, 31, 43, .9);\n    color: #b9c7d5;\n    text-align: center;\n    transition: none;\n}\n\n.yani-schedule__day-chip.selected {\n    background: #287da9;\n    border-color: #72d8ff;\n    color: #ffffff;\n}\n\n.yani-schedule__day-chip.focus {\n    transform: none;\n    border-color: #ffffff;\n    box-shadow: none;\n}\n\n.yani-schedule__day-name {\n    font-size: 0.95em;\n    font-weight: 700;\n    white-space: nowrap;\n}\n\n.yani-schedule__day-count {\n    margin-top: 0.25em;\n    color: #72d8ff;\n    font-size: 1.2em;\n    font-weight: 800;\n}\n\n.yani-schedule__day-chip.selected .yani-schedule__day-count { color: #ffffff; }\n\n.yani-schedule__selected-title {\n    margin: 0.3em 0 0.7em;\n    color: #ffffff;\n    font-size: 1.45em;\n    font-weight: 700;\n    text-transform: capitalize;\n}\n\n.yani-schedule__day-title {\n    margin-bottom: 0.7em;\n    font-size: 1.55em;\n    font-weight: 600;\n    color: #ffffff;\n    text-transform: capitalize;\n}\n\n.yani-schedule__item {\n    position: relative;\n    display: flex;\n    align-items: center;\n    min-height: 9.3em;\n    margin-bottom: 0.65em;\n    padding: 0.65em 1em;\n    border-radius: 0.65em;\n    color: #f4f7fb !important;\n    background: #333333 !important;\n    border: 0.08em solid rgba(255, 255, 255, .14);\n    box-shadow: none;\n    opacity: 1 !important;\n    filter: none !important;\n}\n\n.yani-schedule__item.focus {\n    background: #333333;\n    color: #101820;\n    border-color: #62c9ff;\n    box-shadow: none;\n}\n\n.yani-schedule__poster {\n    width: 7.2em;\n    height: 9.9em;\n    margin-right: 1em;\n    border-radius: 0.35em;\n    object-fit: cover;\n    background: rgba(255, 255, 255, 0.08);\n}\n\n.yani-schedule__info {\n    flex: 1;\n    min-width: 0;\n}\n\n.yani-schedule__title {\n    overflow: hidden;\n    font-size: 1.15em;\n    font-weight: 500;\n    color: inherit;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.yani-schedule__rating {\n    display: inline-flex;\n    margin-top: 0.28em;\n}\n\n.yani-schedule__episode {\n    margin-top: 0.4em;\n    color: #cbd8e5;\n    opacity: 1;\n}\n\n.yani-schedule__translations {\n    width: 100%;\n    margin-top: 0.55em;\n    padding: 0.55em 0.6em;\n    border: 0.07em solid rgba(255, 255, 255, 0.12);\n    border-radius: 0.58em;\n    box-sizing: border-box;\n    background: rgba(12, 18, 28, 0.42);\n}\n\n.yani-schedule__translations-title {\n    margin-bottom: 0.4em;\n    color: rgba(255, 255, 255, 0.82);\n    font-size: 0.78em;\n    font-weight: 750;\n    letter-spacing: 0.02em;\n}\n\n.yani-schedule__translation-row {\n    display: grid;\n    grid-template-columns: 7.6em minmax(0, 1fr);\n    align-items: start;\n    gap: 0.45em;\n    padding: 0.28em 0;\n}\n\n.yani-schedule__translation-heading {\n    display: flex;\n    align-items: center;\n    gap: 0.32em;\n    min-height: 1.55em;\n    color: rgba(255, 255, 255, 0.68);\n    font-size: 0.68em;\n    font-weight: 650;\n}\n\n.yani-schedule__translation-heading svg {\n    width: 1.1em;\n    height: 1.1em;\n    fill: none;\n    stroke: currentColor;\n    stroke-width: 1.7;\n    stroke-linecap: round;\n    stroke-linejoin: round;\n}\n\n.yani-schedule__translation-heading b {\n    min-width: 1.3em;\n    padding: 0.14em 0.3em;\n    border-radius: 999px;\n    background: rgba(255, 255, 255, 0.1);\n    color: #fff;\n    font-size: 0.86em;\n    text-align: center;\n}\n\n.yani-schedule__translation-row--voices .yani-schedule__translation-heading { color: #91d9ff; }\n.yani-schedule__translation-row--subtitles .yani-schedule__translation-heading { color: #d3afff; }\n\n.yani-schedule__translation-list {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 0.28em;\n    min-width: 0;\n}\n\n.yani-schedule__translation-list span {\n    overflow: hidden;\n    max-width: 12em;\n    padding: 0.26em 0.46em;\n    border: 0.06em solid rgba(255, 255, 255, 0.13);\n    border-radius: 0.38em;\n    background: rgba(255, 255, 255, 0.08);\n    color: rgba(255, 255, 255, 0.9);\n    font-size: 0.66em;\n    font-weight: 600;\n    line-height: 1.15;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n\n.yani-schedule__translation-row--voices .yani-schedule__translation-list span {\n    border-color: rgba(93, 190, 240, 0.2);\n    background: rgba(63, 153, 207, 0.12);\n}\n\n.yani-schedule__translation-row--subtitles .yani-schedule__translation-list span {\n    border-color: rgba(191, 143, 242, 0.22);\n    background: rgba(137, 84, 191, 0.13);\n}\n\n.yani-schedule__item.focus .yani-schedule__episode,\n.yani-schedule__item.focus .yani-schedule__timezone { color: #41566b; }\n\n.yani-schedule__item.focus .yani-schedule__translations {\n    border-color: rgba(22, 117, 165, 0.28);\n    background: rgba(255, 255, 255, 0.72);\n}\n\n.yani-schedule__item.focus .yani-schedule__translations-title { color: #2a4054; }\n.yani-schedule__item.focus .yani-schedule__translation-heading { color: #3a5368; }\n.yani-schedule__item.focus .yani-schedule__translation-row--voices .yani-schedule__translation-heading { color: #1675a5; }\n.yani-schedule__item.focus .yani-schedule__translation-row--subtitles .yani-schedule__translation-heading { color: #6b4a96; }\n.yani-schedule__item.focus .yani-schedule__translation-heading b { background: rgba(16, 24, 32, 0.1); color: #101820; }\n.yani-schedule__item.focus .yani-schedule__translation-list span {\n    border-color: rgba(16, 24, 32, 0.12);\n    background: rgba(16, 24, 32, 0.06);\n    color: #101820;\n}\n\n@media (max-width: 720px) {\n    .yani-schedule__translation-row { grid-template-columns: 1fr; gap: 0.22em; }\n}\n\n.yani-schedule__release {\n    min-width: 8em;\n    margin-left: 1em;\n    text-align: right;\n}\n\n.yani-schedule__time {\n    font-size: 1.25em;\n    font-weight: 600;\n    color: #72d8ff;\n}\n\n.yani-schedule__item.focus .yani-schedule__time { color: #1675a5; }\n\n.yani-schedule__timezone,\n.yani-schedule__empty {\n    color: #b9c7d5;\n    opacity: 1;\n}\n\n.yani-schedule__empty {\n    padding: 1em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.06);\n}\n\n.yani-detail__schedule {\n    margin-bottom: 1.2em;\n    font-size: 1.15em;\n    font-weight: 600;\n}\n\n.yani-detail__community { margin: 1em 0 1.2em; }\n.yani-detail__rating-action { display: inline-flex; align-items: center; gap: .4em; width: fit-content; margin: .5em 0; padding: .45em .7em; border: .1em solid rgba(255,210,122,.35); border-radius: .45em; background: rgba(240,175,84,.14); color: rgba(255,255,255,.86); font-weight: 700; }\n.yani-detail__rating-action.active { background: rgba(240,175,84,.22); color: #ffd27a; }\n.yani-detail__rating-action.focus { border-color: #fff; background: #fff; color: #171717; box-shadow: none; transform: none; }\n.yani-detail__rating-icon { color: #ffd27a; font-size: 1.08em; line-height: 1; }\n.yani-detail__rating-action.focus .yani-detail__rating-icon { color: #ef9d29; }\n.yani-detail__community-title { margin-bottom: .55em; color: #fff; font-size: 1.15em; font-weight: 700; }\n.yani-detail__community-grid { display: flex; flex-wrap: wrap; gap: .45em; }\n.yani-detail__community-item { padding: .45em .7em; border-radius: .45em; background: rgba(255,255,255,.1); color: #d9e7f2; }\n\n.yani-rating-ya {\n    display: inline-flex;\n    align-items: baseline;\n    gap: 0.28em;\n    color: #ff6666;\n    font-weight: 700;\n    line-height: 1.1;\n    white-space: nowrap;\n}\n\n.yani-rating-ya b {\n    font-size: 0.82em;\n    letter-spacing: 0.04em;\n}\n\n.yani-detail__order-item.focus .yani-rating-ya {\n    color: #ff6666;\n}\n\n.yani-card-ratings {\n    position: absolute;\n    right: 0.35em;\n    bottom: 0.35em;\n    left: auto;\n    z-index: 2;\n    display: flex;\n    flex-wrap: wrap;\n    justify-content: flex-end;\n    gap: 0.18em;\n    max-width: calc(100% - 0.7em);\n    pointer-events: none;\n}\n\n.yani-card-media {\n    position: absolute;\n    top: 0.35em;\n    left: 0.35em;\n    right: auto;\n    z-index: 3;\n    display: flex;\n    flex-wrap: wrap;\n    gap: 0.25em;\n    max-width: calc(100% - 0.7em);\n    pointer-events: none;\n}\n\n.yani-card-media__badge {\n    padding: 0.22em 0.38em;\n    border-radius: 0.25em;\n    background: rgba(0, 0, 0, 0.82);\n    color: #fff;\n    font-size: 0.62em;\n    font-weight: 700;\n    line-height: 1.1;\n}\n\n.yani-card-media__availability { display: inline-flex; align-items: stretch; overflow: hidden; border: .06em solid rgba(255,255,255,.24); border-radius: .42em; background: #333333; box-shadow: none; color: #fff; font-size: .62em; font-weight: 700; line-height: 1; transition: none; }\n.yani-card-media__availability--motion { animation: none; }\n.yani-card-media__availability-part { display: inline-flex; align-items: center; gap: .28em; min-height: 1.72em; padding: .24em .42em; white-space: nowrap; }\n.yani-card-media__availability-part + .yani-card-media__availability-part { border-left: .06em solid rgba(255,255,255,.18); }\n.yani-card-media__availability-part svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.yani-card-media__availability-part b { font: inherit; letter-spacing: .025em; }\n.yani-card-media__availability-part small { color: rgba(255,255,255,.66); font-size: .82em; font-weight: 600; }\n.yani-card-media__quality { color: #ffe38a; }\n.yani-card-media__voices { color: #91d9ff; }\n.card.focus .yani-card-media__availability { border-color: rgba(255,255,255,.62); box-shadow: none; }\n\n@media (prefers-reduced-motion: reduce) { .yani-card-media__availability { transition: none; } .yani-card-media__availability--motion { animation: none; } }\n.yani-card-media__genre-top { display: inline-flex; align-items: center; gap: .24em; border: .06em solid rgba(255,224,132,.65); background: #333333; box-shadow: none; color: #fff5ce; }\n.yani-card-media__genre-top svg { width: .95em; height: .95em; fill: currentColor; }\n.yani-card-media__genre-top b { font: inherit; letter-spacing: .02em; }\n.yani-card-meta__native-age { display: none !important; }\n.yani-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: .22em .48em; min-height: 1.15em; margin-top: .18em; overflow: hidden; color: rgba(255,255,255,.66); font-size: .72em; line-height: 1.15; white-space: nowrap; }\n.yani-card-meta span { position: relative; overflow: hidden; max-width: 10em; text-overflow: ellipsis; }\n.yani-card-meta span + span::before { position: absolute; left: -.34em; content: '·'; color: rgba(255,255,255,.36); }\n.yani-card-meta__status { color: rgba(205,214,225,.9); }\n.yani-card-meta__status--ongoing { color: #72dfad; }\n.yani-card-meta__status--released { color: #85bff5; }\n.yani-card-meta__status--announced { color: #f2bf69; }\n.yani-card-meta__episodes { color: rgba(142,205,247,.94); }\n.card.focus .yani-card-meta { color: rgba(255,255,255,.88); }\n.yani-card-update { position: absolute; top: 0.35em; right: 0.35em; z-index: 5; display: flex; align-items: center; gap: .38em; max-width: calc(100% - 0.7em); padding: 0.25em 0.42em; border: .06em solid rgba(255,255,255,.16); border-radius: .38em; background: rgba(28,27,38,.9); color: #fff; font-size: 0.62em; font-weight: 700; line-height: 1.1; box-shadow: none; white-space: nowrap; }\n.yani-card-update__label { overflow: hidden; text-overflow: ellipsis; }\n.yani-card-update__freshness { flex: none; padding-left: .38em; border-left: .08em solid rgba(255,255,255,.22); color: #ffc7cd; font-size: .86em; font-weight: 600; }\n.yani-card-update--fresh { border-color: rgba(255,151,166,.5); background: #333333; }\n.yani-card-update--fresh .yani-card-update__freshness { color: #fff; }\n.yani-card--fresh .card__view { box-shadow: none; }\n.yani-card--fresh.focus .card__view { box-shadow: none; }\n.yani-card-recommendation { position: absolute; top: .35em; left: .35em; z-index: 2; max-width: calc(100% - .7em); padding: .22em .42em; border-radius: .3em; background: rgba(81, 61, 143, .94); color: #fff; font-size: .58em; font-weight: 700; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.yani-card-list { position: absolute; left: 0.35em; bottom: 0.42em; z-index: 6; display: inline-flex; align-items: center; gap: .12em; max-width: none; padding: 0.22em; border: .06em solid rgba(255,255,255,.18); border-radius: 0.38em; background: rgba(21,20,29,.86); color: #fff; font-size: 0.68em; font-weight: 700; line-height: 1; box-shadow: none; }\n.yani-card-list__icon { display: block; width: 1.05em; height: 1.05em; }\n.yani-card-list__icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.yani-card-list--watching { color: #ffd0d6; background: #333333; }\n.yani-card-list--planned { color: #d7f3ff; background: #333333; }\n.yani-card-list--completed { color: #d9ffe9; background: #333333; }\n.yani-card-list--dropped { color: #e4e8f0; background: #333333; }\n.yani-card-list--postponed { color: #fff1d4; background: #333333; }\n.yani-card-list--favorites { color: #ffe0ee; background: #333333; }\n.card.focus .yani-card-list { border-color: rgba(255,255,255,.62); }\n.yani-card-history { position: absolute; top: 0.35em; right: 0.35em; z-index: 6; max-width: calc(100% - 0.7em); padding: 0.25em 0.45em; border-radius: 0.3em; background: rgba(239, 100, 112, 0.94); color: #fff; font-size: 0.68em; font-weight: 700; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.yani-card-history-progress { position: absolute; right: 0; bottom: 0; left: 0; z-index: 7; height: 0.24em; overflow: hidden; background: rgba(255, 255, 255, 0.25); }\n.yani-card-history-progress span { display: block; height: 100%; background: #ff6666; }\n.yani-card-playback { position: absolute; right: .35em; bottom: .42em; z-index: 6; max-width: 48%; overflow: hidden; padding: .22em .42em; border: .06em solid rgba(255,255,255,.18); border-radius: .34em; background: rgba(21,20,29,.86); color: rgba(255,255,255,.96); font-size: .6em; font-weight: 700; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; box-shadow: none; }\n.yani-card-list + .yani-card-playback { max-width: 48%; }\n.yani-card-playback-progress { position: absolute; right: 0; bottom: 0; left: 0; z-index: 7; height: .25em; overflow: hidden; background: rgba(255,255,255,.2); }\n.yani-card-playback-progress span { display: block; height: 100%; border-radius: 0 .2em .2em 0; background: #333333; box-shadow: none; }\n.card.focus .yani-card-playback { border-color: rgba(255,255,255,.65); background: rgba(34,28,45,.94); }\n\n/* Keep top-start media and top-end fresh/history badges in separate lanes. */\n.yani-card-view--has-top-end .yani-card-media { max-width: 52%; }\n.yani-card-view--has-top-start .yani-card-update,\n.yani-card-view--has-top-start .yani-card-history { max-width: 46%; }\n\n/* Lift ratings above list/playback/progress so chips never collide. */\n.yani-card-view--has-footer .yani-card-ratings { bottom: 1.72em; }\n.yani-card-view--has-progress .yani-card-ratings { bottom: 1.55em; }\n.yani-card-view--has-footer.yani-card-view--has-progress .yani-card-ratings { bottom: 1.95em; }\n.yani-card-view--has-progress .yani-card-list,\n.yani-card-view--has-progress .yani-card-playback { bottom: .48em; }\n.yani-card-view--has-ratings.yani-card-view--has-footer .yani-card-playback { max-width: 48%; }\n\n/* Priority hide rules: secondary poster data disappears before list/progress. */\n.yani-card-view--hide-recommendation .yani-card-recommendation,\n.yani-card-view--hide-ratings .yani-card-ratings,\n.yani-card-view--hide-genre-top .yani-card-media__genre-top,\n.yani-card-view--hide-voices .yani-card-media__voices,\n.yani-card-view--hide-availability .yani-card-media__availability,\n.yani-card-view--hide-update-freshness .yani-card-update__freshness,\n.yani-card-view--hide-update .yani-card-update { display: none !important; }\n.yani-collection-card__previews { position: absolute; right: .38em; bottom: 2.15em; z-index: 4; display: flex; gap: .22em; }\n.yani-collection-card__previews span { width: 2.15em; height: 3.1em; border: .08em solid rgba(255,255,255,.72); border-radius: .28em; background-position: center; background-size: cover; box-shadow: none; }\n.yani-collection-card__meta { position: absolute; right: .35em; bottom: .35em; left: .35em; z-index: 5; overflow: hidden; padding: .3em .45em; border-radius: .32em; background: rgba(21,20,29,.82); color: #fff; font-size: .62em; font-weight: 650; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }\n.yani-collection-card.focus .yani-collection-card__meta { background: #ff6666; }\n\n.yani-card-rating {\n    display: inline-flex;\n    align-items: center;\n    gap: 0.22em;\n    min-height: 1.55em;\n    padding: 0.1em 0.32em 0.1em 0.1em;\n    border: 0.06em solid rgba(255, 255, 255, 0.18);\n    border-radius: 0.34em;\n    background: rgba(16, 15, 24, 0.9);\n    color: #fff;\n    font-size: 0.62em;\n    line-height: 1;\n}\n\n.yani-rating-logo {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    flex: none;\n    width: 1.55em;\n    min-width: 1.55em;\n    height: 1.55em;\n    padding: 0;\n    box-sizing: border-box;\n    border-radius: 0.28em;\n    background: #fff;\n    color: #111;\n    font-size: 0.72em;\n    font-weight: 800;\n    letter-spacing: -0.04em;\n    line-height: 1;\n}\n\n.yani-rating-logo--yummy { background: #ff6666; color: #fff; }\n.yani-rating-logo--kp { background: #f2c94c; color: #171717; }\n.yani-rating-logo--shikimori { background: #8b6fc9; color: #fff; }\n.yani-rating-logo--anidub { background: #3b9bd9; color: #fff; }\n.yani-rating-logo--mal { background: #2e5d93; color: #fff; }\n.yani-rating-logo--worldart { background: #f28c28; color: #fff; }\n.yani-rating-logo--yummy,\n.yani-rating-logo--kp,\n.yani-rating-logo--shikimori,\n.yani-rating-logo--anidub,\n.yani-rating-logo--mal,\n.yani-rating-logo--worldart {\n    overflow: hidden;\n}\n\n.yani-card-rating__logo {\n    margin-right: 0;\n}\n\n.yani-card-rating__value {\n    font-weight: 700;\n    letter-spacing: 0.01em;\n}\n\n.card.focus .yani-card-rating {\n    border-color: rgba(255, 255, 255, 0.62);\n}\n\n.yani-ratings {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 0.45em;\n    margin: 0.85em 0 1.2em;\n}\n\n.yani-ratings__item {\n    display: inline-flex;\n    align-items: center;\n    gap: 0.35em;\n    min-height: 2.1em;\n    padding: 0.28em 0.55em 0.28em 0.28em;\n    border: 0.06em solid rgba(255, 255, 255, 0.14);\n    border-radius: 0.45em;\n    background: rgba(255, 255, 255, 0.08);\n    color: #fff;\n}\n\n.yani-ratings__logo {\n    width: 1.7em;\n    min-width: 1.7em;\n    height: 1.7em;\n    font-size: 0.78em;\n}\n\n.yani-ratings__value {\n    font-size: 1.05em;\n    font-weight: 700;\n    line-height: 1;\n}\n\n/* YummyAnime score bands: below 5 red, 5 to 7 amber, 7 and up green. Only the\n   YummyAnime rating is banded - it is the one this plugin owns, and colouring\n   every source would turn the row into a traffic light. */\n.yani-ratings__value--low,\n.yani-card-rating__value--low {\n    color: #F66;\n}\n\n.yani-ratings__value--mid,\n.yani-card-rating__value--mid {\n    color: #F2B800;\n}\n\n.yani-ratings__value--high,\n.yani-card-rating__value--high {\n    color: #3CCE7B;\n}\n\n.yani-ratings__votes {\n    margin-left: 0.1em;\n    color: rgba(255, 255, 255, 0.58);\n    font-size: 0.72em;\n    font-weight: 600;\n    line-height: 1.1;\n    white-space: nowrap;\n}\n\n.yani-account__content {\n    padding: 1.5em 2em 3em;\n}\n\n.yani-account__notification-button {\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    margin: 1em 0;\n    padding: 1em 1.2em;\n    border: 0.08em solid rgba(255,255,255,.16);\n    border-radius: .7em;\n    background: rgba(36, 58, 78, .85);\n}\n\n.yani-account__notification-button.focus { background: #287da9; box-shadow: none; }\n.yani-account__notification-button span { color: #72d8ff; }\n.yani-account__logout-button {\n    margin-top: 2.2em;\n    border-color: rgba(255, 112, 132, .38);\n    background: rgba(105, 35, 49, .72);\n}\n.yani-account__logout-button span { color: rgba(255, 218, 224, .76); }\n.yani-account__logout-button.focus {\n    background: #cf4960;\n    box-shadow: none;\n}\n.yani-notifications__content {\n    width: min(78em, calc(100vw - 4em));\n    margin: 0 auto;\n    padding: 1.5em 2em 4em;\n}\n\n.yani-notifications__hero {\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    min-height: 7.2em;\n    padding: 1.2em 1.5em;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: 1.05em;\n    background: #333333;\n    box-shadow: none;\n}\n\n.yani-notifications__hero:after {\n    content: '';\n    position: absolute;\n    right: -3em;\n    bottom: -6em;\n    width: 20em;\n    height: 12em;\n    border: .1em solid rgba(255,255,255,.09);\n    border-radius: 50%;\n    transform: none;\n}\n\n.yani-notifications__identity { position: relative; z-index: 1; display: flex; align-items: center; gap: 1.1em; min-width: 0; }\n.yani-notifications__hero-icon {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    flex: 0 0 4.2em;\n    width: 4.2em;\n    height: 4.2em;\n    border-radius: 1.1em;\n    color: #fff;\n    background: #333333;\n    box-shadow: none;\n}\n.yani-notifications__hero-icon svg { width: 2.15em; height: 2.15em; }\n.yani-notifications__eyebrow { display: block; margin-bottom: .25em; color: #ff9daf; font-size: .7em; font-weight: 800; letter-spacing: .18em; }\n.yani-notifications__title { color: #fff; font-size: 1.7em; font-weight: 750; line-height: 1.05; }\n.yani-notifications__subtitle { margin-top: .38em; color: rgba(230,239,247,.7); font-size: .88em; }\n.yani-notifications__summary {\n    position: relative;\n    z-index: 1;\n    display: grid;\n    grid-template-columns: auto auto;\n    align-items: baseline;\n    gap: .5em;\n    min-width: 9em;\n    padding: .75em 1em;\n    border-radius: .8em;\n    background: rgba(7,18,30,.42);\n    border: .08em solid rgba(255,255,255,.12);\n}\n.yani-notifications__summary strong { color: #a8eaff; font-size: 1.7em; line-height: 1; }\n.yani-notifications__summary span { color: rgba(230,239,247,.72); font-size: .78em; }\n.yani-notifications__summary.has-unread strong { color: #ff879a; }\n\n.yani-notifications__actions { display: flex; gap: .75em; margin: 1.15em 0 1.35em; }\n.yani-notifications__action {\n    display: flex;\n    align-items: center;\n    gap: .65em;\n    min-height: 2.8em;\n    padding: .55em 1em;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: .72em;\n    color: #dce8f3;\n    background: rgba(23,37,52,.72);\n}\n.yani-notifications__action > span { display: flex; align-items: center; justify-content: center; width: 1.45em; height: 1.45em; border-radius: 50%; color: #88dcff; background: rgba(71,190,235,.15); font-weight: 800; }\n.yani-notifications__action strong { font-size: .88em; font-weight: 650; }\n.yani-notifications__action--danger > span { color: #ff879a; background: rgba(255,91,117,.14); }\n.yani-notifications__action.focus { color: #152535; background: #fff; box-shadow: none; }\n.yani-notifications__action.focus > span { color: #fff; background: #e84f6a; }\n\n.yani-notifications__list { display: grid; gap: .72em; }\n.yani-notifications__day {\n    display: flex;\n    align-items: center;\n    gap: .7em;\n    margin: .55em .15em -.08em;\n    color: rgba(225,236,245,.66);\n    font-size: .76em;\n    font-weight: 750;\n    letter-spacing: .08em;\n    text-transform: uppercase;\n}\n.yani-notifications__day:after { content: ''; flex: 1; height: .08em; background: #333333; }\n.yani-notification {\n    --notification-accent: #9db0c2;\n    --notification-accent-soft: rgba(157,176,194,.14);\n    --notification-accent-border: rgba(157,176,194,.62);\n    position: relative;\n    display: grid;\n    grid-template-columns: 3.4em minmax(0, 1fr) 1.3em;\n    align-items: center;\n    gap: 1em;\n    min-height: 6.4em;\n    padding: 1em 1.15em;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.11);\n    border-radius: .9em;\n    color: #eef5fb;\n    background: #333333;\n    box-shadow: none;\n}\n.yani-notification--episode { --notification-accent: #ff738b; --notification-accent-soft: rgba(255,115,139,.14); --notification-accent-border: rgba(255,115,139,.62); }\n.yani-notification--comment { --notification-accent: #6fd8ff; --notification-accent-soft: rgba(111,216,255,.14); --notification-accent-border: rgba(111,216,255,.62); }\n.yani-notification--social { --notification-accent: #af92ff; --notification-accent-soft: rgba(175,146,255,.14); --notification-accent-border: rgba(175,146,255,.62); }\n.yani-notification--news { --notification-accent: #ffd166; --notification-accent-soft: rgba(255,209,102,.14); --notification-accent-border: rgba(255,209,102,.62); }\n.yani-notification__dot { position: absolute; top: 0; bottom: 0; left: 0; width: .25em; background: var(--notification-accent); opacity: .35; }\n.yani-notification.unread { border-color: var(--notification-accent-border); background: #333333; }\n.yani-notification.unread .yani-notification__dot { opacity: 1; }\n.yani-notification__visual { display: flex; align-items: center; justify-content: center; width: 3.4em; height: 3.4em; border-radius: .9em; color: var(--notification-accent); background: var(--notification-accent-soft); }\n.yani-notification__visual svg { width: 1.75em; height: 1.75em; }\n.yani-notification__body { min-width: 0; }\n.yani-notification__meta { display: flex; align-items: center; gap: .65em; margin-bottom: .28em; }\n.yani-notification__kind { color: var(--notification-accent); font-size: .7em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }\n.yani-notification__date { color: #8297aa; font-size: .72em; }\n.yani-notification__date:before { content: '•'; margin-right: .65em; opacity: .55; }\n.yani-notification__title { overflow: hidden; color: #f7fbff; font-size: 1.08em; font-weight: 750; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }\n.yani-notification__text { display: -webkit-box; margin-top: .28em; overflow: hidden; color: #b8c7d5; font-size: .86em; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }\n.yani-notification__footer { display: flex; gap: .7em; margin-top: .52em; color: #7f94a7; font-size: .68em; font-weight: 650; }\n.yani-notification__state { padding: .18em .5em; border-radius: .38em; background: rgba(255,255,255,.07); }\n.yani-notification.unread .yani-notification__state { color: #ff9bad; background: rgba(255,103,130,.13); }\n.yani-notification__open { color: var(--notification-accent); }\n.yani-notification__chevron { color: #71879a; font-size: 2em; line-height: 1; }\n.yani-notification:not(.is-actionable) { grid-template-columns: 3.4em minmax(0, 1fr); }\n.yani-notification.loading:after,\n.yani-notifications__more.loading:after { content: ''; position: absolute; inset: 0; background: rgba(12,20,29,.38); }\n.yani-notification.focus { color: #152535; background: #fff; border-color: #fff; box-shadow: none; }\n.yani-notification.focus .yani-notification__title { color: #142333; }\n.yani-notification.focus .yani-notification__text { color: #4d6174; }\n.yani-notification.focus .yani-notification__date,\n.yani-notification.focus .yani-notification__footer { color: #61778a; }\n.yani-notification.focus .yani-notification__visual { background: var(--notification-accent-soft); }\n.yani-notification.focus .yani-notification__chevron { color: #243b4e; transform: none; }\n\n.yani-notifications__more,\n.yani-notifications__empty {\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    gap: .7em;\n    min-height: 3.6em;\n    margin-top: .35em;\n    border: .08em dashed rgba(255,255,255,.18);\n    border-radius: .85em;\n    color: #c6d5e2;\n    background: rgba(20,32,44,.62);\n}\n.yani-notifications__more > span { color: #72d8ff; font-size: 1.35em; }\n.yani-notifications__more.focus { color: #162636; background: #fff; border-style: solid; box-shadow: none; }\n.yani-notifications__empty { flex-direction: column; min-height: 13em; }\n.yani-notifications__empty-icon { display: flex; align-items: center; justify-content: center; width: 4em; height: 4em; border-radius: 50%; color: #8da5b8; background: rgba(255,255,255,.07); }\n.yani-notifications__empty-icon svg { width: 2em; height: 2em; }\n.yani-notifications__empty strong { font-size: 1.15em; }\n.yani-notifications__empty > span:last-child { color: #879baa; font-size: .8em; }\n.yani-notifications__empty.focus { border-color: rgba(114,216,255,.75); box-shadow: none; }\n\n@media (max-width: 720px) {\n    .yani-notifications__content { width: auto; padding: 1em 1em 3em; }\n    .yani-notifications__hero { min-height: 5.8em; padding: 1em; }\n    .yani-notifications__hero-icon { flex-basis: 3.4em; width: 3.4em; height: 3.4em; }\n    .yani-notifications__title { font-size: 1.35em; }\n    .yani-notifications__subtitle { display: none; }\n    .yani-notifications__summary { min-width: auto; grid-template-columns: auto; gap: .12em; padding: .55em .7em; text-align: center; }\n    .yani-notifications__summary span { font-size: .62em; }\n    .yani-notifications__actions { display: grid; grid-template-columns: 1fr 1fr; }\n    .yani-notifications__action { justify-content: center; padding: .5em .65em; }\n    .yani-notification { grid-template-columns: 2.8em minmax(0,1fr); gap: .75em; padding: .85em; }\n    .yani-notification__visual { width: 2.8em; height: 2.8em; }\n    .yani-notification__chevron { display: none; }\n    .yani-notification__title { white-space: normal; }\n}\n\n.yani-account__profile {\n    display: flex;\n    align-items: center;\n    padding: 1.2em;\n    border-radius: 0.8em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-account__profile.focus,\n.yani-account__info.focus,\n.yani-account__list.focus,\n.yani-account__notice.focus {\n    background: #fff;\n    color: #111;\n}\n\n.yani-account__avatar {\n    width: 7em;\n    height: 7em;\n    margin-right: 1.2em;\n    border-radius: 50%;\n    object-fit: cover;\n}\n\n.yani-account__name {\n    font-size: 1.8em;\n    font-weight: 600;\n}\n\n.yani-account__id,\n.yani-account__about {\n    margin-top: 0.35em;\n    opacity: 0.7;\n}\n\n.yani-account__warning {\n    margin-top: 0.5em;\n    color: #ff6868;\n    font-weight: 600;\n}\n\n.yani-account__grid,\n.yani-account__lists {\n    display: grid;\n    grid-template-columns: repeat(3, minmax(10em, 1fr));\n    gap: 0.7em;\n    margin-top: 1em;\n}\n\n.yani-account__info,\n.yani-account__list,\n.yani-account__notice {\n    padding: 1em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-account__info-title,\n.yani-account__list-time,\n.yani-account__notice-text {\n    opacity: 0.65;\n}\n\n.yani-account__info-value,\n.yani-account__list-count,\n.yani-account__notice-title {\n    margin-top: 0.3em;\n    font-size: 1.2em;\n    font-weight: 600;\n}\n\n.yani-account__list-title {\n    font-size: 1.15em;\n    font-weight: 600;\n}\n\n.yani-account__list-time {\n    margin-top: 0.35em;\n}\n\n.yani-account__section-title {\n    margin-top: 1.5em;\n    font-size: 1.45em;\n    font-weight: 600;\n}\n\n.yani-user-lists__heading {\n    font-size: 2em;\n    font-weight: 700;\n}\n\n.yani-user-lists__description {\n    max-width: 48em;\n    margin-top: .35em;\n    color: rgba(255, 255, 255, .68);\n    font-size: 1.05em;\n}\n\n.yani-user-lists__tile {\n    display: flex;\n    align-items: center;\n    min-height: 5.4em;\n}\n\n.yani-user-lists__icon {\n    width: 2.7em;\n    height: 2.7em;\n    margin-right: 1em;\n    flex: 0 0 auto;\n    color: #ff6666;\n}\n\n.yani-user-lists__icon svg {\n    width: 100%;\n    height: 100%;\n    fill: currentColor;\n}\n\n.yani-user-lists__tile.focus .yani-user-lists__icon {\n    color: #cf3f50;\n}\n\n.yani-user-lists__body {\n    min-width: 0;\n    flex: 1 1 auto;\n}\n\n.yani-user-lists__count {\n    font-size: 1em;\n}\n\n.yani-user-lists-view { --yani-list-accent: #ff6666; }\n.yani-user-list-card { --yani-list-accent: #ff6666; }\n.yani-user-list-card--watching { --yani-list-accent: #ff6666; }\n.yani-user-list-card--planned { --yani-list-accent: #af75e4; }\n.yani-user-list-card--completed { --yani-list-accent: #3cce7b; }\n.yani-user-list-card--dropped { --yani-list-accent: #6c6c6c; }\n.yani-user-list-card--favorites { --yani-list-accent: #be46c6; }\n.yani-user-list-card--postponed { --yani-list-accent: #f2b800; }\n.yani-user-list-card--history { --yani-list-accent: #ff6666; }\n.yani-user-list-card .card__view { position: relative; overflow: hidden; }\n.yani-user-list-card .card__view::after {\n    position: absolute;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    height: .22em;\n    background: var(--yani-list-accent);\n    box-shadow: none;\n    content: '';\n    pointer-events: none;\n}\n.yani-user-list-card__badge {\n    position: absolute;\n    z-index: 3;\n    top: .48em;\n    right: .48em;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 1.72em;\n    height: 1.72em;\n    border: .08em solid rgba(255, 255, 255, .22);\n    border-radius: .58em;\n    color: #fff;\n    background: rgba(12, 14, 23, .72);\n    box-shadow: none;\n    pointer-events: none;\n}\n.yani-user-list-card__badge svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-user-list-card__progress {\n    position: absolute;\n    z-index: 4;\n    right: .5em;\n    bottom: .5em;\n    left: .5em;\n    height: .27em;\n    overflow: hidden;\n    border-radius: 99em;\n    background: rgba(9, 11, 18, .6);\n    pointer-events: none;\n}\n.yani-user-list-card__progress i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--yani-list-accent); box-shadow: none; }\n.yani-user-list-card--more .yani-user-list-card__badge { display: none; }\n.yani-user-list-card.focus .card__view { box-shadow: none; }\n\n.yani-account-list-sort-panel { margin: .15em 1em .9em; --yani-list-accent: #ff6666; }\n.yani-account-list-sort-panel--watching { --yani-list-accent: #ff6666; }\n.yani-account-list-sort-panel--planned { --yani-list-accent: #af75e4; }\n.yani-account-list-sort-panel--completed { --yani-list-accent: #3cce7b; }\n.yani-account-list-sort-panel--dropped { --yani-list-accent: #6c6c6c; }\n.yani-account-list-sort-panel--favorites { --yani-list-accent: #be46c6; }\n.yani-account-list-sort-panel--postponed { --yani-list-accent: #f2b800; }\n\n.yani-account-list-sort-trigger {\n    position: relative;\n    display: flex;\n    align-items: center;\n    min-height: 3.25em;\n    padding: .48em .72em;\n    overflow: hidden;\n    border: .08em solid rgba(255, 255, 255, .12);\n    border-radius: 1em;\n    background: #333333;\n    box-shadow: none;\n    backdrop-filter: none;\n    transition: none;\n}\n.yani-account-list-sort-panel__list-icon { display: flex; align-items: center; justify-content: center; width: 1.9em; height: 1.9em; margin-right: .55em; border-radius: .58em; color: #fff; background: var(--yani-list-accent); box-shadow: none; }\n.yani-account-list-sort-panel__list-icon svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-account-list-sort-trigger__copy { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; }\n.yani-account-list-sort-panel__title { overflow: hidden; font-size: .92em; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }\n.yani-account-list-sort-trigger__meta { margin-top: .12em; color: rgba(255, 255, 255, .5); font-size: .68em; }\n.yani-account-list-sort-trigger__label { margin-left: 1em; color: rgba(255, 255, 255, .65); font-size: .75em; font-weight: 650; }\n.yani-account-list-sort-trigger__chevron { display: flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; margin-left: .55em; border-radius: 50%; color: #fff; background: rgba(255, 255, 255, .1); transition: none; }\n.yani-account-list-sort-trigger.focus { color: #17151c; border-color: #fff; background: #fff; box-shadow: none; transform: none; }\n.yani-account-list-sort-trigger.focus .yani-account-list-sort-trigger__meta,\n.yani-account-list-sort-trigger.focus .yani-account-list-sort-trigger__label { color: rgba(23, 21, 28, .58); }\n.yani-account-list-sort-trigger.focus .yani-account-list-sort-trigger__chevron { color: #fff; background: var(--yani-list-accent); }\n.yani-account-list-sort-panel.is-expanded .yani-account-list-sort-trigger__chevron { transform: rotate(180deg); }\n\n.yani-account-list-sort-rail { display: grid; grid-template-columns: repeat(5, minmax(7.2em, 1fr)); gap: .42em; max-height: 0; margin-top: 0; padding: 0 .12em; overflow: hidden; opacity: 0; scrollbar-width: none; transform: none; transition: none; }\n.yani-account-list-sort-panel.is-expanded .yani-account-list-sort-rail { max-height: 5.2em; margin-top: .42em; padding: .12em; overflow-x: auto; opacity: 1; transform: none; }\n.yani-account-list-sort-rail::-webkit-scrollbar { display: none; }\n.yani-account-list-sort-option { position: relative; display: grid; grid-template-columns: 2.25em 1fr; grid-template-rows: 1fr auto; min-height: 3.65em; padding: .48em .56em; overflow: hidden; border: .08em solid rgba(255, 255, 255, .09); border-radius: .82em; background: rgba(255, 255, 255, .055); transition: none; }\n.yani-account-list-sort-option__index { position: absolute; right: .55em; top: .42em; color: rgba(255, 255, 255, .24); font-size: .6em; font-weight: 800; letter-spacing: .08em; }\n.yani-account-list-sort-option__icon { display: flex; grid-row: 1 / span 2; align-self: center; align-items: center; justify-content: center; width: 1.9em; height: 1.9em; border-radius: .58em; color: #ff8794; background: rgba(255, 255, 255, .08); }\n.yani-account-list-sort-option:nth-child(2) .yani-account-list-sort-option__icon { color: #60c7ed; }\n.yani-account-list-sort-option:nth-child(3) .yani-account-list-sort-option__icon { color: #f0c467; }\n.yani-account-list-sort-option:nth-child(4) .yani-account-list-sort-option__icon { color: #6bd6a4; }\n.yani-account-list-sort-option:nth-child(5) .yani-account-list-sort-option__icon { color: #b79af0; }\n.yani-account-list-sort-option__icon svg { width: 1.05em; height: 1.05em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }\n.yani-account-list-sort-option__title { align-self: end; overflow: hidden; font-size: .78em; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }\n.yani-account-list-sort-option__state { align-self: start; width: 1.5em; height: .18em; margin-top: .25em; border-radius: 99em; background: rgba(255, 255, 255, .13); }\n.yani-account-list-sort-option.active { border-color: rgba(255, 104, 120, .45); background: rgba(255, 104, 120, .1); }\n.yani-account-list-sort-option.active .yani-account-list-sort-option__state { background: var(--yani-list-accent); box-shadow: none; }\n.yani-account-list-sort-option.focus { color: #17151c; border-color: #fff; background: #fff; box-shadow: none; transform: none; }\n.yani-account-list-sort-option.focus .yani-account-list-sort-option__index { color: rgba(23, 21, 28, .3); }\n.yani-account-list-sort-option.focus .yani-account-list-sort-option__icon { color: #fff; background: var(--yani-list-accent); }\n.yani-account-list-sort-option.focus .yani-account-list-sort-option__state { background: #a84374; box-shadow: none; }\n\n.yani-genre-catalog-header { position: relative; z-index: 4; display: flex; align-items: flex-start; min-height: 5.8em; margin: .1em 1em .75em; padding: .72em 1em; overflow: hidden; border: .08em solid rgba(255, 255, 255, .13); border-radius: 1.15em; background: #333333; box-shadow: none; backdrop-filter: none; }\n.yani-genre-catalog-header::after { position: absolute; right: -5em; top: -7em; width: 18em; height: 18em; border: .08em solid rgba(111, 197, 232, .18); border-radius: 50%; box-shadow: none; content: ''; }\n.yani-genre-catalog-header__orb { position: relative; display: block; flex: 0 0 3.35em; width: 3.35em; height: 3.35em; margin: .15em .9em 0 0; border-radius: 1em; background: #333333; box-shadow: none; }\n.yani-genre-catalog-header__orb.is-subject { height: 3.65em; border-radius: .82em; }\n.yani-genre-catalog-header__orb.is-studio { flex-basis: 5.5em; width: 5.5em; }\n.yani-genre-catalog-header__orb.is-director { flex-basis: 3.05em; width: 3.05em; }\n.yani-genre-catalog-header__orb img { display: none; width: 100%; height: 100%; padding: .16em; box-sizing: border-box; object-fit: contain; object-position: center; border-radius: inherit; background: rgba(255,255,255,.94); }\n.yani-genre-catalog-header__orb.is-director img { padding: 0; background: rgba(20,22,29,.72); }\n.yani-genre-catalog-header__orb b { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; color: #fff; font-size: 1.18em; font-weight: 850; letter-spacing: -.04em; text-shadow: none; }\n.yani-genre-catalog-header__orb.is-subject b { display: flex; }\n.yani-genre-catalog-header__orb.is-subject i { display: none; }\n.yani-genre-catalog-header__orb.has-image img { display: block; }\n.yani-genre-catalog-header__orb.has-image b,\n.yani-genre-catalog-header__orb.has-image i { display: none; }\n.yani-genre-catalog-header__orb i { position: absolute; border: .13em solid rgba(255, 255, 255, .84); border-radius: 50%; }\n.yani-genre-catalog-header__orb i:nth-child(1) { width: 1.45em; height: 1.45em; left: .45em; top: .48em; }\n.yani-genre-catalog-header__orb i:nth-child(2) { width: 1.2em; height: 1.2em; right: .38em; bottom: .38em; }\n.yani-genre-catalog-header__orb i:nth-child(3) { width: .42em; height: .42em; right: .5em; top: .5em; background: #fff; }\n.yani-genre-catalog-header__copy { position: relative; z-index: 1; min-width: 0; flex: 1 1 auto; }\n.yani-genre-catalog-header__eyebrow { display: block; color: #f07d94; font-size: .64em; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }\n.yani-genre-catalog-header__title { display: block; margin-top: .06em; font-size: 1.35em; line-height: 1.08; }\n.yani-genre-catalog-header__description { max-width: 62em; margin: .32em 0 0; color: rgba(255, 255, 255, .68); font-size: .78em; line-height: 1.38; white-space: normal; }\n\n/* Per-card selectors (when cardRender successfully adds the class) */\n.yani-card-rails .items-cards .card.yani-genre-tile-card {\n    flex-basis: 11.2em;\n    width: 11.2em;\n}\n.yani-genre-tile-card .card__view {\n    padding-bottom: 45.45% !important;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .75em;\n    box-shadow: none;\n}\n.yani-genre-tile-card .card__img,\n.yani-genre-tile-card .card__view img {\n    border-radius: .68em;\n    object-fit: cover;\n}\n.yani-genre-tile-card .card__title,\n.yani-genre-tile-card .card__age,\n.yani-genre-tile-card .yani-card-meta { display: none !important; }\n.yani-genre-tile-card.focus .card__view {\n    border-color: #fff;\n    box-shadow: none;\n    transform: none;\n}\n/* Row-level selectors (primary path — applied by markTilesLines after build) */\n.yani-genre-tiles-line .card {\n    flex: 0 0 11.2em !important;\n    width: 11.2em !important;\n}\n.yani-genre-tiles-line .card .card__view {\n    padding-bottom: 45.45% !important;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .75em;\n    box-shadow: none;\n}\n.yani-genre-tiles-line .card .card__img,\n.yani-genre-tiles-line .card .card__view img {\n    border-radius: .68em;\n    object-fit: cover;\n}\n.yani-genre-tiles-line .card .card__title,\n.yani-genre-tiles-line .card .card__age,\n.yani-genre-tiles-line .card .yani-card-meta { display: none !important; }\n.yani-genre-tiles-line .card.focus .card__view {\n    border-color: #fff;\n    box-shadow: none;\n    transform: none;\n}\n.yani-genre-tiles-line .card.focus .card__view::after,\n.yani-genre-tiles-line .card.hover .card__view::after { display: none; }\n/* Per-card selectors (when cardRender successfully adds the class) */\n.yani-card-rails .items-cards .card.yani-collection-tile-card {\n    flex-basis: 13.2em;\n    width: 13.2em;\n}\n.yani-collection-tile-card .card__view {\n    padding-bottom: 56.25% !important;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .78em;\n    box-shadow: none;\n}\n.yani-collection-tile-card .card__view::after {\n    position: absolute;\n    z-index: 2;\n    inset: 30% 0 0;\n    background: #333333;\n    content: '';\n    pointer-events: none;\n}\n.yani-collection-tile-card .card__img,\n.yani-collection-tile-card .card__view img {\n    border-radius: .7em;\n    object-fit: cover;\n}\n.yani-collection-tile-card > .card__title,\n.yani-collection-tile-card .card__age,\n.yani-collection-tile-card > .yani-card-meta { display: none !important; }\n.yani-collection-tile-card__copy {\n    position: absolute;\n    z-index: 3;\n    right: .65em;\n    bottom: .58em;\n    left: .65em;\n    display: flex;\n    flex-direction: column;\n    min-width: 0;\n    color: #fff;\n    pointer-events: none;\n}\n.yani-collection-tile-card__copy strong {\n    overflow: hidden;\n    font-size: .78em;\n    line-height: 1.15;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n.yani-collection-tile-card__copy span {\n    margin-top: .16em;\n    color: rgba(255,255,255,.68);\n    font-size: .58em;\n    font-weight: 600;\n}\n.yani-collection-tile-card.focus .card__view {\n    border-color: #fff;\n    box-shadow: none;\n    transform: none;\n}\n\n/* Genres and collections are intentionally simple TV-first tile catalogs. */\n.yani-tile-catalog .category-full,\n.yani-tile-catalog .items-cards {\n    display: grid !important;\n    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;\n    gap: 1.05em .9em !important;\n    width: 100% !important;\n    padding: .7em 1em 2.5em !important;\n    box-sizing: border-box;\n}\n.yani-tile-catalog .card {\n    width: auto !important;\n    max-width: none !important;\n    margin: 0 !important;\n    padding: 0 !important;\n}\n.yani-tile-catalog .card__view {\n    padding-bottom: 56.25% !important;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.14);\n    border-radius: 1em;\n    background: rgba(255,255,255,.055);\n    box-shadow: none;\n    transition: none;\n}\n.yani-tile-catalog .card__img,\n.yani-tile-catalog .card__view img {\n    width: 100%;\n    height: 100%;\n    border-radius: .94em;\n    object-fit: cover;\n}\n.yani-tile-catalog .card > .card__title,\n.yani-tile-catalog .card__age,\n.yani-tile-catalog .card > .yani-card-meta,\n.yani-tile-catalog .yani-collection-card__meta,\n.yani-tile-catalog .yani-collection-card__previews { display: none !important; }\n.yani-tile-catalog .card.focus .card__view {\n    border-color: #fff;\n    box-shadow: none;\n    transform: none;\n}\n.yani-collections-tile-catalog .card__view::after {\n    position: absolute;\n    z-index: 2;\n    inset: 18% 0 0;\n    border-radius: 0 0 .94em .94em;\n    background: #333333;\n    content: '';\n    pointer-events: none;\n    transition: none;\n}\n.yani-collections-tile-catalog .card {\n    position: relative;\n}\n.yani-collections-tile-catalog .card > .card__title {\n    display: none !important;\n}\n.yani-collections-tile-catalog .yani-collection-tile-card__copy {\n    right: 1em;\n    bottom: .82em;\n    left: 1em;\n    z-index: 4;\n    display: flex;\n    padding-left: .72em;\n    border-left: .16em solid #ff6666;\n    text-shadow: none;\n    transition: none;\n}\n.yani-collections-tile-catalog .yani-collection-tile-card__copy strong {\n    display: -webkit-box;\n    overflow: hidden;\n    max-height: 2.5em;\n    color: #fff;\n    font-size: 1.08em;\n    font-weight: 750;\n    line-height: 1.16;\n    letter-spacing: -.015em;\n    text-overflow: ellipsis;\n    white-space: normal;\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 2;\n}\n.yani-collections-tile-catalog .yani-collection-tile-card__copy span {\n    margin-top: .34em;\n    color: rgba(255,255,255,.76);\n    font-size: .64em;\n    font-weight: 650;\n    letter-spacing: .025em;\n}\n.yani-collections-tile-catalog .card.focus .yani-collection-tile-card__copy {\n    border-color: #fff;\n    transform: none;\n}\n.yani-collections-tile-catalog .card.focus .card__view::after {\n    background: #333333;\n}\n.yani-genres-tile-catalog .card__view { padding-bottom: 45.45% !important; }\n\n@media (min-width: 100em) {\n    .yani-tile-catalog .category-full,\n    .yani-tile-catalog .items-cards { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }\n}\n@media (max-width: 70em) {\n    .yani-tile-catalog .category-full,\n    .yani-tile-catalog .items-cards { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }\n}\n@media (max-width: 42em) {\n    .yani-tile-catalog .category-full,\n    .yani-tile-catalog .items-cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: .75em .58em !important; padding: .55em .5em 2em !important; }\n}\n/* Row-level selectors (primary path — applied by markTilesLines after build) */\n.yani-collection-tiles-line .card {\n    flex: 0 0 13.2em !important;\n    width: 13.2em !important;\n}\n.yani-collection-tiles-line .card .card__view {\n    padding-bottom: 56.25% !important;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.16);\n    border-radius: .78em;\n    box-shadow: none;\n}\n.yani-collection-tiles-line .card .card__view::after {\n    position: absolute;\n    z-index: 2;\n    inset: 30% 0 0;\n    background: #333333;\n    content: '';\n    pointer-events: none;\n}\n.yani-collection-tiles-line .card .card__img,\n.yani-collection-tiles-line .card .card__view img {\n    border-radius: .7em;\n    object-fit: cover;\n}\n.yani-collection-tiles-line .card .card__title,\n.yani-collection-tiles-line .card .card__age,\n.yani-collection-tiles-line .card .yani-card-meta { display: none !important; }\n.yani-collection-tiles-line .card.focus .card__view {\n    border-color: #fff;\n    box-shadow: none;\n    transform: none;\n}\n\n@media (max-width: 700px) {\n    .yani-account-list-sort-panel { margin: .1em .6em .65em; }\n    .yani-account-list-sort-trigger__label { display: none; }\n    .yani-account-list-sort-rail { grid-template-columns: repeat(5, minmax(8.4em, 1fr)); }\n    .yani-genre-catalog-header { margin: .1em .6em .65em; }\n    .yani-genre-catalog-header__description { white-space: normal; }\n}\n\n.yani-account__stats {\n    display: inline-flex;\n    flex-direction: column;\n    width: min(100%, 34em);\n    margin: 0.7em 0.7em 0 0;\n    padding: 0.8em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.08);\n    vertical-align: top;\n}\n\n.yani-account__stats-title {\n    margin-bottom: 0.45em;\n    font-size: 1.1em;\n    font-weight: 600;\n}\n\n.yani-account__stats-row {\n    display: flex;\n    justify-content: space-between;\n    gap: 1em;\n    padding: 0.4em 0.55em;\n    border-radius: 0.35em;\n}\n\n.yani-account__stats-row.focus {\n    background: #fff;\n    color: #111;\n}\n\n.yani-auth__content {\n    width: min(100%, 42em);\n    margin: 0 auto;\n    padding: 2em;\n}\n\n.yani-auth__title {\n    margin-bottom: 0.35em;\n    font-size: 2em;\n    font-weight: 600;\n}\n\n.yani-auth__status {\n    margin-bottom: 1.4em;\n    color: #f0a33b;\n    opacity: 0.9;\n}\n\n.yani-auth__status.is-authorized {\n    color: #4caf50;\n}\n\n.yani-auth__form,\n.yani-auth__actions {\n    display: grid;\n    gap: 0.7em;\n}\n\n.yani-auth__field,\n.yani-auth__button {\n    padding: 1em 1.2em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-auth__field.focus,\n.yani-auth__button.focus {\n    background: #fff;\n    color: #111;\n    outline: 0.16em solid #ff6666;\n}\n\n.yani-auth__field-title {\n    margin-bottom: 0.3em;\n    opacity: 0.65;\n}\n\n.yani-auth__field-value {\n    font-size: 1.15em;\n    font-weight: 600;\n}\n\n.yani-auth__button {\n    text-align: center;\n    font-weight: 600;\n}\n\n.yani-auth__button--primary {\n    background: #ff6666;\n    color: #fff;\n}\n\n.yani-auth__account,\n.yani-auth__hint {\n    margin-top: 1em;\n    opacity: 0.65;\n}\n\n.yani-status__content {\n    padding: 1.4em 2em 3em;\n}\n\n.yani-status__periods {\n    display: flex;\n    gap: 0.65em;\n    margin-bottom: 1em;\n}\n\n.yani-status__period {\n    padding: 0.65em 1.15em;\n    border-radius: 0.55em;\n    background: rgba(255, 255, 255, 0.14);\n}\n\n.yani-status__period.active {\n    background: #ff6666;\n    color: #fff;\n}\n\n.yani-status__period.focus {\n    box-shadow: none;\n}\n\n.yani-status__summary {\n    display: flex;\n    align-items: center;\n    gap: 2em;\n    padding: 1.4em;\n    border-radius: 0.8em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-status__summary.focus,\n.yani-status__domain.focus,\n.yani-status__refresh.focus,\n.yani-status__error.focus {\n    background: #fff;\n    color: #111;\n}\n\n.yani-status__ring {\n    display: flex;\n    flex: 0 0 10em;\n    align-items: center;\n    justify-content: center;\n    width: 10em;\n    height: 10em;\n    border-radius: 50%;\n}\n\n.yani-status__ring-center {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    width: 7em;\n    height: 7em;\n    border-radius: 50%;\n    background: #292929;\n    color: #fff;\n}\n\n.yani-status__ring-center strong {\n    font-size: 1.65em;\n}\n\n.yani-status__ring-center span {\n    margin-top: 0.2em;\n    opacity: 0.7;\n}\n\n.yani-status__summary-info {\n    flex: 1;\n}\n\n.yani-status__headline {\n    margin-bottom: 0.7em;\n    font-size: 1.8em;\n    font-weight: 700;\n}\n\n.yani-status__metrics {\n    display: grid;\n    grid-template-columns: repeat(4, minmax(8em, 1fr));\n    gap: 0.6em;\n}\n\n.yani-status__metric {\n    padding: 0.65em;\n    border-radius: 0.45em;\n    background: rgba(0, 0, 0, 0.18);\n}\n\n.yani-status__metric span,\n.yani-status__metric strong {\n    display: block;\n}\n\n.yani-status__metric span {\n    margin-bottom: 0.25em;\n    opacity: 0.65;\n}\n\n.yani-status__metric strong {\n    font-size: 1.1em;\n}\n\n.yani-status__legend {\n    display: flex;\n    align-items: center;\n    gap: 0.45em;\n    margin: 1.1em 0 0.7em;\n    opacity: 0.75;\n}\n\n.yani-status__dot,\n.yani-status__state {\n    display: inline-block;\n    width: 0.7em;\n    height: 0.7em;\n    border-radius: 50%;\n}\n\n.yani-status__dot--up,\n.yani-status--up .yani-status__state,\n.yani-status__bar--up { background: #4caf50; }\n.yani-status__dot--degraded,\n.yani-status--degraded .yani-status__state,\n.yani-status__bar--degraded { background: #f0a33b; }\n.yani-status__dot--down,\n.yani-status--down .yani-status__state,\n.yani-status__bar--down { background: #db4455; }\n.yani-status__bar--unknown { background: #777; }\n\n.yani-status__domain {\n    margin-bottom: 0.65em;\n    padding: 0.85em 1em;\n    border-radius: 0.65em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-status__domain-head,\n.yani-status__domain-name,\n.yani-status__domain-values {\n    display: flex;\n    align-items: center;\n}\n\n.yani-status__domain-head {\n    justify-content: space-between;\n    margin-bottom: 0.6em;\n}\n\n.yani-status__domain-name {\n    gap: 0.55em;\n}\n\n.yani-status__domain-name strong {\n    font-size: 1.1em;\n}\n\n.yani-status__domain-name small {\n    opacity: 0.5;\n}\n\n.yani-status__domain-values {\n    gap: 1em;\n    opacity: 0.7;\n}\n\n.yani-status__history {\n    display: flex;\n    gap: 0.12em;\n    width: 100%;\n    height: 1.35em;\n}\n\n.yani-status__bar {\n    flex: 1 1 0;\n    min-width: 0.18em;\n    border-radius: 0.15em;\n}\n\n.yani-status__refresh,\n.yani-status__error {\n    margin-top: 1em;\n    padding: 0.9em 1.1em;\n    border-radius: 0.6em;\n    background: rgba(255, 255, 255, 0.1);\n}\n\n.yani-status__source {\n    margin-top: 0.8em;\n    opacity: 0.55;\n}\n\n.yani-status__refresh {\n    display: inline-block;\n}\n\n.yani-status__error strong,\n.yani-status__error span {\n    display: block;\n}\n\n.yani-status__error span {\n    margin-top: 0.4em;\n    opacity: 0.65;\n}\n\n.yani-section-state-host {\n    position: relative;\n    z-index: 6;\n    margin: .85em 1em 0;\n}\n\n.yani-section-state {\n    position: relative;\n    overflow: hidden;\n    border: .08em solid rgba(255,255,255,.12);\n    border-radius: 1em;\n    background: #333333;\n    box-shadow: none;\n    color: #dce7f2;\n}\n\n.yani-section-state[hidden] { display: none !important; }\n\n.yani-section-state--banner {\n    display: flex;\n    align-items: center;\n    min-height: 0;\n    margin-bottom: .75em;\n    border-radius: .75em;\n    background: #333333;\n}\n\n.yani-section-state__panel {\n    display: flex;\n    align-items: center;\n    gap: .85em;\n    width: 100%;\n    min-height: 8.5em;\n    padding: 1.1em 1.15em;\n    box-sizing: border-box;\n}\n\n.yani-section-state--banner .yani-section-state__panel { min-height: 0; padding: .7em .9em; }\n\n.yani-section-state__icon {\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n    flex: none;\n    width: 2.8em;\n    height: 2.8em;\n    border-radius: 50%;\n    background: rgba(255,255,255,.08);\n    color: #9ec8ff;\n}\n\n.yani-section-state--offline .yani-section-state__icon,\n.yani-section-state--error .yani-section-state__icon { color: #ffb4b4; background: rgba(239,100,112,.14); }\n.yani-section-state--cached .yani-section-state__icon { color: #d7ef9d; background: rgba(164, 196, 86, .16); }\n.yani-section-state--empty .yani-section-state__icon { color: #9eb0c2; }\n\n.yani-section-state__icon svg { width: 1.45em; height: 1.45em; }\n.yani-section-state__copy { display: flex; flex-direction: column; gap: .28em; min-width: 0; flex: 1; }\n.yani-section-state__copy strong { color: #fff; font-size: 1.05em; font-weight: 700; line-height: 1.2; }\n.yani-section-state__copy span { color: rgba(220,231,242,.72); font-size: .78em; line-height: 1.35; }\n\n.yani-section-state__retry {\n    flex: none;\n    padding: .55em .9em;\n    border: .08em solid rgba(255,255,255,.28);\n    border-radius: .55em;\n    background: rgba(255,255,255,.08);\n    color: #fff;\n    font-size: .78em;\n    font-weight: 700;\n    white-space: nowrap;\n}\n\n.yani-section-state__panel.focus,\n.yani-section-state__retry.focus {\n    border-color: #fff;\n    box-shadow: none;\n}\n\n.yani-section-state__loading-copy {\n    padding: 0 1em 1em;\n    color: rgba(220,231,242,.7);\n    font-size: .78em;\n    font-weight: 600;\n}\n\n.yani-section-state__skeleton {\n    display: grid;\n    gap: .7em;\n    padding: 1em;\n}\n\n.yani-section-state__skeleton--cards {\n    grid-template-columns: repeat(3, minmax(0, 1fr));\n}\n\n.yani-section-state__skeleton--cards i {\n    display: block;\n    aspect-ratio: 2 / 3;\n    border-radius: .55em;\n    background: #333333;\n    background-size: 200% 100%;\n    animation: none;\n}\n\n.yani-section-state__skeleton--rows,\n.yani-section-state__skeleton--list { grid-template-columns: 1fr; }\n\n.yani-section-state__skeleton--rows i,\n.yani-section-state__skeleton--list i {\n    display: block;\n    height: 3.2em;\n    border-radius: .55em;\n    background: #333333;\n    background-size: 200% 100%;\n    animation: none;\n}\n\n.yani-section-state__skeleton--list i { height: 4.2em; }\n.yani-section-state__skeleton i:nth-child(2) { animation-delay: .12s; }\n.yani-section-state__skeleton i:nth-child(3) { animation-delay: .24s; }\n.yani-section-state__skeleton i:nth-child(4) { animation-delay: .36s; }\n.yani-section-state__skeleton i:nth-child(5) { animation-delay: .48s; }\n.yani-section-state__skeleton i:nth-child(6) { animation-delay: .6s; }\n\n\n\n@media (prefers-reduced-motion: reduce) {\n    .yani-section-state__skeleton i { animation: none; }\n}\n\n@media (max-width: 700px) {\n    .yani-section-state__skeleton--cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-section-state__panel { flex-wrap: wrap; }\n    .yani-section-state__retry { width: 100%; text-align: center; }\n}\n\n@media (max-width: 700px) {\n    .yani-schedule__content { padding: 1em; }\n    .yani-schedule__release { min-width: 5em; }\n    .yani-schedule__timezone { display: none; }\n    .yani-ratings { gap: 0.35em; }\n    .yani-ratings__votes { display: none; }\n    .yani-account__content { padding: 1em; }\n    .yani-account__grid,\n    .yani-account__lists { grid-template-columns: repeat(2, minmax(8em, 1fr)); }\n    .yani-status__content { padding: 1em; }\n    .yani-status__summary { align-items: flex-start; gap: 1em; }\n    .yani-status__ring { flex-basis: 7em; width: 7em; height: 7em; }\n    .yani-status__ring-center { width: 5em; height: 5em; }\n    .yani-status__metrics { grid-template-columns: repeat(2, minmax(7em, 1fr)); }\n    .yani-status__domain-name small { display: none; }\n}\n\n/* Portrait emulator windows share the narrow-column layout even above 700px. */\n@media (orientation: portrait), (max-aspect-ratio: 3/4) {\n\n    .yani-detail { gap: 1.2em; padding: 1.2em; }\n    .yani-detail__poster { width: 11em; }\n    .yani-account__grid,\n    .yani-account__lists { grid-template-columns: repeat(2, minmax(8em, 1fr)); }\n    .yani-section-state__skeleton--cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-catalog-view .category-full,\n    .yani-catalog-view .items-cards,\n    .yani-genre-catalog-view .category-full,\n    .yani-genre-catalog-view .items-cards,\n    .yani-account-list-view .category-full,\n    .yani-account-list-view .items-cards,\n    .yani-collection-view .category-full,\n    .yani-collection-view .items-cards,\n    .category-full.yani-card-grid,\n    .items-cards.yani-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n}\n\n/* Short 720p-class viewports: keep the first screen denser, not taller. */\n@media (max-height: 820px) {\n\n    .yani-section-state__panel { min-height: 6.2em; padding: .9em 1em; }\n    .yani-notifications__hero { min-height: 5.4em; }\n    .yani-status__ring { flex-basis: 6.4em; width: 6.4em; height: 6.4em; }\n}\n\n/* 4K / ultra-wide: stop endless stretch so em-based chrome stays readable. */\n@media (min-width: 2500px) {\n\n    .yani-notifications__content,\n    .yani-schedule__content,\n    .yani-status__content,\n    .yani-account__content { max-width: 78em; margin-left: auto; margin-right: auto; }\n    .yani-detail { max-width: 96em; margin-left: auto; margin-right: auto; }\n}\n\n\n/* Shared flat skin for production YummyAnime screens. Lampa still owns the\n   header, settings, controller and player; no rules target other plugins. */\n.yani-lite-view {\n    color: #f1f1f1;\n    background: #292929;\n    line-height: 1.4;\n    min-width: 0;\n}\n.yani-lite-view .selector.focus,\n.yani-policy-layer .selector.focus {\n    outline: .12em solid #ff6666;\n    outline-offset: .1em;\n    box-shadow: none;\n    text-shadow: none;\n    transition: none;\n}\n.yani-lite-view .card,\n.yani-lite-view .card__view,\n.yani-lite-view .card__img,\n.yani-lite-view .card__title,\n.yani-lite-view .card__view::after {\n    animation: none;\n    transition: none;\n    transform: none;\n    box-shadow: none;\n    filter: none;\n}\n.yani-lite-view .card.focus,\n.yani-lite-view .card.hover { transform: none; }\n.yani-lite-view .card.focus .card__view,\n.yani-lite-view .card.hover .card__view {\n    outline: .12em solid #ff6666;\n    outline-offset: .12em;\n}\n.yani-lite-view .card.focus { outline: none; }\n.yani-lite-view .card.focus .card__view::after,\n.yani-lite-view .card.hover .card__view::after { display: none; }\n.yani-catalog-command-deck,\n.yani-account-list-sort-trigger,\n.yani-genre-catalog-header,\n.yani-policy,\n.yani-section-state__panel { border-radius: .3em; background: #333333; }\n.yani-catalog-command-deck::after,\n.yani-notifications__hero::after { display: none; }\n.yani-catalog-command-deck__mark { background: #ff6666; }\n.yani-catalog-command-deck__heading,\n.yani-genre-catalog-header__eyebrow,\n.yani-notification__kind { text-transform: none; letter-spacing: normal; font-weight: 500; }\n.yani-catalog-sort,\n.yani-catalog-top,\n.yani-account-list-sort-option { border-radius: .25em; background: #333333; }\n.yani-catalog-sort.focus,\n.yani-catalog-top.focus,\n.yani-account-list-sort-trigger.focus,\n.yani-account-list-sort-option.focus { outline: .12em solid #ff6666; outline-offset: .1em; }\n.yani-catalog-sort--active,\n.yani-account-list-sort-option.active { color: #ff6666; background: #292929; border-color: #ff6666; }\n.yani-genre-catalog-header__orb { background: #292929; border-radius: .25em; }\n.yani-genre-catalog-header__orb i { display: none; }\n.yani-genre-catalog-header__eyebrow { color: #b8b8b8; }\n.yani-collection-tile-card .card__view::after,\n.yani-collections-tile-catalog .card__view::after,\n.yani-collection-tiles-line .card .card__view::after { display: none; }\n.yani-collection-tile-card__copy,\n.yani-collections-tile-catalog .yani-collection-tile-card__copy { background: #333333; border-radius: .2em; }\n.yani-card-media__availability,\n.yani-card-list,\n.yani-card-update,\n.yani-card-playback,\n.yani-card-rating { background: #292929; border-color: #484848; }\n.yani-card-list,\n.yani-card-media__quality,\n.yani-card-media__voices,\n.yani-card-media__genre-top,\n.yani-card-meta__episodes { color: #f1f1f1; }\n.yani-card-update--fresh { border-color: #ff6666; }\n.yani-card-playback-progress span { background: #ff6666; }\n.yani-section-state__skeleton i { background: #333333; opacity: .7; }\n.yani-section-state__copy strong { color: #f1f1f1; }\n.yani-section-state__copy span { color: #b8b8b8; }\n.yani-section-state__icon,\n.yani-section-state--cached .yani-section-state__icon,\n.yani-section-state--error .yani-section-state__icon { color: #ff6666; background: #292929; }\n\n/* Production content screen layout */\n/* Native Lampa lists retain their pagination and remote navigation. */\n.yani-lite-view .yani-user-list-card__badge {\n    color: #ff6666;\n    background: #292929;\n    box-shadow: none;\n    border: 0;\n}\n.yani-lite-view .yani-user-list-card__progress i,\n.yani-lite-view .yani-card-history-progress > span { background: #ff6666; }\n.yani-schedule.yani-lite-view { background: #292929; color: #f1f1f1; }\n.yani-lite-view .yani-schedule__content { max-width: 82em; margin: 0 auto; }\n.yani-lite-view .yani-schedule__days {\n    padding: .3em 0 .65em;\n    scroll-behavior: auto;\n    scrollbar-width: none;\n}\n.yani-lite-view .yani-schedule__day-chip {\n    border: .08em solid #444;\n    border-radius: .45em;\n    background: #333333;\n    color: #c4c4c4;\n    padding: .7em .85em;\n    min-width: 9em;\n    box-shadow: none;\n    transform: none;\n    transition: none;\n}\n.yani-lite-view .yani-schedule__day-chip.selected {\n    border-color: #ff6666;\n    color: #f1f1f1;\n    background: #333333;\n}\n.yani-lite-view .yani-schedule__day-chip.focus,\n.yani-lite-view .yani-schedule__item.focus,\n.yani-lite-view .yani-schedule__more.focus {\n    outline: .13em solid #ff6666;\n    outline-offset: -.13em;\n    border-color: #ff6666;\n    background: #333333;\n    color: #f1f1f1;\n    box-shadow: none;\n    transform: none;\n}\n.yani-lite-view .yani-schedule__item {\n    padding: .9em;\n    border: .08em solid transparent;\n    border-radius: .45em;\n    border-bottom-color: #444;\n    background: #333333;\n    box-shadow: none;\n    transition: none;\n    transform: none;\n}\n.yani-lite-view .yani-schedule__item::before,\n.yani-lite-view .yani-schedule__item::after { display: none; }\n.yani-lite-view .yani-schedule__poster { width: 4.5em; height: 6.2em; border-radius: .3em; }\n.yani-lite-view .yani-schedule__title { font-size: 1.14em; line-height: 1.3; }\n.yani-lite-view .yani-schedule__rating { color: #f1f1f1; background: #292929; box-shadow: none; }\n.yani-lite-view .yani-schedule__rating b,\n.yani-lite-view .yani-schedule__time { color: #ff6666; }\n.yani-lite-view .yani-schedule__translation-list span {\n    color: #c4c4c4;\n    background: #292929;\n    border-color: #444;\n    box-shadow: none;\n}\n.yani-lite-view .yani-schedule__more {\n    display: block;\n    margin-top: .7em;\n    padding: .9em 1em;\n    color: #f1f1f1;\n    background: #333333;\n    border: .08em solid #444;\n    border-radius: .45em;\n}\n@media (max-width: 700px) {\n    .yani-lite-view .yani-schedule__item { gap: .6em; padding: .6em; }\n    .yani-lite-view .yani-schedule__poster { width: 3.4em; height: 4.7em; }\n    .yani-lite-view .yani-schedule__release { min-width: 4em; }\n}\n\n/* Production detail screen layout */\n/* Production detail and poster cards: static surfaces, TV-sized targets. */\n.yani-detail.yani-lite-view { display: grid; grid-template-columns: 11em minmax(0, 1fr); align-items: start; gap: 1.7em; color: #f1f1f1; }\n.yani-detail.yani-lite-view .yani-detail__poster-column { min-width: 0; }\n.yani-detail.yani-lite-view .yani-detail__poster { display: block; width: 11em; max-height: 16.5em; border-radius: .35em; }\n.yani-detail.yani-lite-view .yani-detail__info { max-width: 100%; }\n.yani-detail.yani-lite-view .yani-detail__title { font-size: 1.85em; line-height: 1.14; }\n.yani-detail.yani-lite-view .yani-detail__alternative-titles { font-size: .84em; color: #b8b8b8; }\n.yani-detail.yani-lite-view .yani-detail__meta { font-size: .9em; margin: .75em 0; color: #b8b8b8; }\n.yani-detail.yani-lite-view .yani-detail__list-dock { padding: .45em; background: #333333; border-color: #484848; border-radius: .35em; }\n.yani-detail.yani-lite-view .yani-detail__list-dock-title { letter-spacing: normal; }\n.yani-detail.yani-lite-view .yani-detail__list-panel { background: #292929; border-color: #484848; }\n.yani-detail.yani-lite-view .yani-detail__list-action { height: 2.5em; color: #d2d2d2; }\n.yani-detail.yani-lite-view .yani-detail__list-action.active { background: #ff6666; color: #292929; }\n.yani-detail.yani-lite-view .yani-detail__list-action.focus { outline: .12em solid #ff6666; outline-offset: -.12em; background: #f1f1f1; color: #292929; }\n.yani-detail.yani-lite-view .yani-detail__genre,\n.yani-detail.yani-lite-view .yani-detail__credit { background: #333333; color: #d2d2d2; border-color: #484848; border-radius: .25em; }\n.yani-detail.yani-lite-view .yani-detail__episode-summary,\n.yani-detail.yani-lite-view .yani-detail__translations { background: #333333; border-color: #484848; border-radius: .35em; }\n.yani-detail.yani-lite-view .yani-detail__translation-list { display: block; font-size: .8em; color: #d2d2d2; line-height: 1.6; overflow-wrap: anywhere; }\n.yani-detail.yani-lite-view .yani-detail__translation-heading { color: #b8b8b8; }\n.yani-detail.yani-lite-view .yani-detail__translation-heading svg { color: #b8b8b8; }\n.yani-detail.yani-lite-view .yani-detail__episode-stat { background: #292929; border-radius: .25em; }\n.yani-detail.yani-lite-view .yani-detail__episode-stat-icon { color: #b8b8b8; }\n.yani-detail.yani-lite-view .yani-detail__overview { max-width: 70ch; font-size: .9em; line-height: 1.5; color: #d2d2d2; }\n.yani-detail.yani-lite-view .yani-detail__button { padding: .7em .9em; background: #333333; border-radius: .3em; color: #f1f1f1; }\n.yani-detail.yani-lite-view .yani-detail__button--watch { background: #ff6666; color: #292929; font-weight: 600; }\n.yani-detail.yani-lite-view .yani-detail__order-item,\n.yani-detail.yani-lite-view .yani-detail__comment,\n.yani-detail.yani-lite-view .yani-detail__recommendation { background: #333333; border-radius: .3em; }\n.yani-detail.yani-lite-view .yani-detail__order-item { align-items: baseline; flex-wrap: wrap; }\n.yani-detail.yani-lite-view .yani-detail__order-name { overflow-wrap: anywhere; }\n.yani-detail.yani-lite-view .selector.focus { outline: .12em solid #ff6666; outline-offset: .06em; }\n.yani-detail.yani-lite-view .yani-detail__button.focus,\n.yani-detail.yani-lite-view .yani-detail__genre.focus,\n.yani-detail.yani-lite-view .yani-detail__credit.focus,\n.yani-detail.yani-lite-view .yani-detail__order-item.focus,\n.yani-detail.yani-lite-view .yani-detail__comment.focus,\n.yani-detail.yani-lite-view .yani-detail__recommendation.focus { background: #f1f1f1; color: #292929; }\n.yani-detail.yani-lite-view .yani-detail__comments-title,\n.yani-detail.yani-lite-view .yani-detail__order-title,\n.yani-detail.yani-lite-view .yani-detail__extra-title { font-size: 1.1em; }\n.yani-trailers.yani-lite-view .yani-trailers__item,\n.yani-trailers.yani-lite-view .yani-trailers__empty { background: #333333; color: #f1f1f1; border-radius: .3em; }\n.yani-trailers.yani-lite-view .yani-trailers__item.focus { background: #f1f1f1; color: #292929; outline: .12em solid #ff6666; }\n.yani-card-media__availability,\n.yani-card-media__genre-top { background: #333333; border-color: #666666; color: #f1f1f1; }\n.yani-card-media__quality,\n.yani-card-media__voices { color: #f1f1f1; }\n.yani-card-list { background: #333333; color: #f1f1f1; }\n.yani-card-list__icon--fav { color: #ff6666; }\n.yani-card-playback-progress > span { background: #ff6666; }\n.yani-card-rating { background: #333333; color: #f1f1f1; }\n@media (max-width: 700px) {\n    .yani-detail.yani-lite-view { grid-template-columns: 9em minmax(0, 1fr); gap: 1em; }\n    .yani-detail.yani-lite-view .yani-detail__poster { width: 9em; max-height: 13.5em; }\n}\n@media (max-width: 480px) {\n    .yani-detail.yani-lite-view { grid-template-columns: minmax(0, 1fr); }\n    .yani-detail.yani-lite-view .yani-detail__poster-column { max-width: 11em; }\n    .yani-detail.yani-lite-view .yani-detail__poster { width: 11em; max-height: 16.5em; }\n}\n\n/* Production private screen layout */\n/* Flat account/service screens: native Lampa font and immediate focus. */\n.yani-lite-view .yani-account__content,\n.yani-lite-view .yani-notifications__content,\n.yani-lite-view .yani-status__content { max-width: 78em; padding: 1.2em 1.6em 2em; }\n.yani-lite-view .yani-account__profile { padding: 1.1em; border-radius: .45em; background: #333333; }\n.yani-lite-view .yani-account__avatar { width: 5.5em; height: 5.5em; border-radius: .4em; object-fit: cover; }\n.yani-lite-view .yani-account__name { font-size: 1.65em; }\n.yani-lite-view .yani-account__status,\n.yani-lite-view .yani-account__id,\n.yani-lite-view .yani-account__about { color: #b9b9b9; }\n.yani-lite-view .yani-account__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55em; }\n.yani-lite-view .yani-account__lists { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65em; }\n.yani-lite-view .yani-account__info,\n.yani-lite-view .yani-account__list,\n.yani-lite-view .yani-account__notice,\n.yani-lite-view .yani-account__notification-button,\n.yani-lite-view .yani-account__stats { background: #333333; border-radius: .4em; }\n.yani-lite-view .yani-account__notification-button { padding: .85em 1em; margin-bottom: .55em; }\n.yani-lite-view .yani-account__notification-button span,\n.yani-lite-view .yani-account__info-title,\n.yani-lite-view .yani-account__list-time,\n.yani-lite-view .yani-account__notice-text { color: #b9b9b9; }\n.yani-lite-view .yani-account__list-count { color: #ff6666; font-size: 1.3em; }\n.yani-lite-view .yani-account__section-title { font-size: 1.25em; margin: 1.1em 0 .6em; }\n.yani-lite-view .yani-account__stats { display: inline-flex; width: calc(33.333% - .6em); margin: .6em .6em 0 0; padding: .7em; }\n.yani-lite-view .yani-account__stats-row { padding: .4em .25em; }\n.yani-lite-view .yani-account__logout-button { color: #ff6666; }\n.yani-lite-view .yani-notifications__hero { padding: 0 0 .85em; min-height: 0; border: 0; border-radius: 0; background: transparent; }\n.yani-lite-view .yani-notifications__hero:after { content: none; }\n.yani-lite-view .yani-notifications__identity { gap: 0; }\n.yani-lite-view .yani-notifications__title { font-size: 1.65em; }\n.yani-lite-view .yani-notifications__subtitle { color: #b9b9b9; }\n.yani-lite-view .yani-notifications__summary { min-width: 0; padding: .65em .85em; border: 0; border-radius: .4em; background: #333333; }\n.yani-lite-view .yani-notifications__summary strong,\n.yani-lite-view .yani-notifications__summary.has-unread strong { color: #ff6666; }\n.yani-lite-view .yani-notifications__summary span { color: #b9b9b9; }\n.yani-lite-view .yani-notifications__actions { margin: .4em 0 1em; gap: .65em; }\n.yani-lite-view .yani-notifications__action { padding: .7em 1em; border-radius: .4em; background: #333333; border: 1px solid #474747; }\n.yani-lite-view .yani-notifications__action > span { width: auto; height: auto; color: #f1f1f1; background: transparent; border-radius: 0; }\n.yani-lite-view .yani-notifications__action--danger > span { color: #ff6666; }\n.yani-lite-view .yani-notifications__list { display: block; }\n.yani-lite-view .yani-notifications__day { margin: 1em 0 .45em; font-size: .9em; color: #b9b9b9; text-transform: none; letter-spacing: 0; }\n.yani-lite-view .yani-notifications__day:after { height: 1px; background: #474747; }\n.yani-lite-view .yani-notification { margin-bottom: .55em; padding: .9em; border: 1px solid #474747; border-left-width: .22em; border-radius: .4em; background: #333333; --notification-accent: #b9b9b9; --notification-accent-soft: transparent; --notification-accent-border: #474747; }\n.yani-lite-view .yani-notification.unread { border-color: #474747; border-left-color: #ff6666; background: #333333; }\n.yani-lite-view .yani-notification__visual { width: 2.5em; height: 2.5em; border-radius: .3em; background: transparent; color: #b9b9b9; }\n.yani-lite-view .yani-notification__visual svg { width: 1.5em; height: 1.5em; }\n.yani-lite-view .yani-notification { grid-template-columns: 2.5em minmax(0, 1fr) auto; gap: .8em; }\n.yani-lite-view .yani-notification:not(.is-actionable) { grid-template-columns: 2.5em minmax(0, 1fr); }\n.yani-lite-view .yani-notification__kind { font-size: .8em; font-weight: 500; letter-spacing: 0; text-transform: none; color: #b9b9b9; }\n.yani-lite-view .yani-notification__date,\n.yani-lite-view .yani-notification__footer { color: #b9b9b9; }\n.yani-lite-view .yani-notification__title { font-size: 1em; color: #f1f1f1; }\n.yani-lite-view .yani-notification__text { color: #c9c9c9; }\n.yani-lite-view .yani-notification__state { padding: 0; background: transparent; }\n.yani-lite-view .yani-notification.unread .yani-notification__state,\n.yani-lite-view .yani-notification__open { color: #ff6666; background: transparent; }\n.yani-lite-view .yani-notifications__more { min-height: 0; padding: .8em; border-radius: .4em; background: #333333; }\n.yani-lite-view .yani-notifications__more > span { color: #ff6666; }\n.yani-lite-view .yani-auth__content { width: 100%; max-width: 42em; padding: 1.5em; }\n.yani-lite-view .yani-auth__title { font-size: 1.7em; }\n.yani-lite-view .yani-auth__status { color: #b9b9b9; }\n.yani-lite-view .yani-auth__status.is-authorized { color: #d1d1d1; }\n.yani-lite-view .yani-auth__field,\n.yani-lite-view .yani-auth__button { padding: .9em 1em; border-radius: .4em; background: #333333; }\n.yani-lite-view .yani-auth__button--primary { background: #ff6666; color: #292929; }\n.yani-lite-view .yani-status__periods { gap: .5em; flex-wrap: wrap; }\n.yani-lite-view .yani-status__period { padding: .65em 1em; background: #333333; border-radius: .4em; }\n.yani-lite-view .yani-status__period.active { background: #ff6666; color: #292929; }\n.yani-lite-view .yani-status__summary { display: block; padding: 1em; background: #333333; border-radius: .4em; }\n.yani-lite-view .yani-status__headline { font-size: 1.45em; }\n.yani-lite-view .yani-status__metrics { display: flex; flex-wrap: wrap; gap: .55em; }\n.yani-lite-view .yani-status__metric { flex: 1 1 10em; padding: .65em; background: #292929; border-radius: .3em; }\n.yani-lite-view .yani-status__legend { flex-wrap: wrap; gap: 1em; }\n.yani-lite-view .yani-status__legend-item { display: inline-flex; align-items: center; gap: .4em; }\n.yani-lite-view .yani-status__domain,\n.yani-lite-view .yani-status__refresh { border-radius: .4em; background: #333333; }\n.yani-lite-view .yani-status__history { display: flex; gap: .12em; height: 1em; }\n.yani-lite-view .yani-status__bar { flex: 1 1 0; min-width: 0; border-radius: 1px; }\n.yani-lite-view.yani-policy { background: #292929; border: 1px solid #474747; border-radius: .45em; }\n.yani-lite-view .yani-policy__mark { width: 2.5em; height: 2.5em; color: #ff6666; background: transparent; border: 0; border-radius: 0; }\n.yani-lite-view .yani-policy__title { font-size: 1.7em; }\n.yani-lite-view .yani-policy__content { max-width: 65ch; color: #d1d1d1; font-size: 1em; }\n.yani-lite-view .yani-policy__accept { border-radius: .4em; background: #ff6666; color: #292929; }\n/* Keep the same dark surface during remote focus: only a crisp outline changes. */\n.yani-lite-view .yani-account__profile.focus,\n.yani-lite-view .yani-account__info.focus,\n.yani-lite-view .yani-account__list.focus,\n.yani-lite-view .yani-account__notice.focus,\n.yani-lite-view .yani-account__notification-button.focus,\n.yani-lite-view .yani-account__stats-row.focus,\n.yani-lite-view .yani-notification.focus,\n.yani-lite-view .yani-notifications__action.focus,\n.yani-lite-view .yani-notifications__more.focus,\n.yani-lite-view .yani-auth__field.focus,\n.yani-lite-view .yani-auth__button.focus,\n.yani-lite-view .yani-status__period.focus,\n.yani-lite-view .yani-status__summary.focus,\n.yani-lite-view .yani-status__domain.focus,\n.yani-lite-view .yani-status__refresh.focus { background: #333333; color: #f1f1f1; outline: .13em solid #ff6666; outline-offset: 0; }\n.yani-lite-view .yani-notification.focus .yani-notification__title { color: #f1f1f1; }\n.yani-lite-view .yani-notification.focus .yani-notification__text { color: #c9c9c9; }\n.yani-lite-view .yani-notification.focus .yani-notification__date,\n.yani-lite-view .yani-notification.focus .yani-notification__footer { color: #b9b9b9; }\n.yani-lite-view .yani-notification.focus .yani-notification__visual,\n.yani-lite-view .yani-notifications__action.focus > span { color: #ff6666; background: transparent; }\n@media (max-width: 700px) {\n    .yani-lite-view .yani-account__content,\n    .yani-lite-view .yani-notifications__content,\n    .yani-lite-view .yani-status__content { padding: 1em; }\n    .yani-lite-view .yani-account__grid,\n    .yani-lite-view .yani-account__lists { grid-template-columns: repeat(2, minmax(0, 1fr)); }\n    .yani-lite-view .yani-account__stats { width: 100%; margin-right: 0; }\n    .yani-lite-view .yani-notifications__actions { flex-wrap: wrap; }\n    .yani-lite-view .yani-status__domain-head { align-items: flex-start; flex-direction: column; gap: .5em; }\n}\n\n.yani-detail.yani-lite-view .yani-detail__alternative-titles {\n    display: -webkit-box;\n    -webkit-box-orient: vertical;\n    -webkit-line-clamp: 2;\n    overflow: hidden;\n}\n.yani-detail.yani-lite-view .yani-detail__actions { margin-bottom: .9em; }\n\n/* Native category scroll keeps a single translated surface without edge masks. */\n.yani-lite-view .scroll--mask { mask-image: none; -webkit-mask-image: none; }\n.yani-lite-view .scroll__body { transition: none; }\n\n/* YummyAnime cards in Lampa's shared search screen keep the same static focus. */\n.yani-card-grid .card,\n.yani-card-grid .card__view,\n.yani-card-grid .card__img,\n.yani-card-grid .card__view::after {\n    animation: none;\n    transition: none;\n    transform: none;\n    box-shadow: none;\n    filter: none;\n}\n.yani-card-grid .card.focus,\n.yani-card-grid .card.hover { transform: none; }\n.yani-card-grid .card.focus .card__view,\n.yani-card-grid .card.hover .card__view { outline: .12em solid #ff6666; outline-offset: .12em; }\n.yani-card-grid .card.focus .card__view::after,\n.yani-card-grid .card.hover .card__view::after { display: none; }\n\n\n/* Anime detail follows the TV's two most frequent actions: play and categorise. */\n.yani-detail.yani-lite-view .yani-detail__rating-row { display: flex; align-items: center; flex-wrap: wrap; gap: .55em; margin: .55em 0; }\n.yani-detail.yani-lite-view .yani-detail__rating-row .yani-ratings { margin: 0; }\n.yani-detail.yani-lite-view .yani-detail__rating-action { margin: 0; padding: .45em .6em; font-size: .76em; background: #333333; border-color: #484848; color: #f1f1f1; }\n.yani-detail.yani-lite-view .yani-detail__rating-icon { color: #ff6666; }\n.yani-detail.yani-lite-view .yani-detail__tags { display: flex; align-items: center; gap: .4em; max-width: 100%; overflow-x: auto; overflow-y: hidden; margin: .6em 0; padding: .15em; scrollbar-width: none; }\n.yani-detail.yani-lite-view .yani-detail__tags::-webkit-scrollbar,\n.yani-detail.yani-lite-view .yani-detail__list-panel::-webkit-scrollbar { display: none; }\n.yani-detail.yani-lite-view .yani-detail__tags .yani-detail__type { flex: 0 0 auto; margin: 0; background: #333333; color: #f1f1f1; border-color: #484848; border-radius: .25em; }\n.yani-detail.yani-lite-view .yani-detail__tags .yani-detail__genres { display: flex; flex-wrap: nowrap; gap: .35em; flex: 0 0 auto; margin: 0; }\n.yani-detail.yani-lite-view .yani-detail__genre { white-space: nowrap; }\n.yani-detail.yani-lite-view .yani-detail__episode-summary { margin: .4em 0 .75em; }\n.yani-detail.yani-lite-view .yani-detail__actions { margin: .2em 0 .7em; gap: .5em; }\n.yani-detail.yani-lite-view .yani-detail__list-dock { margin: .2em 0 1em; padding: .6em; }\n.yani-detail.yani-lite-view .yani-detail__list-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .4em; margin: 0 .15em .5em; }\n.yani-detail.yani-lite-view .yani-detail__list-dock-title { margin: 0; color: #b8b8b8; font-size: .82em; font-weight: 400; }\n.yani-detail.yani-lite-view .yani-detail__list-current { color: #ff6666; font-size: .85em; font-weight: 600; }\n.yani-detail.yani-lite-view .yani-detail__list-panel { display: flex; gap: .35em; overflow-x: auto; border: 0; background: transparent; padding: .12em; scrollbar-width: none; }\n.yani-detail.yani-lite-view .yani-detail__list-action { flex: 1 0 auto; min-width: 7em; height: auto; padding: .65em .6em; gap: .4em; border: .08em solid #484848; border-radius: .25em; font-size: .82em; white-space: nowrap; }\n.yani-detail.yani-lite-view .yani-detail__list-icon { width: 1.1em; height: 1.1em; flex: 0 0 1.1em; }\n.yani-detail.yani-lite-view .yani-detail__list-label { display: block; }\n.yani-detail.yani-lite-view .yani-detail__list-action.active { background: #ff6666; color: #292929; border-color: #ff6666; }\n.yani-detail.yani-lite-view .yani-detail__overview { margin: 1em 0 .8em; padding: .15em; max-width: 78ch; }\n.yani-detail.yani-lite-view .yani-detail__overview.is-collapsed { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; max-height: 7.5em; overflow: hidden; }\n.yani-detail.yani-lite-view .yani-detail__metadata { border-top: .08em solid #484848; margin-top: 1em; padding-top: .6em; }\n.yani-detail.yani-lite-view .yani-detail__metadata .yani-detail__meta { margin: 0 0 .5em; }\n.yani-detail.yani-lite-view .yani-detail__metadata .yani-detail__alternative-titles { margin-top: .7em; }\n.yani-card-category { display: block; margin-top: .3em; color: #ff9999; font-size: .72em; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n\n.yani-detail.yani-lite-view .yani-detail__overview-hint { color: #b8b8b8; font-size: .72em; margin: -.5em .2em 1em; }\n\n\n/* Official dark-theme category palette, current YummyAnime client Ba(e).\n   https://ru.yummyani.me/assets/CHSXHab6.css\n   https://ru.yummyani.me/assets/index-DJAM4AVz.js */\n[data-yani-list-key=\"watching\"] { --yani-list-color: #ff6666; --yani-list-ink: #202020; }\n[data-yani-list-key=\"planned\"] { --yani-list-color: #af75e4; --yani-list-ink: #202020; }\n[data-yani-list-key=\"completed\"] { --yani-list-color: #3cce7b; --yani-list-ink: #202020; }\n[data-yani-list-key=\"dropped\"] { --yani-list-color: #6c6c6c; --yani-list-ink: #ffffff; }\n[data-yani-list-key=\"postponed\"] { --yani-list-color: #f2b800; --yani-list-ink: #202020; }\n[data-yani-list-key=\"favorites\"] { --yani-list-color: #be46c6; --yani-list-ink: #111111; }\n[data-yani-list-key=\"none\"] { --yani-list-color: #333333; --yani-list-ink: #b8b8b8; }\n.yani-detail.yani-lite-view .yani-detail__list-action.active,\n.yani-detail.yani-lite-view .yani-detail__list-action.active.focus {\n    background: var(--yani-list-color, #333333);\n    border-color: var(--yani-list-color, #484848);\n    color: var(--yani-list-ink, #f1f1f1);\n}\n.yani-detail.yani-lite-view .yani-detail__list-action.active .yani-detail__list-icon { color: #ffffff; }\n.yani-detail.yani-lite-view .yani-detail__list-action.focus { outline-color: #f1f1f1; }\n.yani-detail.yani-lite-view .yani-detail__list-current { color: var(--yani-list-color, #b8b8b8); }\n.yani-detail.yani-lite-view .yani-detail__poster-frame { position: relative; width: 11em; max-width: 100%; }\n.yani-detail.yani-lite-view .yani-detail__poster-status {\n    position: absolute; right: 0; bottom: 0; left: 0;\n    display: flex; align-items: center; justify-content: center;\n    min-height: 2em; padding: .3em .45em; border-radius: 0 0 .35em .35em;\n    background: var(--yani-list-color, #333333); color: var(--yani-list-ink, #f1f1f1);\n    font-size: .76em; font-weight: 600; line-height: 1.25; text-align: center;\n    pointer-events: none;\n}\n.yani-detail.yani-lite-view .yani-detail__poster-status[data-visible=\"false\"] { display: none; }\n.yani-card-list {\n    right: 0; bottom: 0; left: 0; width: 100%; max-width: 100%; height: 1.9em;\n    justify-content: center; gap: .35em; padding: .25em .4em; border: 0;\n    border-radius: 0; background: var(--yani-list-color, #333333); color: var(--yani-list-ink, #f1f1f1);\n    font-size: .68em; font-weight: 600; line-height: 1.25; box-sizing: border-box;\n}\n.yani-card-list .yani-card-category { display: block; min-width: 0; margin: 0; color: inherit; font-size: 1em; line-height: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n.yani-card-list .yani-card-list__icon { flex: 0 0 1.05em; color: #ffffff; }\n.yani-card-view--has-progress .yani-card-list { bottom: 0; }\n.yani-card-view--has-list .yani-card-playback-progress,\n.yani-card-view--has-list .yani-card-history-progress { bottom: 1.3em; }\n.yani-card-view--has-list .yani-card-playback { bottom: 2.6em; }\n.yani-card-view--has-list.yani-card-view--has-footer .yani-card-ratings { bottom: 3em; }\n@media (max-width: 700px) { .yani-detail.yani-lite-view .yani-detail__poster-frame { width: 9em; } }\n@media (max-width: 480px) { .yani-detail.yani-lite-view .yani-detail__poster-frame { width: 11em; } }\n\n.yani-detail.yani-lite-view .yani-detail__list-current { color: #f1f1f1; }\n.yani-detail.yani-lite-view .yani-detail__list-current::before { display: inline-block; content: ''; width: .55em; height: .55em; margin-right: .4em; border: 1px solid #777777; border-radius: 50%; background: var(--yani-list-color, #333333); vertical-align: .02em; }\n\n.yani-detail.yani-lite-view .yani-detail__list-action.focus:not(.active) { background: #3f3f3f; color: #f1f1f1; border-color: #b8b8b8; }\n";
     document.head.appendChild(style);
 
 (function (window) {
@@ -13,7 +13,7 @@ function pluginYummyAnime() {
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Config = window.LampaYaniConfig = {
-        version: '0.47.21',
+        version: '0.47.22',
         apiBase: 'https://api.yani.tv',
         statusUrl: 'https://yummyanime.github.io/yummy-lampa-plugin/status/status.json',
         // Referrer bridge for the Alloha player, served from the same Pages site
@@ -1007,6 +1007,79 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     messages.uk.studio_catalog_description = 'Аніме студії «{name}»';
     messages.uk.creator_catalog_description = 'Аніме режисера «{name}»';
     messages.uk.original_name = 'Оригінальне ім’я';
+
+    var compactHomeMessages = {
+        "ru": {
+            "loading": "Загрузка…",
+            "home_lite_more": "Ещё",
+            "home_lite_all": "Все",
+            "home_lite_ongoing": "Сейчас выходят",
+            "home_lite_retry": "Повторить",
+            "home_lite_history_empty": "Здесь появятся аниме, которые вы начали смотреть.",
+            "home_lite_resume": "Продолжить просмотр",
+            "home_lite_sign_in": "Войдите в аккаунт, чтобы открыть свои списки.",
+            "home_lite_catalog_empty": "Сейчас нет доступных аниме.",
+            "home_lite_cached": "Нет связи. Обновить сохранённое",
+            "home_lite_catalog_error": "Не удалось загрузить аниме.",
+            "home_lite_remaining": "Осталось {minutes} мин",
+            "settings": "Настройки"
+        },
+        "en": {
+            "loading": "Loading…",
+            "home_lite_more": "More",
+            "home_lite_all": "All",
+            "home_lite_ongoing": "Airing now",
+            "home_lite_retry": "Retry",
+            "home_lite_history_empty": "Anime you have started watching will appear here.",
+            "home_lite_resume": "Continue watching",
+            "home_lite_sign_in": "Sign in to open your lists.",
+            "home_lite_catalog_empty": "No anime is available right now.",
+            "home_lite_cached": "Offline. Refresh saved titles",
+            "home_lite_catalog_error": "Could not load anime.",
+            "home_lite_remaining": "{minutes} min left",
+            "settings": "Settings"
+        },
+        "uk": {
+            "loading": "Завантаження…",
+            "home_lite_more": "Ще",
+            "home_lite_all": "Усі",
+            "home_lite_ongoing": "Зараз виходять",
+            "home_lite_retry": "Повторити",
+            "home_lite_history_empty": "Тут з’являться аніме, які ви почали дивитися.",
+            "home_lite_resume": "Продовжити перегляд",
+            "home_lite_sign_in": "Увійдіть в обліковий запис, щоб відкрити свої списки.",
+            "home_lite_catalog_empty": "Зараз немає доступних аніме.",
+            "home_lite_cached": "Немає зв’язку. Оновити збережене",
+            "home_lite_catalog_error": "Не вдалося завантажити аніме.",
+            "home_lite_remaining": "Залишилось {minutes} хв",
+            "settings": "Налаштування"
+        }
+    };
+    Object.keys(compactHomeMessages).forEach(function (locale) {
+        Object.keys(compactHomeMessages[locale]).forEach(function (key) {
+            messages[locale][key] = compactHomeMessages[locale][key];
+        });
+    });
+
+    messages.ru.not_in_lists = 'Не в списках';
+    messages.ru.category_unknown = 'Категория не загружена';
+    messages.ru.saving = 'Сохранение…';
+    messages.ru.expand_description = 'Описание полностью — OK';
+    messages.ru.collapse_description = 'Свернуть описание — OK';
+    messages.en.not_in_lists = 'Not in lists';
+    messages.en.category_unknown = 'Category unavailable';
+    messages.en.saving = 'Saving…';
+    messages.en.expand_description = 'Full description — OK';
+    messages.en.collapse_description = 'Collapse description — OK';
+    messages.uk.not_in_lists = 'Не в списках';
+    messages.uk.category_unknown = 'Категорію не завантажено';
+    messages.uk.saving = 'Збереження…';
+    messages.uk.expand_description = 'Повний опис — OK';
+    messages.uk.collapse_description = 'Згорнути опис — OK';
+
+    messages.ru.list_save_error = 'Не удалось сохранить категорию';
+    messages.en.list_save_error = 'Could not save the category';
+    messages.uk.list_save_error = 'Не вдалося зберегти категорію';
 
     function language() {
         var value = window.Lampa && Lampa.Storage ? Lampa.Storage.get(key, 'ru') : 'ru';
@@ -5375,14 +5448,20 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function cacheGet(key) {
             var entry = cache[key];
             if (!entry || Date.now() - entry.time > CACHE_TTL) {
-                if (entry) delete cache[key];
+                if (entry) {
+                    delete cache[key];
+                    var expired = cacheOrder.indexOf(key);
+                    if (expired >= 0) cacheOrder.splice(expired, 1);
+                }
                 return null;
             }
             return entry.cards;
         }
 
         function cacheSet(key, cards) {
-            if (!cache[key]) cacheOrder.push(key);
+            var previous = cacheOrder.indexOf(key);
+            if (previous >= 0) cacheOrder.splice(previous, 1);
+            cacheOrder.push(key);
             cache[key] = {time: Date.now(), cards: cards};
             while (cacheOrder.length > CACHE_LIMIT) delete cache[cacheOrder.shift()];
         }
@@ -5648,6 +5727,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var controlsReady = false;
         var lastCatalogCard = null;
         var shortcutHandler = null;
+        var destroyed = false, revealTimer = null, navigationLayout = null;
         var focusScope = LampaYaniNavigation.createScope({
             id: 'catalog:' + cleanCatalogRoute(),
             root: function () { return comp.render(); },
@@ -5800,7 +5880,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function syncNavigationCollection() {
-            if (!controlsReady) return;
+            if (destroyed || !controlsReady) return;
             var controller = activeCatalogController();
             var ownsController = controller && (controller.yaniCatalogOwner === comp || controller.link === comp);
             if (!ownsController) return;
@@ -5851,25 +5931,41 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function revealCatalogCard(card) {
             if (!card || !card.length) return;
             if (comp.scroll && comp.scroll.update) comp.scroll.update(card, true);
-            // Lampa 0.47 may align only the focused point and leave the title or
-            // poster edge outside the viewport. Measure after its own update and
-            // scroll just the missing distance so the whole TV card stays visible.
-            setTimeout(function () { ensureCardFullyVisible(card); }, 0);
+            // Coalesce visibility measurement to the latest focused card.
+            if (revealTimer) clearTimeout(revealTimer);
+            revealTimer = setTimeout(function () {
+                revealTimer = null;
+                if (!destroyed) ensureCardFullyVisible(card);
+            }, 0);
         }
 
+        function cardLayout(collection) {
+            var cards = collection.find('.card.selector');
+            var width = collection[0] && collection[0].clientWidth || window.innerWidth;
+            var shape = [window.innerWidth, window.innerHeight, cards[0] && cards[0].offsetWidth, cards[0] && cards[0].offsetHeight].join(':');
+            if (navigationLayout && navigationLayout.shape === shape && navigationLayout.width === width && navigationLayout.nodes.length === cards.length && navigationLayout.nodes[0] === cards[0] && navigationLayout.nodes[cards.length - 1] === cards[cards.length - 1]) return navigationLayout;
+            var rects = [];
+            cards.each(function () { rects.push(this.offsetParent === null ? null : this.getBoundingClientRect()); });
+            // Scroll translates every card equally. Relative row/column distances
+            // stay valid until grid/card dimensions or the mounted set changes.
+            navigationLayout = {nodes: cards, rects: rects, width: width, shape: shape};
+            return navigationLayout;
+        }
         function focusCardInDirection(direction) {
             var collection = comp.scroll && comp.scroll.render ? comp.scroll.render() : comp.render();
             var current = focusedCatalogCard();
             if (!collection || !collection.length || !current.length) return false;
-            var currentRect = current[0].getBoundingClientRect();
+            var layout = cardLayout(collection);
+            var currentRect = layout.rects[layout.nodes.index(current[0])];
+            if (!currentRect) return false;
             var currentCenterX = currentRect.left + currentRect.width / 2;
             var currentCenterY = currentRect.top + currentRect.height / 2;
             var verticalThreshold = Math.max(12, currentRect.height * 0.25);
             var target = null;
             var score = Infinity;
-            collection.find('.card.selector').each(function () {
-                if (this === current[0] || this.offsetParent === null) return;
-                var rect = this.getBoundingClientRect();
+            layout.nodes.each(function (index) {
+                var rect = layout.rects[index];
+                if (this === current[0] || !rect) return;
                 var centerY = rect.top + rect.height / 2;
                 var distanceY = centerY - currentCenterY;
                 var isCorrectDirection = direction === 'down' ? distanceY > verticalThreshold : distanceY < -verticalThreshold;
@@ -5897,12 +5993,14 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function isFirstCardRow(card) {
             if (!card || !card.length) return false;
             var collection = comp.scroll && comp.scroll.render ? comp.scroll.render() : comp.render();
-            var currentRect = card[0].getBoundingClientRect();
+            var layout = cardLayout(collection);
+            var currentRect = layout.rects[layout.nodes.index(card[0])];
+            if (!currentRect) return false;
             var currentCenter = currentRect.top + currentRect.height / 2;
             var firstCenter = currentCenter;
-            collection.find('.card.selector').each(function () {
-                if (this.offsetParent === null) return;
-                var rect = this.getBoundingClientRect();
+            layout.nodes.each(function (index) {
+                var rect = layout.rects[index];
+                if (!rect) return;
                 firstCenter = Math.min(firstCenter, rect.top + rect.height / 2);
             });
             return Math.abs(currentCenter - firstCenter) < Math.max(20, currentRect.height * 0.45);
@@ -5976,11 +6074,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function install() {
-            if (controlsReady) return;
+            if (destroyed || controlsReady) return;
             var root = comp.render();
             if (!root || !root.length) return;
             controlsReady = true;
-            root.addClass('yani-catalog-view');
+            root.addClass('yani-catalog-view yani-lite-view');
             toolbar = $('<div class="yani-catalog-command-deck"></div>');
             var heading = $('<div class="yani-catalog-command-deck__heading"></div>');
             heading.append('<span class="yani-catalog-command-deck__mark"></span>');
@@ -6078,6 +6176,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             install: install,
             sync: syncNavigationCollection,
             destroy: function () {
+                destroyed = true;
+                if (revealTimer) clearTimeout(revealTimer);
+                revealTimer = null;
+                navigationLayout = null;
                 if (shortcutHandler) document.removeEventListener('keydown', shortcutHandler, true);
                 shortcutHandler = null;
                 focusScope.destroy();
@@ -6281,6 +6383,86 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     // Shared YummyAnime → Lampa card mapping used by catalog, detail, and
     // standard-card integration. Keeps rating/media/progress derivation in one place.
 
+    // Recent successful writes bridge cached search/detail payloads. The cache
+    // is bounded, account scoped, and never issues one request per poster.
+    var recentLists = {}, recentOrder = [], listOwner = null;
+    function own(value, key) { return Boolean(value && Object.prototype.hasOwnProperty.call(value, key)); }
+    function readListOwner() {
+        var auth = window.LampaYaniAuth, account = auth && auth.get ? auth.get() || {} : {};
+        return {id: String(account.user_id || ''), login: String(account.login || ''), token: auth && auth.token ? auth.token() || '' : ''};
+    }
+    function sameListOwner(a, b) {
+        if (!a || Boolean(a.token) !== Boolean(b.token)) return false;
+        return a.id && b.id ? a.id === b.id : a.login && b.login ? a.login === b.login : a.token === b.token;
+    }
+    function ensureListOwner() {
+        var owner = readListOwner();
+        if (!sameListOwner(listOwner, owner)) { recentLists = {}; recentOrder = []; }
+        listOwner = owner;
+        return owner;
+    }
+    function normalizedListState(item) {
+        item = item || {};
+        var result = {listKnown: false, listId: null, favoriteKnown: false, favorite: false};
+        var raw;
+        if (own(item, 'yani_list_id') && item.yani_list_known !== false) { raw = item.yani_list_id; result.listKnown = true; }
+        else {
+            var user = item.user;
+            if (user && own(user, 'list')) raw = user.list;
+            else if (own(item, 'user_list')) raw = item.user_list;
+            else if (own(item, 'list_state')) raw = item.list_state;
+            if (raw !== undefined) {
+                var holder = raw;
+                if (holder === null) result.listKnown = true;
+                else if (typeof holder === 'number') result.listKnown = true;
+                else if (typeof holder === 'object') {
+                    if (own(holder, 'list')) { raw = holder.list; result.listKnown = true; }
+                    else if (own(holder, 'id')) result.listKnown = true;
+                    ['is_fav', 'is_favorite', 'favorite'].some(function (key) {
+                        if (!own(holder, key)) return false;
+                        result.favoriteKnown = true; result.favorite = Boolean(holder[key]); return true;
+                    });
+                }
+            }
+        }
+        if (result.listKnown) {
+            var value = raw && typeof raw === 'object' ? raw.id : raw;
+            var id = value === null || value === '' || value === undefined ? null : Number(value);
+            result.listId = [0, 1, 2, 3, 5].indexOf(id) >= 0 ? id : null;
+        }
+        if (own(item, 'yani_is_favorite') && item.yani_favorite_known !== false) {
+            result.favoriteKnown = true; result.favorite = Boolean(item.yani_is_favorite);
+        }
+        return result;
+    }
+    function applyListState(card) {
+        if (!card) return card;
+        ensureListOwner();
+        var id = String(card.yani_id || card.anime_id || card.id || ''), recent = recentLists[id];
+        if (recent && Date.now() - recent.at < 5 * 60 * 1000) {
+            if (own(recent, 'listId')) { card.yani_list_id = recent.listId; card.yani_list_known = true; }
+            if (own(recent, 'favorite')) { card.yani_is_favorite = recent.favorite; card.yani_favorite_known = true; }
+        } else if (recent) delete recentLists[id];
+        return card;
+    }
+    function commitListState(card, patch, owner) {
+        var current = ensureListOwner();
+        if (owner && !sameListOwner(owner, current)) return false;
+        if (!card || !patch) return false;
+        var id = String(card.yani_id || card.anime_id || card.id || '');
+        if (!id) return false;
+        var recent = recentLists[id] || {};
+        if (own(patch, 'listId')) recent.listId = patch.listId === null ? null : Number(patch.listId);
+        if (own(patch, 'favorite')) recent.favorite = Boolean(patch.favorite);
+        if (!own(recent, 'listId') && !own(recent, 'favorite')) return false;
+        recent.at = Date.now(); recentLists[id] = recent;
+        var at = recentOrder.indexOf(id); if (at >= 0) recentOrder.splice(at, 1);
+        recentOrder.push(id); while (recentOrder.length > 160) delete recentLists[recentOrder.shift()];
+        applyListState(card);
+        if (typeof document !== 'undefined' && window.$) $(document).trigger('yani:list-state-changed', [{anime_id: id}]);
+        return true;
+    }
+
     function create(deps) {
         deps = deps || {};
         var t = deps.t || function (name) { return name; };
@@ -6384,7 +6566,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var votes = typeof item.rating === 'object' ? item.rating.counters : item.rating_counters;
             var ratings = extractRatings(item.rating);
             var animeId = item.anime_id || item.animeId || item.id || item._id;
-            return {
+            var card = {
                 title: title,
                 original_title: item.original_title || item.japanese || title,
                 yani_titles: titles,
@@ -6401,8 +6583,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 yani_id: animeId,
                 yani_url: item.anime_url || item.url,
                 yani_comments_count: Number(item.comments_count || 0),
-                yani_list_id: item.user && item.user.list && item.user.list.list ? Number(item.user.list.list.id) : null,
-                yani_is_favorite: Boolean(item.user && item.user.list && item.user.list.is_fav),
+                yani_list_id: null, yani_list_known: false,
+                yani_is_favorite: false, yani_favorite_known: false,
                 yani_user_rating: Number(item.user && (item.user.rate || item.user.rating || item.user.score) || item.user_rate || 0) || null,
                 yani_viewing_order: Array.isArray(item.viewing_order) ? item.viewing_order : [],
                 yani_genres: item.genres || item.genre || [],
@@ -6420,6 +6602,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 yani_update_date: item.yani_update_date || item.updated_at || item.update_date || item.last_update || null,
                 yani_remote_ids: item.remote_ids || {}
             };
+            var state = normalizedListState(item);
+            card.yani_list_id = state.listId; card.yani_list_known = state.listKnown;
+            card.yani_is_favorite = state.favorite; card.yani_favorite_known = state.favoriteKnown;
+            return applyListState(card);
         }
 
         function createDetailRatings(ratings, votes) {
@@ -6458,7 +6644,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.CardModel = window.LampaYaniCardModel = {
-        create: create
+        create: create,
+        normalizeListState: normalizedListState,
+        applyListState: applyListState,
+        commitListState: commitListState,
+        listOwner: readListOwner,
+        sameListOwner: sameListOwner
     };
 }(window));
 
@@ -6484,20 +6675,29 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function addCardMediaBadges(element, card) {
-            var requested = false;
+            if (!card) return;
             var cardRender = cardRenderElement(element, card);
+            var host = cardRender[0];
+            if (!host) return;
+            var requestKey = String(card.yani_id || '');
+            var sameRequest = host.yaniMediaRequest === requestKey && host.yaniMediaCard === card;
+            // A mounted card node may be reused, even for an already-loaded
+            // replacement. Retire the previous request before any early return.
+            host.yaniMediaRequest = requestKey;
+            host.yaniMediaCard = card;
+            if (!sameRequest) cardRender.off('hover:focus.yaniMedia');
             renderCardMediaBadges(element, card, card.yani_media || mediaMeta(card));
-            if (!card.yani_id || (card.yani_media && card.yani_media.loaded)) return;
+            if (!card.yani_id || (card.yani_media && card.yani_media.loaded) || sameRequest) return;
 
-            cardRender.off('hover:focus.yaniMedia').one('hover:focus.yaniMedia', function () {
-                if (requested) return;
-                requested = true;
+            cardRender.one('hover:focus.yaniMedia', function () {
                 loadVideos(card.yani_id).then(function (payload) {
+                    if (host.yaniMediaRequest !== requestKey || host.yaniMediaCard !== card) return;
+                    if (host.isConnected === false) { host.yaniMediaRequest = ''; return; }
                     var videos = payload && payload.response ? payload.response : payload;
                     card.yani_media = mediaMeta({videos: Array.isArray(videos) ? videos : []});
                     card.yani_media.loaded = true;
                     renderCardMediaBadges(element, card, card.yani_media);
-                }).catch(function () {});
+                }).catch(function () { if (host.yaniMediaRequest === requestKey && host.yaniMediaCard === card) host.yaniMediaRequest = ''; });
             });
         }
 
@@ -6515,11 +6715,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function renderCardMediaBadges(element, card, meta) {
             meta = meta || {};
             var genreTop = genreTopPosition(card);
-            if (!meta.quality && !meta.voices && !genreTop) return;
             var render = cardRenderElement(element, card);
             var view = $('.card__view', render).first();
             if (!view.length) return;
             var block = $('.yani-card-media', view);
+            var signature = JSON.stringify([meta.quality || '', meta.voices || 0, genreTop, card && card.yani_genre_top && card.yani_genre_top.genre || '', t('voices_short'), t('genre_top_position')]);
+            if (sameCardPaint(view, 'media', signature, block, !meta.quality && !meta.voices && !genreTop)) return;
+            if (!meta.quality && !meta.voices && !genreTop) { block.remove(); return; }
             if (!block.length) block = $('<div class="yani-card-media"></div>').appendTo(view);
             block.empty();
             if (genreTop) {
@@ -6534,7 +6736,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }
             if (meta.quality || meta.voices) {
                 var availability = $('<span class="yani-card-media__availability"></span>');
-                if (cardMediaMotionAllowed()) availability.addClass('yani-card-media__availability--motion');
                 if (meta.quality) {
                     var quality = $('<span class="yani-card-media__availability-part yani-card-media__quality"></span>');
                     quality.append('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v11H4zM8 20h8M12 16.5V20"/></svg>');
@@ -6554,12 +6755,21 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }
         }
 
+        // Stable markup on a repeated Lampa cardRender call avoids replacing
+        // SVGs/text and forcing style/layout work during remote navigation.
+        // Keep this state on the card node so it is collected with the card.
+        function sameCardPaint(view, key, signature, existing, empty) {
+            var node = view && view[0];
+            if (!node) return false;
+            var paints = node.yaniCardPaints || (node.yaniCardPaints = {});
+            if (paints[key] === signature && (empty || existing.length)) return true;
+            paints[key] = signature;
+            return false;
+        }
+
         function cardMediaMotionAllowed() {
-            var navigatorInfo = window.navigator || {};
-            var reduced = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-            var lowMemory = Number(navigatorInfo.deviceMemory || 0) > 0 && Number(navigatorInfo.deviceMemory) <= 2;
-            var lowCpu = Number(navigatorInfo.hardwareConcurrency || 0) > 0 && Number(navigatorInfo.hardwareConcurrency) <= 2;
-            return !reduced && !lowMemory && !lowCpu;
+            // Even capable desktops use the same static TV presentation.
+            return false;
         }
 
         function genreTopPosition(card) {
@@ -6724,19 +6934,25 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var hasTopEnd = Boolean(update || history);
             var hasTopStart = Boolean((media && media.children && media.children.length) || recommendation);
 
+            var width = root.clientWidth || root.offsetWidth || 0;
+            var height = root.clientHeight || root.offsetHeight || 0;
+            var fontSize = 16;
+            try { fontSize = parseFloat(window.getComputedStyle(root).fontSize) || fontSize; } catch (error) {}
+            fontSize = Math.max(fontSize, 1);
+            var signature = [width, height, fontSize, Boolean(list), Boolean(playback), Boolean(history), hasProgress,
+                hasRatings, Boolean(update), Boolean(update && update.querySelector('.yani-card-update__freshness')),
+                Boolean(availability), Boolean(voices), Boolean(genreTop), Boolean(recommendation)].join(':');
+            // Size and inherited font both affect the em-based priority plan.
+            // Stable cards avoid class writes; scale changes remain correct.
+            if (root.yaniOverlayPaint === signature) return view;
+            root.yaniOverlayPaint = signature;
+
             root.classList.toggle('yani-card-view--has-footer', hasFooter);
+            root.classList.toggle('yani-card-view--has-list', Boolean(list));
             root.classList.toggle('yani-card-view--has-progress', hasProgress);
             root.classList.toggle('yani-card-view--has-ratings', hasRatings);
             root.classList.toggle('yani-card-view--has-top-end', hasTopEnd);
             root.classList.toggle('yani-card-view--has-top-start', hasTopStart);
-
-            var width = root.clientWidth || root.offsetWidth || 0;
-            var height = root.clientHeight || root.offsetHeight || 0;
-            var fontSize = 16;
-            try {
-                fontSize = parseFloat(window.getComputedStyle(root).fontSize) || fontSize;
-            } catch (error) {}
-            fontSize = Math.max(fontSize, 1);
 
             var plan = cardOverlayPriorityPlan({
                 width: width,
@@ -6846,26 +7062,38 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function addCardListBadge(element, card) {
-            if (!card || (card.yani_list_id === null && !card.yani_is_favorite)) return;
+            if (window.LampaYaniCardModel && LampaYaniCardModel.applyListState) LampaYaniCardModel.applyListState(card);
+            if (!card) return;
             var render = cardRenderElement(element, card);
             var view = $('.card__view', render).first();
             if (!view.length) return;
             var key = listBadgeKey(card);
-            if (!key && !card.yani_is_favorite) return;
             var labels = {0: t('watching'), 1: t('planned'), 2: t('completed'), 3: t('dropped'), 5: t('postponed')};
-            var label = labels[card.yani_list_id] || (card.yani_is_favorite ? t('favorite') : '');
-            if (card.yani_is_favorite && labels[card.yani_list_id]) label += ' · ' + t('favorite');
+            var label = labels[card.yani_list_id] || (card.yani_is_favorite ? t('favorites') : '');
+            if (card.yani_is_favorite && labels[card.yani_list_id]) label += ' · ' + t('favorites');
+            var visibleLabel = label || (card.yani_list_known ? t('not_in_lists') : '');
+            var colorKey = key || (card.yani_is_favorite ? 'favorites' : 'none');
             var badge = $('.yani-card-list', view);
-            if (!badge.length) badge = $('<span class="yani-card-list"></span>').appendTo(view);
-            badge.empty()
-                .removeClass('yani-card-list--watching yani-card-list--planned yani-card-list--completed yani-card-list--dropped yani-card-list--postponed yani-card-list--favorites')
-                .addClass('yani-card-list--' + (key || 'favorites'))
-                .attr('title', label)
-                .attr('aria-label', label);
-            badge.append($('<span class="yani-card-list__icon"></span>').html(listBadgeIcon(key || 'favorites')));
-            if (card.yani_is_favorite && key && key !== 'favorites') {
-                badge.append($('<span class="yani-card-list__icon yani-card-list__icon--fav"></span>').html(listBadgeIcon('favorites')));
+            if (sameCardPaint(view, 'list', JSON.stringify([colorKey, visibleLabel]), badge, !visibleLabel)) return;
+            if (!visibleLabel) { badge.remove(); return; }
+            // Retain one bottom band and its label node across category changes.
+            // Never replace the poster or clear/rebuild the card's contents.
+            if (!badge.length) {
+                badge = $('<span class="yani-card-list"></span>')
+                    .append('<span class="yani-card-list__icon" aria-hidden="true"></span>')
+                    .append('<span class="yani-card-list__label yani-card-category"></span>')
+                    .appendTo(view);
             }
+            var previousKey = badge.attr('data-yani-list-key');
+            if (previousKey !== colorKey) {
+                badge.removeClass('yani-card-list--watching yani-card-list--planned yani-card-list--completed yani-card-list--dropped yani-card-list--postponed yani-card-list--favorites yani-card-list--none')
+                    .addClass('yani-card-list--' + colorKey).attr('data-yani-list-key', colorKey);
+                var icon = badge.find('.yani-card-list__icon');
+                icon.html(colorKey === 'none' ? '' : listBadgeIcon(colorKey)).css('display', colorKey === 'none' ? 'none' : 'block');
+            }
+            var text = badge.find('.yani-card-list__label');
+            if (text.text() !== visibleLabel) text.text(visibleLabel);
+            if (badge.attr('title') !== visibleLabel) badge.attr('title', visibleLabel).attr('aria-label', visibleLabel);
         }
 
         function syncCardEpisodesMeta(element, card) {
@@ -6910,14 +7138,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             if (!view.length) return;
             var existing = view.find('.yani-card-playback, .yani-card-playback-progress');
             if (!state) {
+                sameCardPaint(view, 'progress', '', existing, true);
                 if (existing.length) existing.remove();
                 return;
             }
-            existing.remove();
             var parts = [];
             if (state.episode) parts.push((state.next ? '▶ ' : '') + t('episode') + ' ' + state.episode);
             if (state.percent) parts.push(state.percent + '%');
             else if (state.reached) parts.push(t('episodes_watched') + ' ' + state.reached);
+            var signature = JSON.stringify([parts, state.progress > 0, state.percent]);
+            if (sameCardPaint(view, 'progress', signature, existing, false)) return;
+            existing.remove();
             view.append($('<span class="yani-card-playback"></span>').text(parts.join(' · ')));
             if (state.progress > 0) {
                 view.append($('<span class="yani-card-playback-progress"><span></span></span>')
@@ -6950,14 +7181,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
         function addCardRatings(element, card) {
             var ratings = visibleCardRatings(card && card.yani_ratings);
-            if (!ratings.length || !card) return;
+            if (!card) return;
             var render = cardRenderElement(element, card);
             var view = $('.card__view', render).first();
             if (!view.length) return;
-            // Lampa may call cardRender repeatedly for the same node. Keep the
-            // first compact panel instead of rebuilding chips on every paint.
-            if (view.find('.yani-card-ratings').length) return;
-
+            var existing = view.find('.yani-card-ratings');
+            var signature = JSON.stringify(ratings.map(function (rating) {
+                return [rating.key, rating.value, rating.short || '', rating.title || ''];
+            }));
+            if (sameCardPaint(view, 'ratings', signature, existing, !ratings.length)) return;
+            existing.remove();
+            if (!ratings.length) { $('.card__vote', render).show(); return; }
             $('.card__vote', render).hide();
             var block = $('<div class="yani-card-ratings" role="group" aria-label="ratings"></div>');
             ratings.forEach(function (rating) {
@@ -7076,6 +7310,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             // DOM-level handler as a fallback so search results remain clickable.
             var rendered = cardRenderElement(element, card);
             rendered.attr('data-yani-card-id', String(card.yani_id || ''));
+            if (rendered[0]) rendered[0].yaniBoundCard = card;
             if (!rendered.closest('.yani-card-rails, .yani-user-lists-view, .yani-home').length) {
                 rendered.closest('.category-full, .items-cards').addClass('yani-card-grid');
             }
@@ -7685,17 +7920,20 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function renderHistoryProgress(rendered, playback) {
             var view = $('.card__view', rendered).first();
             if (!view.length) return;
-            view.find('.yani-card-history, .yani-card-history-progress').remove();
             var duration = Math.max(0, Number(playback.duration || 0));
             var position = Math.max(0, Number(playback.time || 0));
             var percent = duration > 0 ? Math.min(100, Math.round(position / duration * 100)) : 0;
             var episode = playback.last_watched_episode || playback.number;
             var label = episode ? t('episode') + ' ' + episode : t('continue_watching');
             if (percent) label += ' · ' + percent + '%';
-            view.append($('<span class="yani-card-history"></span>').text(label));
+            var badge = view.find('.yani-card-history');
+            if (!badge.length) badge = $('<span class="yani-card-history"></span>').appendTo(view);
+            if (badge.text() !== label) badge.text(label);
+            var progress = view.find('.yani-card-history-progress');
             if (duration > 0) {
-                view.append($('<span class="yani-card-history-progress"><span></span></span>').find('span').css('width', percent + '%').end());
-            }
+                if (!progress.length) progress = $('<span class="yani-card-history-progress"><span></span></span>').appendTo(view);
+                progress.find('span').css('width', percent + '%');
+            } else if (progress.length) progress.remove();
             syncCardOverlayLayout(rendered);
         }
 
@@ -8141,9 +8379,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     if (item.action === 'login') return openSettingsLogin();
                     if (!window.LampaYaniAuth || !LampaYaniAuth.token()) return Lampa.Noty.show(t('login_required'));
                     var action = item.action === 'favorite' ? LampaYaniApi.addFavorite(card.yani_id) : item.action ? LampaYaniApi.addToList(card.yani_id, item.action) : LampaYaniApi.rate(card.yani_id, item.value);
+                    var owner = window.LampaYaniCardModel && LampaYaniCardModel.listOwner ? LampaYaniCardModel.listOwner() : null;
                     action.then(function () {
+                        if (owner && !LampaYaniCardModel.sameListOwner(owner, LampaYaniCardModel.listOwner())) return;
                         if (item.action === 'favorite') card.yani_is_favorite = true;
                         else if (item.action) card.yani_list_id = {watching: 0, planned: 1, completed: 2, dropped: 3, postponed: 5}[item.action];
+                        if (deps.onListChanged) deps.onListChanged(card, item.action === 'favorite' ? {favorite: true} : item.action ? {listId: card.yani_list_id} : {}, owner);
                         addCardListBadge(null, card);
                         syncCardOverlayLayout(null, card);
                         Lampa.Noty.show(t('saved'));
@@ -8351,15 +8592,54 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 return Number(a.index || 0) - Number(b.index || 0);
             });
             videos = uniqueEpisodes(videos);
-            var episodes = videos.map(function (video) {
-                return {title: episodeOptionTitle(card, video), video: video};
+            if (videos.length === 1) return launchVideo(card, group, videos, applySavedPlaybackPosition(card, videos[0]));
+            // Lampa.Select builds DOM for every item. Keep a very long series
+            // bounded while retaining every episode and the complete playlist.
+            var pageSize = 60;
+            var saved = card.yani_resume || getPlayback(card.yani_id) || {};
+            var savedIndex = -1;
+            videos.some(function (video, index) {
+                var same = saved.video_id ? String(video.video_id || video.id || '') === String(saved.video_id)
+                    : window.LampaYaniEpisode.same(window.LampaYaniEpisode.valueOf(video), saved.number);
+                if (same) savedIndex = index;
+                return same;
             });
-            if (episodes.length === 1) return launchVideo(card, group, videos, applySavedPlaybackPosition(card, videos[0]));
-            showPlaybackSelect({
-                title: t('choose_episode') + ' · ' + group.title,
-                items: episodes,
-                onSelect: function (item) { launchVideo(card, group, videos, applySavedPlaybackPosition(card, item.video)); }
-            });
+
+            // A different dubbing/provider has different video IDs for the
+            // same episode. Keep the viewer near their saved episode as well.
+            if (savedIndex < 0 && saved.number !== undefined && saved.number !== null) {
+                videos.some(function (video, index) {
+                    var same = window.LampaYaniEpisode.same(window.LampaYaniEpisode.valueOf(video), saved.number);
+                    if (same) savedIndex = index;
+                    return same;
+                });
+            }
+
+            function rangeTitle(page, arrow) {
+                var first = page * pageSize;
+                var last = Math.min(first + pageSize, videos.length) - 1;
+                return arrow + ' ' + t('episode') + ' ' + window.LampaYaniEpisode.valueOf(videos[first]) + '–' + window.LampaYaniEpisode.valueOf(videos[last]);
+            }
+
+            function showPage(page) {
+                var start = page * pageSize;
+                var episodes = videos.slice(start, start + pageSize).map(function (video) {
+                    return {title: episodeOptionTitle(card, video), video: video};
+                });
+                if (start > 0) episodes.unshift({title: rangeTitle(page - 1, '‹'), page: page - 1});
+                if (start + pageSize < videos.length) episodes.push({title: rangeTitle(page + 1, '›'), page: page + 1});
+                var selected = savedIndex >= start && savedIndex < start + pageSize ? savedIndex - start + (start > 0 ? 1 : 0) : 0;
+                showPlaybackSelect({
+                    title: t('choose_episode') + ' · ' + group.title,
+                    items: episodes,
+                    selected: selected,
+                    onSelect: function (item) {
+                        if (typeof item.page === 'number') return showPage(item.page);
+                        launchVideo(card, group, videos, applySavedPlaybackPosition(card, item.video));
+                    }
+                });
+            }
+            showPage(savedIndex >= 0 ? Math.floor(savedIndex / pageSize) : 0);
         }
 
         function showDirectPlaybackOptions(card, current, playlist, options) {
@@ -9264,9 +9544,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
         function TrailerList(object) {
             var card = object.card || {};
-            var html = $('<div class="yani-trailers"></div>');
-            var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
+            var html = $('<div class="yani-trailers yani-lite-view"></div>');
+            var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
             var last;
+            var destroyed = false, paused = false;
+            var component = this;
+            function ownsActivity() { return !destroyed && (!Lampa.Activity || typeof Lampa.Activity.own !== 'function' || Lampa.Activity.own(component)); }
 
             scroll.minus();
 
@@ -9274,16 +9557,18 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 var self = this;
                 this.activity.loader(true);
                 loadTrailerItems(card).then(function (payload) {
+                    if (destroyed) return;
                     var items = normalizeTrailerItems(payload).filter(function (trailer) { return trailerUrl(trailer); });
                     render(items);
                     self.activity.loader(false);
-                    self.activity.toggle();
+                    if (!paused && ownsActivity()) self.activity.toggle();
                 }).catch(function (error) {
+                    if (destroyed) return;
                     console.error('[YummyAnime] Trailers failed', error);
                     html.append($('<div class="yani-trailers__empty selector"></div>').text(t('catalog_load_error')));
                     scroll.append(html);
                     self.activity.loader(false);
-                    self.activity.toggle();
+                    if (!paused && ownsActivity()) self.activity.toggle();
                 });
             };
 
@@ -9314,6 +9599,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }
 
             this.start = function () {
+                if (!ownsActivity()) return;
+                paused = false;
                 Lampa.Controller.add('content', {
                     toggle: function () {
                         Lampa.Controller.collectionSet(scroll.render());
@@ -9328,8 +9615,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 Lampa.Controller.toggle('content');
             };
 
+            this.pause = this.stop = function () { paused = true; };
             this.render = function (js) { return js ? scroll.render()[0] : scroll.render(); };
-            this.destroy = function () { scroll.destroy(); html.remove(); };
+            this.destroy = function () { destroyed = true; scroll.destroy(); html.remove(); };
         }
 
         return {
@@ -9360,11 +9648,33 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var t = deps.t, locale = deps.locale, toCard = deps.toCard;
         var playbackSourceId = deps.playbackSourceId || function () { return ''; };
         var isPlaybackSourceEnabled = deps.isPlaybackSourceEnabled || function () { return true; };
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
         scroll.minus();
-        var html = $('<div class="yani-schedule"></div>');
+        var html = $('<div class="yani-schedule yani-lite-view"></div>');
         var content = $('<div class="yani-schedule__content"></div>');
         var last, dayGroups = [], selectedDay = 0, remoteShortcutHandler = null, cacheUpdateHandler = null, pendingPayload = null, destroyed = false, videosCache = {}, ratingCache = {};
+        var enrichmentTimer = null, enrichmentBusy = false, pendingEnrichment = null, loadGeneration = 0;
+        var dayPageSize = 20, renderedReleases = 0;
+        // A day may contain hundreds of releases. Only a focused row needs
+        // video/translation detail; keep one pair in flight and coalesce D-pad
+        // movement to the latest row instead of starting N detail requests.
+        function queueEnrichment(row, run) {
+            pendingEnrichment = {row: row, run: run};
+            if (enrichmentTimer) clearTimeout(enrichmentTimer);
+            enrichmentTimer = setTimeout(flushEnrichment, 140);
+        }
+        function flushEnrichment() {
+            enrichmentTimer = null;
+            if (destroyed || enrichmentBusy || !pendingEnrichment) return;
+            var work = pendingEnrichment;
+            pendingEnrichment = null;
+            if (!work.row[0] || !document.documentElement.contains(work.row[0]) || !work.row.hasClass('focus')) return;
+            enrichmentBusy = true;
+            Promise.resolve(work.run()).catch(function () {}).then(function () {
+                enrichmentBusy = false;
+                if (!destroyed && pendingEnrichment && !enrichmentTimer) enrichmentTimer = setTimeout(flushEnrichment, 140);
+            });
+        }
         var focusScope = LampaYaniNavigation.createScope({
             id: 'schedule:' + String(object && object.url || 'yani/schedule'),
             root: function () { return html; },
@@ -9437,11 +9747,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             return ratingCache[animeId];
         }
         function enrichItemRating(host, card) {
-            if (appendYummyRating(host, card)) return;
+            if (host.find('.yani-schedule__rating').length) return Promise.resolve();
+            if (appendYummyRating(host, card)) return Promise.resolve();
             var animeId = card && card.yani_id;
-            if (!animeId) return;
-            loadAnimeRatingCard(animeId).then(function (detailed) {
-                if (!detailed || !host[0] || !document.documentElement.contains(host[0])) return;
+            if (!animeId) return Promise.resolve();
+            return loadAnimeRatingCard(animeId).then(function (detailed) {
+                if (destroyed || !detailed || !host[0] || !document.documentElement.contains(host[0])) return;
                 appendYummyRating(host, detailed);
             });
         }
@@ -9520,7 +9831,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function paintTranslations(host, groups) {
             host = host && host.jquery ? host : $(host);
             if (!host.length) return;
-            host.empty();
+            var signature = JSON.stringify(groups || {});
+            if (host.attr('data-yani-translations') === signature) return;
+            host.attr('data-yani-translations', signature).empty();
             var voices = renderTranslationRow('voices', t('voice_teams'), groups && groups.voices);
             var subtitles = renderTranslationRow('subtitles', t('subtitle_teams'), groups && groups.subtitles);
             if (!voices && !subtitles) {
@@ -9539,33 +9852,42 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var episode = releaseEpisodeNumber(entry);
             var initial = translationGroupsFromVideos(Array.isArray(item.videos) ? item.videos : [], episode);
             paintTranslations(host, initial);
-            if (!animeId || !(episode > 0)) return;
-            loadAnimeVideos(animeId).then(function (videos) {
-                if (!host[0] || !document.documentElement.contains(host[0])) return;
+            if (!animeId || !(episode > 0)) return Promise.resolve();
+            return loadAnimeVideos(animeId).then(function (videos) {
+                if (destroyed || !host[0] || !document.documentElement.contains(host[0])) return;
                 paintTranslations(host, translationGroupsFromVideos(videos, episode));
             });
         }
         function createItem(entry) {
             var item = entry.item, card = toCard(item), episodes = item.episodes || {}, releaseDate = entry.date || new Date();
-            var row = $('<div class="yani-schedule__item selector"></div>'), poster = $('<img class="yani-schedule__poster" alt="">').attr('src', card.poster || '');
+            var row = $('<div class="yani-schedule__item selector"></div>').attr('data-yani-focus-key', 'release-' + String(card.yani_id || '') + '-' + releaseDate.getTime()), poster = $('<img class="yani-schedule__poster" alt="">').attr('src', card.poster || '');
             LampaYaniMedia.bindPosterFallback(poster, card);
             var info = $('<div class="yani-schedule__info"></div>'), release = $('<div class="yani-schedule__release"></div>');
             var translations = $('<div class="yani-schedule__translations"></div>').hide();
             var rating = $('<div class="yani-schedule__rating-slot"></div>');
             info.append($('<div class="yani-schedule__title"></div>').text(card.title));
             info.append(rating);
-            enrichItemRating(rating, card);
+            appendYummyRating(rating, card);
             info.append($('<div class="yani-schedule__episode"></div>').text(episodeLabel(entry)));
             info.append(translations);
             release.append($('<div class="yani-schedule__time"></div>').text(timeLabel(releaseDate))); release.append($('<div class="yani-schedule__timezone"></div>').text(t('local_time')));
             row.append(poster, info, release);
-            enrichItemTranslations(translations, entry);
+            paintTranslations(translations, translationGroupsFromVideos(Array.isArray(item.videos) ? item.videos : [], releaseEpisodeNumber(entry)));
             // A schedule item already has a YummyAnime id.  Opening its
             // native Lampa match first can show a transient "not found" page
             // before the inevitable YummyAnime fallback, so go straight to
             // the known detail card.
             var opened = false, open = function () { if (opened) return; opened = true; card.yani_schedule = episodeLabel(entry) + ', ' + dateTimeLabel(releaseDate); deps.openYummyDetail(card, false); setTimeout(function () { opened = false; }, 500); };
-            row.on('hover:focus', function (event) { var target = event.currentTarget || event.target; content.find('.yani-schedule__item.focus').removeClass('focus'); row.addClass('focus'); last = target; scroll.update($(target), true); });
+            row.on('hover:focus', function (event) {
+                var target = event.currentTarget || event.target;
+                content.find('.yani-schedule__item.focus').removeClass('focus');
+                row.addClass('focus');
+                last = target;
+                scroll.update($(target), true);
+                queueEnrichment(row, function () {
+                    return Promise.all([enrichItemRating(rating, card), enrichItemTranslations(translations, entry)]);
+                });
+            });
             row.on('hover:blur', function () { row.removeClass('focus'); }); row.on('hover:enter click.yaniSchedule', open);
             return row;
         }
@@ -9606,8 +9928,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var chip = dayChipNodes().removeClass('selected').eq(selectedDay).addClass('selected');
             content.find('.yani-schedule__selected-title').text(dayLabel(group.day, group.relativeOffset));
             var releases = content.find('.yani-schedule__releases').empty();
+            renderedReleases = 0;
+            pendingEnrichment = null;
             if (!group.releases.length) releases.append($('<div class="yani-schedule__empty"></div>').text(t('no_releases')));
-            else group.releases.forEach(function (entry) { releases.append(createItem(entry)); });
+            else appendReleasePage(false);
             revealDayChip(chip);
             updateShortcutBadges();
             var collection = scroll.render();
@@ -9619,6 +9943,28 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             } else {
                 last = chip[0];
             }
+        }
+        function appendReleasePage(focusNew) {
+            var group = dayGroups[selectedDay];
+            if (destroyed || !group) return;
+            var releases = content.find('.yani-schedule__releases');
+            releases.find('.yani-schedule__more').remove();
+            var batch = group.releases.slice(renderedReleases, renderedReleases + dayPageSize).map(createItem);
+            renderedReleases += batch.length;
+            // Rows are built detached and attached in one operation.
+            releases.append(batch.map(function (row) { return row[0]; }));
+            if (renderedReleases < group.releases.length) {
+                var more = $('<div class="yani-schedule__more selector"></div>')
+                    .attr('data-yani-focus-key', 'more-' + selectedDay)
+                    .text(t('more') + ' · ' + (group.releases.length - renderedReleases));
+                more.on('hover:focus', function () { last = more[0]; scroll.update(more, true); });
+                more.on('hover:enter click.yaniScheduleMore', function (event) {
+                    if (event) { event.preventDefault(); event.stopPropagation(); }
+                    appendReleasePage(true);
+                });
+                releases.append(more);
+            }
+            if (focusNew && batch.length) refreshFocus(batch[0][0]);
         }
         function moveDay(delta) {
             var index = dayChipIndex(last);
@@ -9752,6 +10098,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }
         }
         function applyPayload(payload, background) {
+            if (destroyed) return;
             var items = LampaYaniApi.normalize(payload);
             if (background && !items.length) return;
             if (background && focusScope && focusScope.remember) focusScope.remember(last);
@@ -9780,13 +10127,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }
         }
         function load(forceRefresh) {
+            if (destroyed) return;
+            var requestGeneration = ++loadGeneration;
             content.empty();
             state.show('loading', {skeleton: 'rows'});
             ensureMounted();
             last = state.focus(scroll.render()) || last;
             LampaYaniApi.schedule({forceRefresh: forceRefresh === true}).then(function (payload) {
+                if (destroyed || requestGeneration !== loadGeneration) return;
                 applyPayload(payload, false);
             }).catch(function (error) {
+                if (destroyed || requestGeneration !== loadGeneration) return;
                 console.error('[YummyAnime]', error);
                 content.empty();
                 state.show('offline', {
@@ -9855,6 +10206,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             render: function (js) { return js ? html[0] : html; },
             destroy: function () {
                 destroyed = true;
+                loadGeneration++;
+                if (enrichmentTimer) clearTimeout(enrichmentTimer);
+                enrichmentTimer = null;
+                pendingEnrichment = null;
+                dayGroups = [];
+                videosCache = {};
+                ratingCache = {};
                 if (remoteShortcutHandler) document.removeEventListener('keydown', remoteShortcutHandler, true);
                 remoteShortcutHandler = null;
                 if (cacheUpdateHandler) document.removeEventListener('yani:cache-updated', cacheUpdateHandler);
@@ -9972,8 +10330,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function create(object, deps) {
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
-        var html = $('<div class="yani-notifications"></div>');
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
+        var html = $('<div class="yani-notifications yani-lite-view"></div>');
         var content = $('<div class="yani-notifications__content"></div>');
         var list = $('<div class="yani-notifications__list"></div>');
         var summary;
@@ -9982,7 +10340,15 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var pageSize = 30;
         var destroyed = false;
         var opening = false;
+        var paused = false;
         var lastDayGroup = '';
+        var batch = null;
+        var loadingMore = false;
+        var loadingInitial = false;
+        var mutationPending = false;
+        var generation = 0;
+        var ownerKey = deps.ownerKey ? deps.ownerKey() : '';
+        function current() { return !destroyed && (!deps.ownerKey || deps.ownerKey() === ownerKey); }
         scroll.minus();
 
         function focusable(element) {
@@ -9992,7 +10358,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
         function refreshFocus(preferred) {
             setTimeout(function () {
-                if (destroyed) return;
+                if (!current() || paused) return;
+                var enabled = Lampa.Controller.enabled && Lampa.Controller.enabled();
+                if (enabled && enabled.name !== 'content') return;
                 var collection = scroll.render();
                 var target = preferred && preferred.offsetParent !== null ? preferred : (last && last.offsetParent !== null ? last : collection.find('.selector').first()[0]);
                 if (target) last = target;
@@ -10019,6 +10387,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function openNotification(notification, element) {
+            if (!current()) return;
             if (notification.unread && notification.id) {
                 notification.unread = false;
                 element.removeClass('unread').addClass('read');
@@ -10036,7 +10405,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             opening = true;
             element.addClass('loading');
             deps.resolveAnime(notification.anime_slug).then(function (payload) {
-                if (destroyed) return;
+                if (!current()) return;
                 var value = payload && payload.response !== undefined ? payload.response : payload;
                 var card = deps.toCard(value || {});
                 if (card && card.yani_id) deps.openDetail(card, false);
@@ -10071,7 +10440,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 footer.append($('<span class="yani-notification__open"></span>').text(deps.t('notification_open_anime')));
             }
             body.append(footer);
-            item.append($('<span class="yani-notification__dot"></span>'), visual, body);
+            item.append(visual, body);
             if (isOpenable(notification)) item.append($('<span class="yani-notification__chevron">›</span>'));
             item.on('hover:enter click.yaniNotification', function () { openNotification(notification, item); });
             return item;
@@ -10080,7 +10449,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function appendDayGroup(key) {
             if (!key || key === lastDayGroup) return;
             lastDayGroup = key;
-            list.append($('<div class="yani-notifications__day"></div>').text(deps.t('notifications_' + key)));
+            (batch || list).append($('<div class="yani-notifications__day"></div>').text(deps.t('notifications_' + key)));
         }
 
         function emptyState() {
@@ -10104,15 +10473,19 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function appendItems(items, append) {
+            if (!current()) return;
             list.find('.yani-notifications__more').remove();
             if (!append) {
                 list.empty();
                 lastDayGroup = '';
             }
+            batch = $(document.createDocumentFragment());
             items.forEach(function (notification) {
                 appendDayGroup(notificationDayGroup(notification));
-                list.append(notificationCard(notification));
+                batch.append(notificationCard(notification));
             });
+            list.append(batch);
+            batch = null;
             if (!list.children('.yani-notification').length) {
                 list.append(emptyState());
                 updateSummary();
@@ -10122,13 +10495,20 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 var more = focusable($('<div class="yani-notifications__more selector"></div>'));
                 more.append('<span>＋</span>', $('<strong></strong>').text(deps.t('notifications_more')));
                 more.on('hover:enter click.yaniNotificationsMore', function () {
+                    if (!current() || loadingMore || mutationPending) return;
                     var previous = more.prev('.selector')[0];
+                    var requestGeneration = generation;
+                    loadingMore = true;
                     more.addClass('loading');
                     offset += items.length;
                     deps.fetch(pageSize, offset).then(function (payload) {
+                        if (!current() || requestGeneration !== generation) return;
+                        loadingMore = false;
                         appendItems(deps.normalize(payload), true);
                         refreshFocus(previous);
                     }).catch(function (error) {
+                        if (!current() || requestGeneration !== generation) return;
+                        loadingMore = false;
                         offset = Math.max(0, offset - items.length);
                         more.removeClass('loading');
                         console.warn('[YummyAnime Notifications] Could not load the next page', error);
@@ -10142,9 +10522,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function buildHeader() {
             var hero = $('<div class="yani-notifications__hero"></div>');
             var identity = $('<div class="yani-notifications__identity"></div>');
-            identity.append($('<div class="yani-notifications__hero-icon"></div>').html(icon('system')));
             var copy = $('<div></div>');
-            copy.append($('<span class="yani-notifications__eyebrow"></span>').text('YUMMYANIME'));
             copy.append($('<div class="yani-notifications__title"></div>').text(deps.t('notifications_title')));
             copy.append($('<div class="yani-notifications__subtitle"></div>').text(deps.t('notifications_subtitle')));
             identity.append(copy);
@@ -10155,7 +10533,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var mark = focusable($('<div class="yani-notifications__action selector"></div>'));
             mark.append('<span>✓</span>', $('<strong></strong>').text(deps.t('mark_all_read')));
             mark.on('hover:enter click.yaniNotificationsRead', function () {
+                if (!current() || mutationPending || loadingMore || loadingInitial) return;
+                mutationPending = true;
                 deps.markAllRead().then(function () {
+                    mutationPending = false;
+                    if (!current()) return;
                     list.find('.yani-notification').each(function () {
                         var notification = $(this).data('yani-notification');
                         if (notification) notification.unread = false;
@@ -10164,28 +10546,42 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     updateSummary();
                     Lampa.Noty.show(deps.t('saved'));
                     refreshFocus(mark[0]);
-                });
+                }).catch(function () { mutationPending = false; if (current()) Lampa.Noty.show(deps.t('notifications_error')); });
             });
             var remove = focusable($('<div class="yani-notifications__action yani-notifications__action--danger selector"></div>'));
             remove.append('<span>×</span>', $('<strong></strong>').text(deps.t('delete_all_notifications')));
             remove.on('hover:enter click.yaniNotificationsDelete', function () {
+                if (!current() || mutationPending || loadingMore || loadingInitial) return;
+                mutationPending = true;
                 deps.deleteAll().then(function () {
+                    mutationPending = false;
+                    if (!current()) return;
+                    generation++;
+                    loadingMore = false;
+                    offset = 0;
+                    lastDayGroup = '';
                     list.empty().append(emptyState());
                     updateSummary();
                     refreshFocus(remove[0]);
-                });
+                }).catch(function () { mutationPending = false; if (current()) Lampa.Noty.show(deps.t('notifications_error')); });
             });
             actions.append(mark, remove);
             content.append(hero, actions, list);
         }
 
         function load(self) {
+            if (!current()) return;
+            var requestGeneration = ++generation;
+            loadingMore = false;
+            loadingInitial = true;
             offset = 0;
             list.empty();
             var loading = LampaYaniSectionState.create({t: deps.t});
             loading.show('loading', {skeleton: 'list'});
             list.append(loading.root);
             deps.fetch(pageSize, offset).then(function (payload) {
+                if (!current() || requestGeneration !== generation) return;
+                loadingInitial = false;
                 var items = deps.normalize(payload);
                 appendItems(items, false);
                 if (LampaYaniSectionState.fromCache(payload) && items.length) {
@@ -10198,9 +10594,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     html.append(scroll.render(true));
                 }
                 self.activity.loader(false);
-                self.activity.toggle();
+                if (!paused) self.activity.toggle();
                 refreshFocus();
             }).catch(function (error) {
+                if (!current() || requestGeneration !== generation) return;
+                loadingInitial = false;
                 console.error('[YummyAnime Notifications]', error);
                 list.empty().append(offlineState(function () { load(self); }));
                 if (!scroll.render().parent().length) {
@@ -10208,7 +10606,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     html.append(scroll.render(true));
                 }
                 self.activity.loader(false);
-                self.activity.toggle();
+                if (!paused) self.activity.toggle();
                 refreshFocus();
             });
         }
@@ -10221,6 +10619,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 load(self);
             },
             start: function () {
+                if (!current()) return;
+                paused = false;
                 Lampa.Controller.add('content', {
                     toggle: function () {
                         Lampa.Controller.collectionSet(scroll.render(), false, true);
@@ -10234,8 +10634,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 });
                 Lampa.Controller.toggle('content');
             },
+            pause: function () { paused = true; },
+            stop: function () { paused = true; },
             render: function (js) { return js ? html[0] : html; },
-            destroy: function () { destroyed = true; scroll.destroy(); html.remove(); }
+            destroy: function () { destroyed = true; generation++; last = null; batch = null; scroll.destroy(); html.remove(); }
         };
     }
 
@@ -10254,32 +10656,121 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 (function (window) {
     'use strict';
     function create(object, deps) {
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250}), html = $('<div class="yani-auth"></div>'), content = $('<div class="yani-auth__content"></div>'), login = (LampaYaniAuth.get().login || '').trim(), password = '', last, lastKey = '', ready = false;
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
+        var html = $('<div class="yani-auth yani-lite-view"></div>');
+        var content = $('<div class="yani-auth__content"></div>');
+        var login = (LampaYaniAuth.get().login || '').trim(), password = '', last, lastKey = '', ready = false, destroyed = false, paused = false, pending = false, focusTimer = null;
         scroll.minus();
-        function focus(element, key) { element.attr('data-yani-focus-key', key); element.on('hover:focus', function (event) { var target = event.currentTarget || event.target; last = target; lastKey = key; scroll.update($(target), true); }); return element; }
-        function focusTarget() { var target = last && document.documentElement.contains(last) ? $(last) : lastKey ? content.find('[data-yani-focus-key="' + lastKey + '"]').first() : $(); if (!target.length) target = content.find('.selector').first(); if (target.length) { last = target[0]; lastKey = target.attr('data-yani-focus-key') || lastKey; } return target; }
-        function refreshFocus() { if (!ready) return; var target = focusTarget(); Lampa.Controller.collectionSet(scroll.render()); Lampa.Controller.collectionFocus(target.length ? target[0] : false, scroll.render()); if (target.length) scroll.update(target, true); }
+        function focus(element, key) {
+            element.attr('data-yani-focus-key', key);
+            element.on('hover:focus', function (event) { if (destroyed) return; var target = event.currentTarget || event.target; last = target; lastKey = key; scroll.update($(target), true); });
+            return element;
+        }
+        function focusTarget() {
+            var target = last && document.documentElement.contains(last) ? $(last) : lastKey ? content.find('[data-yani-focus-key="' + lastKey + '"]').first() : $();
+            if (!target.length) target = content.find('.selector').first();
+            if (target.length) { last = target[0]; lastKey = target.attr('data-yani-focus-key') || lastKey; }
+            return target;
+        }
+        function refreshFocus() {
+            if (!ready || destroyed || paused) return;
+            var enabled = Lampa.Controller.enabled && Lampa.Controller.enabled();
+            if (enabled && enabled.name !== 'content') return;
+            var target = focusTarget();
+            Lampa.Controller.collectionSet(scroll.render());
+            Lampa.Controller.collectionFocus(target.length ? target[0] : false, scroll.render());
+            if (target.length) scroll.update(target, true);
+        }
+        function scheduleFocus() { if (focusTimer) clearTimeout(focusTimer); focusTimer = setTimeout(function () { focusTimer = null; refreshFocus(); }, 0); }
         function render() {
-            content.empty(); var account = LampaYaniAuth.get(), authorized = Boolean(LampaYaniAuth.token());
-            content.append($('<div class="yani-auth__title"></div>').text(deps.t('auth_title'))).append($('<div class="yani-auth__status ' + (authorized ? 'is-authorized' : '') + '"></div>').text(authorized ? deps.t('auth_authorized') : deps.t('auth_not_authorized')));
+            if (destroyed) return;
+            content.empty();
+            var account = LampaYaniAuth.get(), authorized = Boolean(LampaYaniAuth.token());
+            content.append($('<div class="yani-auth__title"></div>').text(deps.t('auth_title')));
+            content.append($('<div class="yani-auth__status ' + (authorized ? 'is-authorized' : '') + '"></div>').text(authorized ? deps.t('auth_authorized') : deps.t('auth_not_authorized')));
             var form = $('<div class="yani-auth__form"></div>');
-            field(form, 'login', deps.t('auth_login'), login || deps.t('auth_login_empty'), function () { deps.input({title: deps.t('email_prompt'), value: login, nosave: true, align: 'center'}, function (value) { login = String(value || '').trim(); render(); setTimeout(refreshFocus, 30); }); });
-            field(form, 'password', deps.t('auth_password'), password ? '••••••••' : deps.t('auth_password_empty'), function () { deps.input({title: deps.t('password_prompt'), value: '', password: true, nosave: true, align: 'center'}, function (value) { password = String(value || ''); render(); setTimeout(refreshFocus, 30); }); });
-            content.append(form); var actions = $('<div class="yani-auth__actions"></div>');
-            if (!authorized) action(actions, 'submit', deps.t('auth_submit'), 'primary', submit); else { action(actions, 'refresh', deps.t('refresh_name'), '', refresh); action(actions, 'logout', deps.t('logout_name'), '', logout); }
-            content.append(actions); if (authorized && account.login) content.append($('<div class="yani-auth__account"></div>').text(deps.t('auth_account') + ': ' + account.login)); content.append($('<div class="yani-auth__hint"></div>').text(deps.hint ? deps.hint() : deps.t('auth_hint')));
-            setTimeout(refreshFocus, 0);
+            field(form, 'login', deps.t('auth_login'), login || deps.t('auth_login_empty'), function () {
+                deps.input({title: deps.t('email_prompt'), value: login, nosave: true, align: 'center'}, function (value) {
+                    if (destroyed) return; login = String(value || '').trim(); render();
+                });
+            });
+            field(form, 'password', deps.t('auth_password'), password ? '••••••••' : deps.t('auth_password_empty'), function () {
+                deps.input({title: deps.t('password_prompt'), value: '', password: true, nosave: true, align: 'center'}, function (value) {
+                    if (destroyed) return; password = String(value || ''); render();
+                });
+            });
+            content.append(form);
+            var actions = $('<div class="yani-auth__actions"></div>');
+            if (!authorized) action(actions, 'submit', deps.t('auth_submit'), 'primary', submit);
+            else { action(actions, 'refresh', deps.t('refresh_name'), '', refresh); action(actions, 'logout', deps.t('logout_name'), '', logout); }
+            content.append(actions);
+            if (authorized && account.login) content.append($('<div class="yani-auth__account"></div>').text(deps.t('auth_account') + ': ' + account.login));
+            content.append($('<div class="yani-auth__hint"></div>').text(deps.hint ? deps.hint() : deps.t('auth_hint')));
+            scheduleFocus();
         }
-        function field(parent, key, title, value, handler) { var item = focus($('<div class="yani-auth__field selector"></div>'), key); item.append($('<div class="yani-auth__field-title"></div>').text(title), $('<div class="yani-auth__field-value"></div>').text(value)); item.on('hover:enter', handler); parent.append(item); }
-        function action(parent, key, title, kind, handler) { var item = focus($('<div class="yani-auth__button selector ' + (kind ? 'yani-auth__button--' + kind : '') + '"></div>').text(title), key); item.on('hover:enter', handler); parent.append(item); }
+        function field(parent, key, title, value, handler) {
+            var item = focus($('<div class="yani-auth__field selector"></div>'), key);
+            item.append($('<div class="yani-auth__field-title"></div>').text(title), $('<div class="yani-auth__field-value"></div>').text(value));
+            item.on('hover:enter', function () { if (!destroyed && !pending) handler(); }); parent.append(item);
+        }
+        function action(parent, key, title, kind, handler) {
+            var item = focus($('<div class="yani-auth__button selector ' + (kind ? 'yani-auth__button--' + kind : '') + '"></div>').text(title), key);
+            item.on('hover:enter', function () { if (!destroyed && !pending) handler(); }); parent.append(item);
+        }
         function submit() {
-            if (!login) return Lampa.Noty.show(deps.t('email_required')); if (!password) return Lampa.Noty.show(deps.t('password_required'));
+            if (!login) return Lampa.Noty.show(deps.t('email_required'));
+            if (!password) return Lampa.Noty.show(deps.t('password_required'));
+            pending = true;
             Lampa.Loading && Lampa.Loading.start && Lampa.Loading.start();
-            LampaYaniAuth.login(login, password).then(function () { return LampaYaniApi.profile().then(function (payload) { var profile = payload && payload.response ? payload.response : payload, current = LampaYaniAuth.get(); LampaYaniAuth.save({token: current.token, login: current.login, display_name: profile && (profile.nickname || profile.name) || current.login}); }).catch(function () {}); }).then(function () { password = ''; Lampa.Noty.show(deps.t('login_ok')); if (deps.onAuthChanged) deps.onAuthChanged(); if (deps.onAuthorized) deps.onAuthorized(); deps.goBack(); }).catch(function (error) { console.error('[YummyAnime Auth]', error); Lampa.Noty.show(deps.t('login_error')); }).then(function () { Lampa.Loading && Lampa.Loading.stop && Lampa.Loading.stop(); });
+            LampaYaniAuth.login(login, password).then(function () {
+                if (destroyed) return;
+                var signedInToken = LampaYaniAuth.token();
+                return LampaYaniApi.profile().then(function (payload) {
+                    if (destroyed || LampaYaniAuth.token() !== signedInToken) return;
+                    var profile = payload && payload.response ? payload.response : payload, current = LampaYaniAuth.get();
+                    LampaYaniAuth.save({token: current.token, login: current.login, display_name: profile && (profile.nickname || profile.name) || current.login});
+                }).catch(function () {});
+            }).then(function () {
+                password = '';
+                if (destroyed) return;
+                Lampa.Noty.show(deps.t('login_ok'));
+                if (deps.onAuthChanged) deps.onAuthChanged();
+                if (deps.onAuthorized) deps.onAuthorized();
+                deps.goBack();
+            }).catch(function (error) {
+                if (destroyed) return;
+                console.error('[YummyAnime Auth]', error); Lampa.Noty.show(deps.t('login_error'));
+            }).then(function () { pending = false; Lampa.Loading && Lampa.Loading.stop && Lampa.Loading.stop(); });
         }
-        function refresh() { LampaYaniAuth.refresh().then(function () { Lampa.Noty.show(deps.t('token_refreshed')); render(); }).catch(function () { Lampa.Noty.show(deps.t('token_refresh_error')); }); }
-        function logout() { LampaYaniAuth.logout().then(function () { Lampa.Noty.show(deps.t('logged_out')); if (deps.onAuthChanged) deps.onAuthChanged(); render(); }).catch(function () { Lampa.Noty.show(deps.t('token_removed')); if (deps.onAuthChanged) deps.onAuthChanged(); render(); }); }
-        return {create: function () { render(); scroll.append(content); html.append(scroll.render(true)); ready = true; this.activity.loader(false); this.activity.toggle(); }, start: function () { Lampa.Controller.add('content', {toggle: refreshFocus, left: function () { if (Navigator.canmove('left')) Navigator.move('left'); else Lampa.Controller.toggle('menu'); }, right: function () { Navigator.move('right'); }, up: function () { if (Navigator.canmove('up')) Navigator.move('up'); else Lampa.Controller.toggle('head'); }, down: function () { LampaYaniNavigation.moveDown(scroll); }, back: deps.goBack}); Lampa.Controller.toggle('content'); }, render: function (js) { return js ? html[0] : html; }, destroy: function () { ready = false; scroll.destroy(); html.remove(); }};
+        function refresh() {
+            pending = true;
+            LampaYaniAuth.refresh().then(function () { if (!destroyed) { Lampa.Noty.show(deps.t('token_refreshed')); render(); } })
+                .catch(function () { if (!destroyed) Lampa.Noty.show(deps.t('token_refresh_error')); })
+                .then(function () { pending = false; });
+        }
+        function logout() {
+            pending = true;
+            LampaYaniAuth.logout().then(function () {
+                if (destroyed) return;
+                Lampa.Noty.show(deps.t('logged_out')); if (deps.onAuthChanged) deps.onAuthChanged(); render();
+            }).catch(function () {
+                if (destroyed) return;
+                Lampa.Noty.show(deps.t('token_removed')); if (deps.onAuthChanged) deps.onAuthChanged(); render();
+            }).then(function () { password = ''; pending = false; });
+        }
+        return {
+            create: function () { render(); scroll.append(content); html.append(scroll.render(true)); ready = true; this.activity.loader(false); this.activity.toggle(); },
+            start: function () {
+                if (destroyed) return;
+                paused = false;
+                Lampa.Controller.add('content', {toggle: refreshFocus, left: function () { if (Navigator.canmove('left')) Navigator.move('left'); else Lampa.Controller.toggle('menu'); }, right: function () { Navigator.move('right'); }, up: function () { if (Navigator.canmove('up')) Navigator.move('up'); else Lampa.Controller.toggle('head'); }, down: function () { LampaYaniNavigation.moveDown(scroll); }, back: deps.goBack});
+                Lampa.Controller.toggle('content');
+            },
+            pause: function () { paused = true; },
+            stop: function () { paused = true; },
+            render: function (js) { return js ? html[0] : html; },
+            destroy: function () { destroyed = true; ready = false; password = ''; last = null; if (focusTimer) clearTimeout(focusTimer); scroll.destroy(); html.remove(); }
+        };
     }
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.AuthPage = window.LampaYaniAuthPage = {create: create};
@@ -10287,67 +10778,164 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
 (function (window) {
     'use strict';
+
+    // Each bar represents an interval. Keep its worst observed state so an
+    // outage does not disappear when a long server snapshot is condensed.
+    function compactHistory(points, limit) {
+        points = Array.isArray(points) ? points : [];
+        limit = Math.max(1, Number(limit) || 48);
+        if (points.length <= limit) return points;
+        var result = [], severity = {up: 0, unknown: 1, degraded: 2, down: 3};
+        for (var index = 0; index < limit; index++) {
+            var start = Math.floor(index * points.length / limit);
+            var end = Math.floor((index + 1) * points.length / limit);
+            var worst = points[start] || {};
+            for (var cursor = start + 1; cursor < end; cursor++) {
+                var point = points[cursor] || {};
+                if (Number(severity[point.status] || 0) > Number(severity[worst.status] || 0)) worst = point;
+            }
+            result.push({status: worst.status, time: points[start] && points[start].time, end_time: points[end - 1] && points[end - 1].time});
+        }
+        return result;
+    }
+
     function create(object, deps) {
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250}), html = $('<div class="yani-status"></div>'), content = $('<div class="yani-status__content"></div>'), last, lastKey = '', ready = false, period = '3hour', component;
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
+        var html = $('<div class="yani-status yani-lite-view"></div>');
+        var content = $('<div class="yani-status__content"></div>');
+        var last, lastKey = '', ready = false, destroyed = false, paused = false, pending = false, generation = 0, period = '3hour', component;
         scroll.minus();
-        function date(value) { if (!value) return '—'; try { return new Date(value).toLocaleString(deps.locale(), {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}); } catch (error) { return new Date(value).toLocaleString(); } }
-        function focus(element, key) { if (key) element.attr('data-yani-focus-key', key); element.on('hover:focus', function (event) { var target = event.currentTarget || event.target; last = target; lastKey = key || $(target).attr('data-yani-focus-key') || ''; scroll.update($(target), true); }); return element; }
+
+        function date(value) {
+            if (!value) return '—';
+            try { return new Date(value).toLocaleString(deps.locale(), {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}); }
+            catch (error) { return new Date(value).toLocaleString(); }
+        }
+        function statusKey(value) { return ['up', 'down', 'degraded', 'unknown'].indexOf(value) >= 0 ? value : 'unknown'; }
+        function focus(element, key) {
+            if (key) element.attr('data-yani-focus-key', key);
+            element.on('hover:focus', function (event) {
+                if (destroyed) return;
+                var target = event.currentTarget || event.target;
+                last = target; lastKey = key || $(target).attr('data-yani-focus-key') || '';
+                scroll.update($(target), true);
+            });
+            return element;
+        }
         function metric(title, value) { return $('<div class="yani-status__metric"></div>').append($('<span></span>').text(title), $('<strong></strong>').text(value)); }
-        function domainName(domain) { var names = {'old.yummyani.me': 'domain_old', 'old.yummy-ani.me': 'domain_old_mirror', 'ru.yummyani.me': 'domain_new', 'ru.yummy-ani.me': 'domain_new_mirror', 'api.yani.tv': 'domain_api', 'waf.valtrix.org': 'domain_waf'}; return names[domain.domain] ? deps.t(names[domain.domain]) : (domain.label || domain.domain); }
+        function domainName(domain) {
+            var names = {'old.yummyani.me': 'domain_old', 'old.yummy-ani.me': 'domain_old_mirror', 'ru.yummyani.me': 'domain_new', 'ru.yummy-ani.me': 'domain_new_mirror', 'api.yani.tv': 'domain_api', 'waf.valtrix.org': 'domain_waf'};
+            return names[domain.domain] ? deps.t(names[domain.domain]) : (domain.label || domain.domain);
+        }
         function renderError() {
+            if (destroyed) return;
             content.empty();
             var state = LampaYaniSectionState.create({t: deps.t});
-            state.show('offline', {
-                title: deps.t('status_load_error'),
-                hint: deps.t('status_error_hint'),
-                onRetry: function () { load(false); }
-            });
+            state.show('offline', {title: deps.t('status_load_error'), hint: deps.t('status_error_hint'), onRetry: function () { load(false); }});
             content.append(state.root);
             refreshFocus();
         }
         function render(data) {
-            content.empty(); var periods = data.periods || null, selected = periods ? (periods[period] || periods[data.default_period] || periods['3hour']) : data; if (!selected) return renderError();
-            var labels = {'3hour': deps.t('period_3hour'), day: deps.t('period_day'), week: deps.t('period_week'), month: deps.t('period_month')}, switches = $('<div class="yani-status__periods"></div>');
-            Object.keys(labels).forEach(function (key) { var button = focus($('<div class="yani-status__period selector"></div>').text(labels[key]), 'period-' + key); if (key === period) button.addClass('active'); button.on('hover:enter', function () { period = key; lastKey = 'period-' + key; render(data); }); switches.append(button); }); content.append(switches);
-            var summary = selected.summary || {}, state = summary.status || 'unknown', title = state === 'up' ? deps.t('all_up') : state === 'down' ? deps.t('all_down') : state === 'unknown' ? deps.t('no_monitoring') : deps.t('degraded'), color = state === 'up' ? '#4caf50' : state === 'down' ? '#db4455' : state === 'unknown' ? '#888' : '#f0a33b';
-            var block = focus($('<div class="yani-status__summary selector yani-status--' + state + '"></div>')), ring = $('<div class="yani-status__ring"><div class="yani-status__ring-center"></div></div>'); ring.css('background', 'conic-gradient(#4caf50 0 ' + Number(summary.uptime_percent || 0) + '%, #db4455 ' + Number(summary.uptime_percent || 0) + '% 100%)'); ring.find('.yani-status__ring-center').append($('<strong></strong>').text(summary.checks || 0), $('<span></span>').text(deps.t('checks')));
-            var info = $('<div class="yani-status__summary-info"></div>').append($('<div class="yani-status__headline"></div>').css('color', color).text(title)); var metrics = $('<div class="yani-status__metrics"></div>').append(metric(deps.t('availability'), Number(summary.uptime_percent || 0).toFixed(1) + '%'), metric(deps.t('average_load'), String(summary.average_ms || 0) + ' ' + deps.t('milliseconds')), metric(deps.t('errors'), String(summary.failed || 0)), metric(deps.t('updated'), date(selected.generated_at))); info.append(metrics); block.append(ring, info); content.append(block);
-            var legend = focus($('<div class="yani-status__legend selector"></div>')).html('<span class="yani-status__dot yani-status__dot--up"></span>' + deps.t('up') + ' <span class="yani-status__dot yani-status__dot--degraded"></span>' + deps.t('unstable') + ' <span class="yani-status__dot yani-status__dot--down"></span>' + deps.t('down')); content.append(legend);
-            (selected.domains || []).forEach(function (domain) { var row = focus($('<div class="yani-status__domain selector yani-status--' + domain.status + '"></div>')), head = $('<div class="yani-status__domain-head"></div>'), name = $('<div class="yani-status__domain-name"></div>').append('<span class="yani-status__state"></span>', $('<strong></strong>').text(domainName(domain)), $('<small></small>').text(domain.domain)), values = $('<div class="yani-status__domain-values"></div>').append($('<span></span>').text('HTTP ' + (domain.average_ms || 0) + ' ' + deps.t('milliseconds')), $('<span></span>').text('Ping ' + (domain.ping_ms || 0) + ' ' + deps.t('milliseconds'))), history = $('<div class="yani-status__history"></div>'); (domain.history || []).forEach(function (point) { history.append($('<i class="yani-status__bar yani-status__bar--' + point.status + '"></i>').attr('title', date(point.time))); }); head.append(name, values); row.append(head, history); content.append(row); });
-            content.append(focus($('<div class="yani-status__source selector"></div>').text(deps.t('source') + ': YummyStatus · ' + deps.t('period') + ': ' + labels[period] + ' · ' + deps.t('snapshot_notice'))));
-            content.append(focus($('<div class="yani-status__refresh selector"></div>').text(deps.t('refresh_status')).on('hover:enter', function () { Lampa.Noty.show(deps.t('refreshing_status')); load(false); }))); refreshFocus();
+            if (destroyed) return;
+            data = data || {};
+            var periods = data.periods || null;
+            var selected = periods ? (periods[period] || periods[data.default_period] || periods['3hour']) : data;
+            if (!selected) return renderError();
+            content.empty();
+            var labels = {'3hour': deps.t('period_3hour'), day: deps.t('period_day'), week: deps.t('period_week'), month: deps.t('period_month')};
+            var switches = $('<div class="yani-status__periods"></div>');
+            Object.keys(labels).forEach(function (key) {
+                var button = focus($('<div class="yani-status__period selector"></div>').text(labels[key]), 'period-' + key);
+                if (key === period) button.addClass('active');
+                button.on('hover:enter', function () { if (destroyed || period === key) return; period = key; lastKey = 'period-' + key; render(data); });
+                switches.append(button);
+            });
+            content.append(switches);
+            var summary = selected.summary || {}, state = statusKey(summary.status);
+            var title = state === 'up' ? deps.t('all_up') : state === 'down' ? deps.t('all_down') : state === 'unknown' ? deps.t('no_monitoring') : deps.t('degraded');
+            var block = focus($('<div class="yani-status__summary selector yani-status--' + state + '"></div>'), 'summary');
+            var info = $('<div class="yani-status__summary-info"></div>');
+            info.append($('<div class="yani-status__headline"></div>').text(title));
+            info.append($('<div class="yani-status__metrics"></div>').append(
+                metric(deps.t('availability'), summary.uptime_percent === undefined ? '—' : Number(summary.uptime_percent).toFixed(1) + '%'),
+                metric(deps.t('average_load'), summary.average_ms === undefined ? '—' : String(summary.average_ms) + ' ' + deps.t('milliseconds')),
+                metric(deps.t('errors'), summary.failed === undefined ? '—' : String(summary.failed)),
+                metric(deps.t('checks'), summary.checks === undefined ? '—' : String(summary.checks)),
+                metric(deps.t('updated'), date(selected.generated_at || data.generated_at))
+            ));
+            block.append(info); content.append(block);
+            var legend = focus($('<div class="yani-status__legend selector"></div>'), 'legend');
+            [['up', 'up'], ['degraded', 'unstable'], ['down', 'down']].forEach(function (entry) {
+                legend.append($('<span class="yani-status__legend-item"></span>').append('<span class="yani-status__dot yani-status__dot--' + entry[0] + '"></span>', $('<span></span>').text(deps.t(entry[1]))));
+            });
+            content.append(legend);
+            (selected.domains || []).forEach(function (domain, index) {
+                var row = focus($('<div class="yani-status__domain selector yani-status--' + statusKey(domain.status) + '"></div>'), 'domain-' + index);
+                var head = $('<div class="yani-status__domain-head"></div>');
+                var name = $('<div class="yani-status__domain-name"></div>').append('<span class="yani-status__state"></span>', $('<strong></strong>').text(domainName(domain)), $('<small></small>').text(domain.domain));
+                var values = $('<div class="yani-status__domain-values"></div>').append(
+                    $('<span></span>').text('HTTP ' + (domain.average_ms === undefined ? '—' : domain.average_ms + ' ' + deps.t('milliseconds'))),
+                    $('<span></span>').text('Ping ' + (domain.ping_ms === undefined ? '—' : domain.ping_ms + ' ' + deps.t('milliseconds')))
+                );
+                var history = $('<div class="yani-status__history"></div>');
+                compactHistory(domain.history, 48).forEach(function (point) {
+                    var interval = date(point.time) + (point.end_time && point.end_time !== point.time ? ' — ' + date(point.end_time) : '');
+                    history.append($('<i class="yani-status__bar yani-status__bar--' + statusKey(point.status) + '"></i>').attr('title', interval));
+                });
+                head.append(name, values); row.append(head, history); content.append(row);
+            });
+            content.append(focus($('<div class="yani-status__source selector"></div>').text(deps.t('source') + ': YummyStatus · ' + deps.t('period') + ': ' + labels[period] + ' · ' + deps.t('snapshot_notice')), 'source'));
+            content.append(focus($('<div class="yani-status__refresh selector"></div>').text(deps.t('refresh_status')).on('hover:enter', function () { load(false); }), 'refresh'));
+            refreshFocus();
         }
-        function refreshFocus() { if (!ready) return; var target = last && document.documentElement.contains(last) ? $(last) : lastKey ? content.find('[data-yani-focus-key="' + lastKey + '"]').first() : $(); if (!target.length) target = content.find('.selector').first(); last = target.length ? target[0] : null; Lampa.Controller.collectionSet(scroll.render()); Lampa.Controller.collectionFocus(last || false, scroll.render()); if (target.length) scroll.update(target, true); }
+        function refreshFocus() {
+            if (!ready || destroyed || paused) return;
+            var enabled = Lampa.Controller.enabled && Lampa.Controller.enabled();
+            if (enabled && enabled.name !== 'content') return;
+            var target = last && document.documentElement.contains(last) ? $(last) : lastKey ? content.find('[data-yani-focus-key="' + lastKey + '"]').first() : $();
+            if (!target.length) target = content.find('.selector').first();
+            last = target.length ? target[0] : null;
+            Lampa.Controller.collectionSet(scroll.render());
+            Lampa.Controller.collectionFocus(last || false, scroll.render());
+            if (target.length) scroll.update(target, true);
+        }
         function load(first) {
+            if (destroyed || pending) return;
+            pending = true;
+            var requestGeneration = ++generation;
             if (first) {
                 component.activity.loader(false);
                 content.empty();
                 var loading = LampaYaniSectionState.create({t: deps.t});
-                loading.show('loading', {skeleton: 'rows'});
-                content.append(loading.root);
+                loading.show('loading', {skeleton: 'rows'}); content.append(loading.root);
             }
             LampaYaniApi.status().then(function (data) {
-                render(data);
-                if (first) {
-                    component.activity.toggle();
-                    ready = true;
-                    refreshFocus();
-                }
+                if (destroyed || requestGeneration !== generation) return;
+                pending = false; render(data);
+                if (first) { if (!paused) component.activity.toggle(); ready = true; refreshFocus(); }
             }).catch(function (error) {
-                console.error('[YummyAnime Status]', error);
-                renderError();
-                if (first) {
-                    component.activity.toggle();
-                    ready = true;
-                    refreshFocus();
-                }
+                if (destroyed || requestGeneration !== generation) return;
+                pending = false; console.error('[YummyAnime Status]', error); renderError();
+                if (first) { if (!paused) component.activity.toggle(); ready = true; refreshFocus(); }
             });
         }
-        component = {create: function () { scroll.append(content); html.append(scroll.render(true)); load(true); }, start: function () { Lampa.Controller.add('content', {toggle: function () { Lampa.Controller.collectionSet(scroll.render()); Lampa.Controller.collectionFocus(last || false, scroll.render()); }, left: function () { if (Navigator.canmove('left')) Navigator.move('left'); else Lampa.Controller.toggle('menu'); }, right: function () { Navigator.move('right'); }, up: function () { if (Navigator.canmove('up')) Navigator.move('up'); else Lampa.Controller.toggle('head'); }, down: function () { LampaYaniNavigation.moveDown(scroll); }, back: deps.goBack}); Lampa.Controller.toggle('content'); }, render: function (js) { return js ? html[0] : html; }, destroy: function () { scroll.destroy(); html.remove(); }};
+        component = {
+            create: function () { scroll.append(content); html.append(scroll.render(true)); load(true); },
+            start: function () {
+                if (destroyed) return;
+                paused = false;
+                Lampa.Controller.add('content', {toggle: refreshFocus, left: function () { if (Navigator.canmove('left')) Navigator.move('left'); else Lampa.Controller.toggle('menu'); }, right: function () { Navigator.move('right'); }, up: function () { if (Navigator.canmove('up')) Navigator.move('up'); else Lampa.Controller.toggle('head'); }, down: function () { LampaYaniNavigation.moveDown(scroll); }, back: deps.goBack});
+                Lampa.Controller.toggle('content');
+            },
+            pause: function () { paused = true; },
+            stop: function () { paused = true; },
+            render: function (js) { return js ? html[0] : html; },
+            destroy: function () { destroyed = true; generation++; ready = false; last = null; scroll.destroy(); html.remove(); }
+        };
         return component;
     }
     window.LampaYani = window.LampaYani || {};
-    window.LampaYani.Status = window.LampaYaniStatus = {create: create};
+    window.LampaYani.Status = window.LampaYaniStatus = {create: create, compactHistory: compactHistory};
 }(window));
 
 (function (window) {
@@ -10975,13 +11563,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     function listVisual(key) {
         var visuals = {
-            watching: {from: '#ff6878', to: '#a94372', icon: '<path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.7"/>'},
-            planned: {from: '#59bfea', to: '#5367d6', icon: '<path d="M5 18h13a3 3 0 0 0 .4-6A6.5 6.5 0 0 0 6 10.5 3.8 3.8 0 0 0 5 18Z"/>'},
-            completed: {from: '#62d39a', to: '#328d75', icon: '<path d="M6 21V4m1 1h10l-2.3 3L17 11H7"/>'},
-            dropped: {from: '#97a1b5', to: '#555f78', icon: '<path d="m4 4 16 16M10.6 6.3A9.8 9.8 0 0 1 12 6c5.8 0 9 6 9 6a15 15 0 0 1-2.1 3M7.2 7.3C4.5 9.2 3 12 3 12s3.2 6 9 6c1.1 0 2.1-.2 3-.6"/>'},
-            favorites: {from: '#f174ae', to: '#b53f76', icon: '<path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8A4.4 4.4 0 0 1 12 7.2a4.4 4.4 0 0 1 8.5 1.6Z"/>'},
-            postponed: {from: '#efbd68', to: '#bd7546', icon: '<path d="M7 3h10M7 21h10M8 4c0 4 1.2 5.5 4 8-2.8 2.5-4 4-4 8M16 4c0 4-1.2 5.5-4 8 2.8 2.5 4 4 4 8"/>'},
-            history: {from: '#a68af0', to: '#6653b4', icon: '<path d="M4 5v5h5M5.2 17a8 8 0 1 0-.8-8M12 7v5l3.5 2"/>'}
+            watching: {from: '#333333', to: '#292929', icon: '<path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.7"/>'},
+            planned: {from: '#333333', to: '#292929', icon: '<path d="M5 18h13a3 3 0 0 0 .4-6A6.5 6.5 0 0 0 6 10.5 3.8 3.8 0 0 0 5 18Z"/>'},
+            completed: {from: '#333333', to: '#292929', icon: '<path d="M6 21V4m1 1h10l-2.3 3L17 11H7"/>'},
+            dropped: {from: '#333333', to: '#292929', icon: '<path d="m4 4 16 16M10.6 6.3A9.8 9.8 0 0 1 12 6c5.8 0 9 6 9 6a15 15 0 0 1-2.1 3M7.2 7.3C4.5 9.2 3 12 3 12s3.2 6 9 6c1.1 0 2.1-.2 3-.6"/>'},
+            favorites: {from: '#333333', to: '#292929', icon: '<path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8A4.4 4.4 0 0 1 12 7.2a4.4 4.4 0 0 1 8.5 1.6Z"/>'},
+            postponed: {from: '#333333', to: '#292929', icon: '<path d="M7 3h10M7 21h10M8 4c0 4 1.2 5.5 4 8-2.8 2.5-4 4-4 8M16 4c0 4-1.2 5.5-4 8 2.8 2.5 4 4 4 8"/>'},
+            history: {from: '#333333', to: '#292929', icon: '<path d="M4 5v5h5M5.2 17a8 8 0 1 0-.8-8M12 7v5l3.5 2"/>'}
         };
         return visuals[key] || visuals.history;
     }
@@ -11033,7 +11621,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         if (card.yani_more) render.addClass('yani-user-list-card--more');
         var badge = view.find('.yani-user-list-card__badge');
         if (!badge.length) badge = $('<span class="yani-user-list-card__badge"></span>').prependTo(view);
-        badge.html(listIcon(card.yani_list_key));
+        if (badge.attr('data-yani-list-icon') !== card.yani_list_key) {
+            badge.attr('data-yani-list-icon', card.yani_list_key).html(listIcon(card.yani_list_key));
+        }
         if (card.yani_more && typeof card.yani_shortcut_number === 'number') {
             var shortcut = view.find('.yani-user-list-card__shortcut');
             if (!shortcut.length) shortcut = $('<span class="yani-user-list-card__shortcut"></span>').appendTo(view);
@@ -11048,6 +11638,26 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
     }
 
+    // Token refresh and profile id hydration do not change the account. A late
+    // list response must still be ignored after logout or a real account switch.
+    function accountOwner() {
+        var auth = window.LampaYaniAuth;
+        if (!auth || typeof auth.token !== 'function') return function () { return true; };
+        var account = auth.get ? auth.get() || {} : {};
+        var ownerId = Number(account.user_id || 0), ownerLogin = String(account.login || ''), ownerToken = auth.token();
+        return function () {
+            var latest = auth.get ? auth.get() || {} : {};
+            var id = Number(latest.user_id || 0), login = String(latest.login || ''), token = auth.token();
+            if (Boolean(token) !== Boolean(ownerToken)) return false;
+            var same = ownerId && id ? ownerId === id : ownerLogin && login ? ownerLogin === login : ownerToken === token;
+            if (same) {
+                if (!ownerId && id) ownerId = id;
+                if (!ownerLogin && login) ownerLogin = login;
+            }
+            return same;
+        };
+    }
+
     function accountList(object, deps) {
         // InteractionCategory only requests the next page when object.page is
         // numeric. Account-list activities are opened without API pagination,
@@ -11059,6 +11669,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var pageSize = 30;
         var totalPages = 1;
         var destroyed = false;
+        var ownsAccount = accountOwner();
+        function current() { return !destroyed && ownsAccount(); }
         var controls = LampaYaniAccountListControls.create({
             comp: comp,
             object: object,
@@ -11090,19 +11702,21 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 ? deps.loadItems(object.definition)
                 : Promise.resolve(object.items || []);
             source.then(function (loaded) {
-                if (destroyed) return;
+                if (!current()) return;
                 items = controls.sort(Array.isArray(loaded) ? loaded : []);
                 totalPages = Math.max(1, Math.ceil(items.length / pageSize));
                 self.build({results: pageCards(1), total_pages: totalPages, title: object.title});
+                if (self.render) self.render().addClass('yani-lite-view yani-account-list-view');
                 controls.install(items.length);
             }).catch(function (error) {
-                if (destroyed) return;
+                if (!current()) return;
                 console.error('[YummyAnime User List]', error);
                 self.build({results: [], total_pages: 1, title: object.title});
                 if (deps.onError) deps.onError(error);
             });
         };
         comp.nextPageReuest = function (requestObject, resolve) {
+            if (!current()) return;
             var page = Math.max(2, Number(requestObject.page) || 2);
             resolve({results: pageCards(page), total_pages: totalPages, title: object.title});
         };
@@ -11115,28 +11729,60 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         comp.destroy = function () {
             destroyed = true;
             controls.destroy();
+            items = [];
             if (originalDestroy) originalDestroy.apply(this, arguments);
         };
         return comp;
     }
     function subscriptions(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, cards = [], pageSize = 30;
+        var ownsAccount = accountOwner();
+        function current() { return !destroyed && ownsAccount(); }
+        function page(page) {
+            return {results: cards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: deps.t('subscriptions')};
+        }
         comp.create = function () {
-            var self = this; this.activity.loader(true);
+            var self = this;
+            this.activity.loader(true);
             LampaYaniApi.subscriptions(object.userId).then(function (payload) {
-                var response = payload && payload.response ? payload.response : payload, values = Array.isArray(response) ? response : response && (response.anime || response.items || response.data || response.subscriptions) || [];
-                var cards = values.map(function (item) { var source = item && (item.anime || item.title_data || item.object) || item; return source && (source.anime_id || source.id || source.title) ? deps.toCard(source) : null; }).filter(Boolean);
+                if (!current()) return;
+                var response = payload && payload.response ? payload.response : payload;
+                var values = Array.isArray(response) ? response : response && (response.anime || response.items || response.data || response.subscriptions) || [];
+                cards = values.map(function (item) {
+                    var source = item && (item.anime || item.title_data || item.object) || item;
+                    return source && (source.anime_id || source.id || source.title) ? deps.toCard(source) : null;
+                }).filter(Boolean);
                 if (!cards.length) Lampa.Noty.show(deps.t('subscriptions_empty'));
-                self.build({results: cards, total_pages: 1, title: deps.t('subscriptions')});
-            }).catch(function (error) { console.error('[YummyAnime Subscriptions]', error); self.activity.loader(false); Lampa.Noty.show(deps.t('subscriptions_error')); });
+                self.build(page(1));
+                if (self.render) self.render().addClass('yani-lite-view yani-subscriptions-view');
+            }).catch(function (error) {
+                if (!current()) return;
+                console.error('[YummyAnime Subscriptions]', error);
+                self.activity.loader(false);
+                Lampa.Noty.show(deps.t('subscriptions_error'));
+            });
         };
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (current()) resolve(page(Math.max(2, Number(requestObject.page) || 2)));
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            cards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 
     function userLists(object, deps) {
         var component = new Lampa.InteractionMain(object);
         var destroyed = false;
+        var ownsAccount = accountOwner();
+        function current() { return !destroyed && ownsAccount(); }
         var remoteShortcutHandler = null;
         var shortcutRows = {};
 
@@ -11157,6 +11803,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function handleRemoteShortcut(event) {
+            if (!current()) return;
             var root = component.render ? component.render() : $();
             if (!root.length || !root.is(':visible') || event.defaultPrevented || $(event.target).closest('input, textarea, select, [contenteditable=true]').length) return;
             if (window.Lampa && Lampa.Activity && typeof Lampa.Activity.own === 'function' && !Lampa.Activity.own(component)) return;
@@ -11182,8 +11829,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var title = escapeSvgText(deps.t('more'));
             var total = Math.max(0, Number(row.total || 0));
             var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="540" viewBox="0 0 360 540">' +
-                '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + visual.from + '"/><stop offset="1" stop-color="' + visual.to + '"/></linearGradient><radialGradient id="r"><stop stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>' +
-                '<rect width="360" height="540" rx="28" fill="url(#g)"/><circle cx="292" cy="92" r="170" fill="url(#r)"/><path d="M-30 430C90 330 212 478 390 340v210H-30Z" fill="#090a12" opacity=".16"/>' +
+                '<rect width="360" height="540" rx="14" fill="#333333"/><path d="M24 24h312" stroke="#ff6666" stroke-width="5"/>' +
                 '<g transform="translate(120 124) scale(5)" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + visual.icon + '</g>' +
                 '<text x="180" y="354" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="48" font-weight="700">' + title + '</text>' +
                 '<text x="180" y="406" text-anchor="middle" fill="#fff" fill-opacity=".72" font-family="sans-serif" font-size="30">' + total + '</text>' +
@@ -11239,19 +11885,19 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var self = this;
             this.activity.loader(true);
             deps.loadRows().then(function (rows) {
-                if (destroyed) return;
+                if (!current()) return;
                 (rows || []).forEach(function (row) {
                     if (row.history) shortcutRows.history = row;
                     else if (row.definition && row.definition.key) shortcutRows[row.definition.key] = row;
                 });
                 self.build((rows || []).map(withMore));
                 if (self.render) {
-                    var root = self.render().addClass('yani-user-lists-view yani-card-rails');
+                    var root = self.render().addClass('yani-user-lists-view yani-card-rails yani-lite-view');
                     remoteShortcutHandler = handleRemoteShortcut;
                     document.addEventListener('keydown', remoteShortcutHandler, true);
                 }
             }).catch(function (error) {
-                if (destroyed) return;
+                if (!current()) return;
                 console.error('[YummyAnime User Lists]', error);
                 self.build([]);
                 if (deps.onError) deps.onError(error);
@@ -11269,6 +11915,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             destroyed = true;
             if (remoteShortcutHandler) document.removeEventListener('keydown', remoteShortcutHandler, true);
             remoteShortcutHandler = null;
+            shortcutRows = {};
             if (originalDestroy) originalDestroy.apply(this, arguments);
         };
         return component;
@@ -12008,6 +12655,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         historyEntryKey: historyEntryKey,
         isContinueEntry: isContinueEntry,
         continueWatchingEntries: continueWatchingEntries,
+        attachHistoryEntry: attachHistoryEntry,
         continueStats: continueStats,
         importRemoteIntoLocal: importRemoteIntoLocal,
         shouldReplaceLocal: shouldReplaceLocal
@@ -12669,8 +13317,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var label = display.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             var size = display.length > 18 ? 25 : display.length > 13 ? 28 : 32;
             var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="440" height="248" viewBox="0 0 440 248">' +
-                '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + colors[0] + '"/><stop offset="1" stop-color="' + colors[1] + '"/></linearGradient></defs>' +
-                '<rect width="440" height="248" rx="28" fill="url(#g)"/><circle cx="370" cy="40" r="125" fill="#fff" opacity=".1"/>' +
+                '<rect width="440" height="248" rx="14" fill="#333333"/>' +
                 '<path d="M48 65 112 38l64 27-64 27-64-27Zm0 40 64 27 64-27m-128 40 64 27 64-27" fill="none" stroke="#fff" stroke-opacity=".72" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>' +
                 '<text x="205" y="205" fill="#fff" font-family="sans-serif" font-size="' + size + '" font-weight="700">' + label + '</text></svg>';
             return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
@@ -12733,8 +13380,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     results: cards,
                     onMore: function () { deps.open(collection); },
                     visual: {
-                        from: '#a68af0',
-                        to: '#6653b4',
+                        from: '#333333',
+                        to: '#292929',
                         icon: '<path d="M4 6.5 12 3l8 3.5-8 3.5-8-3.5Z"/><path d="m4 11 8 3.5 8-3.5M4 15.5 12 19l8-3.5"/>'
                     }
                 };
@@ -12757,7 +13404,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
         return window.LampaYaniCardRails.create(object, {
             id: 'collections:' + String(object && object.url || 'yani/collections'),
-            viewClass: 'yani-collections-hub',
+            viewClass: 'yani-collections-hub yani-lite-view',
             t: deps.t,
             openCard: deps.openCard,
             decorate: deps.decorate,
@@ -12777,6 +13424,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var nextCatalogOffset = 0;
         var catalogDone = false;
         var catalogCards = [];
+        var pendingCards = [];
         var destroyed = false;
         var renderedSourcePath = '';
         var cacheUpdateHandler = null;
@@ -12813,7 +13461,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             catalogCards = uniqueCards(items);
             self.build({results: catalogCards, total_pages: maxPages, title: deps.t('collections')});
             if (self.activity && self.activity.loader) self.activity.loader(false);
-            if (self.render) self.render().addClass('yani-tile-catalog yani-collections-tile-catalog');
+            if (self.render) self.render().addClass('yani-tile-catalog yani-collections-tile-catalog').addClass('yani-lite-view');
             bindVisibleCollectionTiles(self, catalogCards);
             focusScope.bind(self.render());
         }
@@ -12879,6 +13527,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     rendered = true;
                     renderedSourcePath = sourcePath || '';
                     buildInitial(self, items);
+                } else if (rendered && items && items.length) {
+                    // The feed can win with fewer items than the first catalog
+                    // page. Preserve unseen titles for the next native page.
+                    pendingCards = pendingCards.concat(uniqueCards(items));
                 }
                 if (completed === 2 && !rendered) failInitial(lastError || new Error('Collections are empty'));
             }
@@ -12895,6 +13547,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 settleInitial([], error, '/feed');
             });
             deps.load(limit, 0, control).then(function (payload) {
+                if (destroyed) return;
                 var items = collectionItems(payload);
                 nextCatalogOffset = items.length;
                 catalogDone = items.length < limit;
@@ -12905,7 +13558,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         };
 
         comp.nextPageReuest = function (requestObject, resolve, reject) {
+            if (destroyed) return;
+            if (pendingCards.length) {
+                var pending = pendingCards;
+                pendingCards = [];
+                catalogCards = catalogCards.concat(pending);
+                if (catalogDone) requestObject.page = maxPages;
+                resolve({results: pending, total_pages: maxPages, title: deps.t('collections')});
+                return;
+            }
             function loadNext(attempt) {
+                if (destroyed) return;
                 if (catalogDone || attempt > 4) {
                     requestObject.page = maxPages;
                     resolve({results: [], total_pages: maxPages, title: deps.t('collections')});
@@ -12919,6 +13582,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 }
                 requestedOffsets[offset] = true;
                 deps.load(limit, offset, {timeout: 8000, retry: false}).then(function (payload) {
+                    if (destroyed) return;
                     var raw = collectionItems(payload);
                     nextCatalogOffset = offset + raw.length;
                     catalogDone = raw.length < limit;
@@ -12928,6 +13592,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     if (catalogDone) requestObject.page = maxPages;
                     resolve({results: cards, total_pages: maxPages, title: deps.t('collections')});
                 }).catch(function (error) {
+                    if (destroyed) return;
                     delete requestedOffsets[offset];
                     requestObject.page = Math.max(1, Number(requestObject.page || 2) - 1);
                     deps.error(deps.t('next_page_error'));
@@ -12950,6 +13615,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             destroyed = true;
             if (cacheUpdateHandler) document.removeEventListener('yani:cache-updated', cacheUpdateHandler);
             cacheUpdateHandler = null;
+            catalogCards = [];
+            pendingCards = [];
             focusScope.destroy();
             if (originalCatalogDestroy) originalCatalogDestroy.apply(this, arguments);
         };
@@ -12991,7 +13658,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 if (anime.length < limit) object.page = maxPages;
                 self.build({results: cards, total_pages: maxPages, title: collection.title || deps.t('collection')});
                 if (self.activity && self.activity.loader) self.activity.loader(false);
-                if (self.render) self.render().addClass('yani-collection-view');
+                if (self.render) self.render().addClass('yani-collection-view yani-lite-view');
                 focusScope.bind(self.render());
                 if (!cards.length) deps.error(deps.t('collection_empty'));
             }).catch(function (error) {
@@ -13002,13 +13669,16 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             });
         };
         comp.nextPageReuest = function (requestObject, resolve, reject) {
+            if (destroyed) return;
             var offset = Math.max(0, (Number(requestObject.page || 2) - 1) * limit);
             deps.detail(object.collectionId, limit, offset).then(function (payload) {
+                if (destroyed) return;
                 var collection = responseValue(payload) || {};
                 var anime = Array.isArray(collection.animes) ? collection.animes : [];
                 if (anime.length < limit) requestObject.page = maxPages;
                 resolve({results: detailCards(collection), total_pages: maxPages, title: collection.title || deps.t('collection')});
             }).catch(function (error) {
+                if (destroyed) return;
                 requestObject.page = Math.max(1, Number(requestObject.page || 2) - 1);
                 deps.error(deps.t('next_page_error'));
                 reject(error);
@@ -13074,13 +13744,30 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function component(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, generation = 0, pageSize = 30, visibleCards = [], gridTitle = '';
+        function buildGrid(self, cards, title) {
+            visibleCards = cards;
+            gridTitle = title;
+            self.build({results: cards.slice(0, pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: title});
+            if (self.render) self.render().addClass('yani-lite-view yani-releases-view');
+        }
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (destroyed) return;
+            var page = Math.max(2, Number(requestObject.page) || 2);
+            resolve({results: visibleCards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(visibleCards.length / pageSize)), title: gridTitle});
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.create = function () {
             var self = this;
             var states = LampaYaniSectionState.forActivity(self.activity, deps);
             function load() {
+                if (destroyed) return;
+                var requestGeneration = ++generation;
                 states.loading('cards');
                 deps.feed().then(function (payload) {
+                    if (destroyed || requestGeneration !== generation) return;
                     var cards = normalize(payload, deps.toCard);
                     if (!cards.length) {
                         states.empty({
@@ -13091,10 +13778,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                         states.focus();
                         return;
                     }
-                    self.build({results: cards, total_pages: 1, title: deps.t('new_releases')});
+                    buildGrid(self, cards, deps.t('new_releases'));
                     if (LampaYaniSectionState.fromCache(payload)) states.cached({onRetry: load});
                     else states.ready();
                 }).catch(function (error) {
+                    if (destroyed || requestGeneration !== generation) return;
                     console.error('[YummyAnime New Releases]', error);
                     states.offline({
                         title: deps.t('new_releases_error'),
@@ -13107,6 +13795,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             load();
         };
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            generation++;
+            visibleCards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 
@@ -13441,11 +14136,27 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function component(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, generation = 0, pageSize = 30, visibleCards = [], gridTitle = '';
+        function buildGrid(self, cards, title) {
+            visibleCards = cards;
+            gridTitle = title;
+            self.build({results: cards.slice(0, pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: title});
+            if (self.render) self.render().addClass('yani-lite-view yani-recommendations-view');
+        }
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (destroyed) return;
+            var page = Math.max(2, Number(requestObject.page) || 2);
+            resolve({results: visibleCards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(visibleCards.length / pageSize)), title: gridTitle});
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.create = function () {
             var self = this;
             var states = LampaYaniSectionState.forActivity(self.activity, deps);
             function load() {
+                if (destroyed) return;
+                var requestGeneration = ++generation;
                 states.loading('cards');
                 var remote = deps.authorized()
                     ? deps.watchHistory(30, 0).catch(function (error) {
@@ -13463,9 +14174,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     deps.feed().catch(function () { return {}; }),
                     notifications
                 ]).then(function (result) {
+                    if (destroyed || requestGeneration !== generation) return;
                     var sources = personalSources(deps.history(), result[0], result[1].items, result[1].subscriptions, 80);
                     var updates = eventCards(sources, result[2], result[3], result[4], deps).slice(0, 28);
                     return loadRelated(sources, deps).then(function (related) {
+                        if (destroyed || requestGeneration !== generation) return;
                         var seen = {};
                         var cards = updates.concat(related).filter(function (card) {
                             var key = String(card && card.yani_id || '');
@@ -13482,10 +14195,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                             states.focus();
                             return;
                         }
-                        self.build({results: cards, total_pages: 1, title: deps.t('for_you')});
+                        buildGrid(self, cards, deps.t('for_you'));
                         states.ready();
                     });
                 }).catch(function (error) {
+                    if (destroyed || requestGeneration !== generation) return;
                     console.error('[YummyAnime For You]', error);
                     states.offline({
                         title: deps.t('personal_feed_error'),
@@ -13498,6 +14212,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             load();
         };
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            generation++;
+            visibleCards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 
@@ -13604,11 +14325,27 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function component(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, generation = 0, pageSize = 30, visibleCards = [], gridTitle = '';
+        function buildGrid(self, cards, title) {
+            visibleCards = cards;
+            gridTitle = title;
+            self.build({results: cards.slice(0, pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: title});
+            if (self.render) self.render().addClass('yani-lite-view yani-updates-view');
+        }
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (destroyed) return;
+            var page = Math.max(2, Number(requestObject.page) || 2);
+            resolve({results: visibleCards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(visibleCards.length / pageSize)), title: gridTitle});
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.create = function () {
             var self = this;
             var states = LampaYaniSectionState.forActivity(self.activity, deps);
             function load() {
+                if (destroyed) return;
+                var requestGeneration = ++generation;
                 if (!deps.authorized()) {
                     states.empty({
                         title: deps.t('login_required'),
@@ -13620,6 +14357,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 }
                 states.loading('cards');
                 deps.resolveUserId().then(function (userId) {
+                    if (destroyed || requestGeneration !== generation) return null;
                     return Promise.all([
                         deps.loadLists(userId),
                         deps.subscriptions(userId).catch(function () { return []; }),
@@ -13627,6 +14365,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                         deps.feed().catch(function () { return {}; })
                     ]);
                 }).then(function (result) {
+                    if (destroyed || requestGeneration !== generation) return;
                     var resultCards = cards(result[0], result[1], result[2], result[3], deps);
                     if (!resultCards.length) {
                         states.empty({
@@ -13637,9 +14376,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                         states.focus();
                         return;
                     }
-                    self.build({results: resultCards, total_pages: 1, title: deps.t('updates')});
+                    buildGrid(self, resultCards, deps.t('updates'));
                     states.ready();
                 }).catch(function (error) {
+                    if (destroyed || requestGeneration !== generation) return;
                     console.error('[YummyAnime Updates]', error);
                     states.offline({
                         title: deps.t('updates_error'),
@@ -13652,6 +14392,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             load();
         };
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            generation++;
+            visibleCards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 
@@ -13714,13 +14461,30 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function component(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, generation = 0, pageSize = 30, visibleCards = [], gridTitle = '';
+        function buildGrid(self, cards, title) {
+            visibleCards = cards;
+            gridTitle = title;
+            self.build({results: cards.slice(0, pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: title});
+            if (self.render) self.render().addClass('yani-lite-view yani-translations-view');
+        }
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (destroyed) return;
+            var page = Math.max(2, Number(requestObject.page) || 2);
+            resolve({results: visibleCards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(visibleCards.length / pageSize)), title: gridTitle});
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.create = function () {
             var self = this;
             var states = LampaYaniSectionState.forActivity(self.activity, deps);
             function load() {
+                if (destroyed) return;
+                var requestGeneration = ++generation;
                 states.loading('cards');
                 deps.feed().then(function (payload) {
+                    if (destroyed || requestGeneration !== generation) return;
                     var cards = normalize(payload, deps.toCard);
                     if (!cards.length) {
                         states.empty({
@@ -13731,10 +14495,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                         states.focus();
                         return;
                     }
-                    self.build({results: cards, total_pages: 1, title: deps.t('new_translations')});
+                    buildGrid(self, cards, deps.t('new_translations'));
                     if (LampaYaniSectionState.fromCache(payload)) states.cached({onRetry: load});
                     else states.ready();
                 }).catch(function (error) {
+                    if (destroyed || requestGeneration !== generation) return;
                     console.error('[YummyAnime New Translations]', error);
                     states.offline({
                         title: deps.t('new_translations_error'),
@@ -13747,6 +14512,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             load();
         };
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            generation++;
+            visibleCards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 
@@ -13850,7 +14622,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             .append(document.createTextNode(text)));
     }
 
-    function loadDetailRecommendations(data, container, bindFocus, appendNavigation, deps) {
+    function loadDetailRecommendations(data, container, bindFocus, appendNavigation, deps, isDestroyed) {
         var t = deps.t;
         var toCard = deps.toCard;
         var openYummyDetail = deps.openYummyDetail;
@@ -13860,13 +14632,14 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         section.append(list);
         container.append(section);
         LampaYaniApi.recommendations(data.yani_id).then(function (payload) {
+            if (isDestroyed && isDestroyed()) return;
             var items = LampaYaniApi.normalize(payload).slice(0, 12);
             if (!items.length) return section.remove();
             items.forEach(function (item) {
                 var card = toCard(item);
                 var row = $('<div class="yani-detail__recommendation selector"></div>')
                     .attr('data-yani-focus-key', 'recommendation:' + String(card.yani_id || card.id || card.title || ''));
-                var recommendationPoster = $('<img class="yani-detail__recommendation-poster" alt="">').attr('src', card.poster || '');
+                var recommendationPoster = $('<img class="yani-detail__recommendation-poster" alt="">').attr({src: card.poster || '', loading: 'lazy', decoding: 'async'});
                 LampaYaniMedia.bindPosterFallback(recommendationPoster, card);
                 row.append(recommendationPoster);
                 row.append($('<div class="yani-detail__recommendation-title"></div>').text(card.title));
@@ -13962,18 +14735,24 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var routeId = LampaYaniUiUtils.detailRouteId(object);
         if (routeId && !getYummyId(data)) data = Object.assign({}, data, {yani_id: routeId});
         if (!data.title && object.title) data.title = object.title;
-        var html = $('<div class="yani-detail"></div>');
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
+        var html = $('<div class="yani-detail yani-lite-view"></div>');
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
         scroll.minus();
         var button;
         var titleFocus;
+        var detailListPanel = null, detailCategoryStatus = null, detailPosterStatus = null, listMutationPending = false;
+        var lastPrimaryAction = null;
         var destroyed = false;
+        var paused = false;
+        var pendingHomeFallback = false;
+        var detailTimeout = null;
+        var enrichTimer = null;
+        var focusTimer = null;
         var refreshDetailWatchState = function () {};
         var videosAbort = typeof AbortController !== 'undefined' ? new AbortController() : null;
         var posterViewer = null;
         var posterExpanded = false;
         var remoteListShortcutHandler = null;
-        var listBridgeReturn = null;
         var detailFocus = LampaYaniNavigation.createScope({
             id: 'detail:' + String(routeId || getYummyId(data) || object.url || 'unknown'),
             root: function () { return html; },
@@ -13981,12 +14760,16 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             scroll: scroll,
             selector: '.selector',
             fallback: function () {
-                return (titleFocus && (titleFocus[0] || titleFocus)) ||
-                    (button && (button[0] || button)) ||
+                return (button && (button[0] || button)) ||
+                    (titleFocus && (titleFocus[0] || titleFocus)) ||
                     html.find('.yani-detail__title.selector, .selector').first()[0] ||
                     null;
             }
         });
+
+        function ownsDetailActivity() {
+            return !destroyed && (!window.Lampa || !Lampa.Activity || typeof Lampa.Activity.own !== 'function' || Lampa.Activity.own(detailComponent));
+        }
 
         function detailControllerIsActive() {
             if (window.Lampa && Lampa.Activity && typeof Lampa.Activity.own === 'function' && !Lampa.Activity.own(detailComponent)) return false;
@@ -14016,6 +14799,20 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             if (destroyed) return;
             if (!card || String(card.yani_id) !== String(data.yani_id)) return;
             refreshDetailWatchState();
+        });
+        $(document).on('yani:list-state-changed.yaniDetail', function (event, change) {
+            if (destroyed || !change || String(change.anime_id) !== String(data.yani_id)) return;
+            if (window.LampaYaniCardModel && LampaYaniCardModel.applyListState) LampaYaniCardModel.applyListState(data);
+            if (detailListPanel) updateDetailListPanel(detailListPanel, data);
+        });
+
+        $(document).on('yani:auth-changed.yaniDetail', function () {
+            if (destroyed) return;
+            data.yani_list_id = null; data.yani_list_known = false;
+            data.yani_is_favorite = false; data.yani_favorite_known = false;
+            listMutationPending = false;
+            if (window.LampaYaniCardModel && LampaYaniCardModel.applyListState) LampaYaniCardModel.applyListState(data);
+            if (detailListPanel) { detailListPanel.attr('aria-busy', 'false'); updateDetailListPanel(detailListPanel, data); }
         });
 
         function closePosterViewer() {
@@ -14056,6 +14853,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 });
             };
             return load(data.yani_id, {signal: videosAbort && videosAbort.signal}).then(function (videos) {
+                if (destroyed) return [];
                 if (deps.importVideosProgress) deps.importVideosProgress(data, videos);
                 return videos;
             });
@@ -14064,13 +14862,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         comp.create = function () {
             var self = this;
             var settled = false;
-            var timeoutId;
             this.activity.loader(true);
 
             function finish(card) {
-                if (settled) return;
+                if (destroyed || settled) return;
                 settled = true;
-                if (timeoutId) clearTimeout(timeoutId);
+                if (detailTimeout) clearTimeout(detailTimeout);
+                detailTimeout = null;
                 try {
                     renderDetail(card);
                 } catch (error) {
@@ -14078,7 +14876,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     html.empty().append($('<div class="yani-detail__error selector"></div>').text(t('detail_load_error')));
                 } finally {
                     self.activity.loader(false);
-                    self.activity.toggle();
+                    if (!paused && ownsDetailActivity()) self.activity.toggle();
                 }
             }
 
@@ -14088,9 +14886,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }
 
             function fail(error) {
-                if (settled) return;
+                if (destroyed || settled) return;
                 settled = true;
-                if (timeoutId) clearTimeout(timeoutId);
+                if (detailTimeout) clearTimeout(detailTimeout);
+                detailTimeout = null;
                 if (error) console.error('[YummyAnime Detail restore]', error);
                 self.activity.loader(false);
 
@@ -14099,7 +14898,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 // hydrated, replace the broken activity with YummyAnime Home
                 // instead of leaving an unusable partial title page onscreen.
                 if (restoredActivity && Lampa.Activity && Lampa.Activity.replace) {
-                    setTimeout(function () {
+                    pendingHomeFallback = true;
+                    focusTimer = setTimeout(function () {
+                        if (paused || !ownsDetailActivity()) return;
+                        pendingHomeFallback = false;
                         Lampa.Activity.replace({url: 'yani', title: 'YummyAnime', component: 'yani_home'});
                     }, 0);
                     return;
@@ -14109,10 +14911,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 bindDetailButtonFocus(button);
                 html.append(button);
                 scroll.append(html);
-                self.activity.toggle();
+                if (!paused && ownsDetailActivity()) self.activity.toggle();
             }
 
-            timeoutId = setTimeout(function () {
+            detailTimeout = setTimeout(function () {
+                if (destroyed) return;
                 console.error('[YummyAnime Detail] timeout');
                 if (canRenderSnapshot(data)) finish(data);
                 else fail(new Error('Detail restore timed out'));
@@ -14122,10 +14925,15 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 var detailId = routeId || data.yani_id;
                 data.yani_id = detailId;
                 LampaYaniApi.detail(detailId).then(function (payload) {
+                    if (destroyed) return;
                     var item = payload && payload.response ? payload.response : payload;
                     var detailed = item ? toCard(item) : data;
                     if (!detailed.yani_id) detailed.yani_id = detailId;
                     detailed.yani_schedule = data.yani_schedule;
+                    // Optional detail responses may omit user membership. Keep
+                    // a known search/list state until the API supplies one.
+                    if (!detailed.yani_list_known && data.yani_list_known) { detailed.yani_list_id = data.yani_list_id; detailed.yani_list_known = true; }
+                    if (!detailed.yani_favorite_known && data.yani_favorite_known) { detailed.yani_is_favorite = data.yani_is_favorite; detailed.yani_favorite_known = true; }
                     finish(detailed);
                 }).catch(function (error) {
                     console.error('[YummyAnime]', error);
@@ -14140,94 +14948,110 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
         function renderDetail(cardData) {
             data = cardData;
+            if (window.LampaYaniCardModel && LampaYaniCardModel.applyListState) LampaYaniCardModel.applyListState(data);
             var malId = data.yani_remote_ids && (data.yani_remote_ids.myanimelist_id || data.yani_remote_ids.mal_id);
             if (malId) LampaYaniApi.episodeInfo(malId).catch(function () {});
             var poster = $('<img class="yani-detail__poster selector" role="button" aria-expanded="false">')
-                .attr('src', data.img || data.poster || '')
-                .attr('alt', data.title || 'YummyAnime');
+                .attr('src', data.img || data.poster || '').attr('alt', data.title || 'YummyAnime');
             LampaYaniMedia.bindPosterFallback(poster, data);
             poster.on('hover:enter.yaniPoster click.yaniPoster', function (event) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+                if (event) { event.preventDefault(); event.stopPropagation(); }
                 togglePosterViewer(poster, data);
             });
             bindDetailButtonFocus(poster);
-            var posterColumn = $('<div class="yani-detail__poster-column"></div>');
-            var listPanel = createDetailListPanel(data);
-            var listDock = $('<div class="yani-detail__list-dock"></div>')
-                .attr('aria-label', t('user_lists'))
-                .append($('<div class="yani-detail__list-dock-title"></div>').text(t('user_lists')))
-                .append(listPanel);
-            posterColumn.append(poster, listDock);
+            detailPosterStatus = $('<div class="yani-detail__poster-status" data-visible="false"></div>');
+            var posterFrame = $('<div class="yani-detail__poster-frame"></div>').append(poster, detailPosterStatus);
+            var posterColumn = $('<div class="yani-detail__poster-column"></div>').append(posterFrame);
             var info = $('<div class="yani-detail__info"></div>');
-            // The title is deliberately a selector and the default landing
-            // focus, so the page opens on the name and Up from actions returns
-            // the viewport to the beginning of the detail card.
             titleFocus = $('<div class="yani-detail__title selector"></div>').text(data.title || 'YummyAnime');
             bindDetailButtonFocus(titleFocus);
             info.append(titleFocus);
-            var alternativeTitles = (data.yani_titles || []).filter(function (title) { return title && title !== data.title; });
-            if (alternativeTitles.length) info.append($('<div class="yani-detail__alternative-titles"></div>').text(alternativeTitles.join(' · ')));
+
+            var ratingRow = $('<div class="yani-detail__rating-row"></div>');
+            ratingRow.append(createDetailRatings(data.yani_ratings || [], data.vote_count), createDetailRatingAction(data));
+            info.append(ratingRow);
+            var tags = $('<div class="yani-detail__tags"></div>');
             var detailType = mediaTypeLabels(data.yani_type);
-            if (detailType) info.append($('<div class="yani-detail__type"></div>').text(detailType.full));
+            if (detailType) tags.append($('<div class="yani-detail__type"></div>').text(detailType.full));
             var genres = detailGenres(data);
-            if (genres.length) info.append(createDetailGenres(genres));
-            var credits = createDetailCredits(data);
-            if (credits.length) info.append(credits);
-            if (data.release_date) info.append($('<div class="yani-detail__meta"></div>').text(data.release_date));
+            if (genres.length) tags.append(createDetailGenres(genres));
+            if (tags.children().length) info.append(tags);
             var episodeSummary = createDetailEpisodeSummary(data);
             if (episodeSummary) info.append(episodeSummary);
-            info.append(createDetailTranslations());
-            info.append(createDetailRatings(data.yani_ratings || [], data.vote_count));
-            info.append(createDetailRatingAction(data));
             if (data.yani_schedule) info.append($('<div class="yani-detail__schedule"></div>').text(data.yani_schedule));
-            info.append($('<div class="yani-detail__overview"></div>').text(data.overview || ''));
-            var actions = $('<div class="yani-detail__actions"></div>');
-            button = $('<div class="yani-detail__button yani-detail__button--watch selector"></div>').text(t('watch'));
-            // Keep playback behind one action. When YummyTV is enabled the
-            // destination is selected first; regular playback then opens the
-            // dubbing/source and episode selectors as before.
+
+            var actions = $('<div class="yani-detail__actions" data-yani-detail-group="actions"></div>');
+            button = $('<div class="yani-detail__button yani-detail__button--watch selector"></div>')
+                .attr('data-yani-focus-key', 'action:watch').text(t('watch'));
             button.on('hover:enter click.yaniWatch', function () {
                 beginPlaybackNavigation(button, scroll.render());
                 openTitlePlaybackOptions(data);
             });
             bindDetailButtonFocus(button);
-            var trailersButton = $('<div class="yani-detail__button selector"></div>').text(t('trailers'));
-            trailersButton.on('hover:enter click.yaniDetailTrailers', function () { openTrailers(data); });
-            bindDetailButtonFocus(trailersButton);
-            var searchButton = $('<div class="yani-detail__button yani-detail__button--lampa selector"></div>');
+            var searchButton = $('<div class="yani-detail__button yani-detail__button--lampa selector"></div>')
+                .attr('data-yani-focus-key', 'action:open');
             searchButton.append($('<span class="yani-detail__button-icon"></span>').html(lampaIcon()));
             searchButton.append($('<span></span>').text(t('open_lampa_search')));
             searchButton.on('hover:enter click.yaniLampaCard', function (event) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+                if (event) { event.preventDefault(); event.stopPropagation(); }
                 openStandardLampaCard(data);
             });
             bindDetailButtonFocus(searchButton);
-            var subscribeButton = $('<div class="yani-detail__button selector"></div>').text(t('subscribe_episodes'));
-            if (Lampa.Storage && Lampa.Storage.get('yani_subscribed_video_' + data.yani_id, '')) {
-                subscribeButton.text(t('unsubscribe_episodes'));
-            }
+            var trailersButton = $('<div class="yani-detail__button selector"></div>')
+                .attr('data-yani-focus-key', 'action:trailers').text(t('trailers'));
+            trailersButton.on('hover:enter click.yaniDetailTrailers', function () { openTrailers(data); });
+            bindDetailButtonFocus(trailersButton);
+            var subscribeButton = $('<div class="yani-detail__button selector"></div>')
+                .attr('data-yani-focus-key', 'action:subscribe').text(t('subscribe_episodes'));
+            if (Lampa.Storage && Lampa.Storage.get('yani_subscribed_video_' + data.yani_id, '')) subscribeButton.text(t('unsubscribe_episodes'));
             subscribeButton.on('hover:enter', function () {
-                toggleEpisodeSubscription(data, subscribeButton, {
-                    t: t,
-                    loadVideos: function () { return loadDetailVideos(); }
-                });
+                toggleEpisodeSubscription(data, subscribeButton, {t: t, loadVideos: function () { return loadDetailVideos(); }});
             });
             bindDetailButtonFocus(subscribeButton);
-            var comments = $('<div class="yani-detail__comments"></div>');
-            actions.append(button, trailersButton, searchButton);
-            actions.append(subscribeButton);
-            // Keep the principal actions next to the synopsis, before the
-            // long viewing-order, recommendations and comments sections.
+            actions.append(button, searchButton, trailersButton, subscribeButton);
             info.append(actions);
-            if (data.yani_viewing_order && data.yani_viewing_order.length) info.append(createViewingOrder(data, deps));
-            loadDetailRecommendations(data, info, bindDetailScrollTargets, appendDetailNavigation, deps);
+
+            detailCategoryStatus = $('<div class="yani-detail__list-current" role="status" aria-live="polite"></div>');
+            var listDock = $('<div class="yani-detail__list-dock" data-yani-detail-group="categories"></div>')
+                .attr('aria-label', t('user_lists'));
+            var listHeading = $('<div class="yani-detail__list-heading"></div>')
+                .append($('<div class="yani-detail__list-dock-title"></div>').text(t('user_lists')), detailCategoryStatus);
+            detailListPanel = createDetailListPanel(data);
+            listDock.append(listHeading, detailListPanel);
+            info.append(listDock);
+
+            if (data.overview) {
+                var overview = $('<div class="yani-detail__overview selector"></div>')
+                    .attr('data-yani-focus-key', 'description').text(data.overview);
+                if (data.overview.length > 450) {
+                    var overviewHint = $('<div class="yani-detail__overview-hint"></div>').text(t('expand_description'));
+                    overview.addClass('is-collapsed').attr({'role': 'button', 'aria-expanded': 'false', 'aria-label': t('expand_description')});
+                    overview.on('hover:enter.yaniDescription click.yaniDescription', function (event) {
+                        if (event) { event.preventDefault(); event.stopPropagation(); }
+                        var expanded = overview.hasClass('is-collapsed');
+                        overviewHint.text(t(expanded ? 'collapse_description' : 'expand_description'));
+                        overview.toggleClass('is-collapsed', !expanded).attr({'aria-expanded': expanded ? 'true' : 'false', 'aria-label': t(expanded ? 'collapse_description' : 'expand_description')});
+                    });
+                }
+                bindDetailButtonFocus(overview);
+                info.append(overview);
+                if (overviewHint) info.append(overviewHint);
+            }
+            info.append(createDetailTranslations());
+            var metadata = $('<div class="yani-detail__metadata"></div>');
+            if (data.release_date) metadata.append($('<div class="yani-detail__meta"></div>').text(data.release_date));
+            var credits = createDetailCredits(data);
+            if (credits.length) metadata.append(credits);
+            var alternativeTitles = (data.yani_titles || []).filter(function (title) { return title && title !== data.title; });
+            if (alternativeTitles.length) {
+                var alternatives = alternativeTitles.join(' · ');
+                metadata.append($('<div class="yani-detail__alternative-titles"></div>').text(alternatives).attr({title: alternatives, 'aria-label': alternatives}));
+            }
+            if (metadata.children().length) info.append(metadata);
+            var comments = $('<div class="yani-detail__comments"></div>');
             info.append(comments);
+            if (data.yani_viewing_order && data.yani_viewing_order.length) info.append(createViewingOrder(data, deps));
+            loadDetailRecommendations(data, info, bindDetailScrollTargets, appendDetailNavigation, deps, function () { return destroyed; });
             html.append(posterColumn, info);
             scroll.append(html);
             bindDetailScrollTargets(html);
@@ -14242,6 +15066,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 .attr('aria-label', t('episode_information'));
             var loading = false;
             var loaded = false;
+            var summarySignature = '';
 
             function render(values) {
                 var items = [];
@@ -14258,6 +15083,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     });
                 }
                 if (values.minutes) items.push({icon: 'duration', text: '≈ ' + values.minutes + ' ' + t('minutes_short')});
+                var signature = JSON.stringify(items);
+                if (summarySignature === signature) return;
+                summarySignature = signature;
                 block.empty();
                 items.forEach(function (item) {
                     var stat = $('<span class="yani-detail__episode-stat"></span>');
@@ -14274,16 +15102,18 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             };
 
             function enrich() {
-                if (loading || loaded) return;
+                if (destroyed || loading || loaded) return;
                 loading = true;
                 block.addClass('loading');
                 loadDetailVideos().then(function (videos) {
+                    if (destroyed) return;
                     lastVideos = Array.isArray(videos) ? videos : [];
                     loaded = true;
                     loading = false;
                     block.removeClass('loading');
                     refreshDetailWatchState();
                 }).catch(function (error) {
+                    if (destroyed) return;
                     loading = false;
                     loaded = true;
                     block.removeClass('loading');
@@ -14297,7 +15127,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             // Normal one-cour titles are cheap to enrich in the background.
             // Very long shows wait until this compact row receives focus to
             // avoid loading thousands of video variants on weak devices.
-            if (stats.total > 0 && stats.total <= 100) setTimeout(enrich, 350);
+            if (stats.total > 0 && stats.total <= 100) enrichTimer = setTimeout(enrich, 350);
             return block;
         }
 
@@ -14325,9 +15155,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function createDetailTranslations() {
             var block = $('<div class="yani-detail__translations selector loading"></div>')
                 .attr('aria-label', t('available_translations'));
-            block.addClass(cardMediaMotionAllowed() ? 'yani-detail__translations--motion' : 'yani-detail__translations--static');
+            block.addClass('yani-detail__translations--static');
             block.append($('<div class="yani-detail__translations-title"></div>').text(t('available_translations')));
-            block.append('<div class="yani-detail__translations-skeleton"><i></i><i></i><i></i></div>');
+            block.append('<div class="yani-detail__translations-skeleton">…</div>');
             bindDetailButtonFocus(block);
 
             function renderRow(kind, title, values) {
@@ -14340,10 +15170,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 heading.append($('<span></span>').text(title));
                 heading.append($('<b></b>').text(values.length));
                 row.append(heading);
-                var list = $('<div class="yani-detail__translation-list"></div>');
-                values.forEach(function (value, index) {
-                    list.append($('<span></span>').css('animation-delay', Math.min(index, 8) * 24 + 'ms').text(value));
-                });
+                // The names have no individual actions. One wrapping text
+                // node preserves every team while avoiding dozens of chips.
+                var list = $('<div class="yani-detail__translation-list"></div>').text(values.join(' · '));
                 row.append(list);
                 return row;
             }
@@ -14361,6 +15190,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 bindDetailScrollTargets(block);
                 appendDetailNavigation(block);
             }).catch(function () {
+                if (destroyed) return;
                 block.removeClass('loading').addClass('unavailable');
                 block.find('.yani-detail__translations-skeleton').remove();
                 block.append($('<div class="yani-detail__translations-empty"></div>').text(t('translations_unknown')));
@@ -14394,7 +15224,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 var item = $('<div class="yani-detail__list-action selector"></div>')
                     .attr('title', t(action.key))
                     .attr('aria-label', t(action.key))
-                    .append($('<span class="yani-detail__list-icon"></span>').html(detailListIcon(action.icon)));
+                    .attr('data-yani-focus-key', 'list:' + action.key)
+                    .attr('data-yani-list-key', action.favorite ? 'favorites' : action.key)
+                    .append($('<span class="yani-detail__list-icon"></span>').html(detailListIcon(action.icon)))
+                    .append($('<span class="yani-detail__list-label"></span>').text(t(action.favorite ? 'favorites' : action.key)));
                 if (action.shortcut) {
                     item.attr('data-yani-list-shortcut', action.shortcut)
                         .append($('<span class="yani-detail__list-shortcut yani-detail__list-shortcut--' + action.shortcut + '"></span>'));
@@ -14466,6 +15299,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                             ? LampaYaniApi.removeRate(cardData.yani_id)
                             : LampaYaniApi.rate(cardData.yani_id, selected.value);
                         request.then(function () {
+                            if (deps.onListChanged) deps.onListChanged(cardData);
+                            if (destroyed) return;
                             cardData.yani_user_rating = selected.remove ? null : Number(selected.value);
                             update();
                             Lampa.Noty.show(selected.remove ? t('rating_removed') : t('saved'));
@@ -14541,30 +15376,62 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 var action = [
                     {id: 0}, {id: 1}, {id: 2}, {id: 3}, {id: 5}, {favorite: true}
                 ][index];
+                var item = $(this);
                 var active = action.favorite ? Boolean(cardData.yani_is_favorite) : hasYummyList(cardData, action.id);
-                $(this).toggleClass('active', active).attr('aria-pressed', active ? 'true' : 'false');
+                if (item.hasClass('active') !== active) item.toggleClass('active', active);
+                var pressed = active ? 'true' : 'false';
+                if (item.attr('aria-pressed') !== pressed) item.attr('aria-pressed', pressed);
             });
-            addCardListBadge(null, cardData);
-            syncCardOverlayLayout(null, cardData);
+            var keys = {0: 'watching', 1: 'planned', 2: 'completed', 3: 'dropped', 5: 'postponed'};
+            var value = cardData.yani_list_id;
+            var key = value !== null && value !== undefined && keys[value] || '';
+            var primary = key ? t(key) : cardData.yani_list_known ? t('not_in_lists') : t('category_unknown');
+            var label = primary + (cardData.yani_is_favorite ? ' · ' + t('favorites') : '');
+            var colorKey = key || (cardData.yani_is_favorite ? 'favorites' : 'none');
+            if (detailCategoryStatus) {
+                // Keep the confirmed label and panel opacity unchanged while a
+                // write is pending; only aria-busy reflects the request state.
+                if (detailCategoryStatus.text() !== label) detailCategoryStatus.text(label);
+                if (detailCategoryStatus.attr('data-yani-list-key') !== colorKey) detailCategoryStatus.attr('data-yani-list-key', colorKey);
+            }
+            if (detailPosterStatus) {
+                var posterLabel = key ? label : cardData.yani_is_favorite ? t('favorites') : cardData.yani_list_known ? t('not_in_lists') : '';
+                if (detailPosterStatus.text() !== posterLabel) detailPosterStatus.text(posterLabel);
+                if (detailPosterStatus.attr('data-yani-list-key') !== colorKey) detailPosterStatus.attr('data-yani-list-key', colorKey);
+                if (detailPosterStatus.attr('data-visible') !== String(Boolean(posterLabel))) {
+                    detailPosterStatus.attr('data-visible', String(Boolean(posterLabel)));
+                }
+            }
         }
 
         function toggleDetailListState(cardData, action, panel) {
-            if (!LampaYaniAuth.token()) {
-                Lampa.Noty.show(t('login_required'));
-                return;
-            }
+            if (!LampaYaniAuth.token()) return Lampa.Noty.show(t('login_required'));
+            if (listMutationPending) return;
+            var owner = window.LampaYaniCardModel && LampaYaniCardModel.listOwner ? LampaYaniCardModel.listOwner() : null;
             var active = action.favorite ? Boolean(cardData.yani_is_favorite) : hasYummyList(cardData, action.id);
+            listMutationPending = true;
+            panel.attr('aria-busy', 'true');
+            updateDetailListPanel(panel, cardData);
             var request = action.favorite
                 ? (active ? LampaYaniApi.removeFavorite(cardData.yani_id) : LampaYaniApi.addFavorite(cardData.yani_id))
                 : (active ? LampaYaniApi.removeFromList(cardData.yani_id) : LampaYaniApi.addToList(cardData.yani_id, action.id));
             request.then(function () {
-                if (action.favorite) cardData.yani_is_favorite = !active;
-                else cardData.yani_list_id = active ? null : action.id;
+                listMutationPending = false;
+                if (owner && !LampaYaniCardModel.sameListOwner(owner, LampaYaniCardModel.listOwner())) return;
+                var patch;
+                if (action.favorite) { cardData.yani_is_favorite = !active; cardData.yani_favorite_known = true; patch = {favorite: !active}; }
+                else { cardData.yani_list_id = active ? null : action.id; cardData.yani_list_known = true; patch = {listId: cardData.yani_list_id}; }
+                if (deps.onListChanged) deps.onListChanged(cardData, patch, owner);
+                if (destroyed) return;
+                panel.attr('aria-busy', 'false');
                 updateDetailListPanel(panel, cardData);
-                Lampa.Noty.show(t('saved'));
             }).catch(function (error) {
+                listMutationPending = false;
+                if (destroyed || owner && !LampaYaniCardModel.sameListOwner(owner, LampaYaniCardModel.listOwner())) return;
+                panel.attr('aria-busy', 'false');
+                updateDetailListPanel(panel, cardData);
                 console.error('[YummyAnime]', error);
-                Lampa.Noty.show(t('save_error'));
+                Lampa.Noty.show(t('list_save_error'));
             });
         }
 
@@ -14614,6 +15481,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             element.on('hover:focus', function () {
                 element.siblings('.focus').removeClass('focus');
                 element.addClass('focus');
+                if (element.closest('.yani-detail__actions').length) lastPrimaryAction = element[0];
+                var strip = element.closest('.yani-detail__tags, .yani-detail__list-panel');
+                if (strip.length) keepHorizontalFocusVisible(strip, element);
                 scroll.update(element, true);
             });
             element.on('hover:blur', function () { element.removeClass('focus'); });
@@ -14661,32 +15531,31 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         function moveDetailVertical(direction) {
+            var current = focusedDetailElement();
+            if (direction === 'down' && current.closest('.yani-detail__actions').length) {
+                lastPrimaryAction = current[0];
+                var selected = html.find('.yani-detail__list-action.active').first();
+                return focusDetailElement(selected.length ? selected : html.find('.yani-detail__list-action').first());
+            }
+            if (direction === 'up' && current.hasClass('yani-detail__list-action')) {
+                return focusDetailElement(lastPrimaryAction && document.documentElement.contains(lastPrimaryAction) ? $(lastPrimaryAction) : button);
+            }
+            if (current.hasClass('yani-detail__overview') && current.attr('aria-expanded') === 'true' && current[0].getBoundingClientRect) {
+                var box = current[0].getBoundingClientRect(), viewport = scroll.render()[0].getBoundingClientRect();
+                if (direction === 'down' && box.bottom > viewport.bottom + 8) { scroll.wheel(250); return true; }
+                if (direction === 'up' && box.top < viewport.top - 8) { scroll.wheel(-250); return true; }
+            }
             var target = detailVerticalTarget(direction);
             return target.length ? focusDetailElement(target) : false;
         }
 
-        function hasHorizontalSibling(element, direction) {
-            var siblings = element.parent().children('.selector:visible');
-            var index = siblings.index(element);
-            return direction === 'left' ? index > 0 : index >= 0 && index < siblings.length - 1;
-        }
-
-        function moveFromContentToListPanel() {
+        function moveDetailHorizontal(direction) {
             var current = focusedDetailElement();
-            if (!current.length || !current.closest('.yani-detail__info').length || hasHorizontalSibling(current, 'left')) return false;
-            var target = html.find('.yani-detail__list-panel .yani-detail__list-action:visible').last();
-            if (!target.length) return false;
-            listBridgeReturn = current[0];
-            return focusDetailElement(target);
-        }
-
-        function moveFromListPanelToContent() {
-            var current = focusedDetailElement();
-            if (!current.length || !current.hasClass('yani-detail__list-action') || hasHorizontalSibling(current, 'right')) return false;
-            var target = listBridgeReturn && document.documentElement.contains(listBridgeReturn)
-                ? $(listBridgeReturn)
-                : html.find('.yani-detail__button.selector:visible, .yani-detail__title.selector:visible').first();
-            return focusDetailElement(target);
+            if (!current.closest('.yani-detail__actions, .yani-detail__list-panel').length) return false;
+            var siblings = current.parent().children('.selector:visible');
+            var index = siblings.index(current) + (direction === 'left' ? -1 : 1);
+            if (index >= 0 && index < siblings.length) focusDetailElement(siblings.eq(index));
+            return true;
         }
 
         function bindDetailScrollTargets(container) {
@@ -14712,6 +15581,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             container.append(list);
             bindDetailScrollTargets(container);
             LampaYaniApi.comments(cardData.yani_id, 0).then(function (payload) {
+                if (destroyed) return;
                 var comments = LampaYaniApi.normalizeComments(payload);
                 list.empty();
                 if (!comments.length) {
@@ -14739,6 +15609,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     appendDetailNavigation(row);
                 });
             }).catch(function (error) {
+                if (destroyed) return;
                 console.error('[YummyAnime Comments]', error);
                 var errorRow = $('<div class="yani-detail__comments-error selector"></div>').text(t('comments_error'));
                 errorRow.on('hover:focus', function () { errorRow.addClass('focus'); });
@@ -14749,7 +15620,16 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         comp.start = function () {
+            if (!ownsDetailActivity()) return;
+            paused = false;
+            if (pendingHomeFallback && Lampa.Activity && Lampa.Activity.replace) {
+                pendingHomeFallback = false;
+                Lampa.Activity.replace({url: 'yani', title: 'YummyAnime', component: 'yani_home'});
+                return;
+            }
             refreshDetailWatchState();
+            if (window.LampaYaniCardModel && LampaYaniCardModel.applyListState) LampaYaniCardModel.applyListState(data);
+            if (detailListPanel) updateDetailListPanel(detailListPanel, data);
             if (!remoteListShortcutHandler) {
                 remoteListShortcutHandler = handleRemoteListShortcut;
                 document.addEventListener('keydown', remoteListShortcutHandler, true);
@@ -14757,17 +15637,17 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var controller = {
                 link: detailComponent,
                 yaniDetailOwner: detailComponent,
-                // Prefer the last focused control; only fall back to the title.
+                // Restore the previous action; a new card starts on Watch.
                 toggle: function () { detailFocus.restore(null, true); },
                 left: function () {
                     if (posterExpanded) return;
-                    if (moveFromContentToListPanel()) return;
+                    if (moveDetailHorizontal('left')) return;
                     if (Navigator.canmove('left')) Navigator.move('left');
                     else Lampa.Controller.toggle('menu');
                 },
                 right: function () {
                     if (posterExpanded) return;
-                    if (moveFromListPanelToContent()) return;
+                    if (moveDetailHorizontal('right')) return;
                     Navigator.move('right');
                 },
                 up: function () {
@@ -14782,9 +15662,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             };
             Lampa.Controller.add('content', controller);
             Lampa.Controller.toggle('content');
-            setTimeout(function () {
+            focusTimer = setTimeout(function () {
+                if (paused || destroyed || !detailControllerIsActive()) return;
                 var remembered = detailFocus.target();
-                var first = remembered ? $(remembered) : (titleFocus && titleFocus.length ? titleFocus : html.find('.yani-detail__title.selector').first());
+                var first = remembered ? $(remembered) : (button && button.length ? button : titleFocus);
                 if (!first || !first.length) {
                     first = html.find('.yani-detail__button.selector, .yani-detail__order-item.selector, .yani-detail__comment.selector').first();
                 }
@@ -14796,11 +15677,21 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }, 0);
         };
 
+        comp.pause = comp.stop = function () {
+            paused = true;
+            if (focusTimer) clearTimeout(focusTimer);
+            focusTimer = null;
+        };
+
         comp.render = function (js) { return js ? scroll.render(true) : scroll.render(); };
         comp.destroy = function () {
             destroyed = true;
             $(document).off('.yaniDetail');
             closePosterViewer();
+            if (detailTimeout) clearTimeout(detailTimeout);
+            if (enrichTimer) clearTimeout(enrichTimer);
+            if (focusTimer) clearTimeout(focusTimer);
+            detailTimeout = enrichTimer = focusTimer = null;
             if (remoteListShortcutHandler) document.removeEventListener('keydown', remoteListShortcutHandler, true);
             remoteListShortcutHandler = null;
             if (videosAbort) videosAbort.abort();
@@ -14814,6 +15705,535 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     window.LampaYani = window.LampaYani || {};
     window.LampaYani.Detail = window.LampaYaniDetail = {create: create};
+}(window));
+
+(function (window) {
+    'use strict';
+
+    // Exact header paths from https://ru.yummyani.me/; bundled to avoid a logo request.
+    var OFFICIAL_LOGO = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDIgODYiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iWXVtbXlBbmltZSI+PHN2ZyB4PSIwIiB5PSIwIiB3aWR0aD0iODYiIGhlaWdodD0iODYiIGZpbGw9IiNmZjY2NjYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDIwIDIwIj48cGF0aCBkPSJNMTguNDUgMEgxLjU1QTEuNTUgMS41NSAwIDAwMCAxLjU1djE2LjlBMS41NCAxLjU0IDAgMDAxLjU1IDIwaDE2LjlBMS41NSAxLjU1IDAgMDAyMCAxOC40NVYxLjU1QTEuNTQgMS41NCAwIDAwMTguNDUgMFptLTIuODMgNS45My0yLjEgMi42Ni0yLjMtNS40M2E2Ljk1IDYuOTUgMCAwMTQuNCAyLjc3Wm0tMi45IDYuNTdoLTRsMi4wMy00LjggMS45OCA0LjhabS0yLjM3LTkuMzRMNy44IDkuMDYgNC44NyA1LjMzYy42NC0uNyAxLjQtMS4yNiAyLjI3LTEuNjVhOC4xOCA4LjE4IDAgMDEzLjItLjUyWk0zLjU3IDcuMzlsMy4yIDQuMDYtMS41NiAzLjU4QTYuOTYgNi45NiAwIDAxMy41NyA3LjM5Wm02LjU3IDkuNTZjLTEuMDUuMDEtMi4xLS4yLTMuMDUtLjY1bC43Ni0xLjhoNS43bC40OSAxLjE1YTYuOTMgNi45MyAwIDAxLTMuOSAxLjNabTYuOC03LjA3YTcuOCA3LjggMCAwMS0xLjE3IDRMMTQuNTUgMTFsMi4xNy0yLjc3Yy4xNC41NC4yMSAxLjEuMjMgMS42NVoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIj48L3BhdGg+PC9zdmc+PHN2ZyB4PSIxMDIiIHk9IjE4IiB3aWR0aD0iMTQwIiBoZWlnaHQ9IjUwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAxNDAgNTAiPjxwYXRoIGZpbGw9IiNmMWYxZjEiIGQ9Ik02LjEgOC4zIDEwLjMuNGgyTDcgMTAuMXY2LjFINS4ydi02TDAgLjRoMmw0LjEgNy45Wm05LTR2Ny44YzAgMSAuMiAxLjYuNiAyLjIuNC40IDEuMS43IDIgLjcgMS4zIDAgMi4yLS40IDIuNy0xIC42LS43LjktMS44LjktMy40VjQuNEgyM3YxMS45aC0xLjRsLS4zLTEuNmgtLjFjLS40LjYtLjkgMS0xLjUgMS4zYTUgNSAwIDAxLTIuMi41Yy0xLjQgMC0yLjUtLjMtMy4yLTFzLTEtMS44LTEtMy4zVjQuNEgxNVptMjYgMTJWOC40YzAtMS0uMy0xLjctLjctMi4xLS40LS41LTEtLjctMS44LS43LTEuMSAwLTIgLjMtMi41IDEtLjUuNi0uOCAxLjYtLjggMi45djYuNmgtMS44VjguNWMwLTEtLjItMS43LS42LTIuMS0uNC0uNS0xLS43LTEuOS0uNy0xIDAtMS45LjMtMi40IDEtLjUuNi0uOCAxLjgtLjggMy4zdjYuMmgtMS43VjQuNGgxLjRsLjMgMS42aC4xYy40LS42LjgtMSAxLjQtMS4zLjctLjMgMS4zLS41IDItLjUgMiAwIDMuMS42IDMuNyAyIC40LS42IDEtMS4xIDEuNi0xLjVhNSA1IDAgMDEyLjMtLjVjMS4zIDAgMi4zLjMgMyAxIC42LjcgMSAxLjggMSAzLjN2Ny43SDQxWm0xOS41IDBWOC40YzAtMS0uMS0xLjctLjYtMi4xLS40LS41LTEtLjctMS44LS43LTEuMSAwLTIgLjMtMi41IDEtLjUuNi0uOCAxLjYtLjggMi45djYuNmgtMS43VjguNWMwLTEtLjItMS43LS43LTIuMS0uMy0uNS0xLS43LTEuOC0uNy0xLjIgMC0yIC4zLTIuNSAxLS41LjYtLjggMS44LS44IDMuM3Y2LjJoLTEuN1Y0LjRINDdsLjMgMS42aC4xYy40LS42LjgtMSAxLjQtMS4zczEuMy0uNSAyLS41YzIgMCAzLjEuNiAzLjcgMiAuNC0uNi45LTEuMSAxLjYtMS41YTUgNSAwIDAxMi4zLS41YzEuMyAwIDIuMy4zIDMgMSAuNi43IDEgMS44IDEgMy4zdjcuN2gtMS45Wm0yLjktMTJoMS45bDIuNSA2LjhjLjYgMS42IDEgMi43IDEgMy40aC4ybC41LTIgMy04LjFoMS45bC01IDEzLjVjLS40IDEtMSAyLTEuOCAyLjgtLjcuNS0xLjUuOS0yLjUuOWwtMS42LS4ydi0xLjVsMS4zLjFjMS4yIDAgMi0uNyAyLjYtMmwuNy0xLjctNC44LTExLjlabTI3LjIgMTItMi01LjFoLTYuM2wtMS45IDVoLTEuOEw4NC44LjRoMS42bDYuMSAxNS44aC0xLjhaTTg4IDkuNWwtMS44LTUtLjctMi4yLS43IDIuMy0xLjggNWg1LjFabTEzLjYgNi42VjguNWMwLTEtLjMtMS42LS43LTIuMXMtMS4xLS43LTItLjdjLTEuMyAwLTIuMS4zLTIuNyAxLS42LjYtLjggMS44LS44IDMuM3Y2LjJoLTEuOFY0LjRIOTVsLjMgMS42aC4xYy40LS42IDEtMSAxLjYtMS4zYTUgNSAwIDAxMi4yLS41YzEuNCAwIDIuNC4zIDMuMSAxIC44LjcgMS4xIDEuOCAxLjEgMy4zdjcuOGgtMS44Wm00LjUtMTVjMC0uNS4xLS43LjMtMWExIDEgMCAwMS43LS4yYy4zIDAgLjYuMS44LjMuMi4yLjMuNS4zIDEgMCAuMy0uMS42LS4zLjhhMSAxIDAgMDEtMS4yLjIgMSAxIDAgMDEtLjMtLjJjLS4yLS4yLS4zLS41LS4zLTFabTIgMTVoLTEuOVY0LjRoMS44djExLjhabTE3LjkgMFY4LjVjMC0xLS4yLTEuNy0uNy0yLjEtLjMtLjUtMS0uNy0xLjgtLjctMS4xIDAtMiAuMy0yLjUgMS0uNS42LS44IDEuNi0uOCAyLjl2Ni42aC0xLjdWOC41YzAtMS0uMi0xLjctLjYtMi4xLS40LS41LTEtLjctMi0uN3MtMS44LjMtMi40IDFjLS41LjYtLjggMS44LS44IDMuM3Y2LjJIMTExVjQuNGgxLjRsLjMgMS42aC4xYy40LS42LjgtMSAxLjQtMS4zLjctLjMgMS4zLS41IDItLjUgMiAwIDMuMS42IDMuNyAyIC40LS42IDEtMS4xIDEuNi0xLjVhNSA1IDAgMDEyLjMtLjVjMS4zIDAgMi4zLjMgMyAxIC42LjcgMSAxLjggMSAzLjN2Ny43SDEyNlptOS42LjJhNS40IDUuNCAwIDAxLTQuMS0xLjZjLTEtMS0xLjUtMi41LTEuNS00LjRhNyA3IDAgMDExLjQtNC41IDQuNiA0LjYgMCAwMTMuNy0xLjdjMS41IDAgMi42LjUgMy41IDEuNSAxIDEgMS40IDIuNCAxLjMgMy44djEuMWgtOGMwIDEuNC4zIDIuNSAxIDMuMi42LjggMS41IDEuMSAyLjggMS4xczIuNS0uMyAzLjctLjh2MS42bC0xLjguNi0yIC4xWm0tLjUtMTAuN2EzIDMgMCAwMC0yLjIuOWMtLjYuNy0xIDEuNi0xIDIuNmg2YzAtMS4yLS4yLTItLjctMi42LS41LS43LTEuMi0xLTItMVpNNC4zIDQwLjNsMy01LjVoMS4zTDUgNDEuNnY0LjNIMy42di00LjJMMCAzNC44aDEuNGwyLjkgNS41Wk0xNi41IDQ2IDE1IDQyLjRoLTQuNGwtMS4zIDMuNUg4bDQuMy0xMS4xaDFsNC40IDExLjFoLTEuM1ptLTEuOC00LjctMS4zLTMuNC0uNS0xLjZjMCAuNS0uMiAxLS40IDEuNmwtMS4zIDMuNGgzLjVabTM5LjcgNC43LS4yLTEuMkg1NGMtLjQuNS0uOC45LTEuMyAxLS40LjMtLjkuMy0xLjUuMy0uOCAwLTEuNC0uMi0yLS42LS40LS40LS42LTEtLjYtMS44IDAtMS43IDEuMy0yLjYgNC0yLjZINTR2LS42YzAtLjYtLjItMS4xLS40LTEuNC0uMy0uMy0uOC0uNS0xLjQtLjUtLjcgMC0xLjQuMi0yLjMuNmwtLjQtMWMuOS0uNCAxLjgtLjYgMi44LS42czEuNy4yIDIuMi42Yy41LjUuNyAxLjIuNyAyLjFWNDZoLTFabS0yLjgtMWMuOCAwIDEuNC0uMSAxLjgtLjYuNS0uNC43LTEgLjctMS43di0uOGgtMS4zYy0xIDAtMS42LjMtMi4xLjUtLjUuMy0uNy43LS43IDEuMyAwIC41LjIuOC41IDEgLjIuMy42LjQgMSAuNFpNNjMgNDZ2LTUuNGMwLS42LS4yLTEuMS0uNS0xLjUtLjMtLjMtLjctLjUtMS40LS41LS44IDAtMS41LjItMS45LjdzLS42IDEuMy0uNiAyLjNWNDZoLTEuMnYtOC4zaDFsLjIgMS4xIDEuMS0xYy41LS4yIDEtLjMgMS42LS4zIDEgMCAxLjcuMiAyLjIuN3MuOCAxLjMuOCAyLjRWNDZINjNabTMuMi0xMC42YzAtLjIgMC0uNS4yLS42bC41LS4yYy4yIDAgLjQgMCAuNS4yLjIuMi4yLjQuMi42IDAgLjMgMCAuNS0uMi43bC0uNS4yYTEgMSAwIDAxLS41LS4yIDEgMSAwIDAxLS4yLS43Wk02Ny41IDQ2aC0xLjJ2LTguM2gxLjJWNDZabTEyLjYgMHYtNS40YzAtLjctLjEtMS4yLS40LTEuNS0uMy0uMy0uNy0uNS0xLjMtLjUtLjggMC0xLjQuMi0xLjcuNy0uNC40LS42IDEtLjYgMlY0Nkg3NXYtNS40YzAtLjYtLjItMS4xLS41LTEuNC0uMi0uMy0uNy0uNS0xLjMtLjUtLjcgMC0xLjMuMi0xLjcuNy0uNC40LS41IDEuMi0uNSAyLjNWNDZoLTEuM3YtOC4zaDFsLjIgMS4xaC4xYy4yLS4zLjYtLjcgMS0uOS40LS4yIDEtLjMgMS40LS4zIDEuMyAwIDIuMS40IDIuNiAxLjQuMy0uNS42LS44IDEuMS0xYTMgMyAwIDAxMS42LS41Yy45IDAgMS42LjMgMiAuOC41LjUuOCAxLjIuOCAyLjNWNDZIODBabTYuOC4xYTMuOCAzLjggMCAwMS0yLjktMWMtLjctMS0xLjEtMi0xLTMuMiAwLTEuMy4zLTIuNCAxLTMuMmEzLjMgMy4zIDAgMDEyLjUtMS4xIDMuMiAzLjIgMCAwMTIuNSAxYy42LjYuOSAxLjYuOSAyLjd2LjhoLTUuN2MwIDEgLjMgMS43LjggMi4yLjQuNSAxIC44IDIgLjhhNyA3IDAgMDAyLjUtLjV2MWMtLjQuMy0uOC40LTEuMi41aC0xLjRabS0uNC03LjVhMiAyIDAgMDAtMS41LjZjLS41LjUtLjcgMS4yLS43IDEuOGg0LjNjMC0uOC0uMi0xLjQtLjYtMS44LS4zLS40LS44LS42LTEuNS0uNloiPjwvcGF0aD48cGF0aCBmaWxsPSIjZmY2NjY2IiBjbGFzcz0iaGVhcnQiIGQ9Ik0zMy4xIDUwbDgtOGM1LjgtNi0yLjItMTQtOC04LTUuOC02LTEzLjggMi4xLTggOGw4IDhaIj48L3BhdGg+PC9zdmc+PC9zdmc+Cg==";
+    var LIMITS = {continueWatching: 3, ongoing: 6};
+    var PUBLIC_CACHE = 'yani_lite_ongoing_v1';
+    var COUNTS_CACHE = 'yani_lite_counts_v1';
+    var FOCUS_KEY = 'yani_lite_home_focus';
+    var FRESH_FOR = 5 * 60 * 1000;
+
+    function unwrap(payload) {
+        return payload && payload.response !== undefined ? payload.response : payload;
+    }
+
+    function items(payload) {
+        var data = unwrap(payload);
+        if (Array.isArray(data)) return data;
+        return data && (data.anime || data.items || data.results || data.data) || [];
+    }
+
+    function image(value) {
+        if (value && typeof value === 'object') value = value.medium || value.small || value.big || value.url || value.original || '';
+        value = String(value || '');
+        if (value.indexOf('//') === 0) value = 'https:' + value;
+        return /^https?:\/\//i.test(value) ? value : '';
+    }
+
+    function idOf(value) {
+        return String(value && (value.anime_id || value.yani_id || value.id) || '');
+    }
+
+    function publicCard(raw) {
+        raw = raw || {};
+        var type = raw.type;
+        if (type && typeof type === 'object') type = type.name || type.title || '';
+        var rating = raw.rating && typeof raw.rating === 'object' ? raw.rating.average : raw.rating;
+        return {
+            anime_id: idOf(raw),
+            title: String(raw.title || raw.name || raw.original_name || ''),
+            poster: image(raw.poster || raw.img),
+            year: raw.year || String(raw.release_date || raw.first_air_date || '').slice(0, 4),
+            type: typeof type === 'string' ? type : '',
+            rating: Number(rating || raw.vote_average || 0) || 0
+        };
+    }
+
+    function create(object, deps) {
+        deps = deps || {};
+        object = object || {};
+        var Lampa = window.Lampa;
+        var $ = window.$;
+        var self = {};
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, nopadding: true, notransition: true});
+        scroll.minus();
+        var root = $('<div class="yani-home yani-home--lite"></div>');
+        var header = $('<div class="yani-lite-header"></div>');
+        var layout = $('<div class="yani-lite-layout"></div>');
+        var sidebar = $('<div class="yani-lite-sidebar"></div>');
+        var main = $('<div class="yani-lite-main"></div>');
+        var sections = {};
+        var targets = {};
+        var active = false;
+        var destroyed = false;
+        var started = false;
+        var generation = 0;
+        var aborter = typeof window.AbortController === 'function' ? new window.AbortController() : null;
+        var retryTimer = null;
+        var lastKey = read(FOCUS_KEY, 'nav:catalog');
+        var storedKey = lastKey;
+        var currentSession = sessionKey();
+        var countsGeneration = 0;
+        var catalogGeneration = 0;
+        var catalogPending = false;
+        var countsPending = false;
+        var historyPending = false;
+
+        function text(key, fallback) {
+            var value = deps.t ? deps.t(key) : '';
+            return !value || value === key ? fallback : value;
+        }
+
+        function read(key, fallback) {
+            try {
+                var value = Lampa.Storage.get(key, fallback);
+                if (typeof value === 'string' && (value.charAt(0) === '{' || value.charAt(0) === '[')) value = JSON.parse(value);
+                return value === undefined || value === null ? fallback : value;
+            } catch (ignore) { return fallback; }
+        }
+
+        function write(key, value) {
+            try { Lampa.Storage.set(key, value); } catch (ignore) { /* A full cache must not prevent navigation. */ }
+        }
+
+        function account() { return deps.auth && deps.auth.get ? deps.auth.get() || {} : {}; }
+        function authorized() { return Boolean(deps.auth && deps.auth.token && deps.auth.token()); }
+        function sessionKey() {
+            var user = account();
+            return authorized() ? String(user.user_id || user.id || user.login || 'authorized') : 'guest';
+        }
+        function valid(version) { return !destroyed && version === generation && currentSession === sessionKey(); }
+        function enabled(key) { return !deps.homeSectionEnabled || deps.homeSectionEnabled(key); }
+        function definitions() { return deps.accountListDefinitions ? deps.accountListDefinitions() : []; }
+        function requestControl() { return aborter ? {signal: aborter.signal, retry: false} : {retry: false}; }
+        function cancelOwnRequests() {
+            if (aborter) aborter.abort();
+            aborter = typeof window.AbortController === 'function' ? new window.AbortController() : null;
+            catalogPending = false;
+            countsPending = false;
+            countsGeneration += 1;
+            catalogGeneration += 1;
+        }
+
+        function rememberFocus() {
+            if (lastKey && storedKey !== lastKey) {
+                write(FOCUS_KEY, lastKey);
+                storedKey = lastKey;
+            }
+        }
+
+        function target(key) {
+            var value = targets[key];
+            if (value && $.contains(root[0], value)) return value;
+            return root.find('.selector')[0] || false;
+        }
+
+        function syncFocus() {
+            if (!active || destroyed) return;
+            var controller = Lampa.Controller.enabled && Lampa.Controller.enabled();
+            if (controller && controller.name !== 'content') return;
+            if (controller && controller.controller && controller.controller.yaniLiteOwner !== self) return;
+            Lampa.Controller.collectionSet(root);
+            Lampa.Controller.collectionFocus(target(lastKey), root, true);
+        }
+
+        function button(label, key, callback, className) {
+            var element = $('<div class="selector"></div>').addClass(className || 'yani-lite-button');
+            element.text(label).attr('data-yani-home-key', key);
+            targets[key] = element[0];
+            element.on('hover:enter', function () {
+                rememberFocus();
+                if (!destroyed && callback) callback();
+            });
+            return element;
+        }
+
+        function action(callback) {
+            return function () {
+                if (typeof callback === 'function') return callback();
+            };
+        }
+
+        function route(component, title, extra) {
+            return function () {
+                var next = {url: 'yani/' + component.replace(/^yani_/, ''), component: component, title: 'YummyAnime · ' + title};
+                Object.keys(extra || {}).forEach(function (key) { next[key] = extra[key]; });
+                Lampa.Activity.push(next);
+            };
+        }
+
+        var routes = {
+            catalog: route('yani_catalog', text('catalog', 'Каталог'), {params: {limit: 30, sort: 'top', sort_forward: false}}),
+            search: action(deps.openSearch),
+            user_lists: action(deps.openUserLists),
+            continue_watching: action(deps.openContinueWatching),
+            genres: action(deps.openGenres),
+            schedule: route('yani_schedule', text('schedule', 'Расписание')),
+            new_translations: route('yani_new_translations', text('new_translations', 'Новые переводы')),
+            new_releases: route('yani_new_releases', text('new_releases', 'Новые аниме')),
+            top_rated: route('yani_top', text('top_rated', 'Топ аниме'), {topMode: true, params: {limit: 30, sort: 'top', sort_forward: true, from_year: 1900}}),
+            for_you: route('yani_recommended', text('for_you', 'Для вас')),
+            updates: route('yani_updates', text('updates', 'Обновления')),
+            collections: action(deps.openCollections),
+            notifications: action(deps.openNotifications),
+            account: action(deps.openAccount),
+            status: route('yani_status', text('status', 'Статус сервисов'))
+        };
+
+        function showMore() {
+            var options = [
+                ['genres', 'genres', 'Жанры'], ['new_translations', 'new_translations', 'Новые переводы'],
+                ['new_releases', 'new_releases', 'Новые аниме'], ['for_you', 'for_you', 'Для вас'],
+                ['updates', 'updates', 'Обновления'], ['notifications', 'notifications', 'Уведомления'],
+                ['status', 'status', 'Статус сервисов']
+            ].filter(function (entry) { return enabled(entry[0]) && (entry[0] !== 'notifications' || authorized()); });
+            var params = {
+                title: text('home_lite_more', 'Ещё'),
+                items: options.map(function (entry) { return {title: text(entry[1], entry[2]), key: entry[0]}; }),
+                onSelect: function (item) { if (item && routes[item.key]) routes[item.key](); },
+                onBack: function () { self.start(); }
+            };
+            if (deps.showSelect) deps.showSelect(params);
+            else Lampa.Select.show(params);
+        }
+
+        function buildShell() {
+            targets = {};
+            header.empty();
+            var brand = $('<div class="yani-lite-brand"></div>').append($('<img alt="YummyAnime">').attr('src', OFFICIAL_LOGO));
+            var headerActions = $('<div class="yani-lite-header-actions"></div>');
+            if (enabled('account')) headerActions.append(button(account().display_name || account().login || text('account', 'Аккаунт'), 'header:account', routes.account));
+            if (deps.openSettings) headerActions.append(button(text('settings', 'Настройки'), 'header:settings', deps.openSettings));
+            header.append(brand).append(headerActions);
+            sidebar.empty();
+            [
+                ['catalog', 'catalog', 'Каталог'], ['user_lists', 'user_lists', 'Мои списки'],
+                ['search', 'search', 'Поиск'], ['continue_watching', 'continue_watching', 'Продолжить'],
+                ['schedule', 'schedule', 'Расписание'], ['top_rated', 'top_rated', 'Топ аниме'],
+                ['collections', 'collections', 'Коллекции']
+            ].forEach(function (entry) {
+                if (!enabled(entry[0])) return;
+                sidebar.append(button(text(entry[1], entry[2]), 'nav:' + entry[0], routes[entry[0]], 'yani-lite-nav'));
+            });
+            sidebar.append(button(text('home_lite_more', 'Ещё'), 'nav:more', showMore, 'yani-lite-nav'));
+            main.empty();
+            sections = {};
+            if (enabled('continue_watching')) sections.continueWatching = section(text('continue_watching', 'Продолжить просмотр'), 'continue', routes.continue_watching);
+            if (enabled('user_lists')) sections.categories = section(text('user_lists', 'Мои списки'), 'lists', routes.user_lists);
+            if (enabled('new_releases') || enabled('catalog')) sections.ongoing = section(text('home_lite_ongoing', 'Сейчас выходит'), 'ongoing', route('yani_catalog', text('home_lite_ongoing', 'Сейчас выходит'), {params: {status: 'ongoing', limit: 30, sort: 'top', sort_forward: false}}));
+        }
+
+        function section(title, key, more) {
+            var wrapper = $('<section class="yani-lite-section"></section>');
+            var head = $('<div class="yani-lite-section-head"></div>');
+            head.append($('<h2 class="yani-lite-section-title"></h2>').text(title));
+            if (more) head.append(button(text('home_lite_all', 'Все'), 'all:' + key, more, 'yani-lite-link'));
+            var body = $('<div></div>');
+            wrapper.append(head).append(body);
+            main.append(wrapper);
+            return {root: wrapper, body: body};
+        }
+
+        function state(sectionObject, message, retry, loading) {
+            if (!sectionObject) return;
+            sectionObject.body.empty().removeClass('yani-lite-continue yani-lite-categories yani-lite-posters');
+            var row = $('<div class="yani-lite-state"></div>').text(message);
+            if (loading) row.attr('aria-live', 'polite');
+            sectionObject.body.append(row);
+            if (retry) sectionObject.body.append(button(text('home_lite_retry', 'Повторить'), 'retry:' + retry.key, retry.callback));
+        }
+
+        function forgetTargets(prefix) {
+            Object.keys(targets).forEach(function (key) {
+                if (key.indexOf(prefix) === 0) delete targets[key];
+            });
+        }
+
+        function openEntry(raw) {
+            if (!raw || !idOf(raw)) return;
+            var card = deps.toCard ? deps.toCard(raw) : raw;
+            if (deps.openYummyDetail) deps.openYummyDetail(card, false);
+        }
+
+        function resumeEntry(raw) {
+            if (!raw || !idOf(raw)) return;
+            if (deps.resumeCard) deps.resumeCard(raw);
+            else openEntry(raw);
+        }
+
+        function addPoster(parent, url, className) {
+            var frame = $('<div></div>').addClass(className);
+            var safe = image(url);
+            if (safe) {
+                var poster = $('<img alt="">').attr('src', safe).attr('decoding', 'async');
+                poster.on('error', function () { poster.remove(); frame.addClass('yani-lite-poster--empty'); });
+                frame.append(poster);
+            } else frame.addClass('yani-lite-poster--empty');
+            parent.append(frame);
+        }
+
+        function refreshContinue() {
+            var container = sections.continueWatching;
+            if (!container) return;
+            if (historyPending) {
+                state(container, text('loading', 'Загрузка…'), null, true);
+                return;
+            }
+            var cards = deps.continueCards ? deps.continueCards() : deps.localHistoryCards ? deps.localHistoryCards([]).filter(function (entry) {
+                return Number(entry.yani_list_progress || 0) < 0.95;
+            }) : [];
+            cards = (cards || []).filter(function (entry) { return idOf(entry); }).slice(0, LIMITS.continueWatching);
+            forgetTargets('continue:');
+            container.body.empty().addClass('yani-lite-continue');
+            if (!cards.length) {
+                state(container, text('home_lite_history_empty', 'Здесь появятся аниме, которые вы начали смотреть.'));
+                syncFocus();
+                return;
+            }
+            cards.forEach(function (raw) {
+                var entry = publicCard(raw);
+                var card = button('', 'continue:' + entry.anime_id, function () { resumeEntry(raw); }, 'yani-lite-resume');
+                addPoster(card, entry.poster, 'yani-lite-resume-poster');
+                var copy = $('<div class="yani-lite-resume-copy"></div>');
+                copy.append($('<div class="yani-lite-title"></div>').text(entry.title));
+                var note = [];
+                if (raw.yani_resume_episode) note.push(text('episode', 'Серия') + ' ' + raw.yani_resume_episode);
+                if (Number(raw.yani_resume_remaining) > 0) note.push(text('home_lite_remaining', 'Осталось {minutes} мин').replace('{minutes}', String(raw.yani_resume_remaining)));
+                copy.append($('<div class="yani-lite-meta"></div>').text(note.length ? note.join(' · ') : text('home_lite_resume', 'Продолжить просмотр')));
+                var ratio = Math.max(0, Math.min(1, Number(raw.yani_list_progress || 0)));
+                var progress = $('<div class="yani-lite-progress"></div>').attr('aria-label', Math.round(ratio * 100) + '%');
+                progress.append($('<i></i>').css('width', Math.round(ratio * 100) + '%'));
+                copy.append(progress);
+                card.append(copy);
+                container.body.append(card);
+            });
+            syncFocus();
+        }
+
+        function renderCategories(counts) {
+            var container = sections.categories;
+            if (!container) return;
+            forgetTargets('list:');
+            container.body.empty().addClass('yani-lite-categories');
+            if (!authorized()) {
+                state(container, text('home_lite_sign_in', 'Войдите в аккаунт, чтобы открыть свои списки.'));
+                container.body.append(button(text('auth_title', 'Войти в YummyAnime'), 'lists:login', routes.account));
+                return;
+            }
+            definitions().forEach(function (definition) {
+                var entry = button('', 'list:' + definition.key, function () { deps.openUserListShortcut(definition); }, 'yani-lite-category');
+                entry.append($('<span class="yani-lite-category-title"></span>').text(definition.title));
+                var count = counts && counts[definition.key];
+                entry.append($('<span class="yani-lite-category-count"></span>').text(typeof count === 'number' ? String(count) : '—'));
+                container.body.append(entry);
+            });
+            syncFocus();
+        }
+
+        function renderOngoing(list, cached) {
+            var container = sections.ongoing;
+            if (!container) return;
+            forgetTargets('ongoing:');
+            container.body.empty().addClass('yani-lite-posters');
+            list.slice(0, LIMITS.ongoing).forEach(function (raw) {
+                var entry = publicCard(raw);
+                var card = button('', 'ongoing:' + entry.anime_id, function () { openEntry(raw); }, 'yani-lite-card');
+                addPoster(card, entry.poster, 'yani-lite-poster');
+                card.append($('<div class="yani-lite-title"></div>').text(entry.title));
+                var meta = [entry.year, entry.type];
+                if (entry.rating) meta.push(entry.rating.toFixed(1));
+                card.append($('<div class="yani-lite-meta"></div>').text(meta.filter(Boolean).join(' · ')));
+                container.body.append(card);
+            });
+            container.root.toggleClass('yani-lite-section--cached', Boolean(cached));
+            if (!list.length) state(container, text('home_lite_catalog_empty', 'Сейчас нет доступных аниме.'));
+            syncFocus();
+        }
+
+        function loadOngoing(force) {
+            if (!sections.ongoing || catalogPending) return;
+            var cached = read(PUBLIC_CACHE, null);
+            if (cached && Array.isArray(cached.items) && cached.items.length) renderOngoing(cached.items, true);
+            else state(sections.ongoing, text('loading', 'Загрузка…'), null, true);
+            if (!force && cached && Date.now() - Number(cached.at || 0) < FRESH_FOR) return;
+            catalogPending = true;
+            var version = generation;
+            var requestVersion = ++catalogGeneration;
+            var options = requestControl();
+            options.cacheTtl = FRESH_FOR;
+            options.cacheFirst = true;
+            options.staleFallback = true;
+            options.forceRefresh = Boolean(force);
+            Promise.resolve(deps.api.catalog({status: 'ongoing', limit: LIMITS.ongoing, offset: 0, sort: 'top', sort_forward: false}, options)).then(function (payload) {
+                if (!valid(version) || requestVersion !== catalogGeneration) return;
+                catalogPending = false;
+                var list = items(payload).filter(function (entry) { return idOf(entry); }).slice(0, LIMITS.ongoing).map(publicCard);
+                write(PUBLIC_CACHE, {at: Date.now(), items: list});
+                renderOngoing(list, false);
+            }, function () {
+                if (!valid(version) || requestVersion !== catalogGeneration) return;
+                catalogPending = false;
+                if (cached && cached.items && cached.items.length) {
+                    renderOngoing(cached.items, true);
+                    sections.ongoing.body.append(button(text('home_lite_cached', 'Нет связи. Обновить сохранённое'), 'retry:ongoing', function () { loadOngoing(true); }, 'yani-lite-link'));
+                } else state(sections.ongoing, text('home_lite_catalog_error', 'Не удалось загрузить аниме.'), {key: 'ongoing', callback: function () { loadOngoing(true); }});
+                syncFocus();
+            });
+        }
+
+        function loadCounts() {
+            if (!sections.categories || !authorized() || countsPending) return;
+            var owner = currentSession;
+            var stored = read(COUNTS_CACHE, null);
+            if (stored && stored.owner === owner) {
+                renderCategories(stored.counts);
+                if (Date.now() - Number(stored.at || 0) < FRESH_FOR) return;
+            }
+            var version = generation;
+            var requestVersion = ++countsGeneration;
+            countsPending = true;
+            var userId = Number(account().user_id || account().id || 0);
+            var profile = userId ? Promise.resolve({id: userId}) : deps.api.profile(requestControl()).then(unwrap);
+            profile.then(function (user) {
+                if (!valid(version) || requestVersion !== countsGeneration) return null;
+                var id = Number(user && (user.id || user.user_id || user.user && user.user.id) || 0);
+                if (!id) throw new Error('Missing account ID');
+                return deps.api.userListStats(id, requestControl());
+            }).then(function (payload) {
+                if (!payload || !valid(version) || requestVersion !== countsGeneration) return;
+                countsPending = false;
+                var counts = deps.listCounts ? deps.listCounts(payload) : {};
+                write(COUNTS_CACHE, {owner: owner, at: Date.now(), counts: counts});
+                renderCategories(counts);
+            }, function () {
+                if (!valid(version) || requestVersion !== countsGeneration) return;
+                countsPending = false;
+                // The six direct list buttons remain usable when counts fail.
+                if (sections.categories) sections.categories.root.addClass('yani-lite-section--cached');
+            });
+        }
+
+        function onAuthChanged() {
+            if (destroyed) return;
+            generation += 1;
+            cancelOwnRequests();
+            currentSession = sessionKey();
+            historyPending = authorized();
+            write(COUNTS_CACHE, null);
+            buildShell();
+            refreshContinue();
+            renderCategories();
+            if (active) {
+                loadOngoing(false);
+                loadCounts();
+                if (authorized() && deps.ensureRemoteHistory) {
+                    var version = generation;
+                    Promise.resolve(deps.ensureRemoteHistory(true)).then(function () {
+                        if (!valid(version)) return;
+                        historyPending = false;
+                        refreshContinue();
+                    }, function () {
+                        if (!valid(version)) return;
+                        historyPending = false;
+                        refreshContinue();
+                    });
+                }
+                syncFocus();
+            }
+        }
+
+        function beginData() {
+            if (destroyed || !active) return;
+            loadOngoing(false);
+            loadCounts();
+            if (authorized() && deps.ensureRemoteHistory) {
+                var version = generation;
+                Promise.resolve(deps.ensureRemoteHistory()).then(function () {
+                    if (!valid(version)) return;
+                    historyPending = false;
+                    refreshContinue();
+                }, function () {
+                    if (!valid(version)) return;
+                    historyPending = false;
+                    refreshContinue();
+                });
+            }
+        }
+
+        function onWatchProgress() {
+            if (active && !destroyed) refreshContinue();
+        }
+
+        self.create = function () {
+            root.append(header).append(layout.append(sidebar).append(main));
+            buildShell();
+            refreshContinue();
+            renderCategories();
+            scroll.append(root);
+            root.on('hover:focus.yaniLite', '.selector', function (event) {
+                var element = event.currentTarget || this;
+                var key = $(element).attr('data-yani-home-key');
+                if (key) lastKey = key;
+                scroll.update($(element), true);
+            });
+            if (typeof document !== 'undefined') document.addEventListener('yani:auth-changed', onAuthChanged);
+            $(document).on('yani:watch-progress.yaniLiteHome', onWatchProgress);
+            if (self.activity && self.activity.loader) self.activity.loader(false);
+            return self.render();
+        };
+
+        self.start = function () {
+            if (destroyed) return;
+            active = true;
+            if (currentSession !== sessionKey()) onAuthChanged();
+            Lampa.Controller.add('content', {
+                yaniLiteOwner: self,
+                toggle: function () {
+                    Lampa.Controller.collectionSet(root);
+                    Lampa.Controller.collectionFocus(target(lastKey), root, true);
+                },
+                up: function () { if (window.Navigator.canmove('up')) window.Navigator.move('up'); else Lampa.Controller.toggle('head'); },
+                down: function () { if (window.Navigator.canmove('down')) window.Navigator.move('down'); },
+                left: function () { if (window.Navigator.canmove('left')) window.Navigator.move('left'); else Lampa.Controller.toggle('menu'); },
+                right: function () { if (window.Navigator.canmove('right')) window.Navigator.move('right'); },
+                back: function () { rememberFocus(); Lampa.Activity.backward(); }
+            });
+            Lampa.Controller.toggle('content');
+            if (!started) {
+                started = true;
+                retryTimer = setTimeout(function () { retryTimer = null; beginData(); }, 0);
+            } else {
+                refreshContinue();
+                beginData();
+            }
+        };
+        self.pause = self.stop = function () { active = false; rememberFocus(); };
+        self.render = function (js) { return js ? scroll.render(true) : scroll.render(); };
+        self.destroy = function () {
+            if (destroyed) return;
+            destroyed = true;
+            active = false;
+            generation += 1;
+            rememberFocus();
+            cancelOwnRequests();
+            if (retryTimer) clearTimeout(retryTimer);
+            if (typeof document !== 'undefined') document.removeEventListener('yani:auth-changed', onAuthChanged);
+            $(document).off('yani:watch-progress.yaniLiteHome', onWatchProgress);
+            root.off('.yaniLite');
+            root.remove();
+            scroll.destroy();
+            targets = {};
+            sections = {};
+        };
+        return self;
+    }
+
+    window.LampaYaniHome = {create: create, limits: LIMITS, publicCard: publicCard};
 }(window));
 
 (function (window) {
@@ -14912,6 +16332,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         commentsMenu: function (animeId, page, comments, navigation) { return commentsMenu(animeId, page, comments, navigation); },
         openSettingsLogin: function () { return openSettingsLogin(); },
         addCardListBadge: addCardListBadge,
+        onListChanged: publishListState,
         syncCardOverlayLayout: syncCardOverlayLayout,
         getPlayback: function (id) { return getPlayback(id); },
         voiceOptionSubtitle: function (group) { return voiceOptionSubtitle(group); },
@@ -15256,7 +16677,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 ? t(context.kind === 'studio' ? 'studio_catalog_description' : 'creator_catalog_description').replace('{name}', title)
                 : genreDescription(context) || t('genre_catalog_fallback').replace('{genre}', title);
             genreHeader = $('<div class="yani-genre-catalog-header"></div>');
-            var orb = $('<span class="yani-genre-catalog-header__orb" aria-hidden="true"><img alt=""><b></b><i></i><i></i><i></i></span>');
+            var orb = $('<span class="yani-genre-catalog-header__orb" aria-hidden="true"><img alt=""><b></b></span>');
             if (isSubject) {
                 var initials = title.split(/[\s\-_]+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase();
                 orb.addClass('is-subject is-' + (context.kind === 'studio' ? 'studio' : 'director')).find('b').text(initials || title.charAt(0).toUpperCase());
@@ -15350,6 +16771,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     requestedOffsets[baseParams.offset] = true;
                     if (raw.length < limit) object.page = maxPages;
                     self.build({results: results, total_pages: maxPages, title: t(topMode ? 'top_rated' : 'anime')});
+                    if (self.render) self.render().addClass('yani-lite-view');
                     if (self.activity && self.activity.loader) self.activity.loader(false);
                     installGenreHeader();
                     controls.install();
@@ -15401,1241 +16823,69 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function Home(object) {
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
-        scroll.minus();
-        var html = $('<div class="yani-home" data-yani-section="explore"></div>');
-        var grid = $('<div class="yani-home__grid"></div>');
-        var last;
-        var homeButtons = {};
-        var homeFocusStorageKey = 'yani_home_last_focus';
-        var destroyed = false;
-        var homeAbortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
-        var homeTimers = [];
-        var currentEpisodeFlow;
-        var preferredHomeKey = 'catalog';
-        var renderIntroContext = function () {};
-        var activateHomeFocus = function () {};
-        var updateEpisodeCountdown = function () {};
-        var homeCollection = function () { return scroll.render(); };
-        var railCollection = function () { return scroll.render(); };
-        var railNodes = function () { return $(); };
-        var isRailFocus = function () { return false; };
-        var focusHomeElement = function () { return false; };
-        var focusSectionRail = function () { return false; };
-        var lastHomeSection = 'explore';
-        var lastIntroContext = '';
-        var lastIntroPoster = '';
-        var lastStoredFocusKey = '';
-        var refreshContinueWatching = function () {};
-        var homeFocusFrame = 0;
-        var homeRenderIdleTimer = 0;
-        var homeRenderFrame = 0;
-        var homeNavigationUntil = 0;
-        var homePendingRenders = {};
-        var homeRenderIdleDelay = 450;
-        var homeAuthorized = Boolean(LampaYaniAuth.token());
-        var homeAuthorizationChanged = false;
-        function onHomeAuthorizationChanged() {
-            homeAuthorizationChanged = true;
-            userListsSnapshot = null;
-        }
-        function onHomeWatchProgress() {
-            refreshContinueWatching();
-        }
-        if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('yani:auth-changed', onHomeAuthorizationChanged);
-        if (window.$ && typeof document !== 'undefined') $(document).on('yani:watch-progress.yaniHome', onHomeWatchProgress);
-        var navigatorInfo = window.navigator || {};
-        var reducedMotion = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-        var lowMemoryDevice = Number(navigatorInfo.deviceMemory || 0) > 0 && Number(navigatorInfo.deviceMemory) <= 2;
-        var lowCpuDevice = Number(navigatorInfo.hardwareConcurrency || 0) > 0 && Number(navigatorInfo.hardwareConcurrency) <= 2;
-        html.addClass(reducedMotion || lowMemoryDevice || lowCpuDevice ? 'yani-home--reduced-motion' : 'yani-home--motion');
-
-        function homeRequestControl() {
-            return homeAbortController ? {signal: homeAbortController.signal} : {};
-        }
-
-        function scheduleHomeTask(callback, delay) {
-            var timer = setTimeout(function () {
-                homeTimers = homeTimers.filter(function (item) { return item !== timer; });
-                if (!destroyed) callback();
-            }, Math.max(0, Number(delay || 0)));
-            homeTimers.push(timer);
-            return timer;
-        }
-
-        function scheduleHomeRenderFlush() {
-            if (destroyed) return;
-            if (homeRenderIdleTimer) clearTimeout(homeRenderIdleTimer);
-            var wait = Math.max(0, homeNavigationUntil - Date.now());
-            homeRenderIdleTimer = setTimeout(flushHomeRenders, wait ? wait + 16 : 0);
-        }
-
-        function flushHomeRenders() {
-            homeRenderIdleTimer = 0;
-            if (destroyed) {
-                homePendingRenders = {};
-                return;
-            }
-            if (Date.now() < homeNavigationUntil) {
-                scheduleHomeRenderFlush();
-                return;
-            }
-            var pending = homePendingRenders;
-            var keys = Object.keys(pending);
-            homePendingRenders = {};
-            if (!keys.length) return;
-            if (homeRenderFrame) cancelAnimationFrame(homeRenderFrame);
-            homeRenderFrame = requestAnimationFrame(function () {
-                homeRenderFrame = 0;
-                if (destroyed) return;
-                if (Date.now() < homeNavigationUntil) {
-                    keys.forEach(function (key) {
-                        if (!homePendingRenders[key]) homePendingRenders[key] = pending[key];
-                    });
-                    scheduleHomeRenderFlush();
-                    return;
-                }
-                keys.forEach(function (key) {
-                    if (!destroyed && typeof pending[key] === 'function') pending[key]();
-                });
-            });
-        }
-
-        function queueHomeRender(key, callback) {
-            if (destroyed || typeof callback !== 'function') return;
-            homePendingRenders[String(key || 'default')] = callback;
-            scheduleHomeRenderFlush();
-        }
-
-        function noteHomeNavigation() {
-            homeNavigationUntil = Date.now() + homeRenderIdleDelay;
-            if (Object.keys(homePendingRenders).length || homeRenderFrame) scheduleHomeRenderFlush();
-        }
-
-        function homeRequestCancelled(error) {
-            return destroyed || homeAbortController && homeAbortController.signal.aborted || error && error.name === 'AbortError';
-        }
-
-        var items = [
-            {key: 'catalog', title: t('catalog'), group: 'explore', action: function () {
-                Lampa.Activity.push({url: 'yani/catalog', title: 'YummyAnime ' + t('catalog'), component: 'yani_catalog', params: {limit: 30, sort: 'top', sort_forward: false}});
-            }},
-            {key: 'genres', title: t('genres'), group: 'explore', action: openGenres},
-            {key: 'search', title: t('search'), group: 'explore', action: openSearch},
-            {key: 'schedule', title: t('schedule'), subtitle: t('japan_broadcast'), group: 'episode_flow', action: function () {
-                Lampa.Activity.push({url: 'yani/schedule', title: 'YummyAnime ' + t('schedule'), component: 'yani_schedule'});
-            }},
-            {key: 'new_translations', title: t('new_translations'), subtitle: t('translations_and_dubs'), group: 'episode_flow', action: function () {
-                Lampa.Activity.push({url: 'yani/new-translations', title: 'YummyAnime ' + t('new_translations'), component: 'yani_new_translations'});
-            }},
-            {key: 'continue_watching', title: t('continue_watching'), group: 'library', action: function () {
-                openContinueWatching();
-            }},
-            {key: 'user_lists', title: t('user_lists'), group: 'library', authorized: true, action: openUserLists},
-            {key: 'new_releases', title: t('new_releases'), group: 'discover', action: function () {
-                Lampa.Activity.push({url: 'yani/new-releases', title: 'YummyAnime ' + t('new_releases'), component: 'yani_new_releases'});
-            }},
-            {key: 'top_rated', title: t('top_rated'), group: 'discover', action: function () {
-                Lampa.Activity.push({url: 'yani/top', title: 'YummyAnime ' + t('top_rated'), component: 'yani_top', topMode: true, params: {limit: 30, sort: 'top', sort_forward: true, from_year: 1900}});
-            }},
-            {key: 'for_you', title: t('for_you'), subtitle: t('personal_feed_subtitle'), group: 'discover', action: function () {
-                Lampa.Activity.push({url: 'yani/for-you', title: 'YummyAnime ' + t('for_you'), component: 'yani_recommended'});
-            }},
-            {key: 'updates', title: t('updates'), group: 'library', action: function () {
-                Lampa.Activity.push({url: 'yani/updates', title: 'YummyAnime ' + t('updates'), component: 'yani_updates'});
-            }},
-            {key: 'collections', title: t('collections'), group: 'discover', action: openCollections},
-            {key: 'notifications', title: t('notifications'), group: 'service', authorized: true, action: openNotifications},
-            {key: 'account', title: t('account'), group: 'service', action: openAccount},
-            {key: 'status', title: t('status'), group: 'service', action: function () {
-                Lampa.Activity.push({url: 'yani/status', title: 'YummyAnime ' + t('status'), component: 'yani_status'});
-            }}
-        ].filter(function (item) {
-            return (!item.authorized || LampaYaniAuth.token()) && homeSectionEnabled(item.key);
+        return LampaYaniHome.create(object, {
+            t: t,
+            auth: LampaYaniAuth,
+            api: LampaYaniApi,
+            toCard: toCard,
+            playbackHistory: playbackHistory,
+            localHistoryCards: localHistoryCards,
+            continueCards: homeContinueCards,
+            resumeCard: function (card) { return openVideos(card, true); },
+            ensureRemoteHistory: ensureRemoteHistory,
+            accountListDefinitions: accountListDefinitions,
+            listCounts: LampaYaniHomeInsights.listCounts,
+            openUserListShortcut: openUserListShortcut,
+            homeSectionEnabled: homeSectionEnabled,
+            openUserLists: openUserLists,
+            openContinueWatching: openContinueWatching,
+            openWatchHistory: openWatchHistory,
+            openSearch: openSearch,
+            openGenres: openGenres,
+            openAccount: openAccount,
+            openNotifications: openNotifications,
+            openCollections: openCollections,
+            openYummyDetail: openYummyDetail,
+            showSelect: showYummySelect,
+            openSettings: function () { Lampa.Settings.create('yani'); }
         });
+    }
 
-        this.create = function () {
-            var waves = $(
-                '<div class="yani-home__waves" aria-hidden="true">' +
-                    '<span class="yani-home__ambient yani-home__ambient--explore"></span>' +
-                    '<span class="yani-home__ambient yani-home__ambient--episode_flow"></span>' +
-                    '<span class="yani-home__ambient yani-home__ambient--library"></span>' +
-                    '<span class="yani-home__ambient yani-home__ambient--discover"></span>' +
-                    '<span class="yani-home__ambient yani-home__ambient--service"></span>' +
-                    '<svg viewBox="0 0 1440 760" preserveAspectRatio="none" focusable="false">' +
-                        '<path class="yani-home__wave yani-home__wave--far" d="M-120 190 C 120 25 315 335 555 188 S 940 48 1135 215 S 1450 292 1570 115"/>' +
-                        '<path class="yani-home__wave yani-home__wave--middle" d="M-110 445 C 115 235 330 565 565 380 S 925 245 1130 420 S 1455 505 1560 330"/>' +
-                        '<path class="yani-home__wave yani-home__wave--near" d="M-100 650 C 170 430 350 735 625 560 S 1015 430 1210 585 S 1465 660 1570 505"/>' +
-                    '</svg>' +
-                    '<span class="yani-home__pulse yani-home__pulse--one"></span>' +
-                    '<span class="yani-home__pulse yani-home__pulse--two"></span>' +
-                '</div>'
-            );
-            var episodeFlow;
-            var episodeFlowItems;
-            var episodeFlowTimeline;
-            var discover;
-            var discoverItems;
-            var discoverPreview;
-            var libraryStrip;
-            var libraryPulse;
-            var serviceHub;
-            var introMetrics = {};
-            var sectionRailNodes = {};
-            var panels = {};
-            var panelRoots = {};
-            var sectionRail = $('<div class="yani-home__section-rail"></div>');
-            var sectionDefinitions = [
-                {key: 'explore', chapter: '01', title: t('dashboard_browse')},
-                {key: 'episode_flow', chapter: '02', title: t('episode_flow')},
-                {key: 'library', chapter: '03', title: t('dashboard_library')},
-                {key: 'discover', chapter: '04', title: t('discover')},
-                {key: 'service', chapter: '05', title: t('dashboard_service')}
-            ];
-            sectionDefinitions.forEach(function (definition) {
-                var available = items.some(function (item) { return item.group === definition.key; });
-                if (!available) return;
-                var node = $('<span class="yani-home__section-rail-node yani-home__section-rail-node--' + definition.key + '"><i><small></small></i><b></b></span>');
-                node.find('small').text(definition.chapter);
-                node.find('b').text(definition.title);
-                sectionRailNodes[definition.key] = node;
-                sectionRail.append(node);
-            });
-            var intro = $(
-                '<div class="yani-home__intro" data-yani-section="explore">' +
-                    '<span class="yani-home__intro-context-art"></span>' +
-                    '<div class="yani-home__intro-mark"></div>' +
-                    '<div class="yani-home__intro-copy">' +
-                        '<div class="yani-home__intro-brand"><span>YummyAnime</span><i aria-hidden="true"></i><em></em></div>' +
-                        '<div class="yani-home__intro-title"></div>' +
-                        '<div class="yani-home__intro-subtitle"></div>' +
-                        '<div class="yani-home__intro-data" aria-hidden="true"><i></i><span></span></div>' +
-                    '</div>' +
-                    '<div class="yani-home__intro-orbit"><i></i><i></i><i></i></div>' +
-                '</div>'
-            );
-            intro.find('.yani-home__intro-mark').html(yummyAnimeIcon());
-            intro.find('.yani-home__intro-brand em').text(t('dashboard_browse'));
-            intro.find('.yani-home__intro-title').text(t('dashboard_title'));
-            intro.find('.yani-home__intro-subtitle').text(t('dashboard_subtitle'));
-            var introSummary = $('<div class="yani-home__intro-summary"></div>');
-            [
-                {key: 'today', label: t('broadcasts_today'), icon: homeIcon('schedule')},
-                {key: 'translations', label: t('new_translations'), icon: homeIcon('new_translations')},
-                {key: 'continue', label: t('continue_watching'), icon: homeIcon('continue_watching')}
-            ].forEach(function (metric) {
-                var node = $('<div class="yani-home__intro-metric yani-home__intro-metric--' + metric.key + '"></div>');
-                node.data('yani-home-metric-label', metric.label);
-                node.append(
-                    $('<span class="yani-home__intro-metric-icon"></span>').html(metric.icon),
-                    $('<span class="yani-home__intro-metric-copy"></span>').append(
-                        $('<small></small>').text(metric.label),
-                        $('<b></b>').text('—'),
-                        $('<em></em>')
-                    ),
-                    $('<span class="yani-home__intro-metric-arrow" aria-hidden="true">›</span>')
-                );
-                introMetrics[metric.key] = node;
-                introSummary.append(node);
-            });
-            intro.append(introSummary);
-            grid.append(intro);
-
-            function panel(group) {
-                if (panels[group]) return panels[group];
-                var title = group === 'explore' ? t('dashboard_browse') :
-                    group === 'library' ? t('dashboard_library') :
-                    group === 'service' ? t('dashboard_service') : '';
-                var chapter = group === 'explore' ? '01' : group === 'library' ? '03' : group === 'service' ? '05' : '';
-                var root = $('<div class="yani-home__panel yani-home__panel--' + group + '"></div>');
-                var head = $('<div class="yani-home__panel-head"><span class="yani-home__panel-chapter" aria-hidden="true"></span><span class="yani-home__panel-title"></span><span class="yani-home__panel-line" aria-hidden="true"></span><span class="yani-home__chapter-state"><i></i><b></b></span></div>');
-                var content = $('<div class="yani-home__panel-items"></div>');
-                head.find('.yani-home__panel-chapter').text(chapter);
-                head.find('.yani-home__panel-title').text(title);
-                root.append(head);
-                if (group === 'library') {
-                    libraryPulse = $(
-                        '<div class="yani-home__library-pulse" aria-live="polite">' +
-                            '<span class="yani-home__library-pulse-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>' +
-                            '<span class="yani-home__library-pulse-copy"><small></small><b>—</b><em></em></span>' +
-                            '<span class="yani-home__library-pulse-meter" aria-hidden="true"><i></i></span>' +
-                        '</div>'
-                    );
-                    libraryPulse.find('small').text(t('dashboard_library'));
-                    libraryPulse.find('em').text(t('continue_watching'));
-                    root.append(libraryPulse);
-                    libraryStrip = $('<div class="yani-home__library-preview" aria-hidden="true"></div>');
-                    root.append(libraryStrip);
-                }
-                if (group === 'service') {
-                    var constellation = $('<div class="yani-home__service-constellation"></div>');
-                    serviceHub = $(
-                        '<div class="yani-home__service-hub yani-home__service-hub--loading" aria-live="polite">' +
-                            '<span class="yani-home__service-hub-orbit" aria-hidden="true"><i></i><i></i><i></i></span>' +
-                            '<span class="yani-home__service-hub-logo"></span>' +
-                            '<span class="yani-home__service-hub-copy"><small>YummyAnime</small><b></b><em></em></span>' +
-                        '</div>'
-                    );
-                    serviceHub.find('.yani-home__service-hub-logo').html(yummyAnimeIcon());
-                    serviceHub.find('b').text(t('status'));
-                    serviceHub.find('em').text(t('dashboard_data_cached'));
-                    constellation.append(serviceHub, content);
-                    root.append(constellation);
-                } else {
-                    root.append(content);
-                }
-                grid.append(root);
-                panels[group] = content;
-                panelRoots[group] = root;
-                return content;
-            }
-
-            function setChapterState(group, state, label) {
-                var root = group === 'episode_flow' ? episodeFlow : group === 'discover' ? discover : panelRoots[group];
-                if (!root || !root.length) return;
-                var labels = {
-                    loading: t('dashboard_state_loading'),
-                    ready: t('dashboard_state_ready'),
-                    partial: t('dashboard_data_partial'),
-                    empty: t('dashboard_state_empty'),
-                    cached: t('dashboard_data_cached'),
-                    offline: t('dashboard_state_offline')
-                };
-                root.removeClass('yani-home__panel--loading yani-home__panel--ready yani-home__panel--partial yani-home__panel--empty yani-home__panel--cached yani-home__panel--offline')
-                    .addClass('yani-home__panel--' + state);
-                root.find('.yani-home__chapter-state').first().removeClass('yani-home__chapter-state--loading yani-home__chapter-state--ready yani-home__chapter-state--partial yani-home__chapter-state--empty yani-home__chapter-state--cached yani-home__chapter-state--offline')
-                    .addClass('yani-home__chapter-state--' + state).find('b').text(label || labels[state] || '');
-            }
-
-            items.forEach(function (item) {
-                var text = $('<div class="yani-home__text"></div>');
-                text.append($('<div class="yani-home__title"></div>').text(item.title));
-                if (item.subtitle) text.append($('<div class="yani-home__subtitle"></div>').text(item.subtitle));
-                var button = $('<div class="yani-home__item yani-home__item--' + item.key + ' selector"></div>');
-                button.attr('data-yani-home-key', item.key);
-                button.data('yani-home-title', item.title);
-                button.data('yani-home-group', item.group || 'explore');
-                button.append(
-                    $('<div class="yani-home__icon"></div>').html(homeIcon(item.key)),
-                    text,
-                    $('<span class="yani-home__count" aria-hidden="true"></span>'),
-                    $('<div class="yani-home__arrow">›</div>')
-                );
-                if (item.group === 'explore') button.append(homeExploreDecoration(item.key));
-                homeButtons[item.key] = button;
-                button.on('hover:focus', function (event) {
-                    activateHomeFocus(event.currentTarget || event.target, {countdown: true});
-                });
-                button.on('hover:enter click.yaniHome', item.action);
-                if (item.group === 'episode_flow') {
-                    if (!episodeFlow) {
-                        episodeFlow = $('<div class="yani-home__panel yani-home__panel--episode-flow yani-home__episode-flow"><div class="yani-home__panel-head"><span class="yani-home__panel-chapter" aria-hidden="true">02</span><span class="yani-home__episode-flow-title"></span><span class="yani-home__panel-line" aria-hidden="true"></span><span class="yani-home__chapter-state"><i></i><b></b></span><span class="yani-home__episode-flow-live" aria-hidden="true"><i></i><b></b></span></div><div class="yani-home__episode-timeline"></div><div class="yani-home__episode-flow-items"></div></div>');
-                        episodeFlow.find('.yani-home__episode-flow-title').text(t('episode_flow'));
-                        episodeFlowTimeline = episodeFlow.find('.yani-home__episode-timeline');
-                        episodeFlowItems = episodeFlow.find('.yani-home__episode-flow-items');
-                        grid.append(episodeFlow);
-                    }
-                    episodeFlowItems.append(button);
-                } else if (item.group === 'discover') {
-                    if (!discover) {
-                        discover = $('<div class="yani-home__panel yani-home__panel--discover yani-home__discover"><div class="yani-home__discover-head"><span class="yani-home__panel-chapter" aria-hidden="true">04</span><span class="yani-home__discover-title"></span><span class="yani-home__panel-line" aria-hidden="true"></span><span class="yani-home__chapter-state"><i></i><b></b></span><span class="yani-home__discover-mark" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="yani-home__discover-preview"></div><div class="yani-home__discover-items"></div></div>');
-                        discover.find('.yani-home__discover-title').text(t('discover'));
-                        discoverPreview = discover.find('.yani-home__discover-preview');
-                        discoverItems = discover.find('.yani-home__discover-items');
-                        grid.append(discover);
-                    }
-                    discoverItems.append(button);
-                } else if (item.group) {
-                    panel(item.group).append(button);
-                } else {
-                    grid.append(button);
+    // Use the same episode-completion model as the full history page without
+    // fetching title details just to draw a three-item home preview.
+    function homeContinueCards() {
+        var ceilings = {};
+        try {
+            var stored = Lampa.Storage.get('yani_episode_ceilings', '{}');
+            if (typeof stored === 'string') stored = JSON.parse(stored || '{}');
+            Object.keys(stored || {}).forEach(function (id) {
+                var cached = stored[id];
+                if (cached && Number(cached.count) > 0 && Date.now() - Number(cached.at || 0) < 86400000) {
+                    ceilings[id] = Number(cached.count);
                 }
             });
-
-            setChapterState('explore', 'ready');
-            setChapterState('episode_flow', 'loading');
-            setChapterState('library', 'loading');
-            setChapterState('discover', 'loading');
-            setChapterState('service', 'loading');
-
-            homeCollection = function () {
-                // Keep the section rail out of spatial Navigator: on Android TV it
-                // sits between tiles and steals one invisible focus step.
-                return scroll.render();
-            };
-            railCollection = function () {
-                return scroll.render().add(sectionRail);
-            };
-            railNodes = function () {
-                return sectionRail.find('.yani-home__section-rail-node.selector');
-            };
-            isRailFocus = function (element) {
-                return Boolean(element && $(element).hasClass('yani-home__section-rail-node'));
-            };
-            focusHomeElement = function (element, collection) {
-                if (!element) return false;
-                last = element;
-                collection = collection && collection.length ? collection : (isRailFocus(element) ? railCollection() : homeCollection());
-                Lampa.Controller.collectionSet(collection);
-                if (window.Navigator && Navigator.add) Navigator.add(element);
-                Lampa.Controller.collectionFocus(element, collection);
-                if (!isRailFocus(element)) scroll.update($(element), true);
-                return true;
-            };
-            focusSectionRail = function (preferred) {
-                var nodes = railNodes();
-                if (!nodes.length) return false;
-                var target = preferred && nodes.filter(function () { return this === preferred; }).first();
-                if (!target || !target.length) target = sectionRail.find('.yani-home__section-rail-node--active.selector').first();
-                if (!target.length) target = nodes.first();
-                return focusHomeElement(target[0], railCollection());
-            };
-
-            sectionDefinitions.forEach(function (definition) {
-                var node = sectionRailNodes[definition.key];
-                var target = items.filter(function (item) { return item.group === definition.key && homeButtons[item.key]; })[0];
-                if (!node || !target) return;
-                node.addClass('selector').attr({role: 'button', tabindex: '-1', 'aria-label': definition.title});
-                node.data('yani-home-target-key', target.key);
-                node.on('hover:focus', function (event) {
-                    activateHomeFocus(event.currentTarget || event.target, {
-                        storageKey: target.key,
-                        context: homeButtons[target.key],
-                        panel: homeButtons[target.key].closest('.yani-home__panel')
-                    });
-                });
-                node.on('hover:enter click.yaniHomeRail', function () {
-                    target.action();
-                });
-            });
-            if (!homeButtons.schedule) introMetrics.today.remove();
-            if (!homeButtons.new_translations) introMetrics.translations.remove();
-            if (!homeButtons.continue_watching) introMetrics.continue.remove();
-
-            function bindIntroMetric(metricKey, targetKey) {
-                var metric = introMetrics[metricKey];
-                var target = homeButtons[targetKey];
-                var definition = items.filter(function (item) { return item.key === targetKey; })[0];
-                if (!metric || !metric.length || !target || !definition) return;
-                metric.addClass('selector').attr({role: 'button', tabindex: '-1'});
-                metric.data('yani-home-target-key', targetKey);
-                metric.on('hover:focus', function (event) {
-                    activateHomeFocus(event.currentTarget || event.target, {
-                        storageKey: targetKey,
-                        context: target,
-                        panel: target.closest('.yani-home__panel'),
-                        countdown: true
-                    });
-                });
-                metric.on('hover:enter click.yaniHomeMetric', definition.action);
-            }
-
-            bindIntroMetric('today', 'schedule');
-            bindIntroMetric('translations', 'new_translations');
-            bindIntroMetric('continue', 'continue_watching');
-            scroll.append(grid);
-            html.append(waves);
-            html.append(scroll.render(true));
-            html.append(sectionRail);
-            this.activity.loader(false);
-            this.activity.toggle();
-
-            function setCount(button, count) {
-                count = Number(count || 0);
-                if (!button) return;
-                var badge = $('.yani-home__count', button);
-                if (!count) {
-                    badge.text('').attr('aria-hidden', 'true').removeClass('yani-home__count--visible');
-                    return;
-                }
-                badge
-                    .text(count > 99 ? '99+' : String(count))
-                    .attr('aria-hidden', 'false')
-                    .addClass('yani-home__count--visible');
-            }
-
-            renderIntroContext = function (button) {
-                if (!button || !button.length) return;
-                var key = String(button.data('yani-home-context-key') || button.attr('data-yani-home-key') || 'catalog');
-                setSectionRail(String(button.data('yani-home-group') || 'explore'));
-                var title = String(button.data('yani-home-title') || t('dashboard_title'));
-                var insight = String(button.data('yani-home-insight-title') || '');
-                var meta = String(button.data('yani-home-insight-meta') || '');
-                var poster = String(button.data('yani-home-poster') || '').replace(/["\\]/g, '');
-                var subtitle = [insight, meta].filter(Boolean).join(' · ') || t('dashboard_subtitle');
-                var contextToken = key + '\n' + title + '\n' + subtitle;
-                if (contextToken !== lastIntroContext) {
-                    lastIntroContext = contextToken;
-                    intro.attr('data-yani-context', key);
-                    intro.find('.yani-home__intro-title').text(title);
-                    intro.find('.yani-home__intro-subtitle').text(subtitle);
-                }
-                var art = intro.find('.yani-home__intro-context-art');
-                var showArt = !reducedMotion && !lowMemoryDevice && !lowCpuDevice && /^https?:\/\//i.test(poster);
-                if (!showArt) {
-                    if (lastIntroPoster) {
-                        lastIntroPoster = '';
-                        art.removeClass('yani-home__intro-context-art--visible').css('background-image', '');
-                    }
-                    return;
-                }
-                if (poster === lastIntroPoster) return;
-                lastIntroPoster = poster;
-                art.css('background-image', 'url("' + poster + '")').addClass('yani-home__intro-context-art--visible');
-            };
-
-            activateHomeFocus = function (target, options) {
-                options = options || {};
-                var element = $(target);
-                if (!element.length) return;
-                last = element[0];
-                if (homeFocusFrame) cancelAnimationFrame(homeFocusFrame);
-                homeFocusFrame = requestAnimationFrame(function () {
-                    homeFocusFrame = 0;
-                    if (destroyed || last !== element[0]) return;
-                    var storageKey = options.storageKey || String(element.attr('data-yani-home-key') || '');
-                    if (storageKey && storageKey !== lastStoredFocusKey && Lampa.Storage && Lampa.Storage.set) {
-                        lastStoredFocusKey = storageKey;
-                        Lampa.Storage.set(homeFocusStorageKey, storageKey);
-                    }
-                    var panel = options.panel || element.closest('.yani-home__panel');
-                    if (panel && panel.length && !panel.hasClass('yani-home__panel--active')) {
-                        html.find('.yani-home__panel--active').removeClass('yani-home__panel--active');
-                        panel.addClass('yani-home__panel--active');
-                    }
-                    renderIntroContext(options.context || element);
-                    if (options.countdown && currentEpisodeFlow) updateEpisodeCountdown(currentEpisodeFlow.japan);
-                    if (options.scroll === false) return;
-                    var node = element[0];
-                    var view = scroll.render()[0];
-                    if (node && view && node.getBoundingClientRect && view.getBoundingClientRect) {
-                        var rect = node.getBoundingClientRect();
-                        var box = view.getBoundingClientRect();
-                        if (rect.top >= box.top + 8 && rect.bottom <= box.bottom - 8) return;
-                    }
-                    scroll.update(element, true);
-                });
-            };
-
-            function setSectionRail(group) {
-                var activeGroup = 'explore';
-                var activeTitle = t('dashboard_browse');
-                sectionDefinitions.some(function (definition) {
-                    if (definition.key !== group) return false;
-                    activeGroup = definition.key;
-                    activeTitle = definition.title;
-                    return true;
-                });
-                if (activeGroup === lastHomeSection && html.attr('data-yani-section') === activeGroup) return;
-                lastHomeSection = activeGroup;
-                html.attr('data-yani-section', activeGroup);
-                intro.attr('data-yani-section', activeGroup);
-                intro.find('.yani-home__intro-brand em').text(activeTitle);
-                var reached = true;
-                sectionDefinitions.forEach(function (definition) {
-                    var node = sectionRailNodes[definition.key];
-                    if (!node) return;
-                    node.removeClass('yani-home__section-rail-node--active yani-home__section-rail-node--passed');
-                    if (definition.key === activeGroup) {
-                        node.addClass('yani-home__section-rail-node--active');
-                        reached = false;
-                    } else if (reached) {
-                        node.addClass('yani-home__section-rail-node--passed');
-                    }
-                });
-            }
-
-            function refreshIntroContext(button) {
-                if (button && button.length && last === button[0]) renderIntroContext(button);
-            }
-
-            function setPreview(button, title, meta) {
-                if (!button) return;
-                $('.yani-home__item-insight', button).remove();
-                button.removeClass('yani-home__item--with-insight');
-                button.data('yani-home-insight-title', title || '');
-                button.data('yani-home-insight-meta', meta || '');
-                if (!title) {
-                    refreshIntroContext(button);
-                    return;
-                }
-                var insight = $('<div class="yani-home__item-insight"></div>');
-                insight.append($('<div class="yani-home__item-insight-title"></div>').text(title));
-                if (meta) insight.append($('<div class="yani-home__item-insight-meta"></div>').text(meta));
-                $('.yani-home__text', button).append(insight);
-                button.addClass('yani-home__item--with-insight');
-                refreshIntroContext(button);
-            }
-
-            function setServiceState(button, state) {
-                if (!button) return;
-                $('.yani-home__service-state', button).remove();
-                $('<span class="yani-home__service-state yani-home__service-state--' + state + '" aria-hidden="true"></span>').insertBefore($('.yani-home__arrow', button));
-            }
-
-            function setServiceHub(state, title, detail) {
-                if (!serviceHub || !serviceHub.length) return;
-                serviceHub.removeClass('yani-home__service-hub--loading yani-home__service-hub--up yani-home__service-hub--attention yani-home__service-hub--degraded yani-home__service-hub--down')
-                    .addClass('yani-home__service-hub--' + (state || 'loading'));
-                serviceHub.find('b').text(title || t('status'));
-                serviceHub.find('em').text(detail || '');
-            }
-
-            function setIntroMetric(key, value, detail) {
-                var metric = introMetrics[key];
-                if (!metric || !metric.length) return;
-                var known = value !== null && value !== undefined && value !== '';
-                var metricLabel = String(metric.data('yani-home-metric-label') || '');
-                metric.removeClass('yani-home__intro-metric--active yani-home__intro-metric--ready yani-home__intro-metric--unknown');
-                if (!known) {
-                    metric.addClass('yani-home__intro-metric--unknown');
-                    metric.find('b').text('—');
-                    metric.find('em').text('').removeClass('yani-home__intro-metric-detail--visible');
-                    metric.attr('aria-label', metricLabel);
-                    return;
-                }
-                value = Math.max(0, Number(value) || 0);
-                metric.find('b').text(value > 99 ? '99+' : String(value));
-                metric.find('em').text(String(detail || '')).toggleClass('yani-home__intro-metric-detail--visible', Boolean(detail));
-                metric.attr('aria-label', [metricLabel, value, detail].filter(function (part) { return part !== ''; }).join(': '));
-                metric.addClass('yani-home__intro-metric--ready');
-                if (value) metric.addClass('yani-home__intro-metric--active');
-            }
-
-            function setIntroDataState(state, updatedAt) {
-                var status = intro.find('.yani-home__intro-data');
-                var labels = {
-                    live: t('dashboard_data_live'),
-                    partial: t('dashboard_data_partial'),
-                    cached: t('dashboard_data_cached'),
-                    offline: t('dashboard_data_offline')
-                };
-                var label = labels[state] || '';
-                if (!label) return status.removeClass('yani-home__intro-data--visible');
-                var time = '';
-                if (updatedAt) {
-                    try { time = new Date(updatedAt).toLocaleTimeString(locale(), {hour: '2-digit', minute: '2-digit'}); }
-                    catch (error) { time = new Date(updatedAt).toLocaleTimeString(); }
-                }
-                status.removeClass('yani-home__intro-data--live yani-home__intro-data--partial yani-home__intro-data--cached yani-home__intro-data--offline')
-                    .addClass('yani-home__intro-data--visible yani-home__intro-data--' + state)
-                    .find('span').text(label + (time ? ' · ' + time : ''));
-            }
-
-            function setArtwork(button, poster) {
-                if (!button) return;
-                $('.yani-home__item-art', button).remove();
-                button.removeClass('yani-home__item--artwork');
-                poster = String(poster || '');
-                button.data('yani-home-poster', /^https?:\/\//i.test(poster) ? poster : '');
-                if (reducedMotion || lowMemoryDevice || lowCpuDevice || !/^https?:\/\//i.test(poster)) {
-                    refreshIntroContext(button);
-                    return;
-                }
-                poster = poster.replace(/["\\]/g, '');
-                $('<span class="yani-home__item-art" aria-hidden="true"></span>')
-                    .css('background-image', 'linear-gradient(90deg, rgba(22,20,29,.98) 3%, rgba(22,20,29,.72) 48%, rgba(22,20,29,.12) 100%), url("' + poster + '")')
-                    .prependTo(button);
-                button.addClass('yani-home__item--artwork');
-                refreshIntroContext(button);
-            }
-
-            function renderDiscoveryPreviews(discovery) {
-                if (!discoverPreview || !discoverPreview.length) return;
-                discoverPreview.empty();
-                discovery = discovery || {};
-
-                function appendPreview(options) {
-                    if (!options || !options.id) return;
-                    var node = $('<div class="yani-home__discover-preview-card yani-home__discover-preview-card--' + options.kind + ' selector" role="button" tabindex="-1"></div>');
-                    var poster = String(options.poster || '');
-                    if (!lowMemoryDevice && !lowCpuDevice && /^https?:\/\//i.test(poster)) {
-                        node.append($('<span class="yani-home__discover-preview-art" aria-hidden="true"></span>').css('background-image', 'url("' + poster.replace(/["\\]/g, '') + '")'));
-                    }
-                    node.append(
-                        $('<span class="yani-home__discover-preview-kicker"></span>').text(options.kicker),
-                        $('<b></b>').text(options.title || t('untitled')),
-                        $('<small></small>').text(options.meta || ''),
-                        $('<i aria-hidden="true">›</i>')
-                    );
-                    node.data('yani-home-context-key', options.targetKey);
-                    node.data('yani-home-group', 'discover');
-                    node.data('yani-home-title', options.kicker);
-                    node.data('yani-home-insight-title', options.title || '');
-                    node.data('yani-home-insight-meta', options.meta || '');
-                    node.data('yani-home-poster', poster);
-                    node.on('hover:focus', function (event) {
-                        activateHomeFocus(event.currentTarget || event.target, {
-                            storageKey: options.targetKey,
-                            panel: discover
-                        });
-                    });
-                    node.on('hover:enter click.yaniHomeDiscoveryPreview', options.action);
-                    discoverPreview.append(node);
-                }
-
-                var release = discovery.new_release;
-                if (release && release.anime_id) {
-                    appendPreview({
-                        id: release.anime_id,
-                        kind: 'release',
-                        targetKey: 'new_releases',
-                        kicker: t('new_releases'),
-                        title: release.title,
-                        meta: release.meta,
-                        poster: release.poster,
-                        action: function () {
-                            openYummyDetail(toCard({anime_id: release.anime_id, title: release.title, poster: release.poster, year: release.year, type: release.type}), false);
-                        }
-                    });
-                }
-                var collection = discovery.collection;
-                if (collection && collection.id !== '' && collection.id !== null && collection.id !== undefined) {
-                    appendPreview({
-                        id: collection.id,
-                        kind: 'collection',
-                        targetKey: 'collections',
-                        kicker: t('collection'),
-                        title: collection.title,
-                        meta: collection.count ? collection.count + ' ' + t('anime_count') : '',
-                        poster: collection.poster,
-                        action: function () { openCollection({id: collection.id, title: collection.title}); }
-                    });
-                }
-                discoverPreview.toggleClass('yani-home__discover-preview--visible', Boolean(discoverPreview.children().length));
-            }
-
-            var prioritySignals = {
-                authorized: Boolean(LampaYaniAuth.token()),
-                continue_count: 0,
-                notification_count: 0,
-                has_translation: false
-            };
-
-            function refreshPriority() {
-                var priority = LampaYaniHomeInsights.dashboardPriority(prioritySignals);
-                var button = homeButtons[priority.key];
-                html.find('.yani-home__item--priority').removeClass('yani-home__item--priority').find('.yani-home__priority').remove();
-                preferredHomeKey = button ? priority.key : homeButtons.catalog ? 'catalog' : Object.keys(homeButtons)[0] || '';
-                if (!button) return;
-                button.addClass('yani-home__item--priority');
-                $('<span class="yani-home__priority" aria-hidden="true"></span>').text(t(priority.label)).appendTo(button);
-            }
-
-            function renderEpisodeTimeline(flow) {
-                if (!episodeFlowTimeline) return;
-                flow = flow || {};
-                currentEpisodeFlow = flow;
-                updateEpisodeCountdown(flow.japan);
-                var stages = [
-                    {key: 'japan', label: t('japan_broadcast')},
-                    {key: 'waiting', label: t('translation_waiting')},
-                    {key: 'available', label: t('new_translations')}
-                ];
-                function bindEpisodeStage(node, targetKey, definition, data, meta) {
-                    var target = homeButtons[targetKey];
-                    if (!target) return;
-                    node.addClass('selector').attr({role: 'button', tabindex: '-1', 'aria-label': [definition.label, data.title || t('flow_no_data'), meta.join(' · ')].filter(Boolean).join(': ')});
-                    node.data('yani-home-context-key', targetKey);
-                    node.on('hover:focus', function (event) {
-                        activateHomeFocus(event.currentTarget || event.target, {
-                            storageKey: targetKey,
-                            context: target,
-                            panel: target.closest('.yani-home__panel')
-                        });
-                    });
-                    node.on('hover:enter click.yaniHomeFlow', target.action);
-                }
-                episodeFlowTimeline.empty();
-                stages.forEach(function (definition, index) {
-                    var data = flow[definition.key] || {};
-                    var state = definition.key === 'japan' ? (data.timestamp && data.timestamp <= Date.now() ? 'ready' : 'scheduled') : data.status || 'idle';
-                    var node = $('<div class="yani-home__episode-stage yani-home__episode-stage--' + state + '"></div>');
-                    var marker = $('<div class="yani-home__episode-stage-marker"></div>').html(homeFlowIcon(definition.key));
-                    var copy = $('<div class="yani-home__episode-stage-copy"></div>');
-                    copy.append($('<div class="yani-home__episode-stage-label"></div>').text(definition.label));
-                    copy.append($('<div class="yani-home__episode-stage-title"></div>').text(data.title || t('flow_no_data')));
-                    var meta = [];
-                    if (data.episode_label) meta.push(String(data.episode_label));
-                    else if (data.episode) meta.push(t('episode') + ' ' + data.episode);
-                    if (definition.key === 'japan' && data.timestamp) {
-                        var date = new Date(data.timestamp);
-                        try { meta.push(date.toLocaleString(locale(), {weekday: 'short', hour: '2-digit', minute: '2-digit'})); }
-                        catch (error) { meta.push(date.toLocaleString()); }
-                    }
-                    if (definition.key === 'waiting' && data.status === 'waiting') meta.push(t('translation_pending'));
-                    if (definition.key === 'waiting' && data.status === 'ready') meta.push(t('available_now'));
-                    if (definition.key === 'available') meta = meta.concat([data.dubbing, data.source].filter(Boolean));
-                    copy.append($('<div class="yani-home__episode-stage-meta"></div>').text(meta.join(' · ') || '—'));
-                    node.append(marker, copy);
-                    if (index) node.prepend('<span class="yani-home__episode-stage-link"><i></i></span>');
-                    bindEpisodeStage(node, definition.key === 'available' ? 'new_translations' : 'schedule', definition, data, meta);
-                    episodeFlowTimeline.append(node);
-                });
-            }
-
-            updateEpisodeCountdown = function (release) {
-                if (!episodeFlow) return;
-                var indicator = episodeFlow.find('.yani-home__episode-flow-live');
-                var countdown = LampaYaniHomeInsights.releaseCountdown(release && release.timestamp, Date.now());
-                indicator.removeClass('yani-home__episode-flow-live--upcoming yani-home__episode-flow-live--aired yani-home__episode-flow-live--visible');
-                if (countdown.state === 'unknown') return indicator.find('b').text('');
-                var text;
-                if (countdown.state === 'aired') {
-                    text = t('broadcast_started');
-                } else {
-                    var parts = [];
-                    if (countdown.days) parts.push(countdown.days + t('days_short'));
-                    if (countdown.hours) parts.push(countdown.hours + t('hours_short'));
-                    if (countdown.minutes && !countdown.days) parts.push(countdown.minutes + t('minutes_short'));
-                    text = t('next_broadcast') + ' · ' + (parts.join(' ') || '1' + t('minutes_short'));
-                }
-                indicator.addClass('yani-home__episode-flow-live--visible yani-home__episode-flow-live--' + countdown.state).find('b').text(text);
-            };
-
-            function continueMetricDetail(entry) {
-                entry = entry || {};
-                var meta = [];
-                if (entry.number || entry.episode) meta.push(t('episode') + ' ' + (entry.number || entry.episode));
-                if (Number(entry.duration || 0) > 0) meta.push(Math.min(99, Math.round(Number(entry.time || 0) / Number(entry.duration) * 100)) + '%');
-                return [entry.title || '', meta.join(' · ')].filter(Boolean).join(' · ');
-            }
-
-            var account = LampaYaniAuth.get();
-            setServiceHub('loading', t('status'), account && (account.display_name || account.login) ? account.display_name || account.login : t('not_logged_in'));
-            var localHistory = playbackHistory();
-            var localEntries = LampaYaniHomeSections.normalizeLocalHistory(localHistory);
-            var continuing = LampaYaniHomeSections.continueWatchingEntries(localEntries, {});
-            setIntroMetric('continue', continuing.length, continueMetricDetail(continuing[0]));
-
-            function renderLibraryStrip(entries) {
-                if (!libraryStrip) return;
-                if (last && $(last).hasClass('yani-home__library-mini')) last = homeButtons.continue_watching && homeButtons.continue_watching[0] || null;
-                libraryStrip.empty().removeClass('yani-home__library-preview--visible').attr('aria-hidden', 'true');
-                if (!entries || !entries.length) return;
-                entries.forEach(function (entry) {
-                    if (!entry.anime_id) return;
-                    var mini = $('<div class="yani-home__library-mini selector" role="button"></div>');
-                    var art = $('<span class="yani-home__library-mini-art"></span>');
-                    var poster = String(entry.poster || '').replace(/["\\]/g, '');
-                    var meta = [];
-                    if (entry.episode) meta.push(t('episode') + ' ' + entry.episode);
-                    if (entry.progress) meta.push(entry.progress + '%');
-                    mini.attr('data-yani-anime-id', String(entry.anime_id));
-                    mini.attr('aria-label', [t('continue_watching'), entry.title, meta.join(' · ')].filter(Boolean).join(': '));
-                    mini.data('yani-home-context-key', 'continue_watching');
-                    mini.data('yani-home-title', t('continue_watching'));
-                    mini.data('yani-home-group', 'library');
-                    mini.data('yani-home-insight-title', entry.title || 'YummyAnime');
-                    mini.data('yani-home-insight-meta', meta.join(' · '));
-                    mini.data('yani-home-poster', poster);
-                    if (!reducedMotion && !lowMemoryDevice && !lowCpuDevice && /^https?:\/\//i.test(poster)) art.css('background-image', 'url("' + poster + '")');
-                    mini.append(art, $('<span class="yani-home__library-mini-shade"></span>'));
-                    if (entry.episode) mini.append($('<span class="yani-home__library-mini-episode"></span>').text(t('episode') + ' ' + entry.episode));
-                    mini.append($('<span class="yani-home__library-mini-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>'));
-                    mini.append($('<span class="yani-home__library-mini-title"></span>').text(entry.title || 'YummyAnime'));
-                    mini.append($('<span class="yani-home__library-mini-progress"><i></i></span>'));
-                    mini.find('.yani-home__library-mini-progress i').css('width', String(entry.progress || 0) + '%');
-                    mini.on('hover:focus', function (event) {
-                        activateHomeFocus(event.currentTarget || event.target, {storageKey: 'continue_watching'});
-                    });
-                    mini.on('hover:enter click.yaniHomeResume', function () {
-                        var source = Object.assign({}, entry.card || {}, {
-                            anime_id: entry.anime_id,
-                            title: entry.title || entry.card && entry.card.title || t('untitled'),
-                            poster: entry.poster || entry.card && entry.card.poster || ''
-                        });
-                        var card = toCard(source);
-                        card.yani_resume = {
-                            number: window.LampaYaniEpisode.normalize(entry.episode),
-                            video_id: entry.video_id || '',
-                            time: Number(entry.time || 0),
-                            duration: Number(entry.duration || 0),
-                            player: entry.player || '',
-                            voice: entry.voice || '',
-                            updated_at: Number(entry.updated_at || 0)
-                        };
-                        openVideos(card, true);
-                    });
-                    libraryStrip.append(mini);
-                });
-                if (libraryStrip.children().length) libraryStrip.addClass('yani-home__library-preview--visible').attr('aria-hidden', 'false');
-            }
-
-            renderLibraryStrip(LampaYaniHomeInsights.libraryPreview(continuing, 3));
-
-            function renderPersonal(stats) {
-                if (destroyed) return;
-                var personal = LampaYaniHomeInsights.personalInsight(continuing, account, stats);
-                if (libraryPulse && libraryPulse.length) {
-                    var libraryActivity = personal.continue_count + personal.tracked_total;
-                    var resumeShare = libraryActivity ? Math.round(personal.continue_count / libraryActivity * 100) : 0;
-                    libraryPulse.toggleClass('yani-home__library-pulse--active', Boolean(libraryActivity));
-                    libraryPulse.find('b').text(libraryActivity ? personal.continue_count + ' / ' + personal.tracked_total : '—');
-                    libraryPulse.find('em').text(t('continue_watching') + ' ' + personal.continue_count + ' · ' + t('updates') + ' ' + personal.tracked_total);
-                    libraryPulse.find('.yani-home__library-pulse-meter i').css('width', String(resumeShare) + '%');
-                }
-                prioritySignals.continue_count = personal.continue_count;
-                setCount(homeButtons.continue_watching, personal.continue_count);
-                setIntroMetric('continue', personal.continue_count, continueMetricDetail(personal.continue_preview));
-                if (personal.continue_preview) {
-                    var resume = personal.continue_preview;
-                    var resumeMeta = resume.number ? t('episode') + ' ' + resume.number : '';
-                    if (resume.duration > 0) resumeMeta += (resumeMeta ? ' · ' : '') + Math.min(99, Math.round(resume.time / resume.duration * 100)) + '%';
-                    setPreview(homeButtons.continue_watching, resume.title, resumeMeta);
-                    setArtwork(homeButtons.continue_watching, resume.poster);
-                } else {
-                    setPreview(homeButtons.continue_watching, '', '');
-                    setArtwork(homeButtons.continue_watching, '');
-                }
-                if (personal.account_name) setPreview(homeButtons.account, personal.account_name, t('authorized'));
-                if (personal.list_total) {
-                    setCount(homeButtons.user_lists, personal.list_total);
-                    setPreview(homeButtons.user_lists, t('watching') + ' ' + personal.lists.watching, t('planned') + ' ' + personal.lists.planned);
-                }
-                if (personal.tracked_total) {
-                    setCount(homeButtons.updates, personal.tracked_total);
-                    setPreview(homeButtons.updates, t('watching') + ' ' + personal.lists.watching, t('postponed') + ' ' + personal.lists.postponed);
-                }
-                refreshPriority();
-            }
-
-            var personalStats = readHomeListCounts(account && account.user_id);
-            renderPersonal(personalStats);
-
-            refreshContinueWatching = function () {
-                queueHomeRender('local-playback', function () {
-                    if (destroyed) return;
-                    localHistory = playbackHistory();
-                    var localEntries = LampaYaniHomeSections.normalizeLocalHistory(localHistory);
-                    continuing = LampaYaniHomeSections.continueWatchingEntries(localEntries, {});
-                    setIntroMetric('continue', continuing.length, continueMetricDetail(continuing[0]));
-                    renderLibraryStrip(LampaYaniHomeInsights.libraryPreview(continuing, 3));
-                    renderPersonal(personalStats);
-                });
-            };
-
-            // A title leaves Continue Watching when its last released episode
-            // has been watched — not because of which user list it sits in.
-            function applyPlaybackSnapshot(remoteEntries) {
-                if (destroyed) return;
-                if (remoteEntries && remoteEntries.length) importRemoteEntries(remoteEntries);
-                localHistory = playbackHistory();
-                var merged = LampaYaniHomeSections.mergeHistory(localHistory, remoteEntries || []);
-                continuing = LampaYaniHomeSections.continueWatchingEntries(merged, {});
-                renderLibraryStrip(LampaYaniHomeInsights.libraryPreview(continuing, 3));
-                renderPersonal(personalStats);
-            }
-
-            var playbackUserKey = account && (account.user_id || account.login) || '';
-            var playbackCache = readHomePlaybackSnapshot(playbackUserKey);
-            if (playbackCache.available) applyPlaybackSnapshot(playbackCache.entries);
-            var playbackNeedsRefresh = Boolean(LampaYaniAuth.token() && playbackUserKey && !playbackCache.fresh);
-            var listNeedsRefresh = Boolean(LampaYaniAuth.token() && Number(account && account.user_id || 0) && !homeListCountsFresh(account.user_id) && (homeButtons.user_lists || homeButtons.updates));
-            var libraryRefreshPending = (playbackNeedsRefresh ? 1 : 0) + (listNeedsRefresh ? 1 : 0);
-            var libraryRefreshFailed = false;
-            var homeDelayScale = lowMemoryDevice || lowCpuDevice ? 2.4 : 1;
-
-            function finishLibraryRefresh(failed) {
-                if (destroyed) return;
-                libraryRefreshFailed = libraryRefreshFailed || Boolean(failed);
-                libraryRefreshPending = Math.max(0, libraryRefreshPending - 1);
-                if (libraryRefreshPending) return setChapterState('library', 'loading');
-                var personal = LampaYaniHomeInsights.personalInsight(continuing, account, personalStats);
-                var hasLibraryData = personal.continue_count + personal.list_total > 0;
-                setChapterState('library', libraryRefreshFailed && !hasLibraryData ? 'offline' : hasLibraryData ? 'ready' : 'empty');
-            }
-
-            if (!libraryRefreshPending) {
-                var initialPersonal = LampaYaniHomeInsights.personalInsight(continuing, account, personalStats);
-                setChapterState('library', initialPersonal.continue_count + initialPersonal.list_total > 0 ? 'ready' : 'empty');
-            } else {
-                setChapterState('library', 'loading');
-            }
-
-            if (playbackNeedsRefresh) scheduleHomeTask(function () {
-                var control = homeRequestControl();
-                // last-watches can refresh only videos this device already
-                // knows. It cannot discover a title watched on another device,
-                // so the account merge must use the complete history range.
-                var recentPlayback = LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 300, 30, control).catch(function (error) {
-                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Server playback history is unavailable', error);
-                    return null;
-                });
-                Promise.all([recentPlayback]).then(function (result) {
-                    if (destroyed) return;
-                    if (result[0] !== null) cacheHomePlaybackSnapshot(playbackUserKey, result[0]);
-                    queueHomeRender('remote-playback', function () {
-                        if (result[0] !== null) applyPlaybackSnapshot(result[0]);
-                        finishLibraryRefresh(result[0] === null);
-                    });
-                });
-            }, 140 * homeDelayScale);
-
-            if (listNeedsRefresh) scheduleHomeTask(function () {
-                LampaYaniApi.userListStats(account.user_id, homeRequestControl()).then(function (stats) {
-                    if (destroyed) return;
-                    var normalized = LampaYaniHomeInsights.listCounts(stats);
-                    var hasCounts = Object.keys(normalized).some(function (key) { return Number(normalized[key] || 0) > 0; });
-                    cacheHomeListCounts(account.user_id, hasCounts ? normalized : readHomeListCounts(account.user_id));
-                    queueHomeRender('personal-lists', function () {
-                        personalStats = stats;
-                        renderPersonal(personalStats);
-                        finishLibraryRefresh(false);
-                    });
-                }).catch(function (error) {
-                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Personal list insights are unavailable', error);
-                    queueHomeRender('personal-lists', function () {
-                        finishLibraryRefresh(true);
-                    });
-                });
-            }, 420 * homeDelayScale);
-
-            var notificationUserKey = account && (account.user_id || account.login) || '';
-            var notificationCache = readHomeNotificationCount(notificationUserKey);
-            function renderNotifications(count) {
-                if (!homeButtons.notifications || count === null || count === undefined) return;
-                count = Math.max(0, Number(count) || 0);
-                prioritySignals.notification_count = count;
-                setCount(homeButtons.notifications, count);
-                setPreview(homeButtons.notifications, count ? String(count) + ' ' + t('unread') : t('no_unread_notifications'), t('authorized'));
-                setServiceState(homeButtons.notifications, count ? 'attention' : 'up');
-                refreshPriority();
-            }
-            if (notificationCache.available) renderNotifications(notificationCache.count);
-            if (LampaYaniAuth.token() && homeButtons.notifications && (!notificationCache.fresh || notificationCache.count === 0)) scheduleHomeTask(function () {
-                LampaYaniApi.notificationCounts(homeRequestControl()).then(function (payload) {
-                    var count = LampaYaniHomeInsights.notificationCount(payload);
-                    if (count > 0) return count;
-                    return LampaYaniApi.notifications(30, 0).then(function (list) {
-                        return LampaYaniHomeInsights.resolveNotificationCount(payload, list);
-                    }).catch(function () { return count; });
-                }).then(function (count) {
-                    if (destroyed) return;
-                    cacheHomeNotificationCount(notificationUserKey, count);
-                    queueHomeRender('notifications', function () {
-                        renderNotifications(count);
-                    });
-                }).catch(function (error) {
-                    if (!homeRequestCancelled(error)) console.warn('[YummyAnime Home] Notification count is unavailable', error);
-                });
-            }, 760 * homeDelayScale);
-
-            if (homeButtons.schedule || homeButtons.new_translations || homeButtons.new_releases || homeButtons.collections || homeButtons.status) {
-                var dashboardCache = readHomeDashboardSnapshot();
-
-                function renderDashboardSnapshot(dashboard, dataState, updatedAt) {
-                    dashboard = dashboard || {};
-                    Object.keys(dashboard.counts || {}).forEach(function (key) {
-                        setCount(homeButtons[key], dashboard.counts[key]);
-                    });
-                    var schedule = dashboard.schedule || {};
-                    var scheduleKnown = Object.prototype.hasOwnProperty.call(schedule, 'today');
-                    renderEpisodeTimeline(dashboard.episode_flow);
-                    var service = dashboard.service || {};
-                    var episodeData = dashboard.episode_flow || {};
-                    var discoveryData = dashboard.discovery || {};
-                    var episodeHasData = Boolean(episodeData.japan || episodeData.waiting || episodeData.available);
-                    var discoveryHasData = Boolean(discoveryData.new_release || discoveryData.collection);
-                    setChapterState('episode_flow', dataState === 'cached' && episodeHasData ? 'cached' : service.feed && service.schedule ? episodeHasData ? 'ready' : 'empty' : service.api ? 'partial' : episodeHasData ? 'cached' : 'offline');
-                    setChapterState('discover', dataState === 'cached' && discoveryHasData ? 'cached' : service.feed ? discoveryHasData ? 'ready' : 'empty' : discoveryHasData ? 'cached' : 'offline');
-                    setChapterState('service', dataState === 'cached' ? 'cached' : service.degraded ? 'partial' : service.api ? 'ready' : 'offline');
-                    var serviceState = dataState === 'cached' ? 'degraded' : service.degraded ? 'degraded' : service.api ? 'up' : 'down';
-                    var serviceTitle = dataState === 'cached' ? t('dashboard_data_cached') : service.degraded ? t('degraded') : service.api ? t('api_ok') : t('api_error');
-                    setServiceState(homeButtons.status, serviceState);
-                    setServiceHub(serviceState, serviceTitle, account && (account.display_name || account.login) ? account.display_name || account.login : t('not_logged_in'));
-                    setPreview(homeButtons.status, serviceTitle, [service.feed ? 'API' : '', service.schedule ? t('schedule') : ''].filter(Boolean).join(' · '));
-                    setIntroDataState(dataState, updatedAt);
-                    setCount(homeButtons.schedule, schedule.today);
-                    if (schedule.preview) {
-                        var releaseDate = new Date(schedule.preview.timestamp);
-                        var releaseTime;
-                        try { releaseTime = releaseDate.toLocaleString(locale(), {weekday: 'short', hour: '2-digit', minute: '2-digit'}); }
-                        catch (error) { releaseTime = releaseDate.toLocaleString(); }
-                        var episode = schedule.preview.episode ? t('episode') + ' ' + schedule.preview.episode : t('release');
-                        if (schedule.preview.total) episode += ' ' + t('of') + ' ' + schedule.preview.total;
-                        setPreview(homeButtons.schedule, schedule.preview.title, releaseTime + ' · ' + episode);
-                        setArtwork(homeButtons.schedule, schedule.preview.poster);
-                        setIntroMetric('today', scheduleKnown ? schedule.today : null, [releaseTime, schedule.preview.title].filter(Boolean).join(' · '));
-                    } else {
-                        setPreview(homeButtons.schedule, '', '');
-                        setArtwork(homeButtons.schedule, '');
-                        setIntroMetric('today', scheduleKnown ? schedule.today : null, '');
-                    }
-                    var translations = dashboard.translations || {};
-                    var translationsKnown = Object.prototype.hasOwnProperty.call(translations, 'count');
-                    var translation = translations.preview;
-                    prioritySignals.has_translation = Boolean(translation);
-                    if (translation) {
-                        setPreview(homeButtons.new_translations, translation.title, [translation.episode, translation.dubbing, translation.source].filter(Boolean).join(' · '));
-                        setArtwork(homeButtons.new_translations, translation.poster);
-                        setIntroMetric('translations', translationsKnown ? translations.count : null, [translation.title, translation.dubbing].filter(Boolean).join(' · '));
-                    } else {
-                        setPreview(homeButtons.new_translations, '', '');
-                        setArtwork(homeButtons.new_translations, '');
-                        setIntroMetric('translations', translationsKnown ? translations.count : null, '');
-                    }
-                    var discovery = dashboard.discovery || {};
-                    renderDiscoveryPreviews(discovery);
-                    var newRelease = discovery.new_release;
-                    if (newRelease) {
-                        setPreview(homeButtons.new_releases, newRelease.title, newRelease.meta);
-                        setArtwork(homeButtons.new_releases, newRelease.poster);
-                    } else {
-                        setPreview(homeButtons.new_releases, '', '');
-                        setArtwork(homeButtons.new_releases, '');
-                    }
-                    var featuredCollection = discovery.collection;
-                    if (featuredCollection) {
-                        setPreview(homeButtons.collections, featuredCollection.title, featuredCollection.count ? featuredCollection.count + ' ' + t('anime_count') : '');
-                        setArtwork(homeButtons.collections, featuredCollection.poster);
-                    } else {
-                        setPreview(homeButtons.collections, '', '');
-                        setArtwork(homeButtons.collections, '');
-                    }
-                    refreshPriority();
-                }
-
-                if (dashboardCache.available) renderDashboardSnapshot(dashboardCache.dashboard, 'cached', dashboardCache.updated_at);
-                LampaYaniHomeInsights.dashboard({
-                    feed: function () { return LampaYaniApi.feed(homeRequestControl()); },
-                    schedule: function () { return LampaYaniApi.schedule(homeRequestControl()); },
-                    now: Date.now()
-                }).then(function (dashboard) {
-                    if (destroyed) return;
-                    var service = dashboard.service || {};
-                    var merged = LampaYaniHomeInsights.mergeDashboardSnapshot(dashboardCache.dashboard, dashboard);
-                    var state = service.api ? service.degraded ? 'partial' : 'live' : dashboardCache.available ? 'offline' : 'offline';
-                    var updatedAt = service.api ? Date.now() : dashboardCache.updated_at;
-                    if (service.feed && service.schedule) cacheHomeDashboardSnapshot(dashboard);
-                    queueHomeRender('dashboard', function () {
-                        renderDashboardSnapshot(merged, state, updatedAt);
-                    });
-                }).catch(function (error) {
-                    if (homeRequestCancelled(error)) return;
-                    queueHomeRender('dashboard', function () {
-                        if (dashboardCache.available) setIntroDataState('offline', dashboardCache.updated_at);
-                        setChapterState('episode_flow', dashboardCache.available ? 'cached' : 'offline');
-                        setChapterState('discover', dashboardCache.available ? 'cached' : 'offline');
-                        setChapterState('service', 'offline');
-                    });
-                    console.warn('[YummyAnime Home] Dashboard insights are unavailable', error);
-                });
-            }
-        };
-
-        this.start = function () {
-            if (homeAuthorizationChanged || homeAuthorized !== Boolean(LampaYaniAuth.token())) {
-                homeAuthorizationChanged = false;
-                Lampa.Activity.replace({
-                    url: object && object.url || 'yani/home',
-                    title: object && object.title || 'YummyAnime',
-                    component: 'yani_home'
-                });
-                return;
-            }
-            refreshContinueWatching();
-            Lampa.Controller.add('content', {
-                toggle: function () {
-                    var target = last && document.documentElement.contains(last) ? last : false;
-                    if (!target) {
-                        var savedKey = Lampa.Storage && Lampa.Storage.get ? String(Lampa.Storage.get(homeFocusStorageKey, '') || '') : '';
-                        var availableKeys = [];
-                        var availableNodes = {};
-                        homeCollection().find('.selector[data-yani-home-key]').each(function () {
-                            var key = String($(this).attr('data-yani-home-key') || '');
-                            if (!key) return;
-                            availableKeys.push(key);
-                            availableNodes[key] = this;
-                        });
-                        var focusKey = LampaYaniHomeInsights.dashboardInitialFocus(savedKey, preferredHomeKey, availableKeys);
-                        target = availableNodes[focusKey] || false;
-                    }
-                    if (!target) target = homeCollection().find('.selector')[0] || false;
-                    focusHomeElement(target, isRailFocus(target) ? railCollection() : homeCollection());
-                    if (target) renderIntroContext($(target));
-                },
-                left: function () {
-                    noteHomeNavigation();
-                    if (isRailFocus(last)) {
-                        var key = String($(last).data('yani-home-target-key') || '');
-                        var tile = key && homeButtons[key] && homeButtons[key][0];
-                        if (!tile) tile = homeCollection().find('.selector[data-yani-home-key]').first()[0];
-                        if (tile) focusHomeElement(tile, homeCollection());
-                        else Lampa.Controller.toggle('menu');
-                        return;
-                    }
-                    if (Navigator.canmove('left')) Navigator.move('left');
-                    else Lampa.Controller.toggle('menu');
-                },
-                right: function () {
-                    noteHomeNavigation();
-                    if (isRailFocus(last)) return;
-                    if (Navigator.canmove('right')) Navigator.move('right');
-                    else focusSectionRail();
-                },
-                up: function () {
-                    noteHomeNavigation();
-                    if (isRailFocus(last)) {
-                        var nodes = railNodes();
-                        var index = nodes.index(last);
-                        if (index > 0) focusHomeElement(nodes.get(index - 1), railCollection());
-                        else Lampa.Controller.toggle('head');
-                        return;
-                    }
-                    if (Navigator.canmove('up')) Navigator.move('up');
-                    else Lampa.Controller.toggle('head');
-                },
-                down: function () {
-                    noteHomeNavigation();
-                    if (isRailFocus(last)) {
-                        var nodes = railNodes();
-                        var index = nodes.index(last);
-                        if (index >= 0 && index + 1 < nodes.length) focusHomeElement(nodes.get(index + 1), railCollection());
-                        return;
-                    }
-                    movePageDown(scroll);
-                },
-                back: goBack
-            });
-            Lampa.Controller.toggle('content');
-        };
-
-        this.render = function (js) { return js ? html[0] : html; };
-        this.destroy = function () {
-            destroyed = true;
-            if (homeFocusFrame) cancelAnimationFrame(homeFocusFrame);
-            homeFocusFrame = 0;
-            homeTimers.forEach(function (timer) { clearTimeout(timer); });
-            homeTimers = [];
-            if (homeRenderIdleTimer) clearTimeout(homeRenderIdleTimer);
-            if (homeRenderFrame) cancelAnimationFrame(homeRenderFrame);
-            homeRenderIdleTimer = homeRenderFrame = 0;
-            homePendingRenders = {};
-            if (homeAbortController) homeAbortController.abort();
-            if (typeof document !== 'undefined' && document.removeEventListener) document.removeEventListener('yani:auth-changed', onHomeAuthorizationChanged);
-            if (window.$ && typeof document !== 'undefined') $(document).off('yani:watch-progress.yaniHome', onHomeWatchProgress);
-            homeButtons = {};
-            currentEpisodeFlow = null;
-            preferredHomeKey = 'catalog';
-            renderIntroContext = function () {};
-            updateEpisodeCountdown = function () {};
-            homeCollection = function () { return scroll.render(); };
-            railCollection = function () { return scroll.render(); };
-            railNodes = function () { return $(); };
-            isRailFocus = function () { return false; };
-            focusHomeElement = function () { return false; };
-            focusSectionRail = function () { return false; };
-            refreshContinueWatching = function () {};
-            scroll.destroy();
-            html.remove();
-        };
+        } catch (ignore) {}
+        var entries = LampaYaniHomeSections.mergeHistory(playbackHistory(), []);
+        return LampaYaniHomeSections.continueWatchingEntries(entries, {}, ceilings).slice(0, 3).map(function (entry) {
+            var card = toCard(Object.assign({}, entry.card || {}, {
+                anime_id: entry.anime_id,
+                title: entry.title || entry.card && entry.card.title,
+                poster: entry.poster || entry.card && entry.card.poster,
+                updated_at: entry.updated_at || 0
+            }));
+            LampaYaniHomeSections.attachHistoryEntry(card, entry);
+            card.yani_list_progress = entry.duration > 0 ? Math.max(0, Math.min(1, Number(entry.time || 0) / Number(entry.duration))) : 0;
+            card.yani_resume_episode = entry.number;
+            card.yani_resume_next = Boolean(entry.resume_next);
+            card.yani_resume_remaining = entry.duration > 0 ? Math.max(0, Math.ceil((Number(entry.duration) - Number(entry.time || 0)) / 60)) : 0;
+            return card;
+        });
     }
 
     function UsagePolicy(object) {
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
         scroll.minus();
-        var html = $('<div class="yani-policy"></div>');
+        var html = $('<div class="yani-policy yani-lite-view"></div>');
         var title;
         var accept;
 
@@ -16710,7 +16960,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         if (usagePolicyVisible) return;
         usagePolicyVisible = true;
         usagePolicyController = document.querySelector('.settings') ? 'settings' : (currentControllerName() || 'settings');
-        var layer = $('<div class="yani-policy-layer"></div>');
+        var layer = $('<div class="yani-policy-layer yani-lite-view"></div>');
         var dialog = $('<div class="yani-policy"></div>');
         var mark = $('<div class="yani-policy__mark" aria-hidden="true"></div>').html(yummyAnimeIcon());
         var title = $('<div class="yani-policy__title"></div>').text(t('usage_policy_title'));
@@ -16753,49 +17003,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             back: function () { closeUsagePolicy(); }
         });
         Lampa.Controller.toggle('yani_policy');
-    }
-
-    function homeIcon(key) {
-        var icons = {
-            catalog: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-            genres: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg>',
-            search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>',
-            schedule: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h3M14 14h3M7 18h3"/></svg>',
-            new_translations: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h10v9H9l-4 4v-4H4zM14 10h6v8h-3l-3 3v-3h-2"/><path d="M7 9h4M16 14h2"/></svg>',
-            new_releases: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 13v7h14v-7M8 17h8"/></svg>',
-            continue_watching: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/></svg>',
-            status: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h4l2-6 4 12 2-6h6"/></svg>',
-            top_rated: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>',
-            for_you: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5S4 15.7 4 9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5c0 6.2-8 11-8 11Z"/><path d="M12 11v5M9.5 13.5h5"/></svg>',
-            updates: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="16" r="3"/><path d="M18 14v2l1.3 1"/></svg>',
-            collections: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5 12 3l8 3.5-8 3.5-8-3.5Z"/><path d="m4 11 8 3.5 8-3.5M4 15.5 12 19l8-3.5"/></svg>',
-            user_lists: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v5H5zM5 11h14v9H5z"/><path d="M8 6.5h6M8 14h8M8 17h5"/></svg>',
-            notifications: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-1.5-2.2V10a4.5 4.5 0 0 0-9 0v4.8L6 17zM10 20h4"/><path d="M18.5 5.5 20 4M5.5 5.5 4 4"/></svg>',
-            account: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4 3.3-6 8-6s7.3 2 8 6"/></svg>'
-        };
-        return icons[key] || icons.catalog;
-    }
-
-    function homeExploreDecoration(key) {
-        if (key === 'catalog') {
-            return '<span class="yani-home__explore-art yani-home__explore-art--catalog" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>';
-        }
-        if (key === 'genres') {
-            return '<span class="yani-home__explore-art yani-home__explore-art--genres" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>';
-        }
-        if (key === 'search') {
-            return '<span class="yani-home__explore-art yani-home__explore-art--search" aria-hidden="true"><i></i><b></b><em></em></span>';
-        }
-        return '';
-    }
-
-    function homeFlowIcon(key) {
-        var icons = {
-            japan: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12a7 7 0 0 1 14 0M8 12a4 4 0 0 1 8 0"/><circle cx="12" cy="12" r="1.5"/><path d="M12 13.5V21"/></svg>',
-            waiting: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>',
-            available: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/></svg>'
-        };
-        return icons[key] || icons.waiting;
     }
 
     function lampaIcon() {
@@ -17053,11 +17260,28 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function Account(object) {
-        var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
+        var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
         scroll.minus();
-        var html = $('<div class="yani-account"></div>');
+        var html = $('<div class="yani-account yani-lite-view"></div>');
         var content = $('<div class="yani-account__content"></div>');
         var last;
+        var destroyed = false;
+        var finished = false;
+        var paused = false;
+        var ownerAccount = LampaYaniAuth.get();
+        var ownerUserId = Number(ownerAccount.user_id || 0);
+        var ownerLogin = String(ownerAccount.login || '');
+        var ownerToken = LampaYaniAuth.token();
+        var requestController = window.AbortController ? new window.AbortController() : null;
+
+        function current() {
+            if (destroyed || !LampaYaniAuth.token() && ownerToken) return false;
+            var account = LampaYaniAuth.get(), id = Number(account.user_id || 0);
+            if (ownerUserId && id) return ownerUserId === id;
+            if (ownerLogin && account.login) return ownerLogin === String(account.login);
+            return LampaYaniAuth.token() === ownerToken;
+        }
+        function control() { return requestController ? {signal: requestController.signal} : {}; }
 
         this.create = function () {
             var self = this;
@@ -17069,20 +17293,25 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 return;
             }
 
-            LampaYaniApi.profile().then(function (payload) {
+            LampaYaniApi.profile(control()).then(function (payload) {
+                if (!current()) return null;
                 var profile = payload && payload.response ? payload.response : payload;
+                profile = Object.assign({}, profile, {id: Number(profile && (profile.id || profile.user_id || profile.user && profile.user.id) || 0)});
+                if (!profile.id) throw new Error('YummyAnime profile id is missing');
+                ownerUserId = profile.id;
                 return Promise.all([
                     Promise.resolve(profile),
-                    LampaYaniApi.userListStats(profile.id).then(responseData).catch(function () { return []; }),
-                    LampaYaniApi.userLists(profile.id).then(responseData).catch(function () { return []; }),
+                    LampaYaniApi.userListStats(profile.id, control()).then(responseData).catch(function () { return null; }),
                     LampaYaniApi.userStatsGenres(profile.id).then(responseData).catch(function () { return []; }),
                     LampaYaniApi.userStatsRatings(profile.id).then(responseData).catch(function () { return []; }),
                     LampaYaniApi.userStatsTypes(profile.id).then(responseData).catch(function () { return []; })
                 ]);
             }).then(function (result) {
-                renderAccount(result[0], result[1], result[2], result[3], result[4], result[5]);
+                if (!current() || !result) return;
+                renderAccount(result[0], result[1], result[2], result[3], result[4]);
                 finish(self);
             }).catch(function (error) {
+                if (!current()) return;
                 console.error('[YummyAnime]', error);
                 addAccountNotice(t('account_load_error'), t('account_retry'));
                 finish(self);
@@ -17090,10 +17319,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         };
 
         function finish(component) {
+            if (!current() || finished) return;
+            finished = true;
             scroll.append(content);
             html.append(scroll.render(true));
             component.activity.loader(false);
-            component.activity.toggle();
+            if (!paused) component.activity.toggle();
         }
 
         function responseData(payload) {
@@ -17118,9 +17349,14 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             content.append(notice);
         }
 
-        function renderAccount(profile, stats, lists, genreStats, ratingStats, typeStats) {
+        function renderAccount(profile, stats, genreStats, ratingStats, typeStats) {
+            var hasStats = stats !== null;
+            var namedCounts = LampaYaniHomeInsights.listCounts(stats);
+            var counts = {};
+            accountListDefinitions().forEach(function (definition) { counts[definition.id] = namedCounts[definition.key]; });
+            var total = namedCounts.watching + namedCounts.planned + namedCounts.completed + namedCounts.dropped + namedCounts.postponed;
+            if (hasStats) cacheHomeListCounts(profile.id, counts);
             stats = Array.isArray(stats) ? stats : [];
-            lists = Array.isArray(lists) ? lists : [];
             var header = $('<div class="yani-account__profile selector"></div>');
             var avatar = profile.avatars && (profile.avatars.big || profile.avatars.full || profile.avatars.small);
             if (avatar && avatar.indexOf('//') === 0) avatar = 'https:' + avatar;
@@ -17142,7 +17378,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             addInfo(info, t('roles'), profile.roles && profile.roles.length ? profile.roles.join(', ') : t('user'));
             addInfo(info, t('messages'), String(profile.messages && profile.messages.unread_count || 0) + ' ' + t('unread'));
             addInfo(info, t('notifications'), String(profile.notifications && profile.notifications.count || 0));
-            addInfo(info, t('total_lists'), String(lists.length || 0));
+            addInfo(info, t('total_lists'), hasStats ? String(total) : '—');
             content.append(info);
 
             var notificationButton = $('<div class="yani-account__notification-button selector"></div>');
@@ -17174,25 +17410,16 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             reviewsButton.on('hover:enter click.yaniReviews', function () { openUserReviews(profile.id); });
             content.append(reviewsButton);
 
-            var counts = {};
-            lists.forEach(function (anime) {
-                var userList = anime.user && anime.user.list;
-                if (!userList) return;
-                if (userList.list && typeof userList.list.id !== 'undefined') counts[userList.list.id] = (counts[userList.list.id] || 0) + 1;
-                if (userList.is_fav) counts[4] = (counts[4] || 0) + 1;
-            });
-            cacheHomeListCounts(profile.id, counts);
-
             content.append($('<div class="yani-account__section-title"></div>').text(t('list_stats')));
             var listGrid = $('<div class="yani-account__lists"></div>');
             accountListDefinitions().forEach(function (definition) {
                 var stat = stats.filter(function (item) { return Number(item.list && item.list.id) === definition.id; })[0] || {};
                 var tile = $('<div class="yani-account__list selector"></div>');
                 tile.append($('<div class="yani-account__list-title"></div>').text(definition.title));
-                tile.append($('<div class="yani-account__list-count"></div>').text(String(counts[definition.id] || 0) + ' ' + t('anime_count')));
-                tile.append($('<div class="yani-account__list-time"></div>').text(t('total_time') + ': ' + formatWatchTime(stat.seconds)));
+                tile.append($('<div class="yani-account__list-count"></div>').text((hasStats ? String(counts[definition.id] || 0) : '—') + ' ' + t('anime_count')));
+                tile.append($('<div class="yani-account__list-time"></div>').text(t('total_time') + ': ' + (hasStats && stat.seconds !== undefined ? formatWatchTime(stat.seconds) : '—')));
                 bindAccountFocus(tile);
-                tile.on('hover:enter', function () { openAccountList(definition, lists, profile.id); });
+                tile.on('hover:enter', function () { openUserListShortcut(definition); });
                 listGrid.append(tile);
             });
             content.append(listGrid);
@@ -17246,6 +17473,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         this.start = function () {
+            if (!current()) return;
+            paused = false;
             Lampa.Controller.add('content', {
                 toggle: function () {
                     Lampa.Controller.collectionSet(scroll.render());
@@ -17260,8 +17489,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             Lampa.Controller.toggle('content');
         };
 
+        this.pause = this.stop = function () { paused = true; };
         this.render = function (js) { return js ? html[0] : html; };
-        this.destroy = function () { scroll.destroy(); html.remove(); };
+        this.destroy = function () { destroyed = true; last = null; if (requestController) requestController.abort(); scroll.destroy(); html.remove(); };
     }
 
     function AuthPage(object) {
@@ -17357,6 +17587,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             openDetail: openYummyDetail,
             resolveAnime: LampaYaniApi.detail,
             fetch: LampaYaniApi.notifications,
+            ownerKey: function () { var account = LampaYaniAuth.get(); return String(account.login ? 'login:' + account.login : account.user_id ? 'id:' + account.user_id : LampaYaniAuth.token() || ''); },
             markRead: LampaYaniApi.markNotificationRead,
             markAllRead: LampaYaniApi.markAllNotificationsRead,
             deleteAll: LampaYaniApi.deleteAllNotifications,
@@ -17381,68 +17612,43 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     var userListsSnapshot = null;
     var homeListCountsCacheKey = 'yani_home_list_counts';
-    var homeListCountsCacheLifetime = 300000;
     var homeNotificationCacheKey = 'yani_home_notification_count';
-    var homeNotificationCacheLifetime = 300000;
-    var homeDashboardCacheKey = 'yani_home_dashboard_snapshot';
-    var homeDashboardCacheLifetime = 86400000;
-    var homePlaybackCacheKey = 'yani_home_playback_snapshot_v2';
-    var homePlaybackCacheLifetime = 300000;
 
-    function readHomePlaybackSnapshot(userKey) {
-        if (!userKey || !Lampa.Storage || !Lampa.Storage.get) return {available: false, fresh: false, entries: []};
-        try {
-            var cached = Lampa.Storage.get(homePlaybackCacheKey, '{}');
-            if (typeof cached === 'string') cached = JSON.parse(cached || '{}');
-            if (String(cached && cached.user_key || '') !== String(userKey) || !Array.isArray(cached.entries)) {
-                return {available: false, fresh: false, entries: []};
-            }
-            return {
-                available: true,
-                fresh: Boolean(cached.updated_at && Date.now() - Number(cached.updated_at) < homePlaybackCacheLifetime),
-                entries: cached.entries
-            };
-        } catch (error) { return {available: false, fresh: false, entries: []}; }
+    function publishListState(card, patch, owner) {
+        invalidateUserListsSnapshot();
+        if (patch && window.LampaYaniCardModel && LampaYaniCardModel.commitListState) LampaYaniCardModel.commitListState(card, patch, owner);
     }
+    if (typeof document !== 'undefined' && window.$) $(document).on('yani:list-state-changed.yaniCards', function (event, change) {
+        if (!change || !change.anime_id) return;
+        $('[data-yani-card-id]').each(function () {
+            if (String(this.getAttribute('data-yani-card-id')) !== String(change.anime_id)) return;
+            var card = this.yaniBoundCard || this.card_data;
+            if (!card) return;
+            LampaYaniCardModel.applyListState(card);
+            addCardListBadge($(this), card);
+            syncCardOverlayLayout($(this), card);
+        });
+    });
 
-    function cacheHomePlaybackSnapshot(userKey, entries) {
-        if (!userKey || !Lampa.Storage || !Lampa.Storage.set) return;
-        Lampa.Storage.set(homePlaybackCacheKey, JSON.stringify({
-            user_key: String(userKey),
-            updated_at: Date.now(),
-            entries: Array.isArray(entries) ? entries.slice(0, 300) : []
-        }));
+    function invalidateUserListsSnapshot() {
+        userListsSnapshot = null;
+        if (Lampa.Storage) ['yani_lite_counts_v1', homeListCountsCacheKey].forEach(function (key) {
+            if (Lampa.Storage.remove) Lampa.Storage.remove(key);
+            else if (Lampa.Storage.set) Lampa.Storage.set(key, '{}');
+        });
     }
-
-    function readHomeDashboardSnapshot() {
-        if (!Lampa.Storage || !Lampa.Storage.get) return {available: false, updated_at: 0, dashboard: {}};
-        try {
-            var cached = Lampa.Storage.get(homeDashboardCacheKey, '{}');
-            if (typeof cached === 'string') cached = JSON.parse(cached || '{}');
-            var updatedAt = Number(cached && cached.updated_at || 0);
-            var available = Boolean(updatedAt && Date.now() - updatedAt < homeDashboardCacheLifetime && cached.dashboard && typeof cached.dashboard === 'object');
-            return {available: available, updated_at: updatedAt, dashboard: available ? cached.dashboard : {}};
-        } catch (error) { return {available: false, updated_at: 0, dashboard: {}}; }
-    }
-
-    function cacheHomeDashboardSnapshot(dashboard) {
-        if (!dashboard || !Lampa.Storage || !Lampa.Storage.set) return;
-        Lampa.Storage.set(homeDashboardCacheKey, JSON.stringify({updated_at: Date.now(), dashboard: dashboard}));
-    }
-
-    function readHomeNotificationCount(userKey) {
-        if (!userKey || !Lampa.Storage || !Lampa.Storage.get) return {available: false, fresh: false, count: 0};
-        try {
-            var cached = Lampa.Storage.get(homeNotificationCacheKey, '{}');
-            if (typeof cached === 'string') cached = JSON.parse(cached || '{}');
-            if (String(cached && cached.user_key || '') !== String(userKey)) return {available: false, fresh: false, count: 0};
-            return {
-                available: cached.count !== undefined,
-                fresh: Boolean(cached.updated_at && Date.now() - Number(cached.updated_at) < homeNotificationCacheLifetime),
-                count: Math.max(0, Number(cached.count) || 0)
-            };
-        } catch (error) { return {available: false, fresh: false, count: 0}; }
-    }
+    if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('yani:auth-changed', invalidateUserListsSnapshot);
+    if (typeof document !== 'undefined' && window.$) $(document).on('yani:auth-changed.yaniCards', function () {
+        $('[data-yani-card-id]').each(function () {
+            var card = this.yaniBoundCard || this.card_data;
+            if (!card) return;
+            card.yani_list_id = null; card.yani_list_known = false;
+            card.yani_is_favorite = false; card.yani_favorite_known = false;
+            LampaYaniCardModel.applyListState(card);
+            addCardListBadge($(this), card);
+            syncCardOverlayLayout($(this), card);
+        });
+    });
 
     function cacheHomeNotificationCount(userKey, count) {
         if (!userKey || !Lampa.Storage || !Lampa.Storage.set) return;
@@ -17451,24 +17657,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             updated_at: Date.now(),
             count: Math.max(0, Number(count) || 0)
         }));
-    }
-
-    function homeListCountsCache(userId) {
-        if (!userId || !Lampa.Storage || !Lampa.Storage.get) return {};
-        try {
-            var cached = Lampa.Storage.get(homeListCountsCacheKey, '{}');
-            if (typeof cached === 'string') cached = JSON.parse(cached || '{}');
-            return Number(cached && cached.user_id || 0) === Number(userId) ? cached : {};
-        } catch (error) { return {}; }
-    }
-
-    function readHomeListCounts(userId) {
-        return homeListCountsCache(userId).counts || {};
-    }
-
-    function homeListCountsFresh(userId) {
-        var cached = homeListCountsCache(userId);
-        return Boolean(cached.updated_at && Date.now() - Number(cached.updated_at) < homeListCountsCacheLifetime);
     }
 
     function cacheHomeListCounts(userId, counts) {
@@ -17482,9 +17670,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     function resolveUserListsUserId() {
         var account = LampaYaniAuth.get();
+        var ownerToken = LampaYaniAuth.token();
+        var ownerLogin = String(account && account.login || '');
         var storedId = Number(account && account.user_id || 0);
         if (storedId) return Promise.resolve(storedId);
         return LampaYaniApi.profile().then(function (payload) {
+            var currentAccount = LampaYaniAuth.get();
+            if (!LampaYaniAuth.token() || (ownerLogin ? ownerLogin !== String(currentAccount.login || '') : ownerToken !== LampaYaniAuth.token())) throw new Error('YummyAnime account changed');
             var profile = payload && payload.response ? payload.response : payload;
             var userId = Number(profile && (profile.id || profile.user_id || profile.user && profile.user.id) || 0);
             if (!userId) throw new Error('YummyAnime profile id is missing');
@@ -17509,26 +17701,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             if (userListsSnapshot && userListsSnapshot.promise === promise) userListsSnapshot = null;
         });
         return promise;
-    }
-
-    function loadUserListShortcutCounts() {
-        var counts = {history: Object.keys(playbackHistory()).length};
-        return resolveUserListsUserId().then(function (id) {
-            return Promise.all([
-                loadUserListsSnapshot(id),
-                LampaYaniHomeSections.fetchHistoryRange(LampaYaniApi.watchHistory, 100, 30).catch(function () { return []; })
-            ]);
-        }).then(function (result) {
-            var definitions = accountListDefinitions();
-            definitions.forEach(function (definition) {
-                counts[definition.key] = filterAccountListItems(definition, result[0]).length;
-            });
-            var historyPayload = result[1] && result[1].response ? result[1].response : result[1];
-            var remoteHistory = Array.isArray(historyPayload) ? historyPayload : historyPayload && (historyPayload.items || historyPayload.data || historyPayload.history || historyPayload.results) || [];
-            counts.history = Math.max(counts.history, remoteHistory.length);
-            cacheHomeListCounts(LampaYaniAuth.get().user_id, counts);
-            return counts;
-        });
     }
 
     function userListItemTime(item) {
@@ -17662,7 +17834,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         }
 
         return resolveUserListsUserId().then(function (userId) {
-            return loadUserListsSnapshot(userId).then(function (items) {
+            // A category is opened on demand. Fetch its current membership,
+            // rather than a five-minute preview snapshot captured before edits.
+            var request = definition.id === 4 ? LampaYaniApi.userLists(userId) : LampaYaniApi.userList(userId, definition.id);
+            return request.then(normalizeUserList).then(function (items) {
                 return writeCache(userId, filterAccountListItems(definition, items));
             }).catch(function (error) {
                 var cached = readCache(userId);
@@ -17769,6 +17944,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             lampaIcon: lampaIcon,
             openStandardLampaCard: openStandardLampaCard,
             addCardListBadge: addCardListBadge,
+            onListChanged: publishListState,
             syncCardOverlayLayout: syncCardOverlayLayout,
             hasYummyList: hasYummyList,
             showYummySelect: showYummySelect,
@@ -19474,24 +19650,13 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function genreTilePoster(title, index) {
-        var colors = [
-            ['#ff6878', '#825ed8'],
-            ['#50c5b7', '#256ca9'],
-            ['#f0a45d', '#d34d74'],
-            ['#8b79ed', '#4c60b8']
-        ][index % 4];
         var raw = String(title || '');
-        var display = raw.length > 20 ? raw.slice(0, 19) + '…' : raw;
+        var display = raw.length > 24 ? raw.slice(0, 23) + '…' : raw;
         var label = display.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        var mark = raw.charAt(0).toUpperCase();
-        var size = display.length > 15 ? 27 : display.length > 11 ? 30 : 34;
+        var size = display.length > 20 ? 25 : display.length > 15 ? 28 : 34;
         var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="440" height="200" viewBox="0 0 440 200">' +
-            '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + colors[0] + '"/><stop offset="1" stop-color="' + colors[1] + '"/></linearGradient></defs>' +
-            '<rect width="440" height="200" rx="28" fill="url(#g)"/>' +
-            '<circle cx="388" cy="30" r="118" fill="#fff" opacity=".09"/><circle cx="388" cy="30" r="72" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="3"/>' +
-            '<text x="34" y="96" fill="#fff" fill-opacity=".28" font-family="sans-serif" font-size="86" font-weight="800">' + mark + '</text>' +
-            '<text x="34" y="155" fill="#fff" font-family="sans-serif" font-size="' + size + '" font-weight="700">' + label + '</text>' +
-            '<path d="m378 138 20 0m-7-7 7 7-7 7" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            '<rect x="1" y="1" width="438" height="198" rx="12" fill="#333333" stroke="#474747" stroke-width="2"/>' +
+            '<text x="28" y="112" fill="#f1f1f1" font-family="sans-serif" font-size="' + size + '" font-weight="600">' + label + '</text></svg>';
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 

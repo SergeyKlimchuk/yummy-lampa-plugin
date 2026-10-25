@@ -12,7 +12,7 @@ assert.match(renderersSource, /function visibleCardRatings\(ratings\)/);
 assert.match(renderersSource, /function syncCardOverlayLayout\(element, card\)/);
 assert.match(renderersSource, /yani-card-view--has-footer/);
 assert.match(renderersSource, /yani-card-view--has-progress/);
-assert.match(renderersSource, /if \(view\.find\('\.yani-card-ratings'\)\.length\) return/);
+assert.match(renderersSource, /sameCardPaint\(view, 'ratings', signature, existing, !ratings\.length\)/);
 assert.match(renderersSource, /root\.classList\.toggle\('yani-card-view--has-footer'/);
 assert.match(renderersSource, /positive\.slice\(0, 3\)/);
 assert.match(history, /HISTORY_CACHE_MS = 500/);

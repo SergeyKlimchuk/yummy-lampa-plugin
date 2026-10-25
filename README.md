@@ -1,8 +1,14 @@
 # YummyAnime for Lampa
 
+[Browse all screen mockups](docs/mockups/index.html) · [Field and capability audit](docs/mockups/README.md). The review controls distinguish captured public data from anonymized personal examples.
+
+The working screens now share the flat charcoal/coral skin. Schedule rows and long episode choices are paged; unchanged poster badges are reused; account counters use compact statistics. [Rendering checks and limits](docs/performance-lite.md). These fork changes remain local until published; the installation URLs below refer to the upstream distribution.
+
+This fork uses a lightweight TV home in charcoal and coral: three continue-watching cards, six personal-list shortcuts, and up to six ongoing titles. Home reuses the shared history synchronization and loads additional sections only when opened. [Interactive layout mockup](docs/mockups/home-lite.html).
+
 The official YummyAnime plugin for Lampa. It adds an anime catalog, schedule, ratings, personal lists, and playback from available sources. The interface is designed for TV remotes.
 
-Current version: `0.47.21`
+Current version: `0.47.22`
 
 Official website: [yummyani.me](https://yummyani.me)
 
@@ -11,7 +17,7 @@ Official website: [yummyani.me](https://yummyani.me)
 ## Screenshots
 
 <p align="center">
-  <img src="assets/yummyanime-home.png" alt="YummyAnime home dashboard in Lampa" width="720">
+  <img src="assets/yummyanime-home-lite.png" alt="Lightweight YummyAnime home preview with demonstration data" width="720">
 </p>
 
 <p align="center">

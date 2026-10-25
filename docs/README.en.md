@@ -1,12 +1,18 @@
 # Lampa YummyAnime Extension — Documentation
 
+[Browse all screen mockups](mockups/index.html) · [Data sources and capability audit](mockups/README.md). Personal examples are explicitly labeled and never access an account.
+
+The production catalog, detail, lists, schedule, notifications, account and service screens now share the flat TV skin. Long feeds and episode choices are paged; unchanged badge DOM is reused and background responses cannot reactivate a closed or covered screen. [Rendering checks and limits](performance-lite.md). The fork must be published separately before its changed bundle can be installed by a remote URL.
+
+The lightweight home uses a flat charcoal/coral palette, static focus outlines, three continue-watching cards, six personal-list shortcuts, and up to six ongoing titles. It reuses shared playback-history synchronization, caches public previews for five minutes, and opens other sections on demand. [Interactive layout mockup](mockups/home-lite.html).
+
 The official YummyAnime plugin for Lampa, powered by the YummyAnime (Yani) API.
 
 Official website: [yummyani.me](https://yummyani.me)
 
 Screenshots for catalogs and the public README:
 
-![YummyAnime home dashboard](../assets/yummyanime-home.png)
+![Lightweight YummyAnime home preview with demonstration data](../assets/yummyanime-home-lite.png)
 
 ![YummyAnime title page](../assets/yummyanime-title.png)
 

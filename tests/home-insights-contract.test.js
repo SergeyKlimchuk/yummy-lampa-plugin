@@ -1,28 +1,13 @@
+// Data-model/authentication coverage is retained; homepage layout and lifecycle
+// behavior are covered by the lightweight-home runtime tests.
 const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('src/ui-home-insights.js', 'utf8');
-const ui = fs.readFileSync('src/ui.js', 'utf8');
 const build = fs.readFileSync('build.js', 'utf8');
-const css = fs.readFileSync('style.css', 'utf8');
 
 assert.match(build, /src\/ui-home-insights\.js/);
-assert.match(ui, /LampaYaniHomeInsights\.dashboard\(\{/);
-assert.match(ui, /schedule: function \(\) \{ return LampaYaniApi\.schedule\(homeRequestControl\(\)\); \}/);
-assert.match(ui, /yani-home__count/);
-assert.match(ui, /yani-home__item-insight/);
-assert.match(ui, /LampaYaniHomeInsights\.personalInsight/);
-assert.match(ui, /LampaYaniApi\.userListStats\(account\.user_id, homeRequestControl\(\)\)/);
-assert.match(ui, /yani_home_list_counts/);
-assert.match(ui, /!homeListCountsFresh\(account\.user_id\)/);
-assert.match(ui, /if \(destroyed\) return/);
-assert.match(ui, /count > 99 \? '99\+' : String\(count\)/);
-assert.match(css, /\.yani-home__count--visible/);
-assert.match(css, /\.yani-home__item\.focus \.yani-home__count/);
-assert.match(css, /\.yani-home__item-insight-title/);
-assert.match(css, /\.yani-home__episode-timeline/);
-assert.match(css, /\.yani-home__episode-stage--waiting/);
 
 const context = {window: {}};
 vm.runInNewContext(source, context);

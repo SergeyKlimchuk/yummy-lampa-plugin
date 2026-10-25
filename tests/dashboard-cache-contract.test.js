@@ -1,10 +1,10 @@
+// Data-model/authentication coverage is retained; homepage layout and lifecycle
+// behavior are covered by the lightweight-home runtime tests.
 const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('src/ui-home-insights.js', 'utf8');
-const ui = fs.readFileSync('src/ui.js', 'utf8');
-const css = fs.readFileSync('style.css', 'utf8');
 const context = {window: {}};
 vm.runInNewContext(source, context);
 const insights = context.window.LampaYaniHomeInsights;
@@ -31,11 +31,5 @@ assert.equal(partial.episode_flow.waiting.title, 'Cached wait');
 assert.equal(partial.episode_flow.available.title, 'Live dub');
 assert.equal(partial.used_cache, true);
 
-assert.match(ui, /yani_home_dashboard_snapshot/);
-assert.match(ui, /readHomeDashboardSnapshot\(\)/);
-assert.match(ui, /cacheHomeDashboardSnapshot\(dashboard\)/);
-assert.match(ui, /service\.feed && service\.schedule/);
-assert.match(ui, /setIntroDataState\('offline', dashboardCache\.updated_at\)/);
-assert.match(css, /\.yani-home__intro-data--offline i/);
 
 console.log('dashboard cache contract checks passed');

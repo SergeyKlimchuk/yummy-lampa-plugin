@@ -8,10 +8,10 @@ assert.match(cards, /function cardMediaMotionAllowed\(\)/);
 assert.match(cards, /yani-card-media__availability/);
 assert.match(cards, /yani-card-media__availability-part yani-card-media__quality/);
 assert.match(cards, /yani-card-media__availability-part yani-card-media__voices/);
-assert.match(cards, /prefers-reduced-motion: reduce/);
-assert.match(cards, /deviceMemory/);
+assert.match(cards, /function cardMediaMotionAllowed\(\)[\s\S]{0,300}return false/, 'TV card decoration is static on every device');
+
 assert.match(css, /\.yani-card-media__availability \{/);
-assert.match(css, /@keyframes yani-card-availability-in/);
+assert.doesNotMatch(css, /@keyframes yani-card-availability-in/);
 assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 assert.doesNotMatch(css, /\.yani-card-media__quality \{ background: #f1c40f/);
 

@@ -1,0 +1,178 @@
+{
+  "date": "2026-10-25",
+  "environment": "Desktop in-app browser, production modules with synthetic API data and a Lampa API shim; not LG hardware",
+  "before": {
+    "kind": "same-fixture browser check, not TV FPS",
+    "screen": "catalog",
+    "baseline": true,
+    "synchronousCreateMs": [
+      7.6,
+      8.1,
+      7.5,
+      9.6,
+      9.7
+    ],
+    "renderIncludingFixtureWaitMs": [
+      93.9,
+      96.2,
+      91.8,
+      97.6,
+      97.1
+    ],
+    "focusFrameMs": {
+      "median": 6.9,
+      "p95": 14.3
+    },
+    "focusMutationRecords": 202,
+    "repeatDecoration": {
+      "cards": 12,
+      "passes": 100,
+      "ms": 126.6,
+      "styleReads": 2400,
+      "mutationRecords": 4800
+    },
+    "state": {
+      "nodes": 383,
+      "visible": 371,
+      "heavy": {
+        "gradients": 14,
+        "shadows": 28,
+        "filters": 2,
+        "animations": 12,
+        "transitions": 20
+      },
+      "requests": 19,
+      "errors": []
+    }
+  },
+  "after": {
+    "kind": "same-fixture browser check, not TV FPS",
+    "screen": "catalog",
+    "baseline": false,
+    "synchronousCreateMs": [
+      7.3,
+      12.6,
+      13.9,
+      9.9,
+      11.5
+    ],
+    "renderIncludingFixtureWaitMs": [
+      94.4,
+      95.9,
+      99.4,
+      92.1,
+      93.5
+    ],
+    "focusFrameMs": {
+      "median": 6.7,
+      "p95": 15.4
+    },
+    "focusMutationRecords": 202,
+    "repeatDecoration": {
+      "cards": 12,
+      "passes": 100,
+      "ms": 23.4,
+      "styleReads": 1200,
+      "mutationRecords": 0
+    },
+    "state": {
+      "nodes": 383,
+      "visible": 371,
+      "heavy": {
+        "gradients": 0,
+        "shadows": 0,
+        "filters": 0,
+        "animations": 0,
+        "transitions": 0
+      },
+      "requests": 19,
+      "errors": []
+    }
+  },
+  "notificationsLifecycle": {
+    "screen": "notifications",
+    "cycles": [
+      {
+        "cycle": 1,
+        "state": {
+          "nodes": 62,
+          "visible": 62,
+          "heavy": {
+            "gradients": 0,
+            "shadows": 0,
+            "filters": 0,
+            "animations": 0,
+            "transitions": 0
+          },
+          "requests": 48,
+          "errors": []
+        }
+      },
+      {
+        "cycle": 15,
+        "state": {
+          "nodes": 62,
+          "visible": 62,
+          "heavy": {
+            "gradients": 0,
+            "shadows": 0,
+            "filters": 0,
+            "animations": 0,
+            "transitions": 0
+          },
+          "requests": 62,
+          "errors": []
+        }
+      },
+      {
+        "cycle": 30,
+        "state": {
+          "nodes": 62,
+          "visible": 62,
+          "heavy": {
+            "gradients": 0,
+            "shadows": 0,
+            "filters": 0,
+            "animations": 0,
+            "transitions": 0
+          },
+          "requests": 77,
+          "errors": []
+        }
+      }
+    ],
+    "beforeDestroy": {
+      "nodes": 62,
+      "visible": 62,
+      "heavy": {
+        "gradients": 0,
+        "shadows": 0,
+        "filters": 0,
+        "animations": 0,
+        "transitions": 0
+      },
+      "requests": 77,
+      "errors": []
+    },
+    "afterDestroy": {
+      "nodes": 0,
+      "visible": 0,
+      "heavy": {
+        "gradients": 0,
+        "shadows": 0,
+        "filters": 0,
+        "animations": 0,
+        "transitions": 0
+      },
+      "requests": 77,
+      "errors": []
+    },
+    "jqueryEvents": [],
+    "pendingFixtureRequests": 0
+  },
+  "tests": {
+    "total": 109,
+    "passed": 109,
+    "failed": []
+  }
+}

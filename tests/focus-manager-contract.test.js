@@ -24,7 +24,7 @@ assert.match(ui, /LampaYaniNavigation\.captureSnapshot\(\)/);
 assert.match(ui, /LampaYaniNavigation\.restoreSnapshot\(snapshot\)/);
 assert.match(detail, /var detailFocus = LampaYaniNavigation\.createScope/);
 assert.match(detail, /detailFocus\.restore\(null, true\)/);
-assert.match(detail, /titleFocus && titleFocus\.length \? titleFocus/);
+assert.match(detail, /button && button\.length \? button/);
 assert.match(catalog, /var focusScope = LampaYaniNavigation\.createScope/);
 assert.match(catalog, /focusScope\.bind\(root\)/);
 assert.match(accountControls, /var focusScope = LampaYaniNavigation\.createScope/);

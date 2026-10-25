@@ -3,13 +3,19 @@ const fs = require('fs');
 const vm = require('vm');
 
 const ui = fs.readFileSync('src/ui.js', 'utf8');
+const home = fs.readFileSync('src/ui-home.js', 'utf8');
 const lists = fs.readFileSync('src/ui-account-lists.js', 'utf8');
 const listControls = fs.readFileSync('src/ui-account-list-controls.js', 'utf8');
 const i18n = fs.readFileSync('src/i18n.js', 'utf8');
 
 assert.match(ui, /Lampa\.Component\.add\('yani_user_lists', UserLists\)/);
-assert.match(ui, /key: 'user_lists', title: t\('user_lists'\), group: 'library', authorized: true/);
-assert.match(ui, /!item\.authorized \|\| LampaYaniAuth\.token\(\)/);
+assert.match(ui, /openUserLists: openUserLists/, 'the homepage must retain the shared account-list action');
+assert.match(ui, /function openUserLists\(\) \{[\s\S]{0,160}if \(!LampaYaniAuth\.token\(\)\) return/, 'the shared account-list action must require authorization');
+assert.match(home, /user_lists: action\(deps\.openUserLists\)/);
+const homeCategories = home.slice(home.indexOf('function renderCategories('), home.indexOf('function renderOngoing('));
+assert.match(homeCategories, /if \(!authorized\(\)\)/);
+assert.match(homeCategories, /'lists:login'[\s\S]{0,100}return;/, 'guests must receive a sign-in action before any private category controls are built');
+assert.ok(homeCategories.indexOf('if (!authorized())') < homeCategories.indexOf('definitions().forEach'), 'private category shortcuts must only be rendered after authorization');
 assert.match(ui, /\['user_lists', 'user_lists'\]/);
 assert.match(ui, /component: 'yani_user_lists'/);
 
@@ -55,8 +61,9 @@ assert.match(lists, /card\.yani_history\) deps\.openHistory\(\)/);
 assert.match(lists, /deps\.openList\(card\.yani_definition\)/);
 assert.match(lists, /deps\.openCard\(card\)/);
 assert.match(lists, /deps\.loadRows\(\)/);
-assert.match(ui, /function loadUserListShortcutCounts\(\)/);
-assert.match(ui, /counts\[definition\.key\] = filterAccountListItems\(definition, result\[0\]\)\.length/);
+assert.match(home, /deps\.api\.userListStats\(id, requestControl\(\)\)/, 'home counters must load the compact statistics endpoint');
+assert.match(ui, /listCounts: LampaYaniHomeInsights\.listCounts/, 'home counters must retain the shared list-ID mapping');
+assert.doesNotMatch(home, /deps\.api\.userLists\(/, 'the homepage must not download the entire library just for counters');
 const userListsComponent = lists.slice(lists.indexOf('function userLists'), lists.indexOf('window.LampaYani ='));
 assert.doesNotMatch(userListsComponent, /LampaYaniApi\./, 'list shortcuts must render without an eager API request');
 
@@ -66,7 +73,12 @@ assert.match(ui, /component: 'yani_account_list',[\s\S]{0,160}page: 1/);
 assert.match(ui, /function resolveUserListsUserId\(\)/);
 assert.match(ui, /function loadUserListsSnapshot\(userId\)/);
 assert.match(ui, /function loadUserListShortcutItems\(definition\)/);
-assert.match(ui, /return loadUserListsSnapshot\(userId\)\.then\(function \(items\)/);
+const categoryLoader = ui.slice(ui.indexOf('function loadUserListShortcutItems('), ui.indexOf('function normalizeUserList('));
+assert.match(categoryLoader, /definition\.id === 4 \? LampaYaniApi\.userLists\(userId\) : LampaYaniApi\.userList\(userId, definition\.id\)/,
+    'opening a category must read fresh server membership; favorites are independent of the main status');
+assert.doesNotMatch(categoryLoader, /loadUserListsSnapshot\(/,
+    'a category must not reuse the preview snapshot captured before list edits');
+assert.match(categoryLoader, /return request\.then\(normalizeUserList\)/);
 assert.match(ui, /var cached = readCache\(userId\)/);
 assert.match(ui, /loadItems: loadUserListShortcutItems/);
 assert.match(ui, /openList: openUserListShortcut/);
@@ -93,8 +105,8 @@ assert.match(ui, /function openWatchHistory\(\)[\s\S]{0,300}component: 'yani_his
 const context = {window: {}};
 vm.runInNewContext(lists, context);
 const helpers = context.window.LampaYaniAccountLists;
-assert.strictEqual(helpers.listVisual('watching').from, '#ff6878');
-assert.strictEqual(helpers.listVisual('history').to, '#6653b4');
+assert.strictEqual(helpers.listVisual('watching').from, '#333333');
+assert.strictEqual(helpers.listVisual('history').to, '#292929');
 const normalized = helpers.normalize({response: {items: [
     {anime: {anime_id: 42, title: 'Nested title'}, user: {list: {list: {id: 1}}}, date: 123},
     {anime_id: 43, title: 'Direct title', user: {list: {is_fav: true, list: {id: 0}}}}

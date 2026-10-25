@@ -1,0 +1,48 @@
+{
+  "source": "https://ru.yummyani.me/",
+  "selector": "header a[aria-label=\"Главная\"] > svg",
+  "captured": "2026-10-24",
+  "geometry": "Exact two header SVG path sets; combined into one image without changing paths",
+  "colors": {
+    "mark": "#ff6666",
+    "wordmark": "#f1f1f1",
+    "heart": "#ff6666"
+  },
+  "public_endpoints": [
+    {
+      "key": "catalog",
+      "url": "https://api.yani.tv/anime?limit=12&offset=0&sort=top&sort_forward=true&from_year=1900",
+      "available": true
+    },
+    {
+      "key": "ongoing",
+      "url": "https://api.yani.tv/anime?status=ongoing&limit=6&offset=0&sort=top&sort_forward=false",
+      "available": true
+    },
+    {
+      "key": "genres",
+      "url": "https://api.yani.tv/anime/genres",
+      "available": true
+    },
+    {
+      "key": "schedule",
+      "url": "https://api.yani.tv/anime/schedule",
+      "available": true
+    },
+    {
+      "key": "feed",
+      "url": "https://api.yani.tv/feed",
+      "available": true
+    },
+    {
+      "key": "collections",
+      "url": "https://api.yani.tv/collection?limit=6&offset=0",
+      "available": true
+    },
+    {
+      "key": "status",
+      "url": "https://yummyanime.github.io/yummy-lampa-plugin/status/status.json",
+      "available": true
+    }
+  ]
+}

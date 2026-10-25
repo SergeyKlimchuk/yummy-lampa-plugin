@@ -276,9 +276,12 @@
                     if (item.action === 'login') return openSettingsLogin();
                     if (!window.LampaYaniAuth || !LampaYaniAuth.token()) return Lampa.Noty.show(t('login_required'));
                     var action = item.action === 'favorite' ? LampaYaniApi.addFavorite(card.yani_id) : item.action ? LampaYaniApi.addToList(card.yani_id, item.action) : LampaYaniApi.rate(card.yani_id, item.value);
+                    var owner = window.LampaYaniCardModel && LampaYaniCardModel.listOwner ? LampaYaniCardModel.listOwner() : null;
                     action.then(function () {
+                        if (owner && !LampaYaniCardModel.sameListOwner(owner, LampaYaniCardModel.listOwner())) return;
                         if (item.action === 'favorite') card.yani_is_favorite = true;
                         else if (item.action) card.yani_list_id = {watching: 0, planned: 1, completed: 2, dropped: 3, postponed: 5}[item.action];
+                        if (deps.onListChanged) deps.onListChanged(card, item.action === 'favorite' ? {favorite: true} : item.action ? {listId: card.yani_list_id} : {}, owner);
                         addCardListBadge(null, card);
                         syncCardOverlayLayout(null, card);
                         Lampa.Noty.show(t('saved'));
@@ -486,15 +489,54 @@
                 return Number(a.index || 0) - Number(b.index || 0);
             });
             videos = uniqueEpisodes(videos);
-            var episodes = videos.map(function (video) {
-                return {title: episodeOptionTitle(card, video), video: video};
+            if (videos.length === 1) return launchVideo(card, group, videos, applySavedPlaybackPosition(card, videos[0]));
+            // Lampa.Select builds DOM for every item. Keep a very long series
+            // bounded while retaining every episode and the complete playlist.
+            var pageSize = 60;
+            var saved = card.yani_resume || getPlayback(card.yani_id) || {};
+            var savedIndex = -1;
+            videos.some(function (video, index) {
+                var same = saved.video_id ? String(video.video_id || video.id || '') === String(saved.video_id)
+                    : window.LampaYaniEpisode.same(window.LampaYaniEpisode.valueOf(video), saved.number);
+                if (same) savedIndex = index;
+                return same;
             });
-            if (episodes.length === 1) return launchVideo(card, group, videos, applySavedPlaybackPosition(card, videos[0]));
-            showPlaybackSelect({
-                title: t('choose_episode') + ' · ' + group.title,
-                items: episodes,
-                onSelect: function (item) { launchVideo(card, group, videos, applySavedPlaybackPosition(card, item.video)); }
-            });
+
+            // A different dubbing/provider has different video IDs for the
+            // same episode. Keep the viewer near their saved episode as well.
+            if (savedIndex < 0 && saved.number !== undefined && saved.number !== null) {
+                videos.some(function (video, index) {
+                    var same = window.LampaYaniEpisode.same(window.LampaYaniEpisode.valueOf(video), saved.number);
+                    if (same) savedIndex = index;
+                    return same;
+                });
+            }
+
+            function rangeTitle(page, arrow) {
+                var first = page * pageSize;
+                var last = Math.min(first + pageSize, videos.length) - 1;
+                return arrow + ' ' + t('episode') + ' ' + window.LampaYaniEpisode.valueOf(videos[first]) + '–' + window.LampaYaniEpisode.valueOf(videos[last]);
+            }
+
+            function showPage(page) {
+                var start = page * pageSize;
+                var episodes = videos.slice(start, start + pageSize).map(function (video) {
+                    return {title: episodeOptionTitle(card, video), video: video};
+                });
+                if (start > 0) episodes.unshift({title: rangeTitle(page - 1, '‹'), page: page - 1});
+                if (start + pageSize < videos.length) episodes.push({title: rangeTitle(page + 1, '›'), page: page + 1});
+                var selected = savedIndex >= start && savedIndex < start + pageSize ? savedIndex - start + (start > 0 ? 1 : 0) : 0;
+                showPlaybackSelect({
+                    title: t('choose_episode') + ' · ' + group.title,
+                    items: episodes,
+                    selected: selected,
+                    onSelect: function (item) {
+                        if (typeof item.page === 'number') return showPage(item.page);
+                        launchVideo(card, group, videos, applySavedPlaybackPosition(card, item.video));
+                    }
+                });
+            }
+            showPage(savedIndex >= 0 ? Math.floor(savedIndex / pageSize) : 0);
         }
 
         function showDirectPlaybackOptions(card, current, playlist, options) {

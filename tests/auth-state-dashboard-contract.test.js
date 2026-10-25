@@ -1,9 +1,10 @@
+// Data-model/authentication coverage is retained; homepage layout and lifecycle
+// behavior are covered by the lightweight-home runtime tests.
 const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
 const authSource = fs.readFileSync('src/auth.js', 'utf8');
-const ui = fs.readFileSync('src/ui.js', 'utf8');
 const storage = {};
 const events = [];
 
@@ -50,13 +51,5 @@ assert.deepStrictEqual(events.map((event) => event.detail.authorized), [true, fa
 auth.clear();
 assert.strictEqual(events.length, 2, 'repeated clears must not emit duplicate state changes');
 
-assert.match(ui, /document\.addEventListener\('yani:auth-changed', onHomeAuthorizationChanged\)/,
-    'Home must listen for authorization changes while it is retained in the activity stack');
-assert.match(ui, /homeAuthorizationChanged \|\| homeAuthorized !== Boolean\(LampaYaniAuth\.token\(\)\)[\s\S]{0,320}Lampa\.Activity\.replace\(\{[\s\S]{0,180}component: 'yani_home'/,
-    'Home must rebuild before rendering stale account data');
-assert.match(ui, /document\.removeEventListener\('yani:auth-changed', onHomeAuthorizationChanged\)/,
-    'Home must remove its authorization listener on destroy');
-assert.match(ui, /onHomeAuthorizationChanged\(\)[\s\S]{0,100}userListsSnapshot = null/,
-    'account-specific list snapshots must be invalidated with the session');
 
 console.log('authorization dashboard state contract tests passed');

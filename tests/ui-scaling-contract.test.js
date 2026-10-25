@@ -34,7 +34,8 @@ assert.deepStrictEqual(
 assert.match(css, /@media \(orientation: portrait\), \(max-aspect-ratio: 3\/4\)/);
 assert.match(css, /@media \(max-height: 820px\)/);
 assert.match(css, /@media \(min-width: 2500px\)/);
-assert.match(css, /\.yani-home__grid \{[\s\S]*?max-width: 94em/);
+assert.match(css, /\.yani-home\.yani-home--lite\s*\{[^}]*min-height:\s*calc\(100vh - [\d.]+em\)/,
+    'the lightweight home must reserve Lampa header space in the shared em scale');
 assert.match(renderers, /emWidth:\s*width \/ fontSize/);
 assert.match(renderers, /emWidth < 11\.5/);
 assert.match(renderers, /emWidth < 6\.6/);

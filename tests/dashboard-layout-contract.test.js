@@ -1,49 +1,32 @@
 const assert = require('assert');
 const fs = require('fs');
+const vm = require('vm');
 
+// Runtime navigation and request budgets are exercised by ui-home's behavioral
+// tests. This checks the production wiring, so a correct isolated module cannot
+// accidentally be omitted from the installable plugin.
 const ui = fs.readFileSync('src/ui.js', 'utf8');
-const css = fs.readFileSync('style.css', 'utf8');
+const source = fs.readFileSync('src/ui-home.js', 'utf8');
+const build = fs.readFileSync('build.js', 'utf8');
+const context = {window: {}};
+vm.runInNewContext(source, context);
+assert.strictEqual(typeof context.window.LampaYaniHome.create, 'function');
+assert.ok(context.window.LampaYaniHome.limits.continueWatching <= 3, 'home preview must stay bounded');
+assert.ok(context.window.LampaYaniHome.limits.ongoing <= 6, 'home catalog preview must stay bounded');
 
-['catalog', 'genres', 'search'].forEach((key) => {
-    assert.match(ui, new RegExp(`key: '${key}'[^\\n]+group: 'explore'`));
-});
-['schedule', 'new_translations'].forEach((key) => {
-    assert.match(ui, new RegExp(`key: '${key}'[^\\n]+group: 'episode_flow'`));
-});
-['continue_watching', 'user_lists', 'updates'].forEach((key) => {
-    assert.match(ui, new RegExp(`key: '${key}'[^\\n]+group: 'library'`));
-});
-['notifications', 'account', 'status'].forEach((key) => {
-    assert.match(ui, new RegExp(`key: '${key}'[^\\n]+group: 'service'`));
+const homeModule = build.indexOf("'src/ui-home.js'");
+const uiModule = build.indexOf("'src/ui.js'");
+assert.ok(homeModule !== -1 && homeModule < uiModule, 'home factory must load before the UI adapter');
+assert.match(ui, /LampaYaniHome\.create\(object,/);
+
+// Replacing the landing page must leave the existing account/list/playback
+// components registered under their stable navigation identifiers.
+[
+    'yani_catalog', 'yani_user_lists', 'yani_account_list', 'yani_detail',
+    'yani_history', 'yani_schedule', 'yani_new_translations', 'yani_account',
+    'yani_notifications', 'yani_auth', 'yani_player'
+].forEach((name) => {
+    assert.ok(ui.includes("Lampa.Component.add('" + name + "',"), name + ' must remain available');
 });
 
-assert.match(ui, /yani-home__intro-title/);
-assert.match(ui, /homeExploreDecoration\(item\.key\)/);
-assert.match(ui, /yani-home__explore-art--catalog/);
-assert.match(ui, /yani-home__explore-art--genres/);
-assert.match(ui, /yani-home__explore-art--search/);
-assert.match(ui, /yani-home__panel--active/);
-assert.match(ui, /yani-home__panel-chapter[^\n]+02/);
-assert.match(ui, /yani-home__panel-chapter[^\n]+04/);
-assert.match(ui, /group === 'explore' \? '01' : group === 'library' \? '03' : group === 'service' \? '05'/);
-assert.match(ui, /hover:enter click\.yaniHome/);
-assert.match(ui, /last && document\.documentElement\.contains\(last\)/);
-assert.match(css, /\.yani-home__panel--explore\s*\{[\s\S]{0,100}grid-column: span 12/);
-assert.match(css, /\.yani-home__episode-flow\s*\{[\s\S]{0,180}grid-column: span 8/);
-assert.match(css, /\.yani-home__panel--library\s*\{[\s\S]{0,100}grid-column: span 4/);
-assert.match(css, /\.yani-home__panel--service \.yani-home__panel-items\s*\{[\s\S]{0,120}repeat\(3/);
-assert.match(css, /\.yani-home__item--catalog\.focus \.yani-home__explore-art--catalog/);
-assert.match(css, /\.yani-home__item--genres\.focus \.yani-home__explore-art--genres/);
-assert.match(css, /\.yani-home__item--search\.focus \.yani-home__explore-art--search/);
-assert.match(css, /\.yani-home__item > \.yani-home__explore-art\s*\{[^}]*position: absolute/);
-assert.match(css, /\.yani-home__explore-art--catalog i:nth-child\(1\)[^}]*176,132,239/);
-assert.match(css, /\.yani-home__explore-art--catalog i:nth-child\(4\)[^}]*100,224,178/);
-assert.match(css, /\.yani-home__panel-chapter \{/);
-assert.match(css, /\.yani-home__panel--active \.yani-home__panel-chapter/);
-assert.match(css, /\.yani-home__panel--episode-flow \.yani-home__item\.focus[^}]*98,184,255/);
-assert.match(css, /\.yani-home__panel--library \.yani-home__item\.focus[^}]*85,215,149/);
-assert.match(css, /\.yani-home__panel--discover \.yani-home__item\.focus[^}]*191,114,233/);
-assert.match(css, /\.yani-home__panel--service \.yani-home__item\.focus[^}]*236,176,85/);
-assert.match(css, /\.yani-home__panel--service \.yani-home__item\.focus \.yani-home__arrow/);
-
-console.log('dashboard layout contract checks passed');
+console.log('lightweight home production integration checks passed');

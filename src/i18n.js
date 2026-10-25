@@ -975,6 +975,79 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     messages.uk.creator_catalog_description = 'Аніме режисера «{name}»';
     messages.uk.original_name = 'Оригінальне ім’я';
 
+    var compactHomeMessages = {
+        "ru": {
+            "loading": "Загрузка…",
+            "home_lite_more": "Ещё",
+            "home_lite_all": "Все",
+            "home_lite_ongoing": "Сейчас выходят",
+            "home_lite_retry": "Повторить",
+            "home_lite_history_empty": "Здесь появятся аниме, которые вы начали смотреть.",
+            "home_lite_resume": "Продолжить просмотр",
+            "home_lite_sign_in": "Войдите в аккаунт, чтобы открыть свои списки.",
+            "home_lite_catalog_empty": "Сейчас нет доступных аниме.",
+            "home_lite_cached": "Нет связи. Обновить сохранённое",
+            "home_lite_catalog_error": "Не удалось загрузить аниме.",
+            "home_lite_remaining": "Осталось {minutes} мин",
+            "settings": "Настройки"
+        },
+        "en": {
+            "loading": "Loading…",
+            "home_lite_more": "More",
+            "home_lite_all": "All",
+            "home_lite_ongoing": "Airing now",
+            "home_lite_retry": "Retry",
+            "home_lite_history_empty": "Anime you have started watching will appear here.",
+            "home_lite_resume": "Continue watching",
+            "home_lite_sign_in": "Sign in to open your lists.",
+            "home_lite_catalog_empty": "No anime is available right now.",
+            "home_lite_cached": "Offline. Refresh saved titles",
+            "home_lite_catalog_error": "Could not load anime.",
+            "home_lite_remaining": "{minutes} min left",
+            "settings": "Settings"
+        },
+        "uk": {
+            "loading": "Завантаження…",
+            "home_lite_more": "Ще",
+            "home_lite_all": "Усі",
+            "home_lite_ongoing": "Зараз виходять",
+            "home_lite_retry": "Повторити",
+            "home_lite_history_empty": "Тут з’являться аніме, які ви почали дивитися.",
+            "home_lite_resume": "Продовжити перегляд",
+            "home_lite_sign_in": "Увійдіть в обліковий запис, щоб відкрити свої списки.",
+            "home_lite_catalog_empty": "Зараз немає доступних аніме.",
+            "home_lite_cached": "Немає зв’язку. Оновити збережене",
+            "home_lite_catalog_error": "Не вдалося завантажити аніме.",
+            "home_lite_remaining": "Залишилось {minutes} хв",
+            "settings": "Налаштування"
+        }
+    };
+    Object.keys(compactHomeMessages).forEach(function (locale) {
+        Object.keys(compactHomeMessages[locale]).forEach(function (key) {
+            messages[locale][key] = compactHomeMessages[locale][key];
+        });
+    });
+
+    messages.ru.not_in_lists = 'Не в списках';
+    messages.ru.category_unknown = 'Категория не загружена';
+    messages.ru.saving = 'Сохранение…';
+    messages.ru.expand_description = 'Описание полностью — OK';
+    messages.ru.collapse_description = 'Свернуть описание — OK';
+    messages.en.not_in_lists = 'Not in lists';
+    messages.en.category_unknown = 'Category unavailable';
+    messages.en.saving = 'Saving…';
+    messages.en.expand_description = 'Full description — OK';
+    messages.en.collapse_description = 'Collapse description — OK';
+    messages.uk.not_in_lists = 'Не в списках';
+    messages.uk.category_unknown = 'Категорію не завантажено';
+    messages.uk.saving = 'Збереження…';
+    messages.uk.expand_description = 'Повний опис — OK';
+    messages.uk.collapse_description = 'Згорнути опис — OK';
+
+    messages.ru.list_save_error = 'Не удалось сохранить категорию';
+    messages.en.list_save_error = 'Could not save the category';
+    messages.uk.list_save_error = 'Не вдалося зберегти категорію';
+
     function language() {
         var value = window.Lampa && Lampa.Storage ? Lampa.Storage.get(key, 'ru') : 'ru';
         return value === 'en' || value === 'uk' ? value : 'ru';

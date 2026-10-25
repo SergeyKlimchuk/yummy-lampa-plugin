@@ -1,0 +1,1279 @@
+{
+  "scope": "Offline audit of existing fork only; no requests, account changes, or repository mutations.",
+  "repository": "/mnt/main/projects/external/yummy-lampa-plugin",
+  "contract_meaning": "Required means needed by the current UI action, not guaranteed by a published server schema. Optional means handled conditionally or with fallback.",
+  "fixtures_warning": "tests/fixtures/yani-api are explicitly anonymized contract fixtures. Example titles, URLs and numbers are NOT live site data and must not be presented as real library content.",
+  "missing_fixtures": [
+    "feed",
+    "genres",
+    "collections catalog/detail",
+    "trailers",
+    "studio/director"
+  ],
+  "schemas": {
+    "anime_card": {
+      "required_for_action": [
+        "anime_id|animeId|id|_id → yani_id, to open the title"
+      ],
+      "optional": [
+        "title|name|russian|original_title (fallback: untitled)",
+        "poster|cover|image|poster_url (string or size object; fallback poster)",
+        "year|release_year",
+        "type",
+        "anime_status|status",
+        "rating.average|rating|score|rating_score",
+        "rating.counters|rating_counters|votes|vote_count",
+        "description|synopsis",
+        "episodes.aired/count/prev_date/next_date",
+        "genres|genre",
+        "comments_count",
+        "user.list.list.id",
+        "user.list.is_fav",
+        "user.rate|user.rating|user.score|user_rate"
+      ],
+      "envelope": "response[] or response.anime|results|items|data; a single identifiable object is also accepted",
+      "sources": [
+        {
+          "path": "src/ui-card-model.js",
+          "function": "toCard",
+          "line": 82
+        }
+      ]
+    },
+    "catalog_controls": {
+      "type_parameter": "types",
+      "types": [
+        "",
+        "tv",
+        "movie",
+        "shortfilm",
+        "ova",
+        "ona",
+        "special",
+        "shorttv"
+      ],
+      "status": [
+        "",
+        "ongoing",
+        "released",
+        "announcement"
+      ],
+      "year_presets": [
+        "all",
+        "current year",
+        "last 3 years",
+        "last 5 years",
+        "from 2020",
+        "from 2010"
+      ],
+      "year_parameters": [
+        "from_year",
+        "to_year"
+      ],
+      "sorts": [
+        {
+          "key": "top",
+          "sort": "top",
+          "sort_forward": true
+        },
+        {
+          "key": "new",
+          "sort": "year",
+          "sort_forward": false
+        },
+        {
+          "key": "rating",
+          "sort": "rating",
+          "sort_forward": false
+        },
+        {
+          "key": "votes",
+          "sort": "rating_counters",
+          "sort_forward": false
+        },
+        {
+          "key": "views",
+          "sort": "views",
+          "sort_forward": false
+        },
+        {
+          "key": "title",
+          "sort": "title",
+          "sort_forward": true
+        },
+        {
+          "key": "random",
+          "sort": "random",
+          "sort_forward": false
+        }
+      ],
+      "reset": "clears types/status/from_year/to_year; resets offset; preserves contextual genre/query",
+      "sources": [
+        {
+          "path": "src/ui-catalog-filters.js",
+          "function": "definitions",
+          "line": 4
+        },
+        {
+          "path": "src/ui-catalog-controls.js",
+          "function": "create",
+          "line": 27
+        }
+      ]
+    }
+  },
+  "global_constraints": [
+    "A request option auth:true adds a Bearer token if available; it does not itself imply that the UI requires login.",
+    "Every non-ID metadata field should have omission/unknown/placeholder behavior; never synthesize ratings, counts, durations or dates.",
+    "Routes describe current entry points; several functional screens are shared Lampa.Select dialogs instead of separate activity components.",
+    "Do not treat synthetic total_pages safety bounds as actual catalog size.",
+    "Current source support is evidence of implementation capability, not proof that a live API response will contain all optional fields."
+  ],
+  "screens": [
+    {
+      "id": "catalog",
+      "title": "Каталог",
+      "route": "yani/catalog; /sort/{key}; /filter/{signature}",
+      "component": "yani_catalog / Catalog",
+      "endpoints": [
+        "GET /anime?{params}"
+      ],
+      "fields": {
+        "schema": "anime_card"
+      },
+      "actions": [
+        "open title",
+        "card context actions: watch/details/comments, authorized list/favorite/rating",
+        "sort",
+        "filter",
+        "next page"
+      ],
+      "parameters": {
+        "defaults_in_Catalog": {
+          "limit": 30,
+          "offset": 0,
+          "sort": "top",
+          "sort_forward": true
+        },
+        "home_entry_override": {
+          "sort_forward": false
+        },
+        "filters": "catalog_controls",
+        "pagination": "limit/offset; no real server total required"
+      },
+      "states": [
+        "initial loader",
+        "results",
+        "empty via Lampa category",
+        "request error notification",
+        "next-page error retains page"
+      ],
+      "not_guaranteed": [
+        "accurate total count/page count: maxPages is a synthetic safety bound (ceil(20000/limit)+1)",
+        "poster, ratings, year, genres, progress and title metadata",
+        "availability of playable sources is not implied by a card"
+      ],
+      "sources": [
+        {
+          "path": "src/ui.js",
+          "function": "Catalog",
+          "line": 406
+        },
+        {
+          "path": "src/ui-catalog-controls.js",
+          "function": "create",
+          "line": 27
+        },
+        {
+          "path": "src/ui-card-bind.js",
+          "function": "create",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "title": "Поиск",
+      "route": "input dialog → yani/search/{encoded_query}; also global Lampa Search source",
+      "component": "yani_catalog for plugin results; Lampa.Search source via LampaYaniSearch.create",
+      "endpoints": [
+        "GET /anime?q={query}&limit=30 (global source); catalog pagination for plugin results"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "required_for_action": [
+          "nonempty trimmed query"
+        ]
+      },
+      "actions": [
+        "enter query",
+        "open result title",
+        "plugin result catalog sorting/filtering",
+        "global source result selection"
+      ],
+      "parameters": {
+        "query": "trimmed; + and percent encoding decoded",
+        "global_debounce_ms": 400,
+        "global_limit": 30,
+        "global_cache": "20 query entries / 2 minutes",
+        "global_sort": "local title exact/prefix/substring relevance",
+        "plugin_result_params": {
+          "q": "{query}",
+          "limit": 30
+        }
+      },
+      "states": [
+        "blank input",
+        "typing/loading via Lampa Search",
+        "matches",
+        "no matches",
+        "error returns empty global groups"
+      ],
+      "not_guaranteed": [
+        "search autocomplete suggestions or search trend API",
+        "all results in global source (one page only)",
+        "a separate yani_search component; plugin results reuse catalog"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-search.js",
+          "function": "create",
+          "line": 46
+        },
+        {
+          "path": "src/ui-search.js",
+          "function": "rankCards",
+          "line": 15
+        },
+        {
+          "path": "src/ui.js",
+          "function": "getSearchController",
+          "line": 1728
+        }
+      ]
+    },
+    {
+      "id": "genres",
+      "title": "Жанры",
+      "route": "yani/genres",
+      "component": "yani_genres / Genres",
+      "endpoints": [
+        "GET /anime/genres"
+      ],
+      "fields": {
+        "required_for_action": [
+          "genre title|name|label|alias AND value|id|href|alias|slug (string genres accepted)"
+        ],
+        "optional": [
+          "description|desc|about|text|content|seo_description; may be localized object"
+        ]
+      },
+      "actions": [
+        "open genre catalog"
+      ],
+      "parameters": {
+        "pagination": "one genre tile list, not paged"
+      },
+      "states": [
+        "loader",
+        "genre tiles",
+        "empty notification",
+        "load error",
+        "cached/background-patched metadata"
+      ],
+      "not_guaranteed": [
+        "genre photographs/posters: current tiles use locally generated SVG text art",
+        "per-genre anime counts",
+        "API descriptions"
+      ],
+      "sources": [
+        {
+          "path": "src/ui.js",
+          "function": "Genres",
+          "line": 866
+        },
+        {
+          "path": "src/ui.js",
+          "function": "genreTilesRow",
+          "line": 3366
+        },
+        {
+          "path": "src/ui.js",
+          "function": "genreValue",
+          "line": 3435
+        }
+      ]
+    },
+    {
+      "id": "genre_catalog",
+      "title": "Каталог жанра",
+      "route": "yani/genre/{value}",
+      "component": "yani_catalog / Catalog with genre_context",
+      "endpoints": [
+        "GET /anime?genres={value}&limit=30",
+        "GET /anime/genres/{id} for numeric IDs only"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "header": "genre title + API or bundled localized description; generic fallback if absent"
+      },
+      "actions": [
+        "open title",
+        "shared catalog sorts/filters",
+        "next page"
+      ],
+      "parameters": {
+        "genres": "{value}",
+        "limit": 30,
+        "filters": "catalog_controls",
+        "rank_badge": "only top + forward mode; calculated offset+index position <=100"
+      },
+      "states": [
+        "loader",
+        "cached/results",
+        "empty",
+        "error",
+        "description enrichment failure keeps fallback"
+      ],
+      "not_guaranteed": [
+        "rank badge for every sorting mode",
+        "API description or image",
+        "server-side total count"
+      ],
+      "sources": [
+        {
+          "path": "src/ui.js",
+          "function": "openGenreCatalog",
+          "line": 3476
+        },
+        {
+          "path": "src/ui.js",
+          "function": "Catalog",
+          "line": 406
+        }
+      ]
+    },
+    {
+      "id": "top",
+      "title": "Топ аниме",
+      "route": "yani/top; /type/{all|tv|movie|ona}",
+      "component": "yani_top / Top → Catalog",
+      "endpoints": [
+        "GET /anime?sort=top&sort_forward=true&from_year=1900&..."
+      ],
+      "fields": {
+        "schema": "anime_card"
+      },
+      "actions": [
+        "switch All / TV / Movies / ONA",
+        "open title",
+        "next page",
+        "card context actions"
+      ],
+      "parameters": {
+        "limit": 30,
+        "sort": "top",
+        "sort_forward": true,
+        "from_year": 1900,
+        "type_tabs": {
+          "all": "",
+          "tv": "tv",
+          "movie": "movie",
+          "ona": "ona"
+        },
+        "remote_color_shortcuts": [
+          "red:all",
+          "green:tv",
+          "yellow:movie",
+          "blue:ona"
+        ]
+      },
+      "states": [
+        "loader",
+        "ranked results",
+        "empty",
+        "load/next-page error"
+      ],
+      "not_guaranteed": [
+        "a separate top/realtime-ranking API",
+        "rank movement/change badges",
+        "vote numbers for every item",
+        "ordinary catalog sort/filter deck in topMode: it is replaced with four type categories"
+      ],
+      "sources": [
+        {
+          "path": "src/ui.js",
+          "function": "Top",
+          "line": 400
+        },
+        {
+          "path": "src/ui-catalog-controls.js",
+          "function": "create",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "id": "recommended",
+      "title": "Для вас",
+      "route": "yani/recommended",
+      "component": "yani_recommended / Recommended → Recommendations.component",
+      "endpoints": [
+        "GET /video/watch-history?limit=30&offset=0 when signed in",
+        "GET /users/{id}/lists",
+        "GET /users/{id}/lists/{0|1|2|5} if snapshot has no anime rows",
+        "GET /users/{id}/lists/subs",
+        "GET /anime/schedule",
+        "GET /feed",
+        "GET /profile/notifications?limit=30&offset=0 when signed in",
+        "GET /anime/{id} for up to 4 tracked titles (viewing_order/related)"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "optional_derived": [
+          "yani_update_label/date",
+          "yani_personal_event",
+          "yani_recommendation_label (related-to tracked title)",
+          "viewing_order|related[] from detail"
+        ]
+      },
+      "actions": [
+        "open title",
+        "retry empty/offline state",
+        "card context actions"
+      ],
+      "parameters": {
+        "sources_max": 80,
+        "updates_max": 28,
+        "related_max": 12,
+        "results_max": 40,
+        "pagination": "single computed page",
+        "guest": "can use local history; remote account data skipped"
+      },
+      "states": [
+        "loading",
+        "computed personal events/related titles",
+        "empty with retry",
+        "offline with retry",
+        "partial sources fail independently"
+      ],
+      "not_guaranteed": [
+        "machine-learned recommendations or match percentage",
+        "reason labels beyond real history/list/event relationships",
+        "content without usable tracked history/list entries",
+        "all cards having event dates or related reasons"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-recommendations.js",
+          "function": "component",
+          "line": 322
+        },
+        {
+          "path": "src/ui-recommendations.js",
+          "function": "personalSources",
+          "line": 89
+        },
+        {
+          "path": "src/ui-recommendations.js",
+          "function": "eventCards",
+          "line": 193
+        },
+        {
+          "path": "src/ui-recommendations.js",
+          "function": "relatedCards",
+          "line": 243
+        }
+      ]
+    },
+    {
+      "id": "updates",
+      "title": "Обновления",
+      "route": "yani/updates",
+      "component": "yani_updates / Updates → Updates.component",
+      "endpoints": [
+        "GET /users/{id}/lists",
+        "GET /users/{id}/lists/subs",
+        "GET /anime/schedule",
+        "GET /feed"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "required_for_display": [
+          "yani_id AND real event date"
+        ],
+        "optional_derived": [
+          "episode/dub/player label from event; aired episode or upcoming-release fallback"
+        ]
+      },
+      "actions": [
+        "open title",
+        "retry",
+        "card context actions"
+      ],
+      "parameters": {
+        "tracked_lists": {
+          "watching": 0,
+          "planned": 1,
+          "postponed": 5
+        },
+        "also": "subscriptions",
+        "sort": "event date descending",
+        "results_max": 40,
+        "pagination": "single page"
+      },
+      "states": [
+        "sign-in-required state",
+        "loading",
+        "event cards",
+        "empty with retry",
+        "offline with retry"
+      ],
+      "not_guaranteed": [
+        "events for completed/dropped anime solely due to list membership",
+        "all TV release dates",
+        "arbitrary event categories or read/unread state",
+        "a dedicated updates endpoint"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-updates.js",
+          "function": "component",
+          "line": 88
+        },
+        {
+          "path": "src/ui-updates.js",
+          "function": "relevantTitles",
+          "line": 30
+        },
+        {
+          "path": "src/ui-updates.js",
+          "function": "cards",
+          "line": 65
+        }
+      ]
+    },
+    {
+      "id": "new_translations",
+      "title": "Новые переводы",
+      "route": "yani/new_translations",
+      "component": "yani_new_translations / NewTranslations → Translations.component",
+      "endpoints": [
+        "GET /feed → response.new_videos[]"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "required_for_action": [
+          "anime_id|animeId|anime.anime_id|anime.id"
+        ],
+        "optional": [
+          "date",
+          "ep_title",
+          "dub_title",
+          "player_title",
+          "description"
+        ],
+        "derived": [
+          "latest event per anime",
+          "translation event count per anime",
+          "additional count +N in label"
+        ]
+      },
+      "actions": [
+        "open title",
+        "retry",
+        "card context actions"
+      ],
+      "parameters": {
+        "sort": "date descending",
+        "deduplication": "one latest event per anime",
+        "pagination": "feed snapshot, one page"
+      },
+      "states": [
+        "loading",
+        "cards",
+        "cached indicator + retry",
+        "empty + retry",
+        "offline + retry"
+      ],
+      "not_guaranteed": [
+        "a full historical translation log",
+        "all event metadata",
+        "download/translate/upload actions",
+        "translation count meaning total voices: it counts only events present in feed snapshot"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-translations.js",
+          "function": "component",
+          "line": 48
+        },
+        {
+          "path": "src/ui-translations.js",
+          "function": "normalize",
+          "line": 33
+        },
+        {
+          "path": "src/ui-translations.js",
+          "function": "latestEvents",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "id": "new_releases",
+      "title": "Новые аниме",
+      "route": "yani/new_releases",
+      "component": "yani_new_releases / NewReleases → Releases.component",
+      "endpoints": [
+        "GET /feed → response.new[]"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "optional_label": [
+          "anime_status.title|alias",
+          "type.name|shortname|alias"
+        ]
+      },
+      "actions": [
+        "open title",
+        "retry",
+        "card context actions"
+      ],
+      "parameters": {
+        "pagination": "one feed snapshot",
+        "sort": "API feed order (no user sort UI)"
+      },
+      "states": [
+        "loading",
+        "cards",
+        "cached indicator + retry",
+        "empty + retry",
+        "offline + retry"
+      ],
+      "not_guaranteed": [
+        "an exact added-on date for every card",
+        "the label means airing today",
+        "paginated archive",
+        "string type values are not used by releaseLabel (object metadata only)"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-releases.js",
+          "function": "component",
+          "line": 32
+        },
+        {
+          "path": "src/ui-releases.js",
+          "function": "normalize",
+          "line": 20
+        },
+        {
+          "path": "src/ui-releases.js",
+          "function": "releaseLabel",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "id": "collections",
+      "title": "Коллекции",
+      "route": "yani/collections",
+      "component": "yani_collections / Collections → Collections.catalog",
+      "endpoints": [
+        "GET /feed → response.collections[]",
+        "GET /collection?limit=20&offset={offset}"
+      ],
+      "fields": {
+        "required_for_action": [
+          "collection.id"
+        ],
+        "optional": [
+          "title|name",
+          "description",
+          "poster_previews[] or animes[].poster (up to 4 unique previews)",
+          "animes_count|count|total|animes.length",
+          "views",
+          "likes|likes.likes"
+        ]
+      },
+      "actions": [
+        "open collection",
+        "next page",
+        "retry"
+      ],
+      "parameters": {
+        "limit": 20,
+        "offset": "catalog offset",
+        "initial": "first nonempty feed or collection-catalog response paints",
+        "pagination": "deduplicated; synthetic maxPages1000, ends on short catalog page"
+      },
+      "states": [
+        "loading",
+        "collection tiles",
+        "cached metadata patched in place",
+        "both sources empty/error → offline state + retry"
+      ],
+      "not_guaranteed": [
+        "real total pages",
+        "cover/preview posters",
+        "author",
+        "likes/views/counts (zero often means missing)",
+        "collection creation/editing/favorite actions: absent in current UI and API wrapper"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-collections.js",
+          "function": "catalog",
+          "line": 301
+        },
+        {
+          "path": "src/ui-collections.js",
+          "function": "collectionCard",
+          "line": 31
+        },
+        {
+          "path": "src/ui-collections.js",
+          "function": "previewPosters",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "id": "collection_detail",
+      "title": "Состав коллекции",
+      "route": "yani/collection/{id}",
+      "component": "yani_collection / CollectionDetail → Collections.detail",
+      "endpoints": [
+        "GET /collection/{id}?limit=30&offset={offset}"
+      ],
+      "fields": {
+        "required_for_action": [
+          "collectionId route argument",
+          "animes[].anime_id aliases to open individual titles"
+        ],
+        "optional": [
+          "collection.title",
+          "collection.animes[] uses anime_card schema"
+        ]
+      },
+      "actions": [
+        "open title",
+        "next page",
+        "card context actions"
+      ],
+      "parameters": {
+        "limit": 30,
+        "offset": "(page-1)*30",
+        "sort_filters": "none in current collection view"
+      },
+      "states": [
+        "loader",
+        "title + anime cards",
+        "empty notification",
+        "load error notification",
+        "next-page error keeps page"
+      ],
+      "not_guaranteed": [
+        "hero collection description/author/likes rendered by this component (current code only title + cards)",
+        "exact total; maxPages1000 synthetic",
+        "write/edit/remove anime from collection"
+      ],
+      "sources": [
+        {
+          "path": "src/ui.js",
+          "function": "openCollection",
+          "line": 3533
+        },
+        {
+          "path": "src/ui-collections.js",
+          "function": "detail",
+          "line": 490
+        }
+      ]
+    },
+    {
+      "id": "title_detail",
+      "title": "Карточка аниме",
+      "route": "yani/detail/{id}",
+      "component": "yani_detail / Detail → LampaYaniDetail.create",
+      "endpoints": [
+        "GET /anime/{id}",
+        "GET /anime/{id}/videos (translations / episode summary)",
+        "GET /anime/{id}/recommendations",
+        "GET /comments/anime/{id}?limit=20&sort=new&skip=0",
+        "optional GET Jikan /v4/anime/{MAL id}/episodes"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "required_for_action": [
+          "route/id/card YummyAnime ID"
+        ],
+        "optional": [
+          "other_titles / original title / Japanese title",
+          "rating average + vote count, external KP/SH/AniDUB/MAL/WA ratings if >0",
+          "genres",
+          "creators[]",
+          "studios[]",
+          "seasons_count|season_count|seasons",
+          "episode_duration",
+          "remote_ids.myanimelist_id|mal_id",
+          "viewing_order[] with relation data.text|title",
+          "watch state from local/account history",
+          "yani_schedule when passed from schedule screen"
+        ],
+        "blocks": [
+          "poster with full-size viewer",
+          "title/metadata/synopsis",
+          "list dock",
+          "episode summary when any stat exists",
+          "available translations or unknown state",
+          "ratings + personal-rating action",
+          "main actions",
+          "viewing order if present",
+          "recommendations if nonempty",
+          "inline comments"
+        ]
+      },
+      "actions": [
+        "Watch → playback destination/source/episode flow",
+        "trailers",
+        "open native Lampa title/search",
+        "expand poster",
+        "open genre/studio/director catalog",
+        "open related/recommended title",
+        "read comments/replies",
+        "signed in: set/remove 1..10 rating",
+        "signed in: toggle watching0/planned1/completed2/dropped3/postponed5; independent favorite",
+        "signed in: subscribe/unsubscribe episodes (uses latest available video ID)"
+      ],
+      "parameters": {
+        "detail_timeout_ms": 20000,
+        "recommendations_limit": 12,
+        "videos_enrichment": "translations eager; summary background after350ms for known total<=100, otherwise first focus",
+        "auth": "public browsing allowed by UI; personal mutations require token"
+      },
+      "states": [
+        "loader",
+        "detail",
+        "snapshot fallback on request failure/timeout",
+        "restored route with no usable snapshot → Home",
+        "detail error",
+        "translation loading/unknown",
+        "comments loading/empty/error"
+      ],
+      "not_guaranteed": [
+        "all metadata and statistics; omit unknown values",
+        "all poster resolutions",
+        "all sources being playable",
+        "full episode titles (external enrichment and MAL ID required)",
+        "subscription state being server-hydrated (stored local video ID)",
+        "community rating histogram/list distribution rendered: loadDetailCommunityStats exists but is not called",
+        "collections block rendered: loadDetailCollections exists but is not called",
+        "trailer, recommendations, viewing order, synopsis or translation metadata being available"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-detail.js",
+          "function": "create",
+          "line": 164
+        },
+        {
+          "path": "src/ui-detail.js",
+          "function": "createDetailEpisodeSummary",
+          "line": 475
+        },
+        {
+          "path": "src/ui-detail.js",
+          "function": "createDetailTranslations",
+          "line": 563
+        },
+        {
+          "path": "src/ui-detail.js",
+          "function": "createDetailListPanel",
+          "line": 620
+        },
+        {
+          "path": "src/ui-detail.js",
+          "function": "createDetailRatingAction",
+          "line": 673
+        },
+        {
+          "path": "src/ui-detail.js",
+          "function": "toggleEpisodeSubscription",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "id": "subject_catalog",
+      "title": "Студия / автор",
+      "route": "yani/studio/{id}; yani/director/{id}",
+      "component": "yani_catalog / Catalog with subject_context",
+      "endpoints": [
+        "GET /anime?studio_ids={id} or director_ids={id}",
+        "GET /anime/studio/{url}",
+        "GET /director/{id}"
+      ],
+      "fields": {
+        "schema": "anime_card",
+        "required_for_action": [
+          "subject title|name AND id; studio URL may first resolve id"
+        ],
+        "optional": [
+          "subject title_jp|japanese_title",
+          "external/fallback subject image"
+        ]
+      },
+      "actions": [
+        "open title",
+        "shared catalog sorts/filters",
+        "next page"
+      ],
+      "parameters": {
+        "limit": 30,
+        "studio_ids|director_ids": "{id}"
+      },
+      "states": [
+        "loader",
+        "fallback subject initials/header",
+        "optional subject enrichment",
+        "results",
+        "error"
+      ],
+      "not_guaranteed": [
+        "biography, portrait, staff roles, studio logo or dates",
+        "credit links when IDs/URLs absent"
+      ],
+      "sources": [
+        {
+          "path": "src/ui.js",
+          "function": "openSubjectCatalog",
+          "line": 3508
+        },
+        {
+          "path": "src/ui.js",
+          "function": "pushSubjectCatalog",
+          "line": 3491
+        },
+        {
+          "path": "src/ui.js",
+          "function": "Catalog",
+          "line": 406
+        }
+      ]
+    },
+    {
+      "id": "trailers",
+      "title": "Трейлеры",
+      "route": "normally a Lampa.Select modal; fallback yani/trailers/{id}",
+      "component": "LampaYaniTrailers.open; yani_trailers / TrailerList only when Select unavailable",
+      "endpoints": [
+        "GET /anime/{id}/trailers",
+        "optional GET /anime/{id} to discover MAL ID",
+        "fallback POST https://graphql.anilist.co for Media(idMal).trailer"
+      ],
+      "fields": {
+        "required_for_action": [
+          "resolvable URL or YouTube ID"
+        ],
+        "optional": [
+          "number|title|name|dubbing|player (fallback: Trailer N)",
+          "iframe_url|url|video_url|link|src|embed|embed_url|trailer_url|player_url|watch_url|href|youtube_url",
+          "youtube_id|youtubeId|yt_id|youtube_video_id|string video_id"
+        ],
+        "display": [
+          "title",
+          "YouTube or external-video icon",
+          "host label (fallback screen)"
+        ]
+      },
+      "actions": [
+        "choose trailer",
+        "play single item immediately",
+        "open YouTube app if supported; embedded fallback",
+        "Back"
+      ],
+      "parameters": {
+        "pagination": "none",
+        "fallback_requires": "MAL ID + AniList YouTube trailer"
+      },
+      "states": [
+        "loading",
+        "multiple-item selection",
+        "one item auto-launch",
+        "no trailers notification/empty fallback page",
+        "error"
+      ],
+      "not_guaranteed": [
+        "trailer thumbnail, duration, upload date, language or quality (not rendered even when incidental API data exists)",
+        "any trailers at all; AniList can also be empty",
+        "YouTube app availability on TV"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-trailers.js",
+          "function": "create",
+          "line": 56
+        },
+        {
+          "path": "src/ui-trailers.js",
+          "function": "loadTrailerItems",
+          "line": 107
+        },
+        {
+          "path": "src/ui-trailers.js",
+          "function": "openTrailers",
+          "line": 211
+        },
+        {
+          "path": "src/ui-trailers.js",
+          "function": "TrailerList",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "id": "sources_and_episodes",
+      "title": "Источник / озвучка / серии",
+      "route": "Lampa.Select dialogs; no dedicated route",
+      "component": "LampaYaniPlaybackMenu.openVideos / chooseEpisode",
+      "endpoints": [
+        "GET /anime/{id}/videos",
+        "optional external episode-title / source-quality resolution"
+      ],
+      "fields": {
+        "required_for_action": [
+          "title Yummy ID",
+          "video with usable source URL"
+        ],
+        "optional": [
+          "video_id|id",
+          "number|episode|index",
+          "duration (seconds)",
+          "views",
+          "quality",
+          "watched.end_time",
+          "data (object or JSON): dubbing|translation|voice|player, player_id|source|service",
+          "yani_episode_title (enrichment)"
+        ],
+        "group_derived": [
+          "voice/source name",
+          "host",
+          "episode count (unique episode keys)",
+          "latest episode",
+          "last watched/preferred player marker",
+          "quality if available; otherwise auto"
+        ]
+      },
+      "actions": [
+        "choose enabled dubbing/provider group",
+        "choose episode",
+        "resume saved episode/time",
+        "Back"
+      ],
+      "parameters": {
+        "group_key": "normalized voice title + provider; quality never splits a group",
+        "sort_groups": "playability + preferred player + title",
+        "sort_episodes": "episode number ascending; deduplicated",
+        "single_group_or_episode": "chooser bypassed automatically"
+      },
+      "states": [
+        "loading",
+        "voice/source selector",
+        "episode selector",
+        "no videos",
+        "all sources disabled",
+        "load error",
+        "resume match or manual fallback"
+      ],
+      "not_guaranteed": [
+        "every series title has streams",
+        "episode title, poster, duration, view count or 1080p/4K label",
+        "a seasons grid grouped by season (current chooser is a flat episode list)",
+        "a separate language selector beyond metadata supplied by providers"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-playback-menu.js",
+          "function": "openVideos",
+          "line": 360
+        },
+        {
+          "path": "src/ui-playback-menu.js",
+          "function": "groupVideos",
+          "line": 308
+        },
+        {
+          "path": "src/ui-playback-menu.js",
+          "function": "chooseEpisode",
+          "line": 474
+        },
+        {
+          "path": "src/ui.js",
+          "function": "episodeOptionTitle",
+          "line": 3270
+        },
+        {
+          "path": "src/ui.js",
+          "function": "voiceOptionSubtitle",
+          "line": 1679
+        }
+      ]
+    },
+    {
+      "id": "player",
+      "title": "Воспроизведение",
+      "route": "Lampa internal player OR iframe route yani/player",
+      "component": "native Lampa.Player; yani_player / IframePlayer → LampaYaniPlayer.create for embeds",
+      "endpoints": [
+        "source resolver/provider requests as needed",
+        "signed-in PUT /video/{videoId} progress",
+        "signed-in POST /video batch progress when used"
+      ],
+      "fields": {
+        "required_for_action": [
+          "playable stream URL or embed URL"
+        ],
+        "optional": [
+          "title/episode/group label",
+          "saved playback time",
+          "duration",
+          "playlist",
+          "poster",
+          "resolved stream quality map",
+          "provider headers",
+          "external player support"
+        ]
+      },
+      "actions": [
+        "native player playback/seek/playlist/quality only when engine/source supports it",
+        "Back to prior focus",
+        "optional auto-next",
+        "optional AniSkip on native video only",
+        "YummyTV destination only if user setting + ID allow it",
+        "Android external player only on supported Android"
+      ],
+      "parameters": {
+        "LG_webOS": "do not offer Android APK player option",
+        "embedded_UI": "provider-owned iframe + plugin Back control",
+        "embedding": "Sibnet embedded; Alloha/resolvable sources have provider-specific policies"
+      },
+      "states": [
+        "resolving/loading",
+        "playing",
+        "source unavailable/provider region error",
+        "embedded provider loading/error UI",
+        "return navigation"
+      ],
+      "not_guaranteed": [
+        "custom plugin playback controls inside a cross-origin iframe",
+        "fine progress synchronization or AniSkip for embeds (only start is reported)",
+        "autoplay, exact seek, captions, quality selector, next episode or screenshots for every provider",
+        "external Android player on LG webOS"
+      ],
+      "sources": [
+        {
+          "path": "src/ui.js",
+          "function": "launchVideo",
+          "line": 1898
+        },
+        {
+          "path": "src/ui.js",
+          "function": "launchResolvedVideo",
+          "line": 1957
+        },
+        {
+          "path": "src/ui.js",
+          "function": "openEmbeddedEpisode",
+          "line": 2126
+        },
+        {
+          "path": "src/ui.js",
+          "function": "playInternalPlayer",
+          "line": 2468
+        },
+        {
+          "path": "src/ui-player.js",
+          "function": "create",
+          "line": 3
+        },
+        {
+          "path": "src/ui-playback-menu.js",
+          "function": "showDirectPlaybackOptions",
+          "line": 500
+        }
+      ]
+    },
+    {
+      "id": "comments",
+      "title": "Комментарии / ответы",
+      "route": "inline title-detail block; Lampa.Select comments/replies modals",
+      "component": "Detail.loadInlineComments + ui.js commentsMenu/commentReplies (no registered component)",
+      "endpoints": [
+        "GET /comments/anime/{id}?limit=20&sort=new&skip={skip}",
+        "GET /comments/{commentId}/children?skip={skip}"
+      ],
+      "fields": {
+        "required_for_action": [
+          "anime ID for comment list; comment.id for replies"
+        ],
+        "optional": [
+          "name|author.name (fallback: User)",
+          "text|body (cleaned BBCode)",
+          "time (Unix seconds)",
+          "likes",
+          "dislikes",
+          "children_count"
+        ],
+        "envelope": "response[] or response.comments|items|data"
+      },
+      "actions": [
+        "read comments",
+        "open replies when children_count>0",
+        "load more when current page length>=20",
+        "Back to parent list/title"
+      ],
+      "parameters": {
+        "limit": 20,
+        "sort": "new only",
+        "skip": "accumulated fetched row count"
+      },
+      "states": [
+        "loading",
+        "comment rows",
+        "empty",
+        "request error",
+        "replies modal",
+        "load more"
+      ],
+      "not_guaranteed": [
+        "avatars, badges, formatted rich text, spoiler expansion, exact total comments",
+        "write/reply/edit/delete/like/dislike actions: current wrapper exposes no such methods",
+        "displayed positive counts being actionable voting buttons"
+      ],
+      "sources": [
+        {
+          "path": "src/ui-detail.js",
+          "function": "loadInlineComments",
+          "line": 944
+        },
+        {
+          "path": "src/ui.js",
+          "function": "commentsMenu",
+          "line": 4305
+        },
+        {
+          "path": "src/ui.js",
+          "function": "commentReplies",
+          "line": 4325
+        },
+        {
+          "path": "src/ui.js",
+          "function": "commentItem",
+          "line": 4370
+        }
+      ]
+    }
+  ]
+}

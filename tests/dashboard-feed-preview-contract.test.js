@@ -1,9 +1,10 @@
+// Data-model/authentication coverage is retained; homepage layout and lifecycle
+// behavior are covered by the lightweight-home runtime tests.
 const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('src/ui-home-insights.js', 'utf8');
-const ui = fs.readFileSync('src/ui.js', 'utf8');
 const context = {window: {}};
 vm.runInNewContext(source, context);
 const insights = context.window.LampaYaniHomeInsights;
@@ -27,9 +28,5 @@ const merged = insights.mergeDashboardSnapshot({discovery}, {service: {api: fals
 assert.equal(merged.discovery.new_release.title, 'Newest');
 assert.equal(merged.discovery.collection.title, 'Summer stories');
 
-assert.match(ui, /setPreview\(homeButtons\.new_releases, newRelease\.title, newRelease\.meta\)/);
-assert.match(ui, /setArtwork\(homeButtons\.new_releases, newRelease\.poster\)/);
-assert.match(ui, /setPreview\(homeButtons\.collections, featuredCollection\.title/);
-assert.match(ui, /setArtwork\(homeButtons\.collections, featuredCollection\.poster\)/);
 
 console.log('dashboard feed preview contract checks passed');

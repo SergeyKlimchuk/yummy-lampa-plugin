@@ -721,6 +721,7 @@
         historyEntryKey: historyEntryKey,
         isContinueEntry: isContinueEntry,
         continueWatchingEntries: continueWatchingEntries,
+        attachHistoryEntry: attachHistoryEntry,
         continueStats: continueStats,
         importRemoteIntoLocal: importRemoteIntoLocal,
         shouldReplaceLocal: shouldReplaceLocal

@@ -22,7 +22,7 @@ assert.match(detail, /function createDetailTranslations\(\)/);
 assert.match(detail, /createDetailTranslations\(\)/);
 assert.match(css, /\.yani-detail__translation-row--voices/);
 assert.match(css, /\.yani-detail__translation-row--subtitles/);
-assert.match(css, /@keyframes yani-translation-chip-in/);
+assert.doesNotMatch(css, /@keyframes yani-translation-chip-in/);
 assert.match(i18n, /messages\.ru\.available_translations = 'Доступные переводы'/);
 assert.match(i18n, /messages\.uk\.subtitle_teams = 'Субтитри'/);
 

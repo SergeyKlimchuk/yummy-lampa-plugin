@@ -224,9 +224,12 @@
 
         function TrailerList(object) {
             var card = object.card || {};
-            var html = $('<div class="yani-trailers"></div>');
-            var scroll = new Lampa.Scroll({mask: true, over: true, step: 250});
+            var html = $('<div class="yani-trailers yani-lite-view"></div>');
+            var scroll = new Lampa.Scroll({mask: false, over: true, step: 250, notransition: true});
             var last;
+            var destroyed = false, paused = false;
+            var component = this;
+            function ownsActivity() { return !destroyed && (!Lampa.Activity || typeof Lampa.Activity.own !== 'function' || Lampa.Activity.own(component)); }
 
             scroll.minus();
 
@@ -234,16 +237,18 @@
                 var self = this;
                 this.activity.loader(true);
                 loadTrailerItems(card).then(function (payload) {
+                    if (destroyed) return;
                     var items = normalizeTrailerItems(payload).filter(function (trailer) { return trailerUrl(trailer); });
                     render(items);
                     self.activity.loader(false);
-                    self.activity.toggle();
+                    if (!paused && ownsActivity()) self.activity.toggle();
                 }).catch(function (error) {
+                    if (destroyed) return;
                     console.error('[YummyAnime] Trailers failed', error);
                     html.append($('<div class="yani-trailers__empty selector"></div>').text(t('catalog_load_error')));
                     scroll.append(html);
                     self.activity.loader(false);
-                    self.activity.toggle();
+                    if (!paused && ownsActivity()) self.activity.toggle();
                 });
             };
 
@@ -274,6 +279,8 @@
             }
 
             this.start = function () {
+                if (!ownsActivity()) return;
+                paused = false;
                 Lampa.Controller.add('content', {
                     toggle: function () {
                         Lampa.Controller.collectionSet(scroll.render());
@@ -288,8 +295,9 @@
                 Lampa.Controller.toggle('content');
             };
 
+            this.pause = this.stop = function () { paused = true; };
             this.render = function (js) { return js ? scroll.render()[0] : scroll.render(); };
-            this.destroy = function () { scroll.destroy(); html.remove(); };
+            this.destroy = function () { destroyed = true; scroll.destroy(); html.remove(); };
         }
 
         return {

@@ -20,7 +20,7 @@ assert.match(detail, /viewport\.scrollLeft \+= targetRect\.right - rightEdge/);
 assert.match(detail, /function appendDetailNavigation\(container\)/);
 assert.match(detail, /if \(!detailControllerIsActive\(\)\) return/);
 assert.match(detail, /Lampa\.Controller\.collectionAppend\(targets\)/);
-assert.match(detail, /loadDetailRecommendations\(data, info, bindDetailScrollTargets, appendDetailNavigation, deps\)/);
+assert.match(detail, /loadDetailRecommendations\(data, info, bindDetailScrollTargets, appendDetailNavigation, deps, function \(\) \{ return destroyed; \}\)/);
 assert.match(detail, /if \(appendNavigation\) appendNavigation\(row\)/);
 assert.match(detail, /appendDetailNavigation\(empty\)/);
 assert.match(detail, /appendDetailNavigation\(errorRow\)/);

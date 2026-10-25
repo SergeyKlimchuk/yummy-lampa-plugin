@@ -1,10 +1,10 @@
+// Data-model/authentication coverage is retained; homepage layout and lifecycle
+// behavior are covered by the lightweight-home runtime tests.
 const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('src/ui-home-insights.js', 'utf8');
-const ui = fs.readFileSync('src/ui.js', 'utf8');
-const css = fs.readFileSync('style.css', 'utf8');
 const context = {window: {}};
 vm.runInNewContext(source, context);
 const insights = context.window.LampaYaniHomeInsights;
@@ -27,22 +27,5 @@ assert.equal(preview[0].duration, 100);
 assert.equal(preview[0].player, 'Kodik');
 assert.equal(insights.libraryPreview([], 3).length, 0);
 
-assert.match(ui, /data-yani-home-key/);
-assert.match(ui, /yani_home_last_focus/);
-assert.match(ui, /renderLibraryStrip\(LampaYaniHomeInsights\.libraryPreview\(continuing, 3\)\)/);
-assert.match(ui, /refreshContinueWatching\(\);/);
-assert.match(ui, /yani-home__library-mini selector/);
-assert.match(ui, /yani-home__library-pulse/);
-assert.match(ui, /personal\.continue_count \+ ' \/ ' \+ personal\.tracked_total/);
-assert.match(ui, /mini\.on\('hover:enter click\.yaniHomeResume'/);
-assert.match(ui, /openVideos\(card, true\)/);
-assert.match(ui, /focusHomeElement\(target, isRailFocus\(target\) \? railCollection\(\) : homeCollection\(\)/);
-assert.match(ui, /if \(target\) renderIntroContext\(\$\(target\)\);/);
-assert.match(ui, /focusHomeElement = function \(element, collection\)[\s\S]{0,500}scroll\.update\(\$\(element\), true\)/);
-assert.match(css, /\.yani-home__library-preview--visible \{ display: grid; \}/);
-assert.match(css, /\.yani-home__library-mini-progress i/);
-assert.match(css, /\.yani-home__library-mini\.focus/);
-assert.match(css, /\.yani-home__library-pulse--active/);
-assert.match(css, /@keyframes yani-home-library-pulse/);
 
 console.log('dashboard library preview contract checks passed');

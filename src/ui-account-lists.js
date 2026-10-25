@@ -54,13 +54,13 @@
 
     function listVisual(key) {
         var visuals = {
-            watching: {from: '#ff6878', to: '#a94372', icon: '<path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.7"/>'},
-            planned: {from: '#59bfea', to: '#5367d6', icon: '<path d="M5 18h13a3 3 0 0 0 .4-6A6.5 6.5 0 0 0 6 10.5 3.8 3.8 0 0 0 5 18Z"/>'},
-            completed: {from: '#62d39a', to: '#328d75', icon: '<path d="M6 21V4m1 1h10l-2.3 3L17 11H7"/>'},
-            dropped: {from: '#97a1b5', to: '#555f78', icon: '<path d="m4 4 16 16M10.6 6.3A9.8 9.8 0 0 1 12 6c5.8 0 9 6 9 6a15 15 0 0 1-2.1 3M7.2 7.3C4.5 9.2 3 12 3 12s3.2 6 9 6c1.1 0 2.1-.2 3-.6"/>'},
-            favorites: {from: '#f174ae', to: '#b53f76', icon: '<path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8A4.4 4.4 0 0 1 12 7.2a4.4 4.4 0 0 1 8.5 1.6Z"/>'},
-            postponed: {from: '#efbd68', to: '#bd7546', icon: '<path d="M7 3h10M7 21h10M8 4c0 4 1.2 5.5 4 8-2.8 2.5-4 4-4 8M16 4c0 4-1.2 5.5-4 8 2.8 2.5 4 4 4 8"/>'},
-            history: {from: '#a68af0', to: '#6653b4', icon: '<path d="M4 5v5h5M5.2 17a8 8 0 1 0-.8-8M12 7v5l3.5 2"/>'}
+            watching: {from: '#333333', to: '#292929', icon: '<path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.7"/>'},
+            planned: {from: '#333333', to: '#292929', icon: '<path d="M5 18h13a3 3 0 0 0 .4-6A6.5 6.5 0 0 0 6 10.5 3.8 3.8 0 0 0 5 18Z"/>'},
+            completed: {from: '#333333', to: '#292929', icon: '<path d="M6 21V4m1 1h10l-2.3 3L17 11H7"/>'},
+            dropped: {from: '#333333', to: '#292929', icon: '<path d="m4 4 16 16M10.6 6.3A9.8 9.8 0 0 1 12 6c5.8 0 9 6 9 6a15 15 0 0 1-2.1 3M7.2 7.3C4.5 9.2 3 12 3 12s3.2 6 9 6c1.1 0 2.1-.2 3-.6"/>'},
+            favorites: {from: '#333333', to: '#292929', icon: '<path d="M20.5 8.8c0 5-8.5 10.2-8.5 10.2S3.5 13.8 3.5 8.8A4.4 4.4 0 0 1 12 7.2a4.4 4.4 0 0 1 8.5 1.6Z"/>'},
+            postponed: {from: '#333333', to: '#292929', icon: '<path d="M7 3h10M7 21h10M8 4c0 4 1.2 5.5 4 8-2.8 2.5-4 4-4 8M16 4c0 4-1.2 5.5-4 8 2.8 2.5 4 4 4 8"/>'},
+            history: {from: '#333333', to: '#292929', icon: '<path d="M4 5v5h5M5.2 17a8 8 0 1 0-.8-8M12 7v5l3.5 2"/>'}
         };
         return visuals[key] || visuals.history;
     }
@@ -112,7 +112,9 @@
         if (card.yani_more) render.addClass('yani-user-list-card--more');
         var badge = view.find('.yani-user-list-card__badge');
         if (!badge.length) badge = $('<span class="yani-user-list-card__badge"></span>').prependTo(view);
-        badge.html(listIcon(card.yani_list_key));
+        if (badge.attr('data-yani-list-icon') !== card.yani_list_key) {
+            badge.attr('data-yani-list-icon', card.yani_list_key).html(listIcon(card.yani_list_key));
+        }
         if (card.yani_more && typeof card.yani_shortcut_number === 'number') {
             var shortcut = view.find('.yani-user-list-card__shortcut');
             if (!shortcut.length) shortcut = $('<span class="yani-user-list-card__shortcut"></span>').appendTo(view);
@@ -127,6 +129,26 @@
         }
     }
 
+    // Token refresh and profile id hydration do not change the account. A late
+    // list response must still be ignored after logout or a real account switch.
+    function accountOwner() {
+        var auth = window.LampaYaniAuth;
+        if (!auth || typeof auth.token !== 'function') return function () { return true; };
+        var account = auth.get ? auth.get() || {} : {};
+        var ownerId = Number(account.user_id || 0), ownerLogin = String(account.login || ''), ownerToken = auth.token();
+        return function () {
+            var latest = auth.get ? auth.get() || {} : {};
+            var id = Number(latest.user_id || 0), login = String(latest.login || ''), token = auth.token();
+            if (Boolean(token) !== Boolean(ownerToken)) return false;
+            var same = ownerId && id ? ownerId === id : ownerLogin && login ? ownerLogin === login : ownerToken === token;
+            if (same) {
+                if (!ownerId && id) ownerId = id;
+                if (!ownerLogin && login) ownerLogin = login;
+            }
+            return same;
+        };
+    }
+
     function accountList(object, deps) {
         // InteractionCategory only requests the next page when object.page is
         // numeric. Account-list activities are opened without API pagination,
@@ -138,6 +160,8 @@
         var pageSize = 30;
         var totalPages = 1;
         var destroyed = false;
+        var ownsAccount = accountOwner();
+        function current() { return !destroyed && ownsAccount(); }
         var controls = LampaYaniAccountListControls.create({
             comp: comp,
             object: object,
@@ -169,19 +193,21 @@
                 ? deps.loadItems(object.definition)
                 : Promise.resolve(object.items || []);
             source.then(function (loaded) {
-                if (destroyed) return;
+                if (!current()) return;
                 items = controls.sort(Array.isArray(loaded) ? loaded : []);
                 totalPages = Math.max(1, Math.ceil(items.length / pageSize));
                 self.build({results: pageCards(1), total_pages: totalPages, title: object.title});
+                if (self.render) self.render().addClass('yani-lite-view yani-account-list-view');
                 controls.install(items.length);
             }).catch(function (error) {
-                if (destroyed) return;
+                if (!current()) return;
                 console.error('[YummyAnime User List]', error);
                 self.build({results: [], total_pages: 1, title: object.title});
                 if (deps.onError) deps.onError(error);
             });
         };
         comp.nextPageReuest = function (requestObject, resolve) {
+            if (!current()) return;
             var page = Math.max(2, Number(requestObject.page) || 2);
             resolve({results: pageCards(page), total_pages: totalPages, title: object.title});
         };
@@ -194,28 +220,60 @@
         comp.destroy = function () {
             destroyed = true;
             controls.destroy();
+            items = [];
             if (originalDestroy) originalDestroy.apply(this, arguments);
         };
         return comp;
     }
     function subscriptions(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, cards = [], pageSize = 30;
+        var ownsAccount = accountOwner();
+        function current() { return !destroyed && ownsAccount(); }
+        function page(page) {
+            return {results: cards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: deps.t('subscriptions')};
+        }
         comp.create = function () {
-            var self = this; this.activity.loader(true);
+            var self = this;
+            this.activity.loader(true);
             LampaYaniApi.subscriptions(object.userId).then(function (payload) {
-                var response = payload && payload.response ? payload.response : payload, values = Array.isArray(response) ? response : response && (response.anime || response.items || response.data || response.subscriptions) || [];
-                var cards = values.map(function (item) { var source = item && (item.anime || item.title_data || item.object) || item; return source && (source.anime_id || source.id || source.title) ? deps.toCard(source) : null; }).filter(Boolean);
+                if (!current()) return;
+                var response = payload && payload.response ? payload.response : payload;
+                var values = Array.isArray(response) ? response : response && (response.anime || response.items || response.data || response.subscriptions) || [];
+                cards = values.map(function (item) {
+                    var source = item && (item.anime || item.title_data || item.object) || item;
+                    return source && (source.anime_id || source.id || source.title) ? deps.toCard(source) : null;
+                }).filter(Boolean);
                 if (!cards.length) Lampa.Noty.show(deps.t('subscriptions_empty'));
-                self.build({results: cards, total_pages: 1, title: deps.t('subscriptions')});
-            }).catch(function (error) { console.error('[YummyAnime Subscriptions]', error); self.activity.loader(false); Lampa.Noty.show(deps.t('subscriptions_error')); });
+                self.build(page(1));
+                if (self.render) self.render().addClass('yani-lite-view yani-subscriptions-view');
+            }).catch(function (error) {
+                if (!current()) return;
+                console.error('[YummyAnime Subscriptions]', error);
+                self.activity.loader(false);
+                Lampa.Noty.show(deps.t('subscriptions_error'));
+            });
         };
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (current()) resolve(page(Math.max(2, Number(requestObject.page) || 2)));
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            cards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 
     function userLists(object, deps) {
         var component = new Lampa.InteractionMain(object);
         var destroyed = false;
+        var ownsAccount = accountOwner();
+        function current() { return !destroyed && ownsAccount(); }
         var remoteShortcutHandler = null;
         var shortcutRows = {};
 
@@ -236,6 +294,7 @@
         }
 
         function handleRemoteShortcut(event) {
+            if (!current()) return;
             var root = component.render ? component.render() : $();
             if (!root.length || !root.is(':visible') || event.defaultPrevented || $(event.target).closest('input, textarea, select, [contenteditable=true]').length) return;
             if (window.Lampa && Lampa.Activity && typeof Lampa.Activity.own === 'function' && !Lampa.Activity.own(component)) return;
@@ -261,8 +320,7 @@
             var title = escapeSvgText(deps.t('more'));
             var total = Math.max(0, Number(row.total || 0));
             var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="540" viewBox="0 0 360 540">' +
-                '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + visual.from + '"/><stop offset="1" stop-color="' + visual.to + '"/></linearGradient><radialGradient id="r"><stop stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>' +
-                '<rect width="360" height="540" rx="28" fill="url(#g)"/><circle cx="292" cy="92" r="170" fill="url(#r)"/><path d="M-30 430C90 330 212 478 390 340v210H-30Z" fill="#090a12" opacity=".16"/>' +
+                '<rect width="360" height="540" rx="14" fill="#333333"/><path d="M24 24h312" stroke="#ff6666" stroke-width="5"/>' +
                 '<g transform="translate(120 124) scale(5)" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + visual.icon + '</g>' +
                 '<text x="180" y="354" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="48" font-weight="700">' + title + '</text>' +
                 '<text x="180" y="406" text-anchor="middle" fill="#fff" fill-opacity=".72" font-family="sans-serif" font-size="30">' + total + '</text>' +
@@ -318,19 +376,19 @@
             var self = this;
             this.activity.loader(true);
             deps.loadRows().then(function (rows) {
-                if (destroyed) return;
+                if (!current()) return;
                 (rows || []).forEach(function (row) {
                     if (row.history) shortcutRows.history = row;
                     else if (row.definition && row.definition.key) shortcutRows[row.definition.key] = row;
                 });
                 self.build((rows || []).map(withMore));
                 if (self.render) {
-                    var root = self.render().addClass('yani-user-lists-view yani-card-rails');
+                    var root = self.render().addClass('yani-user-lists-view yani-card-rails yani-lite-view');
                     remoteShortcutHandler = handleRemoteShortcut;
                     document.addEventListener('keydown', remoteShortcutHandler, true);
                 }
             }).catch(function (error) {
-                if (destroyed) return;
+                if (!current()) return;
                 console.error('[YummyAnime User Lists]', error);
                 self.build([]);
                 if (deps.onError) deps.onError(error);
@@ -348,6 +406,7 @@
             destroyed = true;
             if (remoteShortcutHandler) document.removeEventListener('keydown', remoteShortcutHandler, true);
             remoteShortcutHandler = null;
+            shortcutRows = {};
             if (originalDestroy) originalDestroy.apply(this, arguments);
         };
         return component;

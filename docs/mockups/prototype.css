@@ -1,0 +1,821 @@
+/* YummyAnime TV prototype: shared charcoal/coral visual system.
+   No downloaded fonts, gradients, shadows, blur, scaling or motion. */
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+    background: #292929;
+}
+
+.ya-shell,
+.ya-dialog {
+    --ya-bg: #292929;
+    --ya-surface: #333333;
+    --ya-accent: #ff6666;
+    --ya-text: #f1f1f1;
+    --ya-muted: #b8b8b8;
+    --ya-line: #484848;
+    color: var(--ya-text);
+    font-family: SegoeUI, "Segoe UI", Arial, sans-serif;
+    font-size: clamp(18px, 1.15vw, 23px);
+    line-height: 1.4;
+}
+
+.ya-shell,
+.ya-shell *,
+.ya-dialog,
+.ya-dialog * {
+    box-sizing: border-box;
+}
+
+.ya-shell {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-rows: 72px minmax(0, 1fr);
+    width: 100%;
+    height: 100vh;
+    min-height: 540px;
+    background: var(--ya-bg);
+}
+
+.ya-shell button,
+.ya-shell input,
+.ya-shell select,
+.ya-shell textarea,
+.ya-dialog button,
+.ya-dialog input,
+.ya-dialog select,
+.ya-dialog textarea {
+    font: inherit;
+}
+
+.ya-shell button,
+.ya-dialog button {
+    cursor: pointer;
+}
+
+.ya-shell a,
+.ya-dialog a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.ya-shell :focus-visible,
+.ya-shell .focus,
+.ya-shell .is-focused,
+.ya-dialog :focus-visible,
+.ya-dialog .focus,
+.ya-dialog .is-focused {
+    outline: 3px solid var(--ya-accent);
+    outline-offset: 3px;
+}
+
+.ya-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    min-width: 0;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--ya-line);
+    background: var(--ya-bg);
+}
+
+.ya-brand {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    font-size: 23px;
+    font-weight: 600;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.ya-logo {
+    display: block;
+    width: 136px;
+    height: 48px;
+    flex: none;
+    object-fit: contain;
+}
+
+.ya-header > .ya-toolbar {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    margin: 0 0 0 auto;
+}
+
+.ya-sidebar {
+    min-width: 0;
+    padding: 24px 16px;
+    border-right: 1px solid var(--ya-line);
+    background: var(--ya-bg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.ya-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ya-nav > button,
+.ya-nav > a,
+.ya-nav > li > button,
+.ya-nav > li > a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 13px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--ya-muted);
+    font-size: .86em;
+    line-height: 1.25;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+
+.ya-nav > [aria-current="page"],
+.ya-nav > .is-active,
+.ya-nav > li > [aria-current="page"],
+.ya-nav > li > .is-active {
+    background: var(--ya-surface);
+    color: var(--ya-text);
+    border-left-color: var(--ya-accent);
+}
+
+.ya-nav svg,
+.ya-button svg,
+.ya-chip svg,
+.ya-toolbar svg {
+    display: block;
+    width: 1.1em;
+    height: 1.1em;
+    flex: 0 0 1.1em;
+}
+
+.ya-main {
+    min-width: 0;
+    min-height: 0;
+    padding: 30px 34px 32px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-behavior: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ya-line) var(--ya-bg);
+}
+
+.ya-main::-webkit-scrollbar,
+.ya-sidebar::-webkit-scrollbar {
+    width: 7px;
+}
+
+.ya-main::-webkit-scrollbar-thumb,
+.ya-sidebar::-webkit-scrollbar-thumb {
+    border-radius: 7px;
+    background: var(--ya-line);
+}
+
+.ya-main h1,
+.ya-dialog h1 {
+    margin: 0;
+    font-size: 1.48em;
+    font-weight: 500;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.ya-main h2,
+.ya-dialog h2 {
+    margin: 0;
+    font-size: 1.16em;
+    font-weight: 500;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.ya-main h3,
+.ya-dialog h3 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 500;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.ya-main p,
+.ya-dialog p {
+    margin: 0 0 1em;
+}
+
+.ya-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+    margin-bottom: 24px;
+}
+
+.ya-toolbar > h1,
+.ya-toolbar > h2 {
+    margin-right: auto;
+}
+
+.ya-toolbar > input,
+.ya-toolbar > select {
+    flex: 1 1 240px;
+    width: auto;
+}
+
+.ya-toolbar label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    font-size: .8em;
+    color: var(--ya-muted);
+}
+
+.ya-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 0 0 22px;
+}
+
+.ya-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 9px 14px;
+    border: 1px solid var(--ya-line);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--ya-muted);
+    font-size: .82em;
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.ya-chip[aria-pressed="true"],
+.ya-chip[aria-selected="true"],
+.ya-chip.is-active,
+.ya-tabs > [aria-current="page"] {
+    border-color: var(--ya-accent);
+    background: var(--ya-surface);
+    color: var(--ya-text);
+}
+
+.ya-section {
+    min-width: 0;
+    margin: 0 0 28px;
+}
+
+.ya-section:last-child {
+    margin-bottom: 0;
+}
+
+.ya-section > h1,
+.ya-section > h2,
+.ya-section > h3 {
+    margin-bottom: 17px;
+}
+
+.ya-section > .ya-toolbar {
+    margin-bottom: 17px;
+}
+
+.ya-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 25px 20px;
+    min-width: 0;
+}
+
+.ya-card {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--ya-text);
+    text-align: left;
+}
+
+.ya-poster {
+    display: block;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border-radius: 5px;
+    background: var(--ya-surface);
+}
+
+img.ya-poster,
+.ya-poster > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ya-card-title {
+    display: -webkit-box;
+    min-height: 2.6em;
+    margin: 11px 0 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--ya-text);
+    font-size: .89em;
+    font-weight: 500;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.ya-meta {
+    display: block;
+    min-width: 0;
+    margin-top: 7px;
+    color: var(--ya-muted);
+    font-size: .76em;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.ya-panel {
+    min-width: 0;
+    padding: 20px 24px;
+    border-radius: 6px;
+    background: var(--ya-surface);
+}
+
+.ya-panel > h2,
+.ya-panel > h3 {
+    margin-bottom: 16px;
+}
+
+.ya-panel + .ya-panel {
+    margin-top: 18px;
+}
+
+.ya-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    min-width: 0;
+    min-height: 64px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--ya-line);
+}
+
+.ya-row:first-child {
+    padding-top: 3px;
+}
+
+.ya-row:last-child {
+    padding-bottom: 3px;
+    border-bottom: 0;
+}
+
+.ya-row > :first-child {
+    flex: 1 1 240px;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.ya-row > .ya-button,
+.ya-row > .ya-chip {
+    flex: 0 0 auto;
+}
+
+.ya-row .ya-meta {
+    margin-top: 4px;
+}
+
+.ya-panel table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    color: var(--ya-text);
+    font-size: .84em;
+    line-height: 1.4;
+}
+
+.ya-panel th,
+.ya-panel td {
+    min-width: 0;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--ya-line);
+    text-align: left;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.ya-panel th {
+    color: var(--ya-muted);
+    font-size: .88em;
+    font-weight: 400;
+}
+
+.ya-panel tr:last-child td {
+    border-bottom: 0;
+}
+
+.ya-detail {
+    display: grid;
+    grid-template-columns: minmax(190px, 260px) minmax(0, 1fr);
+    align-items: start;
+    gap: 34px;
+    min-width: 0;
+    margin-bottom: 28px;
+}
+
+.ya-detail > * {
+    min-width: 0;
+}
+
+.ya-detail h1 {
+    margin-bottom: 12px;
+}
+
+.ya-detail > :first-child > .ya-poster {
+    max-width: 260px;
+}
+
+.ya-detail .ya-toolbar {
+    margin-top: 20px;
+    margin-bottom: 22px;
+}
+
+.ya-description {
+    max-width: 72ch;
+    color: var(--ya-text);
+    font-size: .9em;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.ya-description p:last-child {
+    margin-bottom: 0;
+}
+
+.ya-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 18px 26px;
+    margin: 0 0 24px;
+}
+
+.ya-stat {
+    min-width: 0;
+    padding: 0;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.ya-stat strong,
+.ya-stat b {
+    display: block;
+    font-size: 1.25em;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.ya-stat .ya-meta {
+    margin-top: 5px;
+}
+
+.ya-empty,
+.ya-notice {
+    max-width: 100%;
+    padding: 24px;
+    border-radius: 6px;
+    background: var(--ya-surface);
+    color: var(--ya-text);
+    font-size: .9em;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.ya-empty {
+    padding: 34px;
+}
+
+.ya-empty h2,
+.ya-notice h2,
+.ya-empty h3,
+.ya-notice h3 {
+    margin-bottom: 10px;
+}
+
+.ya-empty p,
+.ya-notice p {
+    max-width: 68ch;
+    margin-bottom: 0;
+    color: var(--ya-muted);
+}
+
+.ya-empty .ya-button,
+.ya-notice .ya-button {
+    margin-top: 18px;
+}
+
+.ya-notice[role="alert"] {
+    border-left: 3px solid var(--ya-accent);
+}
+
+.ya-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid var(--ya-line);
+    border-radius: 5px;
+    background: var(--ya-surface);
+    color: var(--ya-text);
+    font-size: .83em;
+    font-weight: 400;
+    line-height: 1.3;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.ya-button--accent {
+    border-color: var(--ya-accent);
+    background: var(--ya-accent);
+    color: var(--ya-bg);
+    font-weight: 600;
+}
+
+.ya-button[disabled],
+.ya-chip[disabled] {
+    cursor: default;
+    border-color: var(--ya-line);
+    background: var(--ya-surface);
+    color: var(--ya-muted);
+}
+
+.ya-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 9px;
+    border: 1px solid var(--ya-line);
+    border-radius: 6px;
+    background: var(--ya-surface);
+    list-style: none;
+}
+
+.ya-menu .ya-button,
+.ya-menu > button,
+.ya-menu > a {
+    justify-content: flex-start;
+    min-height: 44px;
+    padding: 10px 13px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--ya-text);
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+
+.ya-demo-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    min-width: 0;
+    margin-top: 26px;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--ya-line);
+    color: var(--ya-muted);
+    font-size: .7em;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.ya-provenance {
+    display: block;
+    margin-top: 22px;
+    color: var(--ya-muted);
+    font-size: .68em;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.ya-shell input,
+.ya-shell select,
+.ya-shell textarea,
+.ya-dialog input,
+.ya-dialog select,
+.ya-dialog textarea {
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--ya-line);
+    border-radius: 5px;
+    background: var(--ya-bg);
+    color: var(--ya-text);
+    font-size: .83em;
+    line-height: 1.35;
+}
+
+.ya-shell input::placeholder,
+.ya-dialog input::placeholder {
+    color: var(--ya-muted);
+    opacity: 1;
+}
+
+.ya-shell input[type="checkbox"],
+.ya-shell input[type="radio"],
+.ya-dialog input[type="checkbox"],
+.ya-dialog input[type="radio"] {
+    width: 22px;
+    height: 22px;
+    min-height: 22px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--ya-accent);
+}
+
+.ya-dialog {
+    width: min(680px, calc(100vw - 40px));
+    max-height: calc(100vh - 48px);
+    margin: auto;
+    padding: 28px;
+    overflow-y: auto;
+    border: 1px solid var(--ya-line);
+    border-radius: 7px;
+    background: var(--ya-surface);
+}
+
+.ya-dialog::backdrop {
+    background: rgba(41, 41, 41, .9);
+}
+
+.ya-dialog h1,
+.ya-dialog h2,
+.ya-dialog h3 {
+    margin-bottom: 17px;
+}
+
+.ya-dialog .ya-toolbar {
+    justify-content: flex-end;
+    margin-top: 24px;
+    margin-bottom: 0;
+}
+
+.ya-dialog .ya-row:last-child {
+    padding-bottom: 12px;
+}
+
+.ya-shell [hidden],
+.ya-dialog [hidden] {
+    display: none !important;
+}
+
+@media (min-width: 1500px) {
+    .ya-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1800px) {
+    .ya-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1350px) {
+    .ya-shell { grid-template-columns: 180px minmax(0, 1fr); }
+    .ya-header { padding: 0 22px; gap: 18px; }
+    .ya-main { padding: 26px 26px 28px; }
+    .ya-sidebar { padding: 22px 12px; }
+    .ya-nav > button, .ya-nav > a, .ya-nav > li > button, .ya-nav > li > a { padding: 11px; }
+    .ya-detail { grid-template-columns: minmax(180px, 220px) minmax(0, 1fr); gap: 26px; }
+}
+
+@media (max-width: 1050px) {
+    .ya-shell { grid-template-columns: 174px minmax(0, 1fr); }
+    .ya-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ya-header { gap: 14px; padding: 0 18px; }
+    .ya-brand { font-size: 21px; gap: 9px; }
+    .ya-logo { width: 122px; height: 43px; flex: none; }
+    .ya-main { padding: 24px 22px; }
+    .ya-detail { grid-template-columns: 180px minmax(0, 1fr); gap: 22px; }
+    .ya-panel { padding: 18px 20px; }
+}
+
+@media (max-width: 760px) {
+    .ya-shell { display: flex; flex-direction: column; height: auto; min-height: 100vh; }
+    .ya-header { flex-wrap: wrap; min-height: 72px; padding: 14px 18px; gap: 13px 16px; }
+    .ya-header > .ya-toolbar { flex-basis: 100%; justify-content: flex-start; gap: 9px; }
+    .ya-sidebar { border-right: 0; border-bottom: 1px solid var(--ya-line); padding: 12px 16px; overflow: visible; }
+    .ya-nav { flex-direction: row; flex-wrap: wrap; gap: 7px; }
+    .ya-nav > button, .ya-nav > a, .ya-nav > li > button, .ya-nav > li > a { width: auto; min-height: 44px; padding: 10px 12px; }
+    .ya-nav > li { min-width: 0; max-width: 100%; }
+    .ya-main { width: 100%; padding: 24px 18px; overflow: visible; }
+    .ya-main h1 { font-size: 1.36em; }
+    .ya-toolbar { gap: 10px; margin-bottom: 20px; }
+    .ya-toolbar > h1, .ya-toolbar > h2 { flex-basis: 100%; }
+    .ya-grid { gap: 23px 15px; }
+    .ya-detail { grid-template-columns: 165px minmax(0, 1fr); gap: 22px; }
+    .ya-panel { padding: 17px 18px; }
+    .ya-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .ya-provenance, .ya-demo-bar { font-size: 14px; }
+}
+
+@media (max-width: 560px) {
+    .ya-header { padding: 14px 16px; }
+    .ya-sidebar { padding: 11px 14px; }
+    .ya-main { padding: 22px 16px; }
+    .ya-brand { font-size: 21px; }
+    .ya-toolbar > input, .ya-toolbar > select { flex-basis: 100%; width: 100%; }
+    .ya-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; }
+    .ya-card-title { font-size: 17px; }
+    .ya-meta { font-size: 15px; }
+    .ya-detail { grid-template-columns: 1fr; gap: 23px; }
+    .ya-detail > :first-child { width: min(220px, 100%); }
+    .ya-detail .ya-toolbar { gap: 10px; }
+    .ya-description { font-size: 17px; }
+    .ya-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ya-panel { padding: 16px; }
+    .ya-row { gap: 11px; padding: 15px 0; }
+    .ya-row > :first-child { flex-basis: 100%; }
+    .ya-row > .ya-button, .ya-row > .ya-chip { flex-basis: auto; }
+    .ya-panel table thead { display: none; }
+    .ya-panel table, .ya-panel tbody, .ya-panel tr, .ya-panel td { display: block; width: 100%; }
+    .ya-panel tr { padding: 10px 0; border-bottom: 1px solid var(--ya-line); }
+    .ya-panel tr:last-child { border-bottom: 0; }
+    .ya-panel td { padding: 7px 0; border: 0; }
+    .ya-panel td[data-label]::before { content: attr(data-label) ": "; color: var(--ya-muted); }
+    .ya-empty { padding: 24px 20px; }
+    .ya-notice { padding: 20px; }
+    .ya-dialog { width: calc(100vw - 28px); max-height: calc(100vh - 32px); padding: 22px 20px; }
+}
+
+/* Review controls are separate from the proposed plugin interface. */
+.ya-brand { border: 0; background: transparent; padding: 0; color: inherit; }
+.ya-prototype-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin: 0 0 26px; padding: 0 0 15px; border-bottom: 1px solid var(--ya-line); color: var(--ya-muted); font-size: .68em; }
+.ya-prototype-controls label { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.ya-prototype-controls select { max-width: 22em; font-size: 1em; }
+.ya-prototype-controls .ya-button { margin-left: auto; font-size: 1em; }
+.ya-row > .ya-toolbar { margin: 0; }
+.ya-no-poster { display: flex; align-items: center; justify-content: center; height: 100%; padding: 14px; color: var(--ya-muted); font-size: .72em; }
+.ya-card-badge { position: absolute; top: 9px; left: 9px; padding: 3px 9px; border-radius: 3px; background: var(--ya-bg); color: var(--ya-text); }
+.ya-grid--compact { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.ya-provenance h3 { margin-top: 20px; }
+.ya-provenance a { color: var(--ya-accent); text-decoration: underline; }
+@media (max-width: 760px) {
+  .ya-prototype-controls { gap: 10px; }
+  .ya-prototype-controls label { flex-wrap: wrap; width: 100%; }
+  .ya-prototype-controls select { width: 100%; }
+  .ya-prototype-controls .ya-button { margin-left: 0; }
+  .ya-grid--compact { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+.ya-nav > button { justify-content: flex-start; }
+.ya-description--preview { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 14px; }
+.ya-detail > :last-child > .ya-toolbar { margin-top: 16px; }
+
+.ya-detail-tags { display: flex; align-items: center; gap: .4rem; overflow-x: auto; white-space: nowrap; }
+.ya-detail-tags .ya-tabs { flex-wrap: nowrap; margin: .4rem 0; }
+
+[data-yani-list-key="watching"] { --yani-list-color: #ff6666; --yani-list-ink: #202020; }
+[data-yani-list-key="planned"] { --yani-list-color: #af75e4; --yani-list-ink: #202020; }
+[data-yani-list-key="completed"] { --yani-list-color: #3cce7b; --yani-list-ink: #202020; }
+[data-yani-list-key="dropped"] { --yani-list-color: #6c6c6c; --yani-list-ink: #fff; }
+[data-yani-list-key="postponed"] { --yani-list-color: #f2b800; --yani-list-ink: #202020; }
+[data-yani-list-key="favorites"] { --yani-list-color: #be46c6; --yani-list-ink: #111111; }
+.ya-button[data-yani-list-key][aria-pressed="true"] { background: var(--yani-list-color); color: var(--yani-list-ink); border-color: var(--yani-list-color); }
+.ya-detail-poster-frame { position: relative; }
+.ya-detail-poster-status { position: absolute; left: 0; bottom: 0; right: 0; padding: .5rem; background: var(--yani-list-color, #333333); color: var(--yani-list-ink, #f1f1f1); font-size: .85rem; text-align: center; border-radius: 0 0 .35rem .35rem; }

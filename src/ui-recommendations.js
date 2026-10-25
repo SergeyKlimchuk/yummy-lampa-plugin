@@ -320,11 +320,27 @@
     }
 
     function component(object, deps) {
+        object.page = 1;
         var comp = new Lampa.InteractionCategory(object);
+        var destroyed = false, generation = 0, pageSize = 30, visibleCards = [], gridTitle = '';
+        function buildGrid(self, cards, title) {
+            visibleCards = cards;
+            gridTitle = title;
+            self.build({results: cards.slice(0, pageSize), total_pages: Math.max(1, Math.ceil(cards.length / pageSize)), title: title});
+            if (self.render) self.render().addClass('yani-lite-view yani-recommendations-view');
+        }
+        comp.nextPageReuest = function (requestObject, resolve) {
+            if (destroyed) return;
+            var page = Math.max(2, Number(requestObject.page) || 2);
+            resolve({results: visibleCards.slice((page - 1) * pageSize, page * pageSize), total_pages: Math.max(1, Math.ceil(visibleCards.length / pageSize)), title: gridTitle});
+        };
+        comp.nextPageRequest = comp.nextPageReuest;
         comp.create = function () {
             var self = this;
             var states = LampaYaniSectionState.forActivity(self.activity, deps);
             function load() {
+                if (destroyed) return;
+                var requestGeneration = ++generation;
                 states.loading('cards');
                 var remote = deps.authorized()
                     ? deps.watchHistory(30, 0).catch(function (error) {
@@ -342,9 +358,11 @@
                     deps.feed().catch(function () { return {}; }),
                     notifications
                 ]).then(function (result) {
+                    if (destroyed || requestGeneration !== generation) return;
                     var sources = personalSources(deps.history(), result[0], result[1].items, result[1].subscriptions, 80);
                     var updates = eventCards(sources, result[2], result[3], result[4], deps).slice(0, 28);
                     return loadRelated(sources, deps).then(function (related) {
+                        if (destroyed || requestGeneration !== generation) return;
                         var seen = {};
                         var cards = updates.concat(related).filter(function (card) {
                             var key = String(card && card.yani_id || '');
@@ -361,10 +379,11 @@
                             states.focus();
                             return;
                         }
-                        self.build({results: cards, total_pages: 1, title: deps.t('for_you')});
+                        buildGrid(self, cards, deps.t('for_you'));
                         states.ready();
                     });
                 }).catch(function (error) {
+                    if (destroyed || requestGeneration !== generation) return;
                     console.error('[YummyAnime For You]', error);
                     states.offline({
                         title: deps.t('personal_feed_error'),
@@ -377,6 +396,13 @@
             load();
         };
         comp.cardRender = deps.cardRender;
+        var originalDestroy = comp.destroy;
+        comp.destroy = function () {
+            destroyed = true;
+            generation++;
+            visibleCards = [];
+            if (originalDestroy) originalDestroy.apply(this, arguments);
+        };
         return comp;
     }
 
