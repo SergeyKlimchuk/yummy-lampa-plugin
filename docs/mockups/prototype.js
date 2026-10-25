@@ -7,7 +7,7 @@
     var content = document.getElementById('ya-view');
     var dialog = document.getElementById('ya-dialog');
     var settings = {};
-    var memory = {readNotifications: false, clearedNotifications: false, clearedHistory: false, demoAuthorized: false, notificationReadIds: {}};
+    var memory = {readNotifications: false, clearedNotifications: false, clearedHistory: false, demoAuthorized: false, notificationReadIds: {}, playbackChoices: {}, playbackDefaults: null};
     var view;
     var previousRoute = 'home';
     var modalOrigin;
@@ -16,7 +16,7 @@
     var navigatingBack = false;
     var privateScreens = ['account', 'user-lists', 'account-list', 'notifications', 'subscriptions', 'recommended', 'updates'];
     var stateNames = {authorized: 'Вход выполнен — пример', ready: 'Снимок / без личных данных', example: 'Пример из тестов', loading: 'Загрузка', empty: 'Пустой ответ', error: 'Ошибка', guest: 'Без входа'};
-    var defaults = {state: 'ready', selectedId: String(data.detail && data.detail.anime_id || ''), category: 'watching', period: '3hour', sort: 'recent', query: '', genre: '', type: '', status: '', year: '', topType: 'all', sourceIndex: '0', trailerIndex: '0', episode: '1', day: '', collectionId: String(data.collection && data.collection.id || ''), subjectId: '', subjectTitle: '', subjectKind: 'studio', commentId: ''};
+    var defaults = {state: 'ready', selectedId: String(data.detail && data.detail.anime_id || ''), category: 'watching', period: '3hour', sort: 'recent', query: '', genre: '', type: '', status: '', year: '', topType: 'all', sourceIndex: '0', choice: '', optionPage: '', episodePage: '0', trailerIndex: '0', episode: '1', day: '', collectionId: String(data.collection && data.collection.id || ''), subjectId: '', subjectTitle: '', subjectKind: 'studio', commentId: ''};
     var allowed = Object.keys(defaults);
 
     function esc(value) { return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function (c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]; }); }
@@ -179,6 +179,20 @@
         else if (action === 'status-period') navigate(view.screen, {period: value});
         else if (action === 'list-sort') navigate(view.screen, {sort: value});
         else if (action === 'run-search') { var input = document.getElementById('ya-search-query'); navigate('search', {query: input ? input.value.trim().slice(0, 200) : '', state: 'ready'}); }
+        else if (action === 'playback-choice' || action === 'playback-defaults') {
+            var playbackChoice = null;
+            try { playbackChoice = JSON.parse(element.getAttribute('data-record') || 'null'); } catch (ignore) {}
+            if (!playbackChoice || typeof playbackChoice.voice !== 'string' || typeof playbackChoice.player !== 'string') return;
+            var pair = {voice: playbackChoice.voice.slice(0, 160), player: playbackChoice.player.slice(0, 160)};
+            if (action === 'playback-choice') memory.playbackChoices[String(view.selectedId)] = pair;
+            else memory.playbackDefaults = pair;
+            navigate('sources', {sourceIndex: value || view.sourceIndex, choice: '', optionPage: '', episodePage: '0'});
+            if (action === 'playback-defaults') message('Настройки по умолчанию', 'Выбор сохранён в памяти макета до перезагрузки страницы. Настройки телевизора и аккаунта не менялись.');
+        }
+        else if (action === 'playback-reset') {
+            delete memory.playbackChoices[String(view.selectedId)];
+            navigate('sources', {sourceIndex: '0', choice: '', optionPage: '', episodePage: '0'});
+        }
         else if (action === 'top-type') navigate('top', {topType: value, state: 'ready'});
         else if (action === 'catalog-filter') {
             var choices = {type: [['Все типы', ''], ['Сериал', 'tv'], ['Фильм', 'movie'], ['Короткометражный фильм', 'shortfilm'], ['OVA', 'ova'], ['ONA', 'ona'], ['Спешл', 'special'], ['Короткий сериал', 'shorttv']], status: [['Все статусы', ''], ['Онгоинг', 'ongoing'], ['Завершено', 'released'], ['Анонс', 'announcement']], year: [['Все годы', ''], ['2026', '2026'], ['Последние 3 года', 'last3'], ['Последние 5 лет', 'last5'], ['С 2020 года', 'from2020'], ['С 2010 года', 'from2010']], sort: [['Топ', 'top'], ['Новизна', 'new'], ['Оценка', 'rating'], ['Количество оценок', 'votes'], ['Просмотры', 'views'], ['Название', 'title'], ['Случайно', 'random']]};

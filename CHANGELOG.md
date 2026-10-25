@@ -11,6 +11,8 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Added
 
+- Preferred translation and video provider defaults, separate remembered choices per anime, and a remote-friendly playback setup screen with direct episode access
+
 - Automatic viewport scale profiles and an immediate, device-persisted 80–200% override in YummyAnime interface settings
 
 - Interactive source-backed mockups for every plugin section and supported chooser, with explicit public snapshots and anonymized personal examples

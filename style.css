@@ -3454,3 +3454,48 @@ body.yani-player-open .head--simple {
 .yani-card-grid .yani-lite-view,
 .yani-tile-catalog .yani-card-grid,
 .yani-card-rails .yani-card-grid { font-size: inherit; }
+
+/* Playback setup is a single static TV surface. Only explicit choices rebuild
+   the bounded options/episode list; there is no animated dialog stack. */
+.yani-playback { height: 100%; min-width: 0; }
+.yani-playback .yani-playback__content { max-width: 72em; padding: 1.2em 1.65em 3em; margin: 0 auto; box-sizing: border-box; }
+.yani-playback .yani-playback__title { margin: 0 0 .35em; color: #f1f1f1; font-size: 1.45em; line-height: 1.25; font-weight: 600; overflow-wrap: break-word; }
+.yani-playback .yani-playback__hint { margin: 0 0 1.15em; color: #b8b8b8; font-size: .78em; line-height: 1.4; }
+.yani-playback .yani-playback__fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(14em, 1fr)); gap: .6em; margin-bottom: .8em; }
+.yani-playback .yani-playback__field { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; min-height: 4.5em; padding: .7em .85em; border: .08em solid #484848; border-radius: .3em; background: #333333; color: #f1f1f1; min-width: 0; }
+.yani-playback .yani-playback__field-label { grid-column: 1 / -1; color: #b8b8b8; font-size: .72em; margin-bottom: .25em; }
+.yani-playback .yani-playback__field-value { min-width: 0; font-size: 1.02em; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yani-playback .yani-playback__field-change { align-self: center; padding-left: .8em; color: #b8b8b8; font-size: .66em; }
+.yani-playback .yani-playback__actions { display: flex; align-items: stretch; flex-wrap: wrap; gap: .65em; margin: .5em 0; }
+.yani-playback .yani-playback__watch { display: flex; flex: 1 1 20em; align-items: center; justify-content: space-between; gap: 1em; min-height: 3.6em; padding: .65em 1em; border: .1em solid #ff6666; border-radius: .3em; background: #ff6666; color: #202020; }
+.yani-playback .yani-playback__watch-label { font-size: 1.08em; font-weight: 700; }
+.yani-playback .yani-playback__watch-episode { font-size: .8em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yani-playback .yani-playback__button { padding: .65em .8em; border: .08em solid #484848; border-radius: .3em; background: #333333; color: #f1f1f1; font-size: .86em; line-height: 1.35; min-width: 0; }
+.yani-playback .yani-playback__button--subtle { color: #b8b8b8; font-size: .74em; background: transparent; display: flex; align-items: center; }
+.yani-playback .yani-playback__group-meta { font-size: .72em; color: #b8b8b8; margin: .65em .15em 1.2em; }
+.yani-playback .yani-playback__notice { font-size: .75em; color: #f1f1f1; border-left: .2em solid #ff6666; margin: .8em 0; padding: .45em .8em; }
+.yani-playback .yani-playback__episode-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .5em; margin: 1.2em 0 .65em; }
+.yani-playback .yani-playback__episode-head h2 { margin: 0; font-size: 1.05em; font-weight: 500; }
+.yani-playback .yani-playback__episode-head span { color: #b8b8b8; font-size: .72em; }
+.yani-playback .yani-playback__episodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); gap: .55em; }
+.yani-playback .yani-playback__episode { display: flex; align-items: center; min-height: 3.2em; font-size: .8em; }
+.yani-playback .yani-playback__episode.is-selected { border-color: #ff6666; }
+.yani-playback .yani-playback__pagination { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .65em; margin: 1em 0; }
+.yani-playback .yani-playback__pagination .selector:only-child { margin-left: auto; }
+.yani-playback .yani-playback__options { display: grid; gap: .5em; margin-top: .8em; }
+.yani-playback .yani-playback__option { position: relative; padding: .75em .9em; border: .08em solid #484848; border-radius: .3em; background: #333333; color: #f1f1f1; min-width: 0; }
+.yani-playback .yani-playback__option-title { font-size: 1em; font-weight: 600; padding-right: 6em; overflow-wrap: break-word; }
+.yani-playback .yani-playback__option-subtitle { color: #b8b8b8; font-size: .72em; margin-top: .3em; line-height: 1.4; }
+.yani-playback .yani-playback__option.is-selected { border-color: #ff6666; }
+.yani-playback .yani-playback__selected-label { position: absolute; top: .95em; right: 1em; color: #ff9999; font-size: .68em; }
+.yani-playback .yani-playback__empty { margin: 1em 0; color: #b8b8b8; }
+.yani-playback .yani-playback__field.focus,
+.yani-playback .yani-playback__button.focus,
+.yani-playback .yani-playback__option.focus { background: #3f3f3f; color: #f1f1f1; border-color: #f1f1f1; outline: .1em solid #ff6666; outline-offset: .1em; }
+.yani-playback .yani-playback__watch.focus { border-color: #f1f1f1; outline: .12em solid #ff6666; outline-offset: .12em; }
+@media (max-width: 700px) {
+    .yani-playback .yani-playback__content { padding: 1em .85em 3em; }
+    .yani-playback .yani-playback__fields { grid-template-columns: 1fr; }
+    .yani-playback .yani-playback__watch { flex-wrap: wrap; }
+    .yani-playback .yani-playback__watch-episode { white-space: normal; }
+}

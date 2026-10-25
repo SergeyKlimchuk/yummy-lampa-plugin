@@ -105,7 +105,7 @@
                 time: Number(video.watched && video.watched.end_time || 0),
                 duration: Math.max(0, Number(video.duration || 0)),
                 player: playerKey(group),
-                voice: String(videoData.dubbing || ''),
+                voice: String(videoData.dubbing || videoData.translation || videoData.voice || group && group.title || ''),
                 episode_url: videoSourceUrl(video),
                 title: card.title || '',
                 poster: card.poster || card.img || '',
@@ -171,7 +171,7 @@
                     title: card.title || '',
                     poster: card.poster || card.img || '',
                     player: String(videoData.player || ''),
-                    voice: String(videoData.dubbing || ''),
+                    voice: String(videoData.dubbing || videoData.translation || videoData.voice || ''),
                     time: time,
                     duration: Math.max(0, Number(video.duration || 0)),
                     updated_at: Number(watched.updated_at || watched.date || 0)

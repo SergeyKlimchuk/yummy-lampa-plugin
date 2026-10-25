@@ -24,6 +24,7 @@
         var videoPlaybackPriority = deps.videoPlaybackPriority || function () { return 0; };
         var playerMatchesPreference = deps.playerMatchesPreference || function () { return false; };
         var rememberPlayer = deps.rememberPlayer || function () {};
+        var preferences = deps.preferences || null;
         var launchVideo = deps.launchVideo || function () {};
         var enrichEpisodeTitles = deps.enrichEpisodeTitles || function () { return Promise.resolve(); };
         var enrichVoiceOptionQuality = deps.enrichVoiceOptionQuality || function () {};
@@ -43,6 +44,7 @@
 
         var cancelExternalRestore = deps.cancelExternalRestore || function () {};
         var playbackSession = 0;
+        var videoRequest = 0;
         var restoreTimer = null;
         var playbackReturnState = {
             active: false,
@@ -156,6 +158,7 @@
         }
 
         function restorePlaybackInteraction(snapshot, options) {
+            if (deps.onPlaybackRestored) deps.onPlaybackRestored();
             snapshot = snapshot && snapshot.controller ? snapshot : playbackReturnSnapshot();
             options = options || {};
             var timeout = Math.max(0, Number(options.timeout) || 2400);
@@ -323,6 +326,7 @@
                 if (!groups[key]) {
                     groups[key] = {
                         title: title,
+                        playerId: data.player_id || '',
                         player: data.player || data.source || data.service || '',
                         quality: videoQualityLabel(video),
                         source: source,
@@ -362,6 +366,13 @@
 
         function openVideos(card, resume) {
             beginPlaybackNavigation();
+            var request = ++videoRequest;
+            var session = playbackReturnState.session;
+            var origin = Lampa.Activity && Lampa.Activity.active ? Lampa.Activity.active() : null;
+            function currentRequest() {
+                return request === videoRequest && session === playbackReturnState.session &&
+                    (!origin || !Lampa.Activity || !Lampa.Activity.active || Lampa.Activity.active() === origin);
+            }
             if (!card || !card.yani_id) {
                 Lampa.Noty.show(t('no_videos'));
                 restorePlaybackInteraction();
@@ -371,6 +382,10 @@
             enrichEpisodeTitles(card);
 
             loadVideosForPlayback(card.yani_id).then(function (payload) {
+                if (!currentRequest()) {
+                    if (request === videoRequest && Lampa.Loading && Lampa.Loading.stop) Lampa.Loading.stop();
+                    return;
+                }
                 if (Lampa.Loading && Lampa.Loading.stop) Lampa.Loading.stop();
                 var videos = payload && payload.response ? payload.response : payload;
                 videos = (Array.isArray(videos) ? videos : []).filter(function (video) {
@@ -417,14 +432,32 @@
                 });
                 if (voices.length && playerMatchesPreference(voices[0].group, preferredPlayer)) voices[0].title = '★ ' + voices[0].title;
 
+                if (preferences && deps.openPicker) {
+                    var availableGroups = voices.map(function (voice) { return voice.group; });
+                    preferences.observe(availableGroups);
+                    var savedPlayback = card.yani_resume || getPlayback(card.yani_id);
+                    var selection = preferences.resolve(card, availableGroups, savedPlayback, preferredPlayer);
+                    // Continue follows the resolved dub + provider, never just a
+                    // provider shared by several different dubbings.
+                    if (resume && savedPlayback && selection.group && !selection.unavailable) {
+                        var selectedPlaylist = playbackPlaylist(selection.group);
+                        var selectedVideo = selectedPlaylist.filter(function (video) {
+                            return savedPlayback.video_id && String(video.video_id || video.id || '') === String(savedPlayback.video_id);
+                        })[0] || selectedPlaylist.filter(function (video) {
+                            return window.LampaYaniEpisode.same(window.LampaYaniEpisode.valueOf(video), savedPlayback.number);
+                        })[0];
+                        if (selectedVideo) {
+                            rememberPlayer(selection.group);
+                            return launchVideo(card, selection.group, selectedPlaylist, applySavedPlaybackPosition(card, selectedVideo));
+                        }
+                    }
+                    deps.openPicker(card, availableGroups, selection);
+                    return;
+                }
+
                 if (resume) {
                     var playback = card.yani_resume || getPlayback(card.yani_id);
-                    var resumeVoice = playback && voices.filter(function (voice) {
-                        if (playback.video_id && voice.group.videos.some(function (video) {
-                            return String(video.video_id || video.id || '') === String(playback.video_id);
-                        })) return true;
-                        return playerMatchesPreference(voice.group, playback.player);
-                    })[0];
+                    var resumeVoice = lastWatchedVoice(voices, card);
                     var resumePlaylist = resumeVoice && uniqueEpisodes(resumeVoice.group.videos);
                     var resumeVideo = resumePlaylist && resumePlaylist.filter(function (video) {
                         if (playback.video_id && String(video.video_id || video.id || '') === String(playback.video_id)) return true;
@@ -457,6 +490,10 @@
                     }
                 });
             }).catch(function (error) {
+                if (!currentRequest()) {
+                    if (request === videoRequest && Lampa.Loading && Lampa.Loading.stop) Lampa.Loading.stop();
+                    return;
+                }
                 if (Lampa.Loading && Lampa.Loading.stop) Lampa.Loading.stop();
                 console.error('[YummyAnime Videos]', error);
                 Lampa.Noty.show(t('videos_load_error'));
@@ -474,7 +511,7 @@
             });
         }
 
-        function chooseEpisode(card, group) {
+        function playbackPlaylist(group) {
             var videos = group.videos.slice().sort(function (a, b) {
                 var numberA = window.LampaYaniEpisode.number(window.LampaYaniEpisode.valueOf(a));
                 var numberB = window.LampaYaniEpisode.number(window.LampaYaniEpisode.valueOf(b));
@@ -489,6 +526,11 @@
                 return Number(a.index || 0) - Number(b.index || 0);
             });
             videos = uniqueEpisodes(videos);
+            return videos;
+        }
+
+        function chooseEpisode(card, group) {
+            var videos = playbackPlaylist(group);
             if (videos.length === 1) return launchVideo(card, group, videos, applySavedPlaybackPosition(card, videos[0]));
             // Lampa.Select builds DOM for every item. Keep a very long series
             // bounded while retaining every episode and the complete playlist.
@@ -542,7 +584,9 @@
         function showDirectPlaybackOptions(card, current, playlist, options) {
             // An automatic episode change must never interrupt viewing with a
             // dialog: playback simply continues where it already was.
-            var target = options && options.autoAdvance ? 'internal' : playbackTargetPreference();
+            var fallbackTarget = playbackTargetPreference();
+            var target = options && options.autoAdvance ? 'internal' : options && options.playbackTarget ||
+                (preferences ? preferences.target(card, fallbackTarget) : fallbackTarget);
             var canExternal = androidExternalPlayerAvailable();
             if (target === 'external' && !canExternal) target = 'internal';
             if (target === 'external') return openExternalPlayer(current, playlist, card);
@@ -570,6 +614,7 @@
                 title: t('choose_playback'),
                 items: items,
                 onSelect: function (item) {
+                    if (preferences && item && item.action) preferences.rememberTarget(card, item.action);
                     if (item && item.action === 'internal') {
                         if (playInternalPlayer(current, playlist)) return;
                         Lampa.Noty.show(t('internal_player_unavailable'));
@@ -622,7 +667,9 @@
             chooseEpisode: chooseEpisode,
             showDirectPlaybackOptions: showDirectPlaybackOptions,
             openTitlePlaybackOptions: openTitlePlaybackOptions,
-            groupVideos: groupVideos
+            groupVideos: groupVideos,
+            playbackPlaylist: playbackPlaylist,
+            applySavedPlaybackPosition: applySavedPlaybackPosition
         };
     }
 

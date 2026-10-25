@@ -8,7 +8,7 @@ const i18n = context.window.LampaYaniI18n;
 
 // The module reads the active language from Lampa.Storage; without Lampa it
 // falls back to Russian, which is the reference locale.
-const source = ['src/ui.js', 'src/ui-home.js', 'src/ui-detail.js', 'src/ui-schedule.js', 'src/ui-media.js', 'src/ui-status.js', 'src/ui-notifications.js', 'src/ui-collections.js', 'src/ui-releases.js', 'src/ui-recommendations.js', 'src/ui-updates.js', 'src/ui-translations.js', 'src/ui-section-state.js']
+const source = ['src/ui.js', 'src/ui-home.js', 'src/ui-playback-picker.js', 'src/ui-detail.js', 'src/ui-schedule.js', 'src/ui-media.js', 'src/ui-status.js', 'src/ui-notifications.js', 'src/ui-collections.js', 'src/ui-releases.js', 'src/ui-recommendations.js', 'src/ui-updates.js', 'src/ui-translations.js', 'src/ui-section-state.js']
     .map((file) => fs.readFileSync(file, 'utf8'))
     .join('\n');
 

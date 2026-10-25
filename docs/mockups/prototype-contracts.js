@@ -770,50 +770,34 @@ window.YUMMY_MOCKUP_CONTRACTS = {
   },
   "sources": {
     "title": "Источник / озвучка / серии",
-    "component": "LampaYaniPlaybackMenu.openVideos / chooseEpisode",
-    "route": "Lampa.Select dialogs; no dedicated route",
+    "component": "yani_playback / PlaybackSetup → LampaYaniPlaybackPicker.create",
+    "route": "yani/playback/{id}; inline voice/source/app selection and episode pages",
     "sources": [
-      {
-        "path": "src/ui-playback-menu.js",
-        "function": "openVideos",
-        "line": 360
-      },
-      {
-        "path": "src/ui-playback-menu.js",
-        "function": "groupVideos",
-        "line": 308
-      },
-      {
-        "path": "src/ui-playback-menu.js",
-        "function": "chooseEpisode",
-        "line": 474
-      },
-      {
-        "path": "src/ui.js",
-        "function": "episodeOptionTitle",
-        "line": 3270
-      },
-      {
-        "path": "src/ui.js",
-        "function": "voiceOptionSubtitle",
-        "line": 1679
-      }
+      "src/ui.js :: PlaybackSetup / openPlaybackPicker",
+      "src/ui-playback-picker.js :: create",
+      "src/ui-playback-menu.js :: openVideos / groupVideos / playbackPlaylist",
+      "src/ui-playback-preferences.js :: resolve / remember / reset / setDefaults"
     ],
     "endpoints": [
       "GET /anime/{id}/videos",
-      "optional external episode-title / source-quality resolution"
+      "Локальные настройки и отдельный выбор аниме в Lampa.Storage",
+      "Необязательное уточнение названий серий и качества источника"
     ],
     "actions": [
-      "choose enabled dubbing/provider group",
-      "choose episode",
-      "resume saved episode/time",
-      "Back"
+      "Предвыбрать озвучку и источник по сохранённому выбору аниме, общим настройкам или истории",
+      "Изменить озвучку и один из источников, реально доступных для неё",
+      "Запустить выбранную серию или продолжить сохранённую позицию",
+      "Использовать настройки — сбросить выбор этого аниме",
+      "Сделать выбор по умолчанию — сохранить текущую пару для других аниме",
+      "Android: выбрать внутренний / внешний плеер либо запрос перед запуском"
     ],
     "constraints": [
-      "every series title has streams",
-      "episode title, poster, duration, view count or 1080p/4K label",
-      "a seasons grid grouped by season (current chooser is a flat episode list)",
-      "a separate language selector beyond metadata supplied by providers"
+      "Настройки озвучки и источника локальны для устройства; облачной синхронизации предпочтений нет",
+      "До 30 вариантов и 60 серий на одной странице; полный плейлист сохраняется для воспроизведения",
+      "Недоступный или отключённый источник не становится доступным из-за предпочтения; сохранённый выбор не перезаписывается при подстановке",
+      "Число серий, последняя серия и доступные поля относятся только к конкретной паре озвучки и источника",
+      "На LG WebOS нет внешнего Android-плеера; отдельные источники используют собственный встроенный плеер",
+      "Офлайн-макет хранит изменения только до перезагрузки и не открывает потоки"
     ],
     "previewStates": [
       "ready",
@@ -821,54 +805,31 @@ window.YUMMY_MOCKUP_CONTRACTS = {
       "empty",
       "error"
     ],
-    "kind": "dialog"
+    "kind": "component"
   },
   "episodes": {
     "title": "Выбор серии",
-    "component": "LampaYaniPlaybackMenu.openVideos / chooseEpisode",
-    "route": "Lampa.Select dialogs; no dedicated route",
+    "component": "yani_playback / LampaYaniPlaybackPicker.create; fallback LampaYaniPlaybackMenu.chooseEpisode",
+    "route": "yani/playback/{id}; episode grid within the playback setup screen",
     "sources": [
-      {
-        "path": "src/ui-playback-menu.js",
-        "function": "openVideos",
-        "line": 360
-      },
-      {
-        "path": "src/ui-playback-menu.js",
-        "function": "groupVideos",
-        "line": 308
-      },
-      {
-        "path": "src/ui-playback-menu.js",
-        "function": "chooseEpisode",
-        "line": 474
-      },
-      {
-        "path": "src/ui.js",
-        "function": "episodeOptionTitle",
-        "line": 3270
-      },
-      {
-        "path": "src/ui.js",
-        "function": "voiceOptionSubtitle",
-        "line": 1679
-      }
+      "src/ui-playback-picker.js :: renderMain / selectEpisode / play",
+      "src/ui-playback-menu.js :: playbackPlaylist / chooseEpisode",
+      "src/ui.js :: episodeOptionTitle"
     ],
     "endpoints": [
-      "GET /anime/{id}/videos",
-      "optional external episode-title / source-quality resolution"
+      "Тот же GET /anime/{id}/videos; отдельного запроса для страницы серий нет"
     ],
     "actions": [
-      "choose enabled dubbing/provider group",
-      "choose episode",
-      "resume saved episode/time",
-      "Back"
+      "Открыть страницу до 60 серий",
+      "Запустить выбранную серию с текущей озвучкой и источником",
+      "Сохранить номер серии при смене доступной озвучки",
+      "Вернуться к выбору озвучки и источника"
     ],
     "constraints": [
-      "every series title has streams",
-      "episode title, poster, duration, view count or 1080p/4K label",
-      "a seasons grid grouped by season (current chooser is a flat episode list)",
-      "a separate language selector beyond metadata supplied by providers"
+      "Номера и доступные метаданные берутся из реального ответа выбранного источника",
+      "Качество, продолжительность и название серии могут отсутствовать",
+      "Макет не запускает видео и не проверяет доступность потока",
+      "Позиция просмотра переносится только на совпадающий номер серии"
     ],
     "previewStates": [
       "ready",
@@ -876,7 +837,7 @@ window.YUMMY_MOCKUP_CONTRACTS = {
       "empty",
       "error"
     ],
-    "kind": "dialog"
+    "kind": "component-part"
   },
   "trailers": {
     "title": "Трейлеры",

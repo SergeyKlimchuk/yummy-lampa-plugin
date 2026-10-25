@@ -52,9 +52,10 @@ assert.ok(voicePolicy.includes('allohaDirectResolverEnabled() ? 3 : 0'), 'unreso
 assert.ok(menu.includes('if (!allohaIframeEnabled())'), 'capability-first sorting must apply when the Alloha embed is disabled');
 assert.ok(menu.includes('groupPlaybackPriority(a.group)'), 'voice choices must be sorted by playable source capability');
 
-const episodeStart = menu.indexOf('function chooseEpisode');
+const episodeStart = menu.indexOf('function playbackPlaylist');
 const episodeEnd = menu.indexOf('function showDirectPlaybackOptions', episodeStart);
 const episodePolicy = menu.slice(episodeStart, episodeEnd);
+assert.match(menu, /function chooseEpisode\(card, group\)\s*\{\s*var videos = playbackPlaylist\(group\)/, 'both playback screens must share the source-aware playlist policy');
 assert.ok(episodePolicy.includes('videoPlaybackPriority(a, group)'), 'episode choices must prioritize playable sources');
 assert.ok(episodePolicy.indexOf('numberA - numberB') < episodePolicy.indexOf('playableB - playableA'), 'episode number must stay ahead of capability priority');
 

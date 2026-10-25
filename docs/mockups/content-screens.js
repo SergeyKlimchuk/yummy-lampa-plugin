@@ -324,33 +324,104 @@
         }).join('')));
         return main;
     };
+    function sourceMeta(h, group) {
+        var rows = episodes(group), last = rows[rows.length - 1];
+        return [rows.length ? h.number(rows.length) + ' серий' : '', last ? 'Последняя серия: ' + episodeNumber(last) : ''].filter(Boolean).join(' · ');
+    }
+    function playbackMemory(h) { return h.memory || {}; }
+    function selectedSource(h, rows) {
+        var memory = playbackMemory(h), key = id(current(h));
+        var own = memory.playbackChoices && memory.playbackChoices[key], configured = memory.playbackDefaults;
+        var found = -1, origin = 'auto', unavailable = false;
+        function matchPreference(preference, sourceFallback) {
+            if (!preference) return -1;
+            var exact = rows.findIndex(function (group) { return group.name === preference.voice && group.player === preference.player; });
+            if (exact >= 0) return exact;
+            unavailable = true;
+            var sameVoice = rows.findIndex(function (group) { return group.name === preference.voice; });
+            if (sameVoice >= 0) return sameVoice;
+            return sourceFallback ? rows.findIndex(function (group) { return group.player === preference.player; }) : -1;
+        }
+        if (own) { found = matchPreference(own, false); if (found >= 0) origin = 'anime'; }
+        if (found < 0 && configured) { found = matchPreference(configured, true); if (found >= 0) origin = 'default'; }
+        var sourceIndex = found >= 0 ? found : Math.max(0, Math.min(rows.length - 1, Number(view(h).sourceIndex) || 0));
+        return {group: rows[sourceIndex], index: sourceIndex, own: Boolean(own), origin: origin, unavailable: unavailable};
+    }
+    function playbackRecord(group) { return JSON.stringify({voice: group.name, player: group.player}); }
+    function playbackOptions(h, rows, selected, choice) {
+        var seen = {}, options = [];
+        rows.forEach(function (group, index) {
+            var key = choice === 'voice' ? group.name : group.player;
+            if (seen[key] || choice === 'source' && group.name !== selected.group.name) return;
+            seen[key] = true;
+            var chosen = index;
+            if (choice === 'voice') {
+                var sameSource = rows.findIndex(function (candidate) { return candidate.name === group.name && candidate.player === selected.group.player; });
+                if (sameSource >= 0) chosen = sameSource;
+            }
+            var providers = rows.filter(function (candidate) { return candidate.name === group.name; }).map(function (candidate) { return candidate.player; }).filter(function (player, at, all) { return all.indexOf(player) === at; });
+            options.push({label: key, group: rows[chosen], index: chosen, meta: choice === 'voice' ? providers.join(' · ') : sourceMeta(h, group)});
+        });
+        var selectedAt = options.findIndex(function (option) { return choice === 'voice' ? option.group.name === selected.group.name : option.group.player === selected.group.player; });
+        var requestedPage = view(h).optionPage === undefined || view(h).optionPage === '' ? Math.floor(Math.max(0, selectedAt) / 30) : Number(view(h).optionPage) || 0;
+        var page = Math.max(0, Math.min(Math.ceil(options.length / 30) - 1, requestedPage)), start = page * 30;
+        var controls = h.go('К сериям', 'sources', {selectedId: id(current(h)), sourceIndex: selected.index, choice: ''});
+        var body = options.slice(start, start + 30).map(function (option) {
+            var chosen = choice === 'voice' ? option.group.name === selected.group.name : option.group.player === selected.group.player;
+            return h.row(option.label, option.meta, h.button(chosen ? 'Выбрано' : 'Выбрать', {
+                'data-action': 'playback-choice', 'data-value': option.index, 'data-record': playbackRecord(option.group), 'aria-pressed': chosen ? 'true' : 'false'
+            }, chosen ? 'ya-button ya-button--accent' : 'ya-button'));
+        }).join('');
+        var pages = '<div class="ya-toolbar">';
+        if (page > 0) pages += h.go('Предыдущие варианты', 'sources', {choice: choice, optionPage: page - 1, sourceIndex: selected.index});
+        if (start + 30 < options.length) pages += h.go('Следующие варианты', 'sources', {choice: choice, optionPage: page + 1, sourceIndex: selected.index});
+        return head(h, choice === 'voice' ? 'Озвучка' : 'Источник', controls) + '<p class="ya-meta">' + h.esc(title(current(h))) + '</p>' + panel(body) + pages + '</div>';
+    }
+    function episodeGrid(h, group, sourceIndex, screen) {
+        var rows = episodes(group), page = Math.max(0, Math.min(Math.ceil(rows.length / 60) - 1, Number(view(h).episodePage) || 0));
+        var start = page * 60;
+        var body = '<div class="ya-playback-episodes">' + rows.slice(start, start + 60).map(function (entry) {
+            var meta = [entry.quality, entry.yani_episode_title, minutes(h, entry.duration)].filter(Boolean).join(' · ');
+            return '<div>' + h.go('Серия ' + episodeNumber(entry), 'player', {selectedId: id(current(h)), sourceIndex: sourceIndex, episode: episodeNumber(entry), category: 'episode'}) +
+                (meta ? '<div class="ya-meta">' + h.esc(meta) + '</div>' : '') + '</div>';
+        }).join('') + '</div>';
+        var controls = '<div class="ya-toolbar">';
+        if (page > 0) controls += h.go('Предыдущие серии', screen, {sourceIndex: sourceIndex, episodePage: page - 1});
+        if (start + 60 < rows.length) controls += h.go('Следующие серии', screen, {sourceIndex: sourceIndex, episodePage: page + 1});
+        return body + controls + '</div>';
+    }
     V.sources = function (h) {
-        if (!snapshotTitleMatches(h)) return unavailableTitleResources(h, 'Выбор озвучки');
-        var failed = state(h, 'sources', 'Выбор озвучки');
+        if (!snapshotTitleMatches(h)) return unavailableTitleResources(h, 'Просмотр');
+        var failed = state(h, 'sources', 'Просмотр');
         if (failed) return failed;
-        var rows = view(h).state === 'empty' ? [] : groups(h);
-        return head(h, 'Выбор озвучки', h.go('Карточка аниме', 'detail', {selectedId: id(current(h))})) +
-            '<p class="ya-meta">' + h.esc(title(current(h))) + '</p>' +
-            (rows.length ? panel(rows.map(function (group, index) {
-                var count = episodes(group).length;
-                var last = episodes(group).slice(-1)[0];
-                var meta = [group.player !== group.name ? group.player : '', count ? h.number(count) + ' серий' : '', last ? 'Последняя серия: ' + episodeNumber(last) : ''].filter(Boolean);
-                return h.row(group.name, meta.join(' · '), h.go('Выбрать', 'episodes', {selectedId: id(current(h)), sourceIndex: index, category: 'episode'}));
-            }).join('')) : empty(h, 'Источников нет', ''));
+        var rows = view(h).state === 'empty' ? [] : groups(h), selected = selectedSource(h, rows);
+        var top = head(h, title(current(h)), h.go('Карточка аниме', 'detail', {selectedId: id(current(h))}));
+        if (!selected.group) return top + empty(h, 'Источников нет', '');
+        if (view(h).choice === 'voice' || view(h).choice === 'source') return playbackOptions(h, rows, selected, view(h).choice);
+        var first = episodes(selected.group)[0];
+        if (!first) return top + empty(h, 'Серии не загружены', 'В снимке нет нумерации серий для этого источника.');
+        var origin = selected.origin === 'anime' ? 'Выбор для этого аниме' : selected.origin === 'default' ? 'Настройки по умолчанию' : 'Автоматический выбор из снимка';
+        var body = top + '<p class="ya-meta">' + h.esc(origin) + '</p>';
+        if (selected.unavailable) body += h.notice('Предпочтительный вариант отсутствует в снимке. Показан доступный; сохранённый выбор не меняется.');
+        body += '<div class="ya-playback"><div class="ya-playback-fields">' +
+            h.go('Озвучка · ' + selected.group.name + ' · Изменить', 'sources', {sourceIndex: selected.index, choice: 'voice', optionPage: ''}, 'ya-button ya-playback-field') +
+            h.go('Источник · ' + selected.group.player + ' · Изменить', 'sources', {sourceIndex: selected.index, choice: 'source', optionPage: ''}, 'ya-button ya-playback-field') + '</div>';
+        body += '<div class="ya-toolbar">' + h.go('Смотреть · Серия ' + episodeNumber(first), 'player', {selectedId: id(current(h)), sourceIndex: selected.index, episode: episodeNumber(first), category: 'episode'}, 'ya-button ya-button--accent') +
+            h.button('Сделать выбор по умолчанию', {'data-action': 'playback-defaults', 'data-record': playbackRecord(selected.group)}, 'ya-button');
+        if (selected.own) body += h.button('Использовать настройки', {'data-action': 'playback-reset'}, 'ya-button');
+        body += '</div><p class="ya-meta">' + h.esc(sourceMeta(h, selected.group)) + '</p>' +
+            h.section('Серии', episodeGrid(h, selected.group, selected.index, 'sources')) + '</div>';
+        return body + h.notice('В макете выбор хранится только до перезагрузки страницы. Видео и запросы к источникам не запускаются.');
     };
     V.episodes = function (h) {
         if (!snapshotTitleMatches(h)) return unavailableTitleResources(h, 'Выбор серии');
         var failed = state(h, 'episodes', 'Выбор серии');
         if (failed) return failed;
-        var sourceIndex = Number(view(h).sourceIndex || 0);
-        var group = groups(h)[sourceIndex];
+        var sourceIndex = Number(view(h).sourceIndex || 0), group = groups(h)[sourceIndex];
         var rows = view(h).state === 'empty' ? [] : episodes(group);
-        return head(h, 'Выбор серии', h.go('Другая озвучка', 'sources', {selectedId: id(current(h))})) +
-            '<p class="ya-meta">' + h.esc([title(current(h)), group && group.name].filter(Boolean).join(' · ')) + '</p>' +
-            (rows.length ? panel(rows.map(function (entry) {
-                var meta = [entry.quality, entry.yani_episode_title, minutes(h, entry.duration), Number(entry.views) > 0 ? h.number(entry.views) + ' просмотров' : ''].filter(Boolean);
-                return h.row('Серия ' + episodeNumber(entry), meta.join(' · '), h.go('Смотреть', 'player', {selectedId: id(current(h)), sourceIndex: sourceIndex, episode: episodeNumber(entry), category: 'episode'}));
-            }).join('')) : empty(h, 'Серии не загружены', ''));
+        return head(h, 'Выбор серии', h.go('Озвучка и источник', 'sources', {selectedId: id(current(h)), sourceIndex: sourceIndex})) +
+            '<p class="ya-meta">' + h.esc([title(current(h)), group && group.name, group && group.player].filter(Boolean).join(' · ')) + '</p>' +
+            (rows.length ? '<div class="ya-playback">' + episodeGrid(h, group, sourceIndex, 'episodes') + '</div>' : empty(h, 'Серии не загружены', ''));
     };
     V.trailers = function (h) {
         if (!snapshotTitleMatches(h)) return unavailableTitleResources(h, 'Трейлеры');

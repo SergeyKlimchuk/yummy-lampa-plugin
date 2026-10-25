@@ -819,3 +819,12 @@ img.ya-poster,
 .ya-button[data-yani-list-key][aria-pressed="true"] { background: var(--yani-list-color); color: var(--yani-list-ink); border-color: var(--yani-list-color); }
 .ya-detail-poster-frame { position: relative; }
 .ya-detail-poster-status { position: absolute; left: 0; bottom: 0; right: 0; padding: .5rem; background: var(--yani-list-color, #333333); color: var(--yani-list-ink, #f1f1f1); font-size: .85rem; text-align: center; border-radius: 0 0 .35rem .35rem; }
+
+/* Playback setup prototype mirrors the static production chooser. */
+.ya-playback .ya-playback-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65em; margin-bottom: .9em; }
+.ya-playback .ya-playback-field { justify-content: flex-start; min-height: 4em; text-align: left; padding: .8em; }
+.ya-playback .ya-playback-episodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(8em, 1fr)); gap: .6em; }
+.ya-playback .ya-playback-episodes > div { min-width: 0; }
+.ya-playback .ya-playback-episodes .ya-button { width: 100%; }
+.ya-playback .ya-playback-episodes .ya-meta { font-size: .7em; margin: .3em .2em; }
+@media (max-width: 700px) { .ya-playback .ya-playback-fields { grid-template-columns: 1fr; } }

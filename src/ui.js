@@ -85,7 +85,13 @@
     var installFullRating = standardCard.installFullRating;
 
 
+    var activePlaybackSetup = null;
     var playbackMenu = LampaYaniPlaybackMenu.create({
+        onPlaybackRestored: function () {
+            if (activePlaybackSetup && activePlaybackSetup.playbackRestored) activePlaybackSetup.playbackRestored();
+        },
+        preferences: window.LampaYaniPlaybackPreferences,
+        openPicker: openPlaybackPicker,
         t: t,
         showYummySelect: function (params, snapshot) { return showYummySelect(params, snapshot); },
         currentControllerName: function () { return currentControllerName(); },
@@ -356,6 +362,7 @@
             Lampa.Component.add('yani_history', History);
 
             Lampa.Component.add('yani_detail', Detail);
+            Lampa.Component.add('yani_playback', PlaybackSetup);
             Lampa.Component.add('yani_policy', UsagePolicy);
             Lampa.Component.add('yani_trailers', TrailerList);
             Lampa.Component.add('yani_account', Account);
@@ -398,6 +405,50 @@
             console.log('[YummyAnime] Extension registered');
         }
     };
+
+    function openPlaybackPicker(card, groups, selection) {
+        clearPlaybackReturn();
+        Lampa.Activity.push({
+            url: 'yani/playback/' + card.yani_id,
+            component: 'yani_playback',
+            title: card.title || 'YummyAnime',
+            card: card,
+            groups: groups,
+            selection: selection
+        });
+    }
+
+    function PlaybackSetup(object) {
+        var component = LampaYaniPlaybackPicker.create(object, {
+            t: t,
+            preferences: LampaYaniPlaybackPreferences,
+            sourceId: playbackSourceId,
+            sourceLabel: function (group) { return playbackSourceLabel(playbackSourceId(group)) || group.player || group.source || t('source'); },
+            playlist: function (card, group) { return playbackMenu.playbackPlaylist(group); },
+            getPlayback: getPlayback,
+            episodeTitle: episodeOptionTitle,
+            groupSubtitle: function (group) {
+                return Number(group.episodeCount || group.videos.length) + ' ' + t('episodes_short') +
+                    (group.latestEpisode ? ' · ' + t('latest_episode') + ': ' + group.latestEpisode : '');
+            },
+            targetPreference: function (card) { return isAndroidPlatform() ? LampaYaniPlaybackPreferences.target(card, playbackTargetPreference()) : 'internal'; },
+            rememberTarget: function (card, target) { if (isAndroidPlatform()) LampaYaniPlaybackPreferences.rememberTarget(card, target); },
+            externalAvailable: function () { return isAndroidPlatform(); },
+            launch: function (card, group, videos, selected, element, collection, target) {
+                clearPlaybackReturn();
+                beginPlaybackNavigation(element, collection);
+                rememberPlayer(group);
+                enrichEpisodeTitles(card, group);
+                launchVideo(card, group, videos, playbackMenu.applySavedPlaybackPosition(card, selected), {
+                    playbackTarget: isAndroidPlatform() ? target : 'internal'
+                });
+            },
+            goBack: goBack,
+            onDestroy: function (destroyed) { if (activePlaybackSetup === destroyed) activePlaybackSetup = null; }
+        });
+        activePlaybackSetup = component;
+        return component;
+    }
 
     function Top(object) {
         object.topMode = true;
@@ -2498,6 +2549,8 @@
     }
 
     function playbackSourceId(group) {
+        var canonical = window.LampaYaniPlaybackPreferences && LampaYaniPlaybackPreferences.source(group);
+        if (PLAYBACK_SOURCE_IDS.indexOf(canonical) >= 0) return canonical;
         var key = String(group && (group.player || group.title || group.source) || '').toLowerCase();
         if (!key) return '';
         for (var i = 0; i < PLAYBACK_SOURCE_IDS.length; i++) {
@@ -3325,7 +3378,8 @@
 
     function getPreferredPlayer() {
         if (!Lampa.Storage) return '';
-        return Lampa.Storage.get('yani_last_player', '') || '';
+        var source = window.LampaYaniPlaybackPreferences && LampaYaniPlaybackPreferences.defaults().source;
+        return source && source !== 'auto' ? source : Lampa.Storage.get('yani_last_player', '') || '';
     }
 
     function playerMatchesPreference(group, preference) {
@@ -4006,6 +4060,50 @@
             field: {name: t('settings_playback_section')}
         });
 
+        if (window.LampaYaniPlaybackPreferences) {
+            var sourceValues = {auto: t('playback_auto')};
+            PLAYBACK_SOURCE_IDS.forEach(function (id) { sourceValues[id] = playbackSourceLabel(id); });
+            Lampa.SettingsApi.addParam({
+                component: 'yani',
+                param: {name: 'yani_default_source', type: 'select', values: sourceValues, default: 'auto'},
+                field: {name: t('playback_default_source'), description: t('playback_default_source_description')},
+                onChange: function (value) { LampaYaniPlaybackPreferences.setDefaults({source: value && typeof value === 'object' ? value.value : value}); }
+            });
+            var voiceRow = null;
+            function updateVoiceRow(item) {
+                if (item) voiceRow = item;
+                if (!voiceRow || !voiceRow.length) return;
+                var value = voiceRow.find('.settings-param__value');
+                if (!value.length) value = $('<div class="settings-param__value"></div>').appendTo(voiceRow);
+                value.text(LampaYaniPlaybackPreferences.defaults().voice || t('playback_auto'));
+            }
+            Lampa.SettingsApi.addParam({
+                component: 'yani',
+                param: {name: 'yani_default_voice', type: 'button'},
+                field: {name: t('playback_default_voice'), description: t('playback_default_voice_description')},
+                onRender: updateVoiceRow,
+                onChange: function () {
+                    var configured = LampaYaniPlaybackPreferences.defaults().voice;
+                    var items = [{title: t('playback_auto'), voice: ''}].concat(LampaYaniPlaybackPreferences.knownVoices().map(function (voice) {
+                        return {title: voice, voice: voice};
+                    }), [{title: t('playback_enter_voice'), manual: true}]);
+                    var selected = 0;
+                    items.forEach(function (item, index) {
+                        if (!item.manual && LampaYaniPlaybackPreferences.normalizeVoice(item.voice) === LampaYaniPlaybackPreferences.normalizeVoice(configured)) selected = index;
+                    });
+                    showYummySelect({
+                        title: t('playback_default_voice'), items: items, selected: selected,
+                        onSelect: function (item) {
+                            if (item.manual) return showYummyInput({title: t('playback_enter_voice'), value: configured, nosave: true}, function (value) {
+                                LampaYaniPlaybackPreferences.setDefaults({voice: value}); updateVoiceRow();
+                            });
+                            LampaYaniPlaybackPreferences.setDefaults({voice: item.voice}); updateVoiceRow();
+                        }
+                    });
+                }
+            });
+        }
+
         if (isAndroidPlatform()) {
             Lampa.SettingsApi.addParam({
                 component: 'yani',
@@ -4019,7 +4117,7 @@
                     },
                     default: 'ask'
                 },
-                field: {name: t('player_preference'), description: t('player_preference_description')}
+                field: {name: t('playback_target'), description: t('player_preference_description')}
             });
         } else {
             if (Lampa.Storage) Lampa.Storage.set('yani_playback_target', 'internal');
@@ -4027,7 +4125,7 @@
                 component: 'yani',
                 param: {name: 'yani_playback_target_locked', type: 'button'},
                 field: {
-                    name: t('player_preference') + ': ' + t('playback_target_internal'),
+                    name: t('playback_target') + ': ' + t('playback_target_internal'),
                     description: t('player_preference_non_android_description')
                 },
                 onChange: function () {
