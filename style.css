@@ -129,7 +129,7 @@
     .yani-collection-view .items-cards,
     .category-full.yani-card-grid,
     .items-cards.yani-card-grid {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(12.6em, 1fr));
     }
 }
 
@@ -399,7 +399,7 @@
     .yani-collection-view .items-cards,
     .category-full.yani-card-grid,
     .items-cards.yani-card-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(12.6em, 1fr));
         padding-left: .35em;
         padding-right: .35em;
     }
@@ -527,7 +527,7 @@
 
 .yani-home.yani-home--lite .yani-lite-continue {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
     gap: .75em;
 }
 
@@ -599,7 +599,7 @@
 
 .yani-home.yani-home--lite .yani-lite-categories {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(8em, 1fr));
     gap: .5em;
 }
 
@@ -635,7 +635,7 @@
 
 .yani-home.yani-home--lite .yani-lite-posters {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(9em, 1fr));
     gap: .8em;
 }
 
@@ -648,7 +648,7 @@
 
 .yani-home.yani-home--lite .yani-lite-poster {
     height: 12em;
-    max-height: 27vh;
+    max-height: 35.1vh;
     overflow: hidden;
     background: var(--yani-lite-surface);
     border-radius: .18em;
@@ -713,9 +713,9 @@
 
 @media (max-width: 1000px) {
     .yani-home.yani-home--lite .yani-lite-layout { grid-template-columns: 6.8em minmax(0, 1fr); }
-    .yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .yani-home.yani-home--lite .yani-lite-categories { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: repeat(auto-fit, minmax(15em, 1fr)); }
+    .yani-home.yani-home--lite .yani-lite-categories { grid-template-columns: repeat(auto-fit, minmax(8em, 1fr)); }
+    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); }
     .yani-home.yani-home--lite .yani-lite-poster { max-height: none; height: 12em; }
 }
 
@@ -726,13 +726,13 @@
     .yani-home.yani-home--lite .yani-lite-nav { margin: 0; min-height: 2.3em; }
     .yani-home.yani-home--lite .yani-lite-main { padding: .85em .75em 1em; }
     .yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: 1fr; }
-    .yani-home.yani-home--lite .yani-lite-categories { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .yani-home.yani-home--lite .yani-lite-categories { grid-template-columns: repeat(auto-fit, minmax(8em, 1fr)); }
+    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); }
     .yani-home.yani-home--lite .yani-lite-section-title { font-size: 1em; }
 }
 
 @media (max-width: 480px) {
-    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); }
     .yani-home.yani-home--lite .yani-lite-section-head { flex-wrap: wrap; gap: .4em; }
 }
 
@@ -2322,7 +2322,7 @@ body.yani-player-open .head--simple {
 .yani-tile-catalog .category-full,
 .yani-tile-catalog .items-cards {
     display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(17em, 1fr)) !important;
     gap: 1.05em .9em !important;
     width: 100% !important;
     padding: .7em 1em 2.5em !important;
@@ -2419,15 +2419,15 @@ body.yani-player-open .head--simple {
 
 @media (min-width: 100em) {
     .yani-tile-catalog .category-full,
-    .yani-tile-catalog .items-cards { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+    .yani-tile-catalog .items-cards { grid-template-columns: repeat(auto-fit, minmax(17em, 1fr)) !important; }
 }
 @media (max-width: 70em) {
     .yani-tile-catalog .category-full,
-    .yani-tile-catalog .items-cards { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+    .yani-tile-catalog .items-cards { grid-template-columns: repeat(auto-fit, minmax(17em, 1fr)) !important; }
 }
 @media (max-width: 42em) {
     .yani-tile-catalog .category-full,
-    .yani-tile-catalog .items-cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: .75em .58em !important; padding: .55em .5em 2em !important; }
+    .yani-tile-catalog .items-cards { grid-template-columns: repeat(auto-fit, minmax(min(17em, 100%), 1fr)) !important; gap: .75em .58em !important; padding: .55em .5em 2em !important; }
 }
 /* Row-level selectors (primary path — applied by markTilesLines after build) */
 .yani-collection-tiles-line .card {
@@ -2952,7 +2952,7 @@ body.yani-player-open .head--simple {
     .yani-collection-view .category-full,
     .yani-collection-view .items-cards,
     .category-full.yani-card-grid,
-    .items-cards.yani-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .items-cards.yani-card-grid { grid-template-columns: repeat(auto-fit, minmax(12.6em, 1fr)); }
 }
 
 /* Short 720p-class viewports: keep the first screen denser, not taller. */
@@ -3433,3 +3433,24 @@ body.yani-player-open .head--simple {
 .yani-detail.yani-lite-view .yani-detail__list-current::before { display: inline-block; content: ''; width: .55em; height: .55em; margin-right: .4em; border: 1px solid #777777; border-radius: 50%; background: var(--yani-list-color, #333333); vertical-align: .02em; }
 
 .yani-detail.yani-lite-view .yani-detail__list-action.focus:not(.active) { background: #3f3f3f; color: #f1f1f1; border-color: #b8b8b8; }
+
+
+/* Auto / user-selected content scale. Lampa still owns the base font and
+   scroll geometry; inherited em dimensions scale text, controls and posters. */
+.yani-lite-view,
+.yani-home.yani-home--lite,
+.yani-card-grid,
+.yani-tile-catalog,
+.yani-card-rails { font-size: var(--yani-ui-scale, 1.3em); }
+
+/* Native category grids and embedded panels share their parent's scale. */
+.yani-lite-view .yani-lite-view,
+.yani-lite-view .yani-card-grid,
+.yani-lite-view .yani-tile-catalog,
+.yani-lite-view .yani-card-rails,
+.yani-home--lite .yani-lite-view,
+.yani-home--lite .yani-card-grid,
+.yani-card-grid .yani-card-grid,
+.yani-card-grid .yani-lite-view,
+.yani-tile-catalog .yani-card-grid,
+.yani-card-rails .yani-card-grid { font-size: inherit; }

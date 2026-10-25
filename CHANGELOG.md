@@ -11,10 +11,13 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Added
 
+- Automatic viewport scale profiles and an immediate, device-persisted 80–200% override in YummyAnime interface settings
+
 - Interactive source-backed mockups for every plugin section and supported chooser, with explicit public snapshots and anonymized personal examples
 
 ### Changed
 
+- Plugin content scale to automatic HD / Full HD / QHD / 4K defaults, with scale-aware poster grids and inherited sizing to prevent nested panels from scaling twice
 - Anime detail priorities to title, ratings, one-line type/tags, episode information, primary actions, labeled categories, synopsis, translations, metadata and comments; new cards focus Watch and reach the current category with one Down press
 - Readable category labels on search/catalog cards with account-scoped updates after list changes, independent favorites and protection against stale cached membership
 - Lightweight home branding to the official website SVG, embedded in the plugin bundle

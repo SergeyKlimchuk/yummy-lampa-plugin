@@ -103,7 +103,7 @@ assert.match(css, /\.yani-genre-catalog-view \.items-cards[\s\S]{0,350}scroll-pa
 assert.match(css, /\.yani-catalog-view \.card \.card__title[\s\S]{0,600}margin-top:\s*\.85em/);
 assert.match(css, /\.yani-user-lists-view \.items-cards[\s\S]{0,500}display:\s*flex/);
 assert.match(css, /\.yani-card-rails \.items-cards[\s\S]{0,500}display:\s*flex/);
-assert.match(css, /@media \(min-width: 70em\)[\s\S]{0,900}repeat\(7, minmax\(0, 1fr\)\)/);
+assert.match(css, /@media \(min-width: 70em\)[\s\S]{0,900}repeat\(auto-fit, minmax\(12\.6em, 1fr\)\)/);
 assert.match(css, /\.yani-catalog-view \.category-full \.card[\s\S]{0,400}float:\s*none/);
 
 ['ru', 'en', 'uk'].forEach((language) => {

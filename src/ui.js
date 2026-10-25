@@ -321,6 +321,7 @@
                 if (settingsReady) return;
                 settingsReady = true;
                 try {
+                    if (window.LampaYaniScale) LampaYaniScale.start(refreshScaledCardLayout);
                     addSettings();
                     // The account's watch history is shared between devices, so
                     // pull it before anything draws progress from the local
@@ -3926,6 +3927,15 @@
         });
     }
 
+    function refreshScaledCardLayout() {
+        if (typeof document === 'undefined' || !window.$) return;
+        $('[data-yani-card-id]').each(function () {
+            var bounds = this.getBoundingClientRect();
+            if (!bounds.width || bounds.bottom < 0 || bounds.top > window.innerHeight) return;
+            syncCardOverlayLayout($(this), this.yaniBoundCard || this.card_data);
+        });
+    }
+
     function addSettings() {
         if (!Lampa.SettingsApi || !Lampa.SettingsApi.addComponent) return;
         migrateLegacyPlayerPreference();
@@ -3976,6 +3986,19 @@
                 Lampa.Noty.show(t('language_changed'));
             }
         });
+
+        if (window.LampaYaniScale) {
+            var scaleSetting = {
+                component: 'yani',
+                param: {name: 'yani_interface_scale', type: 'select', values: LampaYaniScale.values(t), default: 'auto'},
+                field: {name: t('interface_scale'), description: t('interface_scale_description')},
+                onRender: function () {
+                    scaleSetting.param.values.auto = LampaYaniScale.values(t).auto;
+                },
+                onChange: function (value) { LampaYaniScale.apply(value); }
+            };
+            Lampa.SettingsApi.addParam(scaleSetting);
+        }
 
         Lampa.SettingsApi.addParam({
             component: 'yani',
