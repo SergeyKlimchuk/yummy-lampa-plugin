@@ -1140,12 +1140,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     messages.ru.playback_episode_missing = "В этом варианте нет выбранной серии. Выбрана ближайшая доступная серия.";
     messages.en.playback_episode_missing = "This option does not have the selected episode. The nearest available episode is selected.";
     messages.uk.playback_episode_missing = "У цьому варіанті немає вибраної серії. Вибрано найближчу доступну серію.";
-    messages.ru.playback_save_defaults = "Сделать выбор по умолчанию";
-    messages.en.playback_save_defaults = "Set as default";
-    messages.uk.playback_save_defaults = "Зробити вибором за замовчуванням";
-    messages.ru.playback_defaults_saved = "Выбор по умолчанию сохранён для новых аниме";
-    messages.en.playback_defaults_saved = "Defaults saved for new anime";
-    messages.uk.playback_defaults_saved = "Вибір за замовчуванням збережено для нових аніме";
     messages.ru.playback_auto = "Авто";
     messages.en.playback_auto = "Auto";
     messages.uk.playback_auto = "Авто";
@@ -1158,9 +1152,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     messages.ru.playback_default_voice = "Озвучка по умолчанию";
     messages.en.playback_default_voice = "Default translation";
     messages.uk.playback_default_voice = "Озвучення за замовчуванням";
-    messages.ru.playback_default_voice_description = "Выберите из переводов открытых аниме или введите название. В окне просмотра текущую озвучку и источник также можно сделать выбором по умолчанию.";
-    messages.en.playback_default_voice_description = "Choose a translation found in opened anime or enter its name. You can also set the current translation and source as defaults on the playback screen.";
-    messages.uk.playback_default_voice_description = "Виберіть переклад із відкритих аніме або введіть назву. У вікні перегляду поточне озвучення та джерело також можна зробити вибором за замовчуванням.";
+    messages.ru.playback_default_voice_description = "Предпочитаемая озвучка для всех аниме без собственного выбора. Выберите из ранее открытых аниме или введите название.";
+    messages.en.playback_default_voice_description = "Preferred translation for anime without an individual choice. Select one found in previously opened anime or enter its name.";
+    messages.uk.playback_default_voice_description = "Бажане озвучення для всіх аніме без власного вибору. Виберіть із раніше відкритих аніме або введіть назву.";
     messages.ru.playback_enter_voice = "Ввести название озвучки";
     messages.en.playback_enter_voice = "Enter translation name";
     messages.uk.playback_enter_voice = "Ввести назву озвучення";
@@ -9804,11 +9798,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             actions.append(watch);
             var hasSaved = preferences && preferences.saved && preferences.saved(card);
             if (hasSaved) actions.append(button(t('playback_use_defaults'), 'defaults', reset, 'yani-playback__button--subtle'));
-            if (preferences && preferences.setDefaults) actions.append(button(t('playback_save_defaults'), 'save-defaults', function () {
-                preferences.setDefaults({voice: selectedGroup.title, source: preferences.source ? preferences.source(selectedGroup) : sourceKey(selectedGroup)});
-                if (externalAvailable() && Lampa.Storage && Lampa.Storage.set) Lampa.Storage.set('yani_playback_target', target());
-                if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show(t('playback_defaults_saved'));
-            }, 'yani-playback__button--subtle'));
             content.append(actions);
             var subtitle = deps.groupSubtitle ? deps.groupSubtitle(selectedGroup) : '';
             if (subtitle) content.append($('<div class="yani-playback__group-meta"></div>').text(subtitle));

@@ -250,11 +250,6 @@
             actions.append(watch);
             var hasSaved = preferences && preferences.saved && preferences.saved(card);
             if (hasSaved) actions.append(button(t('playback_use_defaults'), 'defaults', reset, 'yani-playback__button--subtle'));
-            if (preferences && preferences.setDefaults) actions.append(button(t('playback_save_defaults'), 'save-defaults', function () {
-                preferences.setDefaults({voice: selectedGroup.title, source: preferences.source ? preferences.source(selectedGroup) : sourceKey(selectedGroup)});
-                if (externalAvailable() && Lampa.Storage && Lampa.Storage.set) Lampa.Storage.set('yani_playback_target', target());
-                if (Lampa.Noty && Lampa.Noty.show) Lampa.Noty.show(t('playback_defaults_saved'));
-            }, 'yani-playback__button--subtle'));
             content.append(actions);
             var subtitle = deps.groupSubtitle ? deps.groupSubtitle(selectedGroup) : '';
             if (subtitle) content.append($('<div class="yani-playback__group-meta"></div>').text(subtitle));

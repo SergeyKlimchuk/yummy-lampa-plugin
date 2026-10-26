@@ -334,13 +334,15 @@
         var own = memory.playbackChoices && memory.playbackChoices[key], configured = memory.playbackDefaults;
         var found = -1, origin = 'auto', unavailable = false;
         function matchPreference(preference, sourceFallback) {
-            if (!preference) return -1;
-            var exact = rows.findIndex(function (group) { return group.name === preference.voice && group.player === preference.player; });
+            if (!preference || !preference.voice && !preference.player) return -1;
+            var exact = rows.findIndex(function (group) {
+                return (!preference.voice || group.name === preference.voice) && (!preference.player || group.player === preference.player);
+            });
             if (exact >= 0) return exact;
             unavailable = true;
-            var sameVoice = rows.findIndex(function (group) { return group.name === preference.voice; });
+            var sameVoice = preference.voice ? rows.findIndex(function (group) { return group.name === preference.voice; }) : -1;
             if (sameVoice >= 0) return sameVoice;
-            return sourceFallback ? rows.findIndex(function (group) { return group.player === preference.player; }) : -1;
+            return sourceFallback && preference.player ? rows.findIndex(function (group) { return group.player === preference.player; }) : -1;
         }
         if (own) { found = matchPreference(own, false); if (found >= 0) origin = 'anime'; }
         if (found < 0 && configured) { found = matchPreference(configured, true); if (found >= 0) origin = 'default'; }
@@ -406,8 +408,7 @@
         body += '<div class="ya-playback"><div class="ya-playback-fields">' +
             h.go('Озвучка · ' + selected.group.name + ' · Изменить', 'sources', {sourceIndex: selected.index, choice: 'voice', optionPage: ''}, 'ya-button ya-playback-field') +
             h.go('Источник · ' + selected.group.player + ' · Изменить', 'sources', {sourceIndex: selected.index, choice: 'source', optionPage: ''}, 'ya-button ya-playback-field') + '</div>';
-        body += '<div class="ya-toolbar">' + h.go('Смотреть · Серия ' + episodeNumber(first), 'player', {selectedId: id(current(h)), sourceIndex: selected.index, episode: episodeNumber(first), category: 'episode'}, 'ya-button ya-button--accent') +
-            h.button('Сделать выбор по умолчанию', {'data-action': 'playback-defaults', 'data-record': playbackRecord(selected.group)}, 'ya-button');
+        body += '<div class="ya-toolbar">' + h.go('Смотреть · Серия ' + episodeNumber(first), 'player', {selectedId: id(current(h)), sourceIndex: selected.index, episode: episodeNumber(first), category: 'episode'}, 'ya-button ya-button--accent');
         if (selected.own) body += h.button('Использовать настройки', {'data-action': 'playback-reset'}, 'ya-button');
         body += '</div><p class="ya-meta">' + h.esc(sourceMeta(h, selected.group)) + '</p>' +
             h.section('Серии', episodeGrid(h, selected.group, selected.index, 'sources')) + '</div>';

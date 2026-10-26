@@ -330,11 +330,25 @@
         function edit(title, key, hint) {
             return h.row(title, value(key, '') || hint, h.button('Изменить', {'data-action': 'setting-edit', 'data-key': key}));
         }
+        function playbackOptions(field, fallback) {
+            var names = [];
+            array(h.data.videos).forEach(function (video) {
+                var data = video.data || {};
+                if (typeof data === 'string') { try { data = JSON.parse(data); } catch (ignore) { data = {}; } }
+                var name = field === 'voice' ? data.dubbing || data.translation || data.voice : data.player || data.source || data.service;
+                if (typeof name === 'string' && name && names.indexOf(name) < 0) names.push(name);
+            });
+            names.sort(function (left, right) { return left.localeCompare(right, 'ru'); });
+            return [[fallback, 'Авто']].concat(names.map(function (name) { return [name, name]; }));
+        }
         var body = h.notice('Настройки для LG/webOS. Переключения в макете показывают поведение интерфейса; настройки телевизора и плагина не меняются.');
         body += h.section('Аккаунт и синхронизация', panel(h.row('Статус', 'Вход не выполнен', h.go('Войти', 'auth')) +
             toggle('Автосинхронизация прогресса', 'yani_auto_sync_progress', true, 'Сохранять прогресс внутреннего плеера и подтягивать историю аккаунта')));
         body += h.section('Интерфейс', panel(choice('Язык / Language', 'yani_language', 'ru', [['ru', 'Русский'], ['uk', 'Українська'], ['en', 'English']], 'Язык интерфейса расширения')));
-        body += h.section('Воспроизведение', panel(h.row('Плеер', 'Внутренний плеер Lampa · LG/webOS') +
+        body += h.section('Воспроизведение', panel(
+            choice('Источник видео по умолчанию', 'yani_default_source', 'auto', playbackOptions('source', 'auto'), 'Общий выбор для аниме без отдельных предпочтений') +
+            choice('Озвучка по умолчанию', 'yani_default_voice', '', playbackOptions('voice', ''), 'Озвучки из загруженного снимка; отдельный выбор аниме имеет приоритет') +
+            h.row('Плеер', 'Внутренний плеер Lampa · LG/webOS') +
             choice('Пропуск опенинга и эндинга', 'yani_aniskip', 'off', [['off', 'Выключено'], ['op', 'Только опенинги'], ['ed', 'Только эндинги'], ['op_ed', 'Опенинги и эндинги'], ['suggest', 'Предлагать пропуск']], 'Тайминги AniSkip · только внутренний плеер') +
             toggle('Автопереход к следующей серии', 'yani_auto_next', false) +
             toggle('Добавлять в историю Lampa', 'yani_add_to_lampa_history', true) +

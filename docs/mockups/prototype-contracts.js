@@ -776,7 +776,7 @@ window.YUMMY_MOCKUP_CONTRACTS = {
       "src/ui.js :: PlaybackSetup / openPlaybackPicker",
       "src/ui-playback-picker.js :: create",
       "src/ui-playback-menu.js :: openVideos / groupVideos / playbackPlaylist",
-      "src/ui-playback-preferences.js :: resolve / remember / reset / setDefaults"
+      "src/ui-playback-preferences.js :: resolve / remember / reset"
     ],
     "endpoints": [
       "GET /anime/{id}/videos",
@@ -788,7 +788,6 @@ window.YUMMY_MOCKUP_CONTRACTS = {
       "Изменить озвучку и один из источников, реально доступных для неё",
       "Запустить выбранную серию или продолжить сохранённую позицию",
       "Использовать настройки — сбросить выбор этого аниме",
-      "Сделать выбор по умолчанию — сохранить текущую пару для других аниме",
       "Android: выбрать внутренний / внешний плеер либо запрос перед запуском"
     ],
     "constraints": [
@@ -1206,10 +1205,14 @@ window.YUMMY_MOCKUP_CONTRACTS = {
     "sources": [
       "src/ui.js :: addSettings",
       "src/ui.js :: playbackSourceDefaultEnabled",
+      "src/ui-playback-preferences.js :: defaults / setDefaults / knownVoices",
       "tests/settings-structure-contract.test.js"
     ],
     "endpoints": [],
-    "actions": [],
+    "actions": [
+      "Выбрать общую озвучку и источник по умолчанию либо Авто",
+      "На Android выбрать общий способ воспроизведения; на LG/webOS используется внутренний плеер"
+    ],
     "constraints": [
       "Theme/color editor",
       "Developer API application setup",

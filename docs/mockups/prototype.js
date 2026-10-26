@@ -179,15 +179,13 @@
         else if (action === 'status-period') navigate(view.screen, {period: value});
         else if (action === 'list-sort') navigate(view.screen, {sort: value});
         else if (action === 'run-search') { var input = document.getElementById('ya-search-query'); navigate('search', {query: input ? input.value.trim().slice(0, 200) : '', state: 'ready'}); }
-        else if (action === 'playback-choice' || action === 'playback-defaults') {
+        else if (action === 'playback-choice') {
             var playbackChoice = null;
             try { playbackChoice = JSON.parse(element.getAttribute('data-record') || 'null'); } catch (ignore) {}
             if (!playbackChoice || typeof playbackChoice.voice !== 'string' || typeof playbackChoice.player !== 'string') return;
             var pair = {voice: playbackChoice.voice.slice(0, 160), player: playbackChoice.player.slice(0, 160)};
-            if (action === 'playback-choice') memory.playbackChoices[String(view.selectedId)] = pair;
-            else memory.playbackDefaults = pair;
+            memory.playbackChoices[String(view.selectedId)] = pair;
             navigate('sources', {sourceIndex: value || view.sourceIndex, choice: '', optionPage: '', episodePage: '0'});
-            if (action === 'playback-defaults') message('Настройки по умолчанию', 'Выбор сохранён в памяти макета до перезагрузки страницы. Настройки телевизора и аккаунта не менялись.');
         }
         else if (action === 'playback-reset') {
             delete memory.playbackChoices[String(view.selectedId)];
@@ -228,7 +226,13 @@
         else if (action === 'setting-choice') {
             var optionsValue;
             try { optionsValue = JSON.parse(element.getAttribute('data-options') || '[]'); } catch (ignore) { optionsValue = []; }
-            optionDialog('Выбор настройки', optionsValue.map(function (item) { return Array.isArray(item) ? {value: item[0], title: item[1]} : typeof item === 'string' ? {title: item, value: item} : item; }), function (item) { settings[key] = item.value; render(); });
+            optionDialog('Выбор настройки', optionsValue.map(function (item) { return Array.isArray(item) ? {value: item[0], title: item[1]} : typeof item === 'string' ? {title: item, value: item} : item; }), function (item) {
+                settings[key] = item.value;
+                if (key === 'yani_default_voice' || key === 'yani_default_source') {
+                    memory.playbackDefaults = {voice: settings.yani_default_voice || '', player: settings.yani_default_source === 'auto' ? '' : settings.yani_default_source || ''};
+                }
+                render();
+            });
         }
         else if (action === 'setting-edit' || action === 'setting-check') message('Интеграция', 'В рабочем плагине можно указать адрес своего сервера и проверить его доступность. Макет сетевые настройки не меняет.');
         else if (action === 'demo-clear-history') { message('Локальная история', 'В рабочем плагине очищается только история на этом устройстве. Серверная история YummyAnime остаётся.'); }
