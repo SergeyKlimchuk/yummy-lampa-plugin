@@ -3499,3 +3499,26 @@ body.yani-player-open .head--simple {
     .yani-playback .yani-playback__watch { flex-wrap: wrap; }
     .yani-playback .yani-playback__watch-episode { white-space: normal; }
 }
+
+
+/* Watched episode evidence stays visible independently of selection/focus. */
+.yani-playback .yani-playback__progress-tools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .6em; margin: .2em 0 .4em; }
+.yani-playback .yani-playback__progress-legend { display: flex; flex-wrap: wrap; gap: 1.1em; color: #b8b8b8; font-size: .72em; }
+.yani-playback .yani-playback__progress-legend .is-completed { color: #3cce7b; }
+.yani-playback .yani-playback__progress-legend .is-started { color: #f2b800; }
+.yani-playback .yani-playback__progress-message { min-height: 1.4em; margin: 0 0 .5em; color: #b8b8b8; font-size: .65em; }
+.yani-playback .yani-playback__episode { position: relative; flex-direction: column; align-items: flex-start; justify-content: center; gap: .35em; min-height: 4.2em; padding-bottom: .8em; }
+.yani-playback .yani-playback__episode-title { line-height: 1.35; }
+.yani-playback .yani-playback__episode-status { color: #b8b8b8; font-size: .76em; line-height: 1.25; }
+.yani-playback .yani-playback__episode-status:empty { display: none; }
+.yani-playback .yani-playback__episode[data-yani-episode-state="completed"] { background: #2b3c32; border-color: #3cce7b; }
+.yani-playback .yani-playback__episode[data-yani-episode-state="started"] { background: #3c3628; border-color: #8c772a; }
+.yani-playback .yani-playback__episode[data-yani-episode-state="completed"] .yani-playback__episode-status { color: #3cce7b; }
+.yani-playback .yani-playback__episode[data-yani-episode-state="started"] .yani-playback__episode-status { color: #f2b800; }
+.yani-playback .yani-playback__episode-bar { display: none; position: absolute; left: .5em; right: .5em; bottom: .3em; height: .16em; background: #484848; border-radius: .08em; overflow: hidden; }
+.yani-playback .yani-playback__episode[data-yani-episode-state="completed"] .yani-playback__episode-bar,
+.yani-playback .yani-playback__episode[data-yani-episode-state="started"] .yani-playback__episode-bar { display: block; }
+.yani-playback .yani-playback__episode-fill { display: block; height: 100%; background: #f2b800; }
+.yani-playback .yani-playback__episode[data-yani-episode-state="completed"] .yani-playback__episode-fill { background: #3cce7b; }
+.yani-playback .yani-playback__episode[data-yani-episode-state].is-selected { border-color: #ff6666; }
+.yani-playback .yani-playback__episode[data-yani-episode-state].focus { background: #3f3f3f; border-color: #f1f1f1; }

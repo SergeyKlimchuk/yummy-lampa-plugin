@@ -11,6 +11,8 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Added
 
+- Completed and started episode markers, an account-owned sparse playback journal, and fresh server progress refresh on the playback screen
+
 - Preferred translation and video provider defaults, separate remembered choices per anime, and a remote-friendly playback setup screen with direct episode access
 
 - Automatic viewport scale profiles and an immediate, device-persisted 80–200% override in YummyAnime interface settings
@@ -28,6 +30,8 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 - Account counters to compact statistics and reusable poster decoration with scale-aware layout caching
 
 ### Fixed
+
+- Account ownership for cached progress, in-flight API requests and queued mutations, so late responses and deferred writes cannot affect another account
 
 - Category switching flashing the complete list panel by keeping opacity and confirmed labels stable while saving, applying only changed state, and avoiding success-toast flashes
 - Category buttons and poster status bands to the six official YummyAnime dark-theme colors, with persistent band nodes and no poster replacement

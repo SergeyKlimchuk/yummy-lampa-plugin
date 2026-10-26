@@ -7,6 +7,26 @@
     var mutationFlush = null;
     var MUTATION_QUEUE_KEY = 'yani_pending_mutations_v1';
     var MUTATION_MAX_ATTEMPTS = 8;
+    var ownerNonce = Date.now().toString(36) + ':' + Math.random().toString(36).slice(2);
+    var opaqueOwners = [];
+
+    function authOwnerKey() {
+        var auth = window.LampaYaniAuth, token = auth && auth.token ? auth.token() : '';
+        if (!token) return '';
+        var account = auth.get ? auth.get() || {} : {};
+        var login = String(account.login || account.email || '').trim().toLowerCase();
+        if (login) return 'login:' + login;
+        var id = account.user_id || account.userId || account.id;
+        if (id) return 'user:' + id;
+        // Unknown identities may be retried only in this exact session. Tokens
+        // stay in memory and are never written into queue/cache storage keys.
+        var found = opaqueOwners.filter(function (entry) { return entry.token === token; })[0];
+        if (!found) { found = {token: token, key: 'session:' + ownerNonce + ':' + opaqueOwners.length}; opaqueOwners.push(found); }
+        return found.key;
+    }
+    function staleOwnerError() {
+        var error = new Error('YummyAnime account changed'); error.name = 'AbortError'; return error;
+    }
 
     function readMutationQueue() {
         if (!window.Lampa || !Lampa.Storage) return [];
@@ -24,9 +44,12 @@
     }
 
     function queueMutation(path, options) {
+        var owner = options.ownerKey || authOwnerKey();
+        if (!owner || owner !== authOwnerKey()) throw staleOwnerError();
         var entry = {
+            owner: owner,
             id: Date.now() + ':' + Math.random().toString(36).slice(2),
-            key: String(options.mutationKey || (options.method || 'POST') + ':' + path),
+            key: owner + '|' + String(options.mutationKey || (options.method || 'POST') + ':' + path),
             path: path,
             method: options.method || 'POST',
             headers: options.headers || {},
@@ -150,7 +173,7 @@
     }
 
     function refreshCacheInBackground(path, options, cached, language) {
-        var key = [language, path, options.auth ? 'auth' : 'public', options.token ? 'token' : ''].join('|');
+        var key = [language, path, options.auth ? authOwnerKey() : 'public', options.token || ''].join('|');
         if (pendingRefreshes[key]) return;
         var refreshOptions = Object.assign({}, options, {
             cacheFirst: false,
@@ -169,6 +192,8 @@
 
     function request(path, options) {
         options = options || {};
+        if (options.auth && options.ownerKey === undefined) options = Object.assign({}, options, {ownerKey: authOwnerKey()});
+        if (options.auth && options.ownerKey !== authOwnerKey()) return Promise.reject(staleOwnerError());
         if (options.auth && !options.authRefreshChecked && window.LampaYaniAuth && LampaYaniAuth.token() && LampaYaniAuth.refreshIfNeeded) {
             var refreshedOptions = Object.assign({}, options, {authRefreshChecked: true});
             return LampaYaniAuth.refreshIfNeeded().then(function () {
@@ -182,7 +207,8 @@
         }
         var headers = Object.assign({}, options.headers || {});
         var apiLanguage = window.LampaYaniI18n ? LampaYaniI18n.getLanguage() : 'ru';
-        var cacheKey = 'lampa_yummyanime_cache_' + apiLanguage + '_' + path;
+        var cacheKey = 'lampa_yummyanime_cache_' + apiLanguage + '_' +
+            (options.auth && options.ownerKey ? encodeURIComponent(options.ownerKey) + '_' : '') + path;
         var cacheTtl = options.cacheTtl || config.cacheTtl || 300000;
         var method = options.method || 'GET';
 
@@ -203,7 +229,7 @@
         if (options.token) headers.Authorization = 'Bearer ' + options.token;
 
         var pendingKey = method === 'GET' && options.dedupe !== false && !options.signal
-            ? [apiLanguage, path, options.auth ? 'auth' : 'public', options.token ? 'token' : ''].join('|')
+            ? [apiLanguage, path, options.auth ? options.ownerKey : 'public', headers.Authorization || ''].join('|')
             : '';
         if (pendingKey && pendingRequests[pendingKey]) return pendingRequests[pendingKey];
 
@@ -220,12 +246,14 @@
             }
             return response.json();
         }).then(function (payload) {
+            if (options.auth && options.ownerKey !== authOwnerKey()) throw staleOwnerError();
             if (method === 'GET' && options.cache !== false && window.Lampa && Lampa.Storage) {
                 Lampa.Storage.set(cacheKey, JSON.stringify({time: Date.now(), data: payload}));
                 rememberCacheKey(cacheKey);
             }
             return payload;
         }).catch(function (error) {
+            if (options.auth && options.ownerKey !== authOwnerKey()) throw staleOwnerError();
             if (method !== 'GET' && options.queueMutation && networkMutationFailure(error)) {
                 return queueMutation(path, options);
             }
@@ -250,6 +278,7 @@
     function flushMutations() {
         if (mutationFlush) return mutationFlush;
         if (!window.LampaYaniAuth || !LampaYaniAuth.token()) return Promise.resolve({pending: readMutationQueue().length});
+        var owner = authOwnerKey();
         function removeFlushed(entry) {
             var current = readMutationQueue().filter(function (item) {
                 return !(item && item.id === entry.id);
@@ -276,8 +305,13 @@
             if (!items.length) {
                 return Promise.resolve({pending: 0});
             }
-            var entry = items[0];
+            if (owner !== authOwnerKey()) return Promise.resolve({pending: items.length, ownerChanged: true});
+            var entry = items.filter(function (item) { return item && item.owner === owner; })[0];
+            // Old unowned entries cannot safely be assigned to the current
+            // account. Keep them local instead of sending another user's data.
+            if (!entry) return Promise.resolve({pending: items.length, skipped: true});
             return request(entry.path, {
+                ownerKey: owner,
                 method: entry.method,
                 auth: true,
                 cache: false,

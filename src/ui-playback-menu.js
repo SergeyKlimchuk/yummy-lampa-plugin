@@ -301,9 +301,9 @@
         }
 
         function loadVideosForPlayback(id) {
-            return loadVideos(id).catch(function (error) {
+            return loadVideos(id, {fresh: true}).catch(function (error) {
                 if (!isAbortError(error)) throw error;
-                return loadVideos(id);
+                return loadVideos(id, {fresh: true});
             });
         }
 
@@ -368,9 +368,12 @@
             beginPlaybackNavigation();
             var request = ++videoRequest;
             var session = playbackReturnState.session;
+            var progress = window.LampaYaniEpisodeProgress;
+            var owner = progress && progress.owner();
             var origin = Lampa.Activity && Lampa.Activity.active ? Lampa.Activity.active() : null;
             function currentRequest() {
                 return request === videoRequest && session === playbackReturnState.session &&
+                    (!progress || progress.sameOwner(owner, progress.owner())) &&
                     (!origin || !Lampa.Activity || !Lampa.Activity.active || Lampa.Activity.active() === origin);
             }
             if (!card || !card.yani_id) {
@@ -451,7 +454,7 @@
                             return launchVideo(card, selection.group, selectedPlaylist, applySavedPlaybackPosition(card, selectedVideo));
                         }
                     }
-                    deps.openPicker(card, availableGroups, selection);
+                    deps.openPicker(card, availableGroups, selection, videos);
                     return;
                 }
 

@@ -57,13 +57,15 @@ function environment(options = {}) {
     const Lampa = {
         Scroll: function (options) { assert.equal(options.mask, false); assert.equal(options.notransition, true); const root = $('<div class="scroll"></div>'); this.minus = () => {}; this.update = () => {}; this.append = value => root.append(value); this.render = js => js ? root[0] : root; this.destroy = () => root.remove(); },
         Controller: {enabled: () => ({name: 'content'}), add: (name, controller) => { controllers[name] = controller; }, toggle: name => { if (controllers[name] && controllers[name].toggle) controllers[name].toggle(); }, collectionSet: () => {}, collectionFocus: element => { find(documentRoot, '.focus').forEach(node => { node.classes = node.classes.filter(name => name !== 'focus'); }); if (element) { $(element).addClass('focus'); $(element).trigger('hover:focus'); } }},
-        Storage: {set: (key, value) => { storage[key] = value; }}, Noty: {show: message => notices.push(message)}
+        Storage: {get: (key, fallback) => Object.prototype.hasOwnProperty.call(storage,key) ? storage[key] : fallback, set: (key, value) => { storage[key] = value; }}, Noty: {show: message => notices.push(message)}
     };
     const context = {window: {}, Lampa, $, document: {documentElement: {contains: node => { for (let current = node; current; current = current.parentNode) if (current === documentRoot) return true; return false; }}},
         setTimeout: fn => { const id = ++sequence; timers.set(id, fn); return id; }, clearTimeout: id => timers.delete(id),
         console, Navigator: {canmove: () => true, move: () => {}, add: () => {}}};
     context.window = context;
+    if (options.auth) context.LampaYaniAuth = {get: () => options.auth, token: () => options.auth.token || ''};
     vm.runInNewContext(fs.readFileSync('src/episode.js', 'utf8') + '\n' + fs.readFileSync('src/ui-playback-picker.js', 'utf8'), context);
+    if (options.progress) vm.runInNewContext(fs.readFileSync('src/ui-episode-progress.js','utf8'), context);
     const allVideos = length => Array.from({length}, (_, index) => ({number: index + 1, video_id: 'v' + (index + 1)}));
     const groups = [
         {title: 'Studio A', player: 'Kodik', playerId: 'kodik', videos: allVideos(1403)},
@@ -71,10 +73,11 @@ function environment(options = {}) {
         {title: 'Studio B', player: 'Kodik', playerId: 'kodik', videos: allVideos(1403)}
     ];
     if (options.extraVoices) for (let index = 0; index < options.extraVoices; index++) groups.push({title: 'Extra Studio ' + index, player: 'Kodik', playerId: 'kodik', videos: allVideos(3)});
+    (options.watched || []).forEach(entry => Object.assign(groups[0].videos[entry.index], entry.video));
     const object = {card: {yani_id: 42, title: 'Fixture'}, groups, selection: {group: JSON.parse(JSON.stringify(groups[options.selectionIndex || 0])), origin: 'default', unavailable: false}};
     const component = context.LampaYaniPlaybackPicker.create(object, {
-        t: key => key, preferences: prefs, sourceId: group => group.playerId, sourceLabel: group => group.player,
-        playlist: (card, group) => { playlistCalls++; return group.videos; }, getPlayback: () => ({number: 1075, time: 31, duration: 100}),
+        t: key => key, preferences: prefs, progress: options.progress ? context.LampaYaniEpisodeProgress : null, loadProgress: options.loadProgress, sourceId: group => group.playerId, sourceLabel: group => group.player,
+        playlist: (card, group) => { playlistCalls++; return group.videos; }, getPlayback: () => options.playback || ({number: 1075, time: 31, duration: 100}),
         episodeTitle: (card, video) => 'Episode ' + video.number, groupSubtitle: group => group.videos.length + ' episodes',
         targetPreference: () => currentTarget, rememberTarget: (card, value) => { currentTarget = value; selectedAnime = true; }, externalAvailable: () => true,
         launch: (...args) => launches.push(args), goBack: () => {}
@@ -85,7 +88,7 @@ function environment(options = {}) {
     flush();
     const root = component.render();
     const enter = key => { const element = root.find('[data-yani-focus-key="' + key + '"]'); assert.equal(element.length, 1, key + ' must identify one action'); element.trigger('hover:enter'); flush(); };
-    return {component, root, groups, enter, flush, launches, remembered, defaults, storage, notices, controllers, timers, resetCount: () => resets, playlistCalls: () => playlistCalls};
+    return {component, root, groups, progress: context.LampaYaniEpisodeProgress, enter, flush, launches, remembered, defaults, storage, notices, controllers, timers, resetCount: () => resets, playlistCalls: () => playlistCalls};
 }
 
 let env = environment();
@@ -147,3 +150,50 @@ assert.equal(env.root.find('.selector').length, 0, 'destroy drops all screen con
 assert.equal(env.timers.size, 0, 'destroy cancels deferred focus and launch guards');
 
 console.log('Playback picker runtime: bounded episodes, real combinations, preference changes, return focus and lifecycle passed');
+
+
+(async function watchedEpisodeChecks() {
+    let loads = 0, resolveFresh;
+    const watched = [{index:0, video:{duration:100,watched:{end_time:98}}},
+        {index:2,video:{watched:{completed:true}}}, {index:3,video:{duration:100,watched:{end_time:37}}}];
+    const env = environment({progress:true, playback:{number:1,time:0,duration:100}, watched,
+        loadProgress: () => {loads++;return new Promise(resolve => {resolveFresh=resolve;});}});
+    const tile = i => env.root.find('[data-yani-focus-key="episode:'+i+'"]');
+    assert.equal(loads,0,'initial fresh groups do not trigger a second request');
+    assert.equal(tile(0).attr('data-yani-episode-state'),'completed');
+    assert.equal(tile(1).attr('data-yani-episode-state'),'none','sparse watches must not fill earlier/later gaps');
+    assert.equal(tile(2).attr('data-yani-episode-state'),'completed','explicit completion needs no duration');
+    assert.equal(tile(3).attr('data-yani-episode-state'),'started');
+    assert.match(tile(3).find('.yani-playback__episode-status').text(),/37%/);
+    assert.match(tile(0).attr('aria-label'),/playback_episode_completed/);
+    const existing=tile(0)[0], focused=env.root.find('.focus')[0];
+    const refresh=env.component.refreshProgress();const joined=env.component.refreshProgress();
+    assert.strictEqual(refresh,joined,'manual and return refreshes share a single request');
+    await Promise.resolve(); assert.equal(loads,1);
+    resolveFresh([{number:2,duration:100,watched:{end_time:99}}]); await refresh;
+    assert.strictEqual(tile(0)[0],existing,'fresh server states do not replace episode nodes');
+    assert.strictEqual(env.root.find('.focus')[0],focused,'progress refresh never steals focus');
+    assert.equal(tile(0).attr('data-yani-episode-state'),'none','fresh snapshot replaces old server-only flags');
+    assert.equal(tile(1).attr('data-yani-episode-state'),'completed');
+    env.progress.record(42,{number:3,duration:100,watched:{end_time:99}});
+    env.component.progressChanged({yani_id:42});
+    assert.equal(tile(2).attr('data-yani-episode-state'),'completed','local completion appears without a server request');
+    assert.equal(loads,1);
+    env.component.progressChanged({yani_id:999}); assert.equal(loads,1);
+    const pending=env.component.refreshProgress(); await Promise.resolve();
+    env.component.destroy(); resolveFresh([{number:4,duration:100,watched:{end_time:99}}]);
+    assert.equal(await pending,false,'late replies cannot paint a destroyed screen');
+
+    const auth={login:'Alice',token:'secret-a'};
+    let resolveOld;
+    const scoped=environment({progress:true,auth,playback:{number:1},watched,
+        loadProgress:()=>new Promise(resolve=>{resolveOld=resolve;})});
+    const old=scoped.component.refreshProgress();await Promise.resolve();
+    auth.login='Bob';auth.token='secret-b';
+    scoped.component.progressChanged({yani_id:42});
+    assert.equal(scoped.root.find('[data-yani-focus-key="episode:0"]').attr('data-yani-episode-state'),'none');
+    resolveOld([{number:1,watched:{completed:true}}]);assert.equal(await old,false);
+    assert.equal(scoped.root.find('[data-yani-focus-key="episode:0"]').attr('data-yani-episode-state'),'none','old account reply cannot recolor a new account');
+    scoped.component.destroy();
+    console.log('Watched episode UI: sparse colors, partial progress, server refresh, stable nodes/focus and owner lifecycle passed');
+}()).catch(error=>{console.error(error);process.exitCode=1;});

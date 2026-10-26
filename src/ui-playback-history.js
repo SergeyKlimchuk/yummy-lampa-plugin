@@ -124,6 +124,7 @@
                 return Number(history[b].updated_at || 0) - Number(history[a].updated_at || 0);
             });
             ids.slice(100).forEach(function (id) { delete history[id]; });
+            if (deps.progress) saved.progressOwner = deps.progress.owner();
             persistHistory(history);
             publishPlaybackHistoryChange(card);
             return saved;
@@ -286,10 +287,12 @@
 
         function updatePlaybackProgress(context, position, duration, remote) {
             if (!context || !context.selected || !context.card) return;
+            if (deps.progress && context.progressOwner && !deps.progress.sameOwner(context.progressOwner, deps.progress.owner())) return;
             var video = context.selected;
             video.watched = video.watched || {};
             video.watched.end_time = Math.max(0, Math.floor(Number(position) || 0));
             if (duration > 0) video.duration = Math.floor(duration);
+            if (deps.progress) deps.progress.record(context.card, video, {owner: context.progressOwner, flush: Boolean(remote)});
             var saved = rememberPlayback(context.card, context.group, video);
             if (saved) {
                 context.card.yani_resume = {

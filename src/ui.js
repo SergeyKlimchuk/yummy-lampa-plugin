@@ -143,6 +143,7 @@
 
 
     var playbackHistoryApi = LampaYaniPlaybackHistory.create({
+        progress: window.LampaYaniEpisodeProgress,
         t: t,
         bindYummyCardRender: function (first, second, third, options) {
             return bindYummyCardRender(first, second, third, options);
@@ -406,7 +407,7 @@
         }
     };
 
-    function openPlaybackPicker(card, groups, selection) {
+    function openPlaybackPicker(card, groups, selection, progressVideos) {
         clearPlaybackReturn();
         Lampa.Activity.push({
             url: 'yani/playback/' + card.yani_id,
@@ -414,6 +415,8 @@
             title: card.title || 'YummyAnime',
             card: card,
             groups: groups,
+            progressVideos: progressVideos,
+            progressOwner: window.LampaYaniEpisodeProgress && LampaYaniEpisodeProgress.owner(),
             selection: selection
         });
     }
@@ -422,6 +425,8 @@
         var component = LampaYaniPlaybackPicker.create(object, {
             t: t,
             preferences: LampaYaniPlaybackPreferences,
+            progress: window.LampaYaniEpisodeProgress,
+            loadProgress: function (card) { return videoData.list(card.yani_id || card.anime_id, {fresh: true}); },
             sourceId: playbackSourceId,
             sourceLabel: function (group) { return playbackSourceLabel(playbackSourceId(group)) || group.player || group.source || t('source'); },
             playlist: function (card, group) { return playbackMenu.playbackPlaylist(group); },
@@ -1432,6 +1437,9 @@
         invalidateUserListsSnapshot();
         if (patch && window.LampaYaniCardModel && LampaYaniCardModel.commitListState) LampaYaniCardModel.commitListState(card, patch, owner);
     }
+    if (typeof document !== 'undefined' && window.$) $(document).on('yani:watch-progress.yaniPlaybackEpisodes', function (event, card) {
+        if (activePlaybackSetup && activePlaybackSetup.progressChanged) activePlaybackSetup.progressChanged(card);
+    });
     if (typeof document !== 'undefined' && window.$) $(document).on('yani:list-state-changed.yaniCards', function (event, change) {
         if (!change || !change.anime_id) return;
         $('[data-yani-card-id]').each(function () {
@@ -2019,6 +2027,7 @@
 
     function launchVideo(card, group, videos, selected, options) {
         options = options || {};
+        if (window.LampaYaniEpisodeProgress && !options.progressOwner) options.progressOwner = LampaYaniEpisodeProgress.owner();
         var url = videoSourceUrl(selected);
         if (!url) {
             Lampa.Noty.show(t('no_videos'));
@@ -2078,9 +2087,12 @@
 
     function launchResolvedVideo(card, group, videos, selected, url, options) {
         options = options || {};
+        if (window.LampaYaniEpisodeProgress && options.progressOwner &&
+            !LampaYaniEpisodeProgress.sameOwner(options.progressOwner, LampaYaniEpisodeProgress.owner())) return;
         var title = (card.title || 'YummyAnime') + ' · ' + t('episode') + ' ' + (selected.number || selected.index || '?') + ' · ' + group.title;
         if (!options.recovery) selected.yani_internal_recovery = 0;
-        playbackContext = {card: card, group: group, videos: videos, selected: selected};
+        playbackContext = {card: card, group: group, videos: videos, selected: selected,
+            progressOwner: options.progressOwner || (window.LampaYaniEpisodeProgress && LampaYaniEpisodeProgress.owner())};
         rememberPlayback(card, group, selected);
         addToLampaHistory(card);
         syncServerProgress(selected);

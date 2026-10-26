@@ -34,6 +34,49 @@
         var now = deps.now || function () { return Date.now(); };
         var entries = {};
         var order = [];
+        var cacheOwner = null;
+
+        function readOwner() {
+            var auth = window.LampaYaniAuth;
+            var value = deps.owner ? deps.owner() : auth && auth.get ? auth.get() || {} : {};
+            if (typeof value !== 'object' || value === null) return {key: String(value || '')};
+            return {
+                id: String(value.user_id || value.id || ''),
+                login: String(value.login || ''),
+                token: String(deps.owner ? value.token || '' : auth && auth.token ? auth.token() || '' : value.token || '')
+            };
+        }
+
+        function sameOwner(left, right) {
+            if (!left || !right) return false;
+            if (Object.prototype.hasOwnProperty.call(left, 'key') || Object.prototype.hasOwnProperty.call(right, 'key')) return left.key === right.key;
+            if (Boolean(left.token) !== Boolean(right.token)) return false;
+            if (left.id && right.id) return left.id === right.id;
+            if (left.login && right.login) return left.login === right.login;
+            return left.token === right.token;
+        }
+
+        function retire(key, entry) {
+            if (!entry) return;
+            forget(key, entry);
+            entry.retired = true;
+            if (entry.controller && entry.controller.abort) entry.controller.abort();
+            entry.controller = null;
+            entry.inflight = false;
+            settleWaiters(entry, abortError());
+        }
+
+        function ensureOwner() {
+            var current = readOwner();
+            if (!sameOwner(cacheOwner, current)) {
+                var previous = entries;
+                entries = {};
+                order = [];
+                Object.keys(previous).forEach(function (key) { retire(key, previous[key]); });
+            }
+            cacheOwner = current;
+            return current;
+        }
 
         function remember(key) {
             var index = order.indexOf(key);
@@ -88,9 +131,7 @@
             clearWaiter(waiter);
             entry.waiters = (entry.waiters || []).filter(function (item) { return item !== waiter; });
             waiter.reject(abortError());
-            if (entry.inflight && !entry.waiters.length && entry.controller && entry.controller.abort) {
-                entry.controller.abort();
-            }
+            if (entry.inflight && !entry.waiters.length) retire(key, entry);
         }
 
         function attachWaiter(key, entry, signal) {
@@ -109,19 +150,25 @@
             });
         }
 
-        function start(key, id) {
+        function start(key, id, owner) {
             var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
             var entry = {
                 inflight: true,
                 controller: controller,
                 waiters: [],
                 at: 0,
-                payload: null
+                payload: null,
+                owner: owner,
+                retired: false
             };
             entries[key] = entry;
             remember(key);
             Promise.resolve(fetchVideos(id, {signal: controller && controller.signal})).then(function (payload) {
-                if (controller && controller.signal && controller.signal.aborted) throw abortError();
+                var owner = ensureOwner();
+                // An aborted request may still resolve on older webviews. It
+                // must never repopulate the cache or touch a newer same-title request.
+                if (entry.retired || entries[key] !== entry || !sameOwner(entry.owner, owner) ||
+                    controller && controller.signal && controller.signal.aborted) throw abortError();
                 entry.inflight = false;
                 entry.controller = null;
                 entry.payload = payload;
@@ -141,14 +188,18 @@
             options = options || {};
             var key = String(id || '');
             if (!key) return Promise.reject(new Error('YummyAnime video id is missing'));
+            var owner = ensureOwner();
+            if (options.signal && options.signal.aborted) return Promise.reject(abortError());
             var entry = entries[key];
-            if (entry && !entry.inflight && entry.payload && now() - entry.at < ttl) {
-                if (options.signal && options.signal.aborted) return Promise.reject(abortError());
+            if (!options.fresh && entry && !entry.inflight && entry.payload && now() - entry.at < ttl) {
                 remember(key);
-                return Promise.resolve(entry.payload);
+                return Promise.resolve().then(function () {
+                    if (!sameOwner(owner, ensureOwner())) throw abortError();
+                    return entry.payload;
+                });
             }
             if (entry && entry.inflight) return attachWaiter(key, entry, options.signal);
-            entry = start(key, id);
+            entry = start(key, id, owner);
             return attachWaiter(key, entry, options.signal);
         }
 
@@ -157,6 +208,9 @@
         }
 
         function invalidate(id) {
+            ensureOwner();
+            // Normal invalidation leaves shared in-flight consumers alone.
+            // Only an account transition retires those requests immediately.
             var key = String(id || '');
             if (!key) {
                 Object.keys(entries).forEach(function (item) {

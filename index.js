@@ -15,6 +15,7 @@ function pluginYummyAnime() {
         'src/stream-resolver.js',
         'src/aniskip.js',
         'src/ui-utils.js',
+        'src/ui-episode-progress.js',
         'src/ui-scale.js',
         'src/ui-menu.js',
         'src/yani-resolver.js',

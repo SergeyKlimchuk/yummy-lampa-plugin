@@ -29,13 +29,14 @@ function abortError() {
     return error;
 }
 
-function createManager(options) {
+function createManager(options, auth) {
     const context = {
         window: {LampaYaniConfig: {videosCacheTtl: 120000, videosCacheEntries: 20}},
         AbortController: AbortController,
         Promise: Promise,
         Error: Error
     };
+    if (auth) context.window.LampaYaniAuth = auth;
     vm.runInNewContext(source, context);
     return context.window.LampaYaniVideoData.create(options);
 }
@@ -120,6 +121,102 @@ function deferredFetch() {
     await assert.rejects(only, function (error) { return error.name === 'AbortError'; });
     await Promise.resolve();
     assert.strictEqual(last.calls[0].options.signal.aborted, true, 'closing the last waiter must abort the network request');
+
+    const freshFetch = deferredFetch();
+    const freshManager = createManager({fetch: freshFetch.fetch});
+    const original = freshManager.payload(51);
+    freshFetch.calls[0].resolve({response: [{video_id: 5101, watched: {end_time: 0}}]});
+    await original;
+    const cachedRead = freshManager.payload(51);
+    const freshRead = freshManager.payload(51, {fresh: true});
+    const sharedFreshRead = freshManager.list(51, {fresh: true});
+    assert.strictEqual(freshFetch.calls.length, 2, 'fresh must bypass the completed TTL and coalesce a matching in-flight refresh');
+    assert.strictEqual((await cachedRead).response[0].watched.end_time, 0, 'an already requested same-owner cached read may finish while a fresh request starts');
+    freshFetch.calls[1].resolve({response: [{video_id: 5101, watched: {end_time: 1200}}]});
+    assert.strictEqual((await freshRead).response[0].watched.end_time, 1200);
+    assert.strictEqual((await sharedFreshRead)[0].watched.end_time, 1200);
+    assert.strictEqual((await freshManager.payload(51)).response[0].watched.end_time, 1200, 'fresh payload becomes the shared cached value');
+
+    // Ignore abort on purpose: late responses from older webviews must not
+    // repopulate the previous owner's cache or delete the next owner's request.
+    const accountCalls = [];
+    let owner = {id: 'alpha', login: 'first', token: 'first-token'};
+    const accountManager = createManager({
+        owner: () => owner,
+        fetch: (id, options) => new Promise((resolve, reject) => accountCalls.push({id, options, resolve, reject}))
+    });
+    const oldPending = accountManager.payload(61);
+    const oldRejected = assert.rejects(oldPending, error => error.name === 'AbortError');
+    owner = {id: 'beta', login: 'second', token: 'second-token'};
+    const nextPending = accountManager.payload(61);
+    assert.strictEqual(accountCalls.length, 2, 'an account transition starts a separate same-title request');
+    assert.strictEqual(accountCalls[0].options.signal.aborted, true, 'the old account network request is aborted');
+    await oldRejected;
+    accountCalls[0].resolve({response: [{video_id: 6101, watched: {end_time: 600}}]});
+    await Promise.resolve(); await Promise.resolve(); await Promise.resolve();
+    const coalescedNew = accountManager.payload(61, {fresh: true});
+    assert.strictEqual(accountCalls.length, 2, 'a late old response cannot remove the new owner request');
+    accountCalls[1].resolve({response: [{video_id: 6101, watched: {end_time: 0}}]});
+    assert.strictEqual((await nextPending).response[0].watched.end_time, 0);
+    assert.strictEqual((await coalescedNew).response[0].watched.end_time, 0);
+    owner = {id: 'beta', login: 'second', token: 'refreshed-token'};
+    await accountManager.payload(61);
+    assert.strictEqual(accountCalls.length, 2, 'refreshing the token for the same account does not discard its completed cache');
+    owner = {id: 'gamma', login: 'third', token: 'third-token'};
+    const thirdOwner = accountManager.payload(61);
+    assert.strictEqual(accountCalls.length, 3, 'completed payloads are not reused by another account');
+    accountCalls[2].resolve({response: [{video_id: 6101, watched: {end_time: 40}}]});
+    assert.strictEqual((await thirdOwner).response[0].watched.end_time, 40);
+
+    const transitionCalls = [];
+    let transitionOwner = 'one';
+    const transitionManager = createManager({
+        owner: () => transitionOwner,
+        fetch: (id, options) => new Promise(resolve => transitionCalls.push({id, options, resolve}))
+    });
+    const transitionPending = transitionManager.payload(71);
+    const transitionRejected = assert.rejects(transitionPending, error => error.name === 'AbortError');
+    transitionOwner = 'two';
+    transitionCalls[0].resolve({response: [{video_id: 7101}]});
+    await transitionRejected;
+    const transitionNext = transitionManager.payload(71);
+    assert.strictEqual(transitionCalls.length, 2, 'a late response detects owner changes even without another intervening caller');
+    transitionCalls[1].resolve({response: [{video_id: 7201}]});
+    assert.strictEqual((await transitionNext).response[0].video_id, 7201);
+
+    const cacheOwnerRead = transitionManager.payload(71);
+    const cacheOwnerRejected = assert.rejects(cacheOwnerRead, error => error.name === 'AbortError');
+    transitionOwner = 'three';
+    await cacheOwnerRejected;
+
+    const invalidated = deferredFetch();
+    const invalidateManager = createManager({fetch: invalidated.fetch});
+    const sharedPending = invalidateManager.payload(81);
+    invalidateManager.invalidate();
+    const sharedAgain = invalidateManager.payload(81, {fresh: true});
+    assert.strictEqual(invalidated.calls.length, 1, 'ordinary invalidation must not abort other active consumers');
+    invalidated.calls[0].resolve({response: [{video_id: 8101}]});
+    await sharedPending; await sharedAgain;
+    invalidateManager.invalidate(81);
+    const invalidatedRead = invalidateManager.payload(81);
+    assert.strictEqual(invalidated.calls.length, 2, 'ordinary invalidation still removes completed entries');
+    invalidated.calls[1].resolve({response: [{video_id: 8102}]});
+    await invalidatedRead;
+
+    const defaultOwnerFetch = deferredFetch();
+    let account = {user_id: 901, login: 'same-account', token: 'initial'};
+    const defaultOwnerManager = createManager({fetch: defaultOwnerFetch.fetch}, {get: () => account, token: () => account.token || ''});
+    const signedIn = defaultOwnerManager.payload(91);
+    defaultOwnerFetch.calls[0].resolve({response: [{video_id: 9101, watched: {end_time: 999}}]});
+    await signedIn;
+    account = {user_id: 901, login: 'same-account', token: 'renewed'};
+    await defaultOwnerManager.payload(91);
+    assert.strictEqual(defaultOwnerFetch.calls.length, 1, 'default auth ownership treats token rotation as the same signed-in account');
+    account = {};
+    const signedOut = defaultOwnerManager.payload(91);
+    assert.strictEqual(defaultOwnerFetch.calls.length, 2, 'default auth ownership drops private watched data on logout');
+    defaultOwnerFetch.calls[1].resolve({response: [{video_id: 9101}]});
+    assert.strictEqual((await signedOut).response[0].watched, undefined);
 
     console.log('video data manager contract tests passed');
 })().catch(function (error) {

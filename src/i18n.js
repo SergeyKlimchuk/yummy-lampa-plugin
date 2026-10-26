@@ -1135,6 +1135,27 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     messages.en.playback_target = "Playback application";
     messages.uk.playback_target = "Застосунок для відтворення";
 
+
+    // Episode completion is separate from the current selection/focus.
+    messages.ru.playback_episode_completed = "Просмотрено";
+    messages.en.playback_episode_completed = "Watched";
+    messages.uk.playback_episode_completed = "Переглянуто";
+    messages.ru.playback_episode_started = "Начато";
+    messages.en.playback_episode_started = "Started";
+    messages.uk.playback_episode_started = "Розпочато";
+    messages.ru.playback_progress_refresh = "Обновить просмотр";
+    messages.en.playback_progress_refresh = "Refresh watches";
+    messages.uk.playback_progress_refresh = "Оновити перегляди";
+    messages.ru.playback_progress_refreshing = "Обновляем отметки с YummyAnime…";
+    messages.en.playback_progress_refreshing = "Refreshing watches from YummyAnime…";
+    messages.uk.playback_progress_refreshing = "Оновлюємо позначки з YummyAnime…";
+    messages.ru.playback_progress_updated = "Отметки просмотра обновлены";
+    messages.en.playback_progress_updated = "Watch markers updated";
+    messages.uk.playback_progress_updated = "Позначки перегляду оновлено";
+    messages.ru.playback_progress_error = "Не удалось обновить отметки. Сохранённые данные остаются доступны.";
+    messages.en.playback_progress_error = "Could not refresh watches. Saved progress is still available.";
+    messages.uk.playback_progress_error = "Не вдалося оновити позначки. Збережені дані залишаються доступними.";
+
     function language() {
         var value = window.Lampa && Lampa.Storage ? Lampa.Storage.get(key, 'ru') : 'ru';
         return value === 'en' || value === 'uk' ? value : 'ru';

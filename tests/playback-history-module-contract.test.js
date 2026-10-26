@@ -120,3 +120,30 @@ assert.strictEqual(api.getPlayback(77).time, 240);
 assert.strictEqual(api.getPlayback(77).number, '5');
 
 console.log('playback history module contract checks passed');
+
+
+// Actual timeline observations reach both the sparse local journal and the
+// existing YummyAnime endpoint, without treating earlier episode numbers as seen.
+const account = {login: 'Alice', token: 'a'};
+context.window.LampaYaniAuth = {get: () => account, token: () => account.token};
+const sent = [];
+context.window.LampaYaniApi.syncVideoProgress = (...args) => {sent.push(args);return Promise.resolve({});};
+vm.runInNewContext(fs.readFileSync('src/ui-episode-progress.js','utf8'), context);
+const progress = context.window.LampaYaniEpisodeProgress;
+const owned = context.window.LampaYaniPlaybackHistory.create({progress});
+const owner = progress.owner();
+const card = {yani_id: 91, title: 'Watched fixture'};
+const first = {card, group: {title: 'Studio',player:'Kodik'}, selected: {number:1,video_id:9101}, progressOwner:owner};
+owned.updatePlaybackProgress(first,98,100,true);
+assert.equal(sent.length,1);assert.deepEqual(sent[0],[9101,98,100]);
+const third = {card, group:first.group, selected:{number:3,video_id:9103},progressOwner:owner};
+owned.updatePlaybackProgress(third,40,100,false);
+const states=progress.index(card,[]);
+assert.equal(progress.state(states,{number:1}).state,'completed');
+assert.equal(progress.state(states,{number:2}).state,'none');
+assert.equal(progress.state(states,{number:3}).state,'started');
+account.login='Bob';account.token='b';
+owned.updatePlaybackProgress(first,100,100,true);
+assert.equal(sent.length,1,'an old player context cannot send progress as the new account');
+assert.equal(progress.state(progress.index(card,[]),{number:1}).state,'none');
+console.log('Player timeline to local episode journal and server progress integration passed');

@@ -20,6 +20,13 @@
         var focusTimer = null, launching = false, missingEpisode = false;
         var playlistCache = [];
         var pageSize = 60, optionPageSize = 30;
+        var progress = deps.progress || window.LampaYaniEpisodeProgress;
+        var progressOwner = progress && progress.owner ? progress.owner() : null;
+        var remoteVideos = Array.isArray(object.progressVideos) ? object.progressVideos : groups.reduce(function (all, group) { return all.concat(group.videos); }, []);
+        if (progress && object.progressOwner && !progress.sameOwner(object.progressOwner, progressOwner)) remoteVideos = [];
+        var progressIndex = {}, progressTask = null, progressGeneration = 0;
+        var progressStatus = '', mustRefreshProgress = false, pendingProgress = null;
+        var needsInitialRefresh = Boolean(progress && object.progressOwner && !progress.sameOwner(object.progressOwner, progressOwner));
         scroll.minus();
 
         function voiceKey(group) {
@@ -68,6 +75,80 @@
             selectedGroup = groups.filter(function (group) { return voiceKey(group) === voiceKey(initialGroup) && sourceKey(group) === sourceKey(initialGroup); })[0] || groups[0];
             selectEpisode(selectedGroup, playback().number, playback().video_id);
         }
+
+        function rebuildProgress() {
+            if (!progress) return;
+            var owner = progress.owner();
+            if (!progress.sameOwner(owner, progressOwner)) {
+                progressOwner = owner; remoteVideos = []; pendingProgress = null;
+                progressGeneration += 1; progressTask = null;
+            }
+            progressIndex = progress.index(card, remoteVideos, playback());
+        }
+        function paintProgress() {
+            if (destroyed || paused || mode !== 'main' || !progress) return;
+            var videos = videosFor(selectedGroup);
+            content.find('.yani-playback__episode').each(function () {
+                var item = $(this), index = Number((item.attr('data-yani-focus-key') || '').split(':')[1]);
+                var video = videos[index], value = progress.state(progressIndex, video);
+                var state = value.state || 'none', percent = Math.max(0, Math.min(100, Number(value.percent) || 0));
+                var signature = state + ':' + percent;
+                if (item.attr('data-yani-progress') === signature) return;
+                var status = state === 'completed' ? '✓ ' + t('playback_episode_completed') : state === 'started' ? t('playback_episode_started') + (percent ? ' · ' + percent + '%' : '') : '';
+                item.attr({'data-yani-progress': signature, 'data-yani-episode-state': state, 'aria-label': episodeTitle(video) + (status ? ' · ' + status : '')});
+                item.find('.yani-playback__episode-status').text(status);
+                item.find('.yani-playback__episode-fill').attr('style', 'width:' + percent + '%');
+            });
+        }
+        function paintProgressMessage() {
+            content.find('.yani-playback__progress-message').text(progressStatus);
+            content.find('[data-yani-focus-key="refresh-progress"]').attr('aria-busy', String(Boolean(progressTask)));
+        }
+        function refreshProgress() {
+            if (destroyed || paused || !deps.loadProgress || !progress) return Promise.resolve(false);
+            if (progressTask) return progressTask;
+            var owner = progress.owner(), generation = ++progressGeneration;
+            progressStatus = t('playback_progress_refreshing');
+            var task = Promise.resolve().then(function () { return deps.loadProgress(card); }).then(function (videos) {
+                if (destroyed || generation !== progressGeneration || !progress.sameOwner(owner, progress.owner())) return false;
+                if (!Array.isArray(videos)) return false;
+                if (paused || !ownsActivity()) { pendingProgress = {videos: videos, owner: owner}; return true; }
+                remoteVideos = videos; progressOwner = owner;
+                rebuildProgress(); paintProgress();
+                progressStatus = t('playback_progress_updated');
+                return true;
+            }).catch(function (error) {
+                if (!destroyed && generation === progressGeneration && progress.sameOwner(owner, progress.owner())) {
+                    progressStatus = t('playback_progress_error');
+                    console.warn('[YummyAnime] Could not refresh episode progress', error && error.message || error);
+                }
+                return false;
+            }).then(function (success) {
+                if (progressTask === task) {
+                    progressTask = null;
+                    if (!destroyed && !paused && ownsActivity()) paintProgressMessage();
+                }
+                return success;
+            });
+            progressTask = task; paintProgressMessage();
+            return task;
+        }
+        function refreshAfterReturn() {
+            if (!mustRefreshProgress || paused || destroyed) return;
+            mustRefreshProgress = false;
+            refreshProgress();
+        }
+        function progressChanged(changedCard) {
+            if (destroyed || changedCard && String(changedCard.yani_id || changedCard.anime_id || '') !== String(card.yani_id)) return;
+            rebuildProgress(); paintProgress();
+        }
+        function onProgressAuthChanged() {
+            if (destroyed) return;
+            rebuildProgress(); paintProgress();
+            mustRefreshProgress = true;
+            if (!paused && ownsActivity()) refreshAfterReturn();
+        }
+        rebuildProgress();
 
         function bind(element, key, handler) {
             element.attr({'data-yani-focus-key': key, role: 'button', tabindex: '-1'});
@@ -124,6 +205,7 @@
                 if (!video.duration && saved.duration) video.duration = Number(saved.duration);
             }
             launching = true;
+            mustRefreshProgress = true;
             // Root unlocks on a confirmed return/failure; elapsed time cannot
             // authorize a second stream resolver while the first is in flight.
             if (deps.launch) deps.launch(card, selectedGroup, videosFor(selectedGroup), video, element, scroll.render(), target());
@@ -141,6 +223,7 @@
                 var active = videos[index] === selectedVideo;
                 if (item.attr('aria-pressed') !== String(active)) item.toggleClass('is-selected', active).attr('aria-pressed', String(active));
             });
+            paintProgress();
         }
         function renderMain(focusKey) {
             if (destroyed) return;
@@ -180,15 +263,28 @@
             var section = $('<div class="yani-playback__episode-head"></div>').append($('<h2></h2>').text(t('playback_episode_list')));
             section.append($('<span></span>').text((first + 1) + '–' + last + ' / ' + videos.length));
             content.append(section);
+            if (progress) {
+                var legend = $('<div class="yani-playback__progress-tools"></div>');
+                var labels = $('<div class="yani-playback__progress-legend"></div>');
+                labels.append($('<span class="is-completed"></span>').text('✓ ' + t('playback_episode_completed')),
+                    $('<span class="is-started"></span>').text(t('playback_episode_started')));
+                legend.append(labels);
+                if (deps.loadProgress) legend.append(button(t('playback_progress_refresh'), 'refresh-progress', refreshProgress, 'yani-playback__button--subtle'));
+                content.append(legend, $('<div class="yani-playback__progress-message" role="status" aria-live="polite"></div>').text(progressStatus));
+            }
             var grid = $('<div class="yani-playback__episodes"></div>');
             videos.slice(first, last).forEach(function (video, index) {
                 var active = video === selectedVideo;
                 var item = button(episodeTitle(video), 'episode:' + (first + index), function (element) { play(video, element); }, 'yani-playback__episode');
+                item.empty().append($('<span class="yani-playback__episode-title"></span>').text(episodeTitle(video)),
+                    $('<span class="yani-playback__episode-status"></span>'),
+                    $('<span class="yani-playback__episode-bar" aria-hidden="true"><span class="yani-playback__episode-fill"></span></span>'));
                 item.toggleClass('is-selected', active).attr('aria-pressed', String(active));
                 grid.append(item);
             });
             content.append(grid);
             pagination(episodePage, Math.ceil(videos.length / pageSize), function (page) { episodePage = page; renderMain('episode:' + (page * pageSize)); });
+            paintProgress(); paintProgressMessage();
             scheduleFocus();
         }
         function reset() {
@@ -287,12 +383,20 @@
         var component = {
             create: function () {
                 renderMain(); scroll.append(content); html.append(scroll.render(true)); ready = true;
+                if (document.addEventListener) document.addEventListener('yani:auth-changed', onProgressAuthChanged);
                 if (this.activity && this.activity.loader) this.activity.loader(false);
                 if (this.activity && this.activity.toggle) this.activity.toggle();
             },
             start: function () {
                 if (destroyed) return;
                 paused = false; launching = false;
+                if (pendingProgress && progress && progress.sameOwner(pendingProgress.owner, progress.owner())) {
+                    remoteVideos = pendingProgress.videos; progressOwner = pendingProgress.owner; progressStatus = t('playback_progress_updated'); mustRefreshProgress = false;
+                }
+                pendingProgress = null;
+                rebuildProgress(); paintProgress();
+                if (needsInitialRefresh) { needsInitialRefresh = false; mustRefreshProgress = true; }
+                refreshAfterReturn();
                 Lampa.Controller.add('content', {
                     link: component,
                     toggle: refreshFocus,
@@ -304,16 +408,21 @@
                 });
                 Lampa.Controller.toggle('content');
             },
-            pause: function () { paused = true; cancelFocus(); },
-            stop: function () { paused = true; cancelFocus(); },
+            pause: function () { paused = true; mustRefreshProgress = true; cancelFocus(); },
+            stop: function () { paused = true; mustRefreshProgress = true; cancelFocus(); },
             playbackRestored: function () {
                 if (destroyed || paused) return;
                 launching = false;
-                updateCurrentEpisode();
+                rebuildProgress(); updateCurrentEpisode();
+                refreshAfterReturn();
             },
+            progressChanged: progressChanged,
+            refreshProgress: refreshProgress,
             render: function (js) { return js ? html[0] : html; },
             destroy: function () {
                 destroyed = true; ready = false; cancelFocus();
+                progressGeneration += 1; progressTask = null; pendingProgress = null; remoteVideos = []; progressIndex = {};
+                if (document.removeEventListener) document.removeEventListener('yani:auth-changed', onProgressAuthChanged);
                 playlistCache = []; selectedVideo = null; groups = []; scroll.destroy(); html.remove();
                 if (deps.onDestroy) deps.onDestroy(component);
             }
