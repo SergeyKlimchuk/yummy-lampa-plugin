@@ -2118,11 +2118,38 @@
         });
     }
 
+    function episodeNavigationAllowed(options) {
+        var token = options && options.episodeNavigationToken;
+        if (!token || token.valid()) return true;
+        cancelEpisodeNavigation(options);
+        return false;
+    }
+
+    function cancelEpisodeNavigation(options) {
+        var token = options && options.episodeNavigationToken;
+        if (!token) return;
+        token.cancelled = true;
+        token.context.yaniEpisodeSwitch = false;
+        // A stale request must not hide the spinner of a newer launch.
+        if (token.loading && playbackReturnState.session === token.session) setLoading(false);
+        token.loading = false;
+    }
+
+    function failEpisodeNavigation(options, message) {
+        if (!episodeNavigationAllowed(options)) return false;
+        cancelEpisodeNavigation(options);
+        Lampa.Noty.show(message || t('player_episode_unavailable'));
+        restorePlaybackInteraction();
+        return false;
+    }
+
     function launchVideo(card, group, videos, selected, options) {
         options = options || {};
+        if (!episodeNavigationAllowed(options)) return false;
         if (window.LampaYaniEpisodeProgress && !options.progressOwner) options.progressOwner = LampaYaniEpisodeProgress.owner();
         var url = videoSourceUrl(selected);
         if (!url) {
+            if (options.episodeNavigationToken) return failEpisodeNavigation(options, t('no_videos'));
             Lampa.Noty.show(t('no_videos'));
             restorePlaybackInteraction();
             return;
@@ -2142,13 +2169,17 @@
         // page, which the focus handover in the player component is for.
         var sibnetPageUrl = selected.iframe_url || url;
         if (isSibnetPlaybackSource(sibnetPageUrl, group)) {
+            if (options.episodeNavigationToken) return failEpisodeNavigation(options);
             return openEmbeddedEpisode(card, group, selected, sibnetPageUrl);
         }
         if (!isExternalPlayableUrl(url, selected) && window.LampaYaniStreamResolver && LampaYaniStreamResolver.canResolve(url)) {
             selected.yani_stream_origin = url;
+            if (options.episodeNavigationToken) options.episodeNavigationToken.loading = true;
             setLoading(true);
-            LampaYaniStreamResolver.resolve(url, selected).then(function (result) {
+            return LampaYaniStreamResolver.resolve(url, selected).then(function (result) {
+                if (!episodeNavigationAllowed(options)) return false;
                 setLoading(false);
+                if (options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
                 if (result && result.url) {
                     selected.yani_stream_url = result.url;
                     selected.yani_stream_quality = result.quality || '';
@@ -2157,10 +2188,13 @@
                     selected.yani_stream_headers = result.headers || null;
                     selected.yani_stream_headers_required = Boolean(result.headersRequired);
                 }
-                launchResolvedVideo(card, group, videos, selected, videoSourceUrl(selected) || url, options);
+                return launchResolvedVideo(card, group, videos, selected, videoSourceUrl(selected) || url, options);
             }).catch(function (error) {
+                if (!episodeNavigationAllowed(options)) return false;
                 setLoading(false);
+                if (options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
                 console.warn('[YummyAnime] Stream resolve failed', error);
+                if (options.episodeNavigationToken) return failEpisodeNavigation(options);
                 if (isVkPlaybackSource(url, group)) {
                     Lampa.Noty.show(t('vk_stream_unavailable'));
                     restorePlaybackInteraction();
@@ -2171,15 +2205,16 @@
                     restorePlaybackInteraction();
                     return;
                 }
-                launchResolvedVideo(card, group, videos, selected, url, options);
+                return launchResolvedVideo(card, group, videos, selected, url, options);
             });
-            return;
         }
-        launchResolvedVideo(card, group, videos, selected, url, options);
+        return launchResolvedVideo(card, group, videos, selected, url, options);
     }
 
     function launchResolvedVideo(card, group, videos, selected, url, options) {
         options = options || {};
+        if (!episodeNavigationAllowed(options)) return false;
+        if (options.episodeNavigationToken && !isExternalPlayableUrl(url, selected)) return failEpisodeNavigation(options);
         if (window.LampaYaniEpisodeProgress && options.progressOwner &&
             !LampaYaniEpisodeProgress.sameOwner(options.progressOwner, LampaYaniEpisodeProgress.owner())) return;
         var title = (card.title || 'YummyAnime') + ' · ' + t('episode') + ' ' + (selected.number || selected.index || '?') + ' · ' + group.title;
@@ -2217,6 +2252,15 @@
             return;
         }
 
+        // A series handoff belongs to the running built-in player, even when
+        // the global application setting asks which player to use on launch.
+        if (options.episodeNavigationToken) {
+            if (playInternalPlayer(current, playlist)) return true;
+            cancelEpisodeNavigation(options);
+            Lampa.Noty.show(t('player_episode_unavailable'));
+            restorePlaybackInteraction();
+            return false;
+        }
         if (showDirectPlaybackOptions(card, current, playlist, options)) {
             return;
         }
@@ -2263,22 +2307,28 @@
     }
 
     function launchAllohaDirect(card, group, selected, url, chain, options) {
+        if (options && options.episodeNavigationToken) options.episodeNavigationToken.loading = true;
         setLoading(true);
-        resolveInOrder(chain).then(function (result) {
+        var pending = resolveInOrder(chain).then(function (result) {
+            if (!episodeNavigationAllowed(options)) return false;
             setLoading(false);
+            if (options && options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
             selected.yani_stream_url = result.url;
             selected.yani_stream_quality = result.quality || '';
             selected.yani_stream_qualities = result.qualities || null;
             selected.yani_stream_headers = result.headers || null;
             selected.yani_stream_headers_required = Boolean(result.headersRequired);
             selected.yani_stream_source = result.source || 'lampac-alloha';
-            launchResolvedVideo(card, group, group.videos || [selected], selected, result.url, options);
+            return launchResolvedVideo(card, group, options && options.episodeNavigationToken ? options.episodeNavigationToken.context.videos : group.videos || [selected], selected, result.url, options);
         }).catch(function (error) {
+            if (!episodeNavigationAllowed(options)) return false;
             setLoading(false);
+            if (options && options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
             console.warn('[YummyAnime] Alloha resolve failed; playback blocked', error);
+            if (options && options.episodeNavigationToken) return failEpisodeNavigation(options);
             blockAllohaPlayback(card, group, selected, url);
         });
-        return true;
+        return options && options.episodeNavigationToken ? pending : true;
     }
 
     function launchAllohaPlayer(card, group, selected, url, options) {
@@ -2286,7 +2336,10 @@
         if (selected && isAllohaUrl(url)) selected.yani_alloha_iframe_url = url;
         var chain = allohaResolvers(card, group, selected, url);
         var webAvailable = allohaIframeEnabled();
-        if (!chain.length) return blockAllohaPlayback(card, group, selected, url);
+        if (!chain.length) {
+            if (options.episodeNavigationToken) return failEpisodeNavigation(options);
+            return blockAllohaPlayback(card, group, selected, url);
+        }
 
         // Auto-next must stay uninterrupted. The direct resolver is the only
         // Alloha route that can preserve Lampa's playlist and progress model.
@@ -2695,10 +2748,10 @@
     }
 
     function playInternalPlayer(current, playlist) {
-        // Lampa's player also auto-plays the next playlist item when a video
-        // ends. If this plugin already owns auto-next, a multi-item playlist
-        // would skip one extra episode.
-        var items = autoNextEnabled() && current ? [current] : playlist;
+        // The plugin owns episode resolution, progress and decoder handoff.
+        // Keep the native playlist at one item: Lampa's global playlist_next
+        // must not start a second, untracked episode alongside our controls.
+        var items = current ? [current] : [];
         var started = isExternalPlayableUrl(current && current.url, current && current.source) && playInternalDirectVideo(current, items);
         if (started) {
             warnAboutRequestHeaders(current);
@@ -2779,6 +2832,7 @@
         if (state.video && state.endedHandler && state.video.removeEventListener) {
             state.video.removeEventListener('ended', state.endedHandler);
         }
+        if (state.episodeControls) state.episodeControls.destroy();
         playbackWatcher = null;
         destroySkipPrompt();
     }
@@ -2828,6 +2882,25 @@
         };
         playbackWatcher = state;
         bindPlayerProgressEvents(generation, context, state);
+        if (window.LampaYaniPlayerEpisodes) {
+            var selectedId = videoIdentity(context.selected);
+            var selected = (context.videos || []).filter(function (video) { return videoIdentity(video) === selectedId; })[0];
+            state.episodeControls = LampaYaniPlayerEpisodes.bind({
+                context: context,
+                selected: selected,
+                items: (context.videos || []).map(function (video) {
+                    return {video: video, label: window.LampaYaniEpisode.valueOf(video)};
+                }),
+                t: t,
+                valid: function () {
+                    return generation === playbackWatcherGeneration && playbackWatcher === state &&
+                        playbackContext === context && !state.advanced && !state.recovering &&
+                        (!window.LampaYaniEpisodeProgress || !context.progressOwner ||
+                            LampaYaniEpisodeProgress.sameOwner(context.progressOwner, LampaYaniEpisodeProgress.owner()));
+                },
+                onSelect: function (target) { return switchInternalEpisode(context, target, state.video); }
+            });
+        }
         state.timer = setInterval(function () { watchPlayback(generation, context, state); }, 1000);
         var initialLength = Number(context.selected && context.selected.duration || 0);
         if (skipMode !== 'off' && initialLength >= 60) loadSkipSegments(generation, context, state, skipMode, initialLength);
@@ -3059,7 +3132,6 @@
         if (generation !== playbackWatcherGeneration || playbackWatcher !== state || !state.autoNext || state.advanced) return;
         var closingVideo = state.video;
         state.advanced = true;
-        stopPlaybackWatcher();
         advanceToNextEpisode(context, closingVideo);
     }
 
@@ -3270,10 +3342,12 @@
 
     function videoIdentity(video) {
         if (!video) return '';
-        return String(video.video_id || video.id || '') + ':' + window.LampaYaniEpisode.key(window.LampaYaniEpisode.valueOf(video)) + ':' + String(videoSourceUrl(video) || '');
+        var id = video.video_id || video.id;
+        if (id) return 'id:' + String(id);
+        return window.LampaYaniEpisode.key(window.LampaYaniEpisode.valueOf(video)) + ':' + String(video.yani_stream_origin || video.iframe_url || videoSourceUrl(video) || '');
     }
 
-    function nextEpisodeVideo(context) {
+    function adjacentEpisodeVideo(context, direction) {
         var videos = (context && context.videos) || [];
         var selected = context && context.selected;
         if (!selected || !videos.length) return null;
@@ -3287,8 +3361,13 @@
                 }
             }
         }
-        if (index < 0 || index + 1 >= videos.length) return null;
-        return videos[index + 1];
+        var targetIndex = index + (direction < 0 ? -1 : 1);
+        if (index < 0 || targetIndex < 0 || targetIndex >= videos.length) return null;
+        return videos[targetIndex];
+    }
+
+    function nextEpisodeVideo(context) {
+        return adjacentEpisodeVideo(context, 1);
     }
 
     // Resolving a stream costs a round trip through the source's player page,
@@ -3396,6 +3475,55 @@
         });
     }
 
+    function switchInternalEpisode(context, targetVideo, closingVideo, options) {
+        options = options || {};
+        if (!context || playbackContext !== context || context.yaniEpisodeSwitch || !targetVideo ||
+            (context.videos || []).indexOf(targetVideo) < 0 || videoIdentity(targetVideo) === videoIdentity(context.selected)) return Promise.resolve(false);
+        var owner = context.progressOwner || (window.LampaYaniEpisodeProgress && LampaYaniEpisodeProgress.owner());
+        if (window.LampaYaniEpisodeProgress && owner && !LampaYaniEpisodeProgress.sameOwner(owner, LampaYaniEpisodeProgress.owner())) return Promise.resolve(false);
+        var activity = Lampa.Activity && Lampa.Activity.active ? Lampa.Activity.active() : null;
+        var state = playbackWatcher && playbackWatcher.context === context ? playbackWatcher : null;
+        if (state && state.recovering) return Promise.resolve(false);
+        context.yaniEpisodeSwitch = true;
+        if (state) state.advanced = true;
+        // Save the real position while the old video and watcher still exist.
+        // Moving manually never marks an unfinished episode as completed.
+        flushPlaybackProgress(true, context);
+        beginPlaybackNavigation();
+        var token = {
+            context: context,
+            session: playbackReturnState.session,
+            activity: activity,
+            owner: owner,
+            cancelled: false,
+            valid: function () {
+                return !token.cancelled && playbackContext === context && playbackReturnState.active && playbackReturnState.session === token.session &&
+                    (!Lampa.Activity || !Lampa.Activity.active || Lampa.Activity.active() === token.activity) &&
+                    (!window.LampaYaniEpisodeProgress || !owner || LampaYaniEpisodeProgress.sameOwner(owner, LampaYaniEpisodeProgress.owner()));
+            }
+        };
+        var launchOptions = {autoAdvance: true, progressOwner: owner, episodeNavigationToken: token};
+        return closeInternalPlayer(closingVideo).then(function () {
+            if (!episodeNavigationAllowed(launchOptions)) {
+                cancelEpisodeNavigation(launchOptions);
+                return false;
+            }
+            // Replaying a completed episode starts at zero; unfinished episodes
+            // keep their saved offset. Keep the watched badge/history intact.
+            var watched = targetVideo.watched || {};
+            if (window.LampaYaniUiUtils && LampaYaniUiUtils.isEpisodeFinished &&
+                LampaYaniUiUtils.isEpisodeFinished(watched.end_time || watched.time, targetVideo.duration, watched)) {
+                targetVideo.watched = Object.assign({}, watched, {end_time: 0, time: 0});
+            }
+            return Promise.resolve(launchVideo(context.card, context.group, context.videos, targetVideo, launchOptions)).then(function (result) {
+                return result !== false;
+            });
+        }).catch(function (error) {
+            console.warn('[YummyAnime] Episode switch failed', error);
+            return failEpisodeNavigation(launchOptions);
+        });
+    }
+
     function advanceToNextEpisode(context, closingVideo) {
         var next = nextEpisodeVideo(context);
         if (!next) {
@@ -3403,15 +3531,7 @@
             return;
         }
         Lampa.Noty.show(t('auto_next_starting') + ' ' + (next.number || next.index || ''));
-        // Bumping the return session first: closing the player schedules a
-        // focus restore back to the detail page, which must not fire while the
-        // next episode is opening.
-        beginPlaybackNavigation();
-        var handoffSession = playbackReturnState.session;
-        closeInternalPlayer(closingVideo).then(function () {
-            if (playbackReturnState.session !== handoffSession || playbackContext !== context) return;
-            launchVideo(context.card, context.group, context.videos, next, {autoAdvance: true});
-        });
+        return switchInternalEpisode(context, next, closingVideo);
     }
 
     function externalPlayablePlaylist(playlist) {

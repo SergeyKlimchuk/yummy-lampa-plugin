@@ -3735,3 +3735,15 @@ body.yani-player-open .head--simple {
 @media (max-width: 700px) {
     .yani-tv-rail__symbol.yani-nav-icon { display: flex; }
 }
+
+/* Episode controls belong to the native player, without extra overlays or animation. */
+.player-panel .yani-player-episodes { background: #333333; border-radius: .6em; }
+.player-panel .yani-player-episodes .yani-player-episode {
+    width: auto; min-width: 4.2em; max-width: 8em; height: 3em; padding: .65em .75em;
+    gap: .35em; border-radius: .6em; color: #eeeeee; box-sizing: border-box;
+    box-shadow: none; text-shadow: none; animation: none; transition: none;
+}
+.player-panel .yani-player-episodes .yani-player-episode svg { flex: 0 0 1.2em; }
+.player-panel .yani-player-episode__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82em; }
+.player-panel .yani-player-episodes .yani-player-episode.focus { background: #ff6666; color: #1c1c1c; }
+.player-panel .yani-player-episodes .yani-player-episode--disabled { opacity: .35; cursor: default; }

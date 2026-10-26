@@ -1,1 +1,1 @@
-window.LampaYaniBuild = {"schemaVersion":1,"version":"0.47.22","commit":"e8661e2f26fb82d4a8cc8ab2ac45069e7aa4ecf3","shortCommit":"e8661e2","builtAt":"2026-10-26T17:44:36.194Z","dirty":true,"channel":"local","repository":"https://github.com/SergeyKlimchuk/yummy-lampa-plugin"};
+window.LampaYaniBuild = {"schemaVersion":1,"version":"0.47.22","commit":"d794453f3551cc2827ed5fce2d6561946c7dffa0","shortCommit":"d794453","builtAt":"2026-10-26T22:30:29.445Z","dirty":true,"channel":"local","repository":"https://github.com/SergeyKlimchuk/yummy-lampa-plugin"};
