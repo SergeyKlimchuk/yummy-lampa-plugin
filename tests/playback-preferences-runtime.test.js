@@ -44,14 +44,17 @@ env.api.setDefaults({voice: '  AniLibria  ', source: {value: 'sibnet'}});
 assert.equal(env.api.defaults().voice, 'AniLibria');
 assert.equal(env.api.defaults().source, 'sibnet');
 let result = env.api.resolve(card, groups, {video_id: 'studio-k1', voice: 'Studio Band', player: 'kodik'});
-assert.equal(result.group, libriaSibnet, 'configured defaults beat another dubbing in playback history');
-assert.equal(result.origin, 'default');
+assert.equal(result.group, studioKodik, 'an exact watched video restores this anime’s actual dubbing and provider before generic defaults');
+assert.equal(result.origin, 'history');
+assert.equal(env.api.resolve(card, groups, {video_id: 'removed-video', voice: 'Studio Band', player: 'kodik'}).group, libriaSibnet, 'unavailable watched video falls back to configured defaults');
 assert.equal(result.unavailable, false);
+assert.equal(env.writes.filter(write => write[0] === 'yani_playback_preferences_v1').length, 0, 'history recovery never writes title preferences or watch progress');
 assert.equal(env.api.resolve({yani_id: 43}, groups).group, libriaSibnet, 'new titles use the same global defaults');
 env.api.remember(card, studioKodik);
 result = env.api.resolve(card, groups);
 assert.equal(result.group, studioKodik, 'an explicit anime choice overrides global defaults');
 assert.equal(result.origin, 'anime');
+assert.equal(env.api.resolve(card, groups, {video_id: 'libria-s1'}).group, studioKodik, 'explicit local anime choice keeps priority over synced watch history');
 assert.equal(env.api.resolve({yani_id: 43}, groups).group, libriaSibnet, 'one anime cannot change another anime');
 assert.equal(env.api.defaults().source, 'sibnet', 'a manual anime choice must not rewrite global defaults');
 const savedBefore = JSON.stringify(env.api.saved(card));
@@ -100,26 +103,35 @@ assert.equal(result.unavailable, true);
 env.api.setDefaults({source: 'Unknown Provider', voice: {value: ''}});
 assert.equal(env.api.defaults().source, 'auto', 'settings accept only known source choices or Auto');
 
-env = environment();
+env = environment({yani_playback_target: 'internal', yani_playback_preferences_v1: JSON.stringify({version: 1, items: {
+    '42': {voice: 'Studio Band', source: 'kodik', target: 'external', updatedAt: 1000},
+    '43': {voice: '', source: '', target: 'external', updatedAt: 1000}
+}})});
 env.api.setDefaults({voice: 'AniLibria', source: 'sibnet'});
-env.api.rememberTarget(card, 'external');
-assert.equal(env.api.target(card, 'internal'), 'external');
-assert.equal(env.api.resolve(card, groups).group, libriaSibnet,
-    'an entry containing only a player target must not suppress global dub/source defaults');
-assert.equal(env.api.resolve(card, groups).origin, 'default');
-assert.equal(env.api.target({yani_id: 43}, 'internal'), 'internal', 'player targets stay isolated per anime');
-env.api.remember(card, studioKodik);
-assert.equal(env.api.target(card, 'internal'), 'external', 'changing the dub/source preserves the anime player target');
-env.api.rememberTarget(card, 'internal');
-assert.equal(env.api.saved(card).voice, 'Studio Band', 'changing the player target preserves dub/source');
-assert.equal(env.api.saved(card).source, 'kodik');
+assert.equal(env.api.target(card), 'internal', 'legacy title application cannot override the global setting');
+assert.equal(env.api.saved(card).voice, 'Studio Band', 'migration preserves the title dubbing');
+assert.equal(env.api.saved(card).source, 'kodik', 'migration preserves the title provider');
+assert.equal(env.api.saved(card).target, undefined, 'application is no longer part of title preferences');
+assert.equal(env.api.saved({yani_id: 43}), null, 'legacy application-only entries do not create a title preference');
+assert.equal(env.api.resolve({yani_id: 43}, groups).group, libriaSibnet,
+    'legacy application-only entries do not suppress global dubbing/provider defaults');
+const beforeOldCaller = env.writes.length;
 env.api.rememberTarget(card, 'ask');
-assert.equal(env.api.target(card, 'external'), 'ask');
-env.api.rememberTarget(card, 'bad');
-assert.equal(env.api.target(card, 'external'), 'ask', 'unsupported player targets are ignored');
-assert.equal(environment(env.store).api.target(card, 'internal'), 'ask', 'player targets persist across reload');
+assert.equal(env.writes.length, beforeOldCaller, 'an old cached caller cannot write title application overrides');
+assert.equal(env.api.target(card), 'internal');
+env.store.yani_playback_target = 'external';
+assert.equal(env.api.target(card), 'external', 'native Settings updates are read immediately for every anime');
+assert.equal(env.api.target({yani_id: 43}), 'external');
+assert.equal(env.api.target(card, 'internal'), 'internal', 'platform restrictions can still force the internal player');
+env.api.remember(card, libriaSibnet);
+assert.equal(env.api.saved(card).voice, 'AniLibria');
+assert.equal(env.api.saved(card).source, 'sibnet');
+assert.ok(!JSON.stringify(JSON.parse(env.store.yani_playback_preferences_v1).items).includes('target'),
+    'saving a title cleans old application fields without retaining application-only entries');
+assert.equal(environment(env.store).api.target(card), 'external', 'global application survives reload');
 env.api.reset(card);
-assert.equal(env.api.target(card, 'internal'), 'internal', 'reset clears the title target together with its dub/source');
+assert.equal(env.api.saved(card), null);
+assert.equal(env.api.target(card), 'external', 'resetting one anime cannot reset the global application');
 
 env = environment();
 env.api.observe([studioKodik, libriaKodik, libriaSibnet]);
@@ -164,7 +176,7 @@ assert.equal(env.api.resolve(card, groups).group, libriaSibnet);
 env.api.remember(card, studioKodik);
 env.api.rememberTarget(card, 'external');
 assert.equal(env.api.resolve(card, groups).group, studioKodik, 'anime choices remain available after a failed persistence write');
-assert.equal(env.api.target(card, 'internal'), 'external', 'failed target writes use the same in-memory entry');
+assert.equal(env.api.target(card, 'internal'), 'internal', 'failed title writes cannot create an application override');
 env.api.observe([studioKodik, libriaSibnet]);
 assert.deepEqual(Array.from(env.api.knownVoices()), ['AniLibria', 'Studio Band'], 'observed voices also survive a quota failure for this session');
 env.api.reset(card);

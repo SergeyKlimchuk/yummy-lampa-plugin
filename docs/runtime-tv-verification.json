@@ -1,19 +1,19 @@
 {
-  "checkedAt": "2026-10-26T15:00:04.314374+00:00",
+  "checkedAt": "2026-10-26T17:44:39.297636+00:00",
   "build": {
     "schemaVersion": 1,
     "version": "0.47.22",
-    "commit": "af45fcba0c0d47e66178bea81d00b7bcf1e34a2e",
-    "shortCommit": "af45fcb",
-    "builtAt": "2026-10-26T14:59:58.148Z",
+    "commit": "e8661e2f26fb82d4a8cc8ab2ac45069e7aa4ecf3",
+    "shortCommit": "e8661e2",
+    "builtAt": "2026-10-26T17:44:36.194Z",
     "dirty": true,
     "channel": "local",
     "repository": "https://github.com/SergeyKlimchuk/yummy-lampa-plugin"
   },
   "environment": "Desktop Chromium with production source modules and a synthetic Lampa host/API. No account changes or video playback.",
   "tests": {
-    "passed": 129,
-    "total": 129,
+    "passed": 130,
+    "total": 130,
     "runtime": "Node 26 with --no-experimental-global-navigator (matches the navigator behavior of CI Node 20)",
     "postLayoutChecks": [
       "library-runtime",
@@ -218,5 +218,24 @@
       "categoryChangesChecked": true
     },
     "values": "Existing API scores and source labels preserved"
+  },
+  "accountNavigationAndGlobalPlayer": {
+    "identity": "Actual profile nickname and avatar in Home and shared rail; SVG silhouette and gear; memory-only shared5minute profile cache",
+    "checks": [
+      "Shared profile request and cache across navigation",
+      "Guest silhouette with no profile request",
+      "Avatar error and request error fallbacks",
+      "Account switch and late response/destroy protection",
+      "Global application remains selected after navigating through anime playback",
+      "Anime playback contains voice/source fields only; no app selector or note",
+      "Legacy per-anime application overrides ignored without deleting voice/provider",
+      "Exact watched video restores source+dubbing before generic defaults when no local title choice"
+    ],
+    "browserFixtures": "Synthetic profile nickname/avatar and guest; Android Settings persistence and WebOS navigation",
+    "apiEvidence": [
+      "https://api.yani.tv/swagger",
+      "https://api.yani.tv/swagger/swagger-ui-init.js"
+    ],
+    "cloudLimit": "Selecting without playback stays local; no separate documented preference endpoint and no fabricated progress writes"
   }
 }

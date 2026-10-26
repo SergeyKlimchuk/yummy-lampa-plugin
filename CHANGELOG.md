@@ -27,6 +27,11 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Changed
 
+- Account navigation now shows the signed-in nickname and avatar with a silhouette fallback, and consistent SVG settings icons; profile requests are shared across screens.
+- Playback application is global for all anime in Settings; legacy per-anime application overrides are ignored while translation and provider choices are retained.
+- For anime without a local preference, the exact last-watched video restores its dubbing/provider pair from account history before generic defaults. Pure selection remains local because the API exposes no separate preference endpoint.
+
+
 - Global playback defaults to Settings only; the anime playback screen changes and resets only that anime’s remembered preferences
 
 - Plugin content scale to automatic HD / Full HD / QHD / 4K defaults, with scale-aware poster grids and inherited sizing to prevent nested panels from scaling twice

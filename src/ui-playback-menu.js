@@ -587,9 +587,10 @@
         function showDirectPlaybackOptions(card, current, playlist, options) {
             // An automatic episode change must never interrupt viewing with a
             // dialog: playback simply continues where it already was.
-            var fallbackTarget = playbackTargetPreference();
-            var target = options && options.autoAdvance ? 'internal' : options && options.playbackTarget ||
-                (preferences ? preferences.target(card, fallbackTarget) : fallbackTarget);
+            // Read the shared setting at launch time, including after returning
+            // from Settings. Neither a cached title override nor a stale picker
+            // argument may override the selected application.
+            var target = options && options.autoAdvance ? 'internal' : playbackTargetPreference();
             var canExternal = androidExternalPlayerAvailable();
             if (target === 'external' && !canExternal) target = 'internal';
             if (target === 'external') return openExternalPlayer(current, playlist, card);
@@ -617,7 +618,6 @@
                 title: t('choose_playback'),
                 items: items,
                 onSelect: function (item) {
-                    if (preferences && item && item.action) preferences.rememberTarget(card, item.action);
                     if (item && item.action === 'internal') {
                         if (playInternalPlayer(current, playlist)) return;
                         Lampa.Noty.show(t('internal_player_unavailable'));

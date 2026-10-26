@@ -53,8 +53,9 @@ function $(value) {
     if (Array.isArray(value)) return new Wrapper(value);
     return new Wrapper(typeof value === 'string' && value.charAt(0) === '<' ? parse(value) : []);
 }
-Wrapper.prototype.append = function (value) {
-    var added = $(value).nodes;
+Wrapper.prototype.append = function () {
+    var added = [];
+    Array.from(arguments).forEach(function (value) { added = added.concat($(value).nodes); });
     this.nodes.forEach(function (parent) { added.forEach(function (node) {
         if (node.parent) node.parent.children.splice(node.parent.children.indexOf(node), 1);
         node.parent = parent; parent.children.push(node);
@@ -132,6 +133,14 @@ function environment(options) {
         openAccount: function () { calls.push({name: 'account'}); }, openSettings: function () {}
     };
     var window = {Lampa: Lampa, $: $, AbortController: AbortController, Navigator: {canmove: options.canmove || function () { return true; }, move: function () {}}};
+    if (options.identity) window.LampaYaniAccountIdentity = {
+        icon: function (name) { calls.push({name: 'identityIcon', key: name}); return '<svg></svg>'; },
+        bind: function (element, args) {
+            calls.push({name: 'identityBind', element: element[0]});
+            element.find(args.labelSelector).text('Demo Nickname');
+            return {refresh: function () { calls.push({name: 'identityRefresh'}); }, destroy: function () { calls.push({name: 'identityDestroy'}); }};
+        }
+    };
     vm.runInNewContext(insightsSource, {window: window});
     deps.listCounts = window.LampaYaniHomeInsights.listCounts;
     vm.runInNewContext(source, {window: window, document: document, $: $, Promise: Promise, setTimeout: function (fn) { var timer = {fn: fn, live: true}; timers.push(timer); return timer; }, clearTimeout: function (timer) { timer.live = false; }, Date: Date, console: console});
@@ -175,6 +184,14 @@ async function run() {
     var railKeys = component.render().find('.yani-lite-nav').nodes.map(function (n) { return n.attrs['data-yani-home-key']; });
     assert.deepStrictEqual(railKeys, ['nav:home','nav:search','nav:user_lists','nav:catalog','nav:more','nav:account','nav:settings']);
     console.log('PASS: immediate shell, bounded DOM and one catalog/statistics/history task');
+
+    var identityEnv = environment({identity: true});
+    var identityPage = identityEnv.make(); identityPage.start();
+    assert.strictEqual(identityPage.render().find('.yani-lite-nav--account').text().indexOf('Demo Nickname') >= 0, true, 'home uses the shared nickname binding');
+    assert.strictEqual(identityEnv.calls.filter(function (call) { return call.name === 'identityBind'; }).length, 1);
+    assert.deepStrictEqual(identityEnv.calls.filter(function (call) { return call.name === 'identityIcon'; }).map(function (call) { return call.key; }), ['account', 'settings']);
+    identityPage.destroy();
+    assert.strictEqual(identityEnv.calls.filter(function (call) { return call.name === 'identityDestroy'; }).length, 1, 'home releases the account binding on destruction');
 
     var envOldCounts = environment();
     envOldCounts.store.yani_lite_counts_v1 = {owner: '42', at: Date.now(), counts: {watching: 0}};

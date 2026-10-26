@@ -42,9 +42,6 @@
         function sameEpisode(left, right) { return window.LampaYaniEpisode ? LampaYaniEpisode.same(left, right) : String(left) === String(right); }
         function episodeTitle(video) { return deps.episodeTitle ? deps.episodeTitle(card, video) : t('episode') + ' ' + episodeValue(video); }
         function playback() { return card.yani_resume || deps.getPlayback && deps.getPlayback(card.yani_id) || {}; }
-        function target() { return deps.targetPreference ? deps.targetPreference(card) : deps.playbackTargetPreference ? deps.playbackTargetPreference() : 'internal'; }
-        function externalAvailable() { return Boolean(deps.externalAvailable && deps.externalAvailable()); }
-        function targetTitle(value) { return t('playback_target_' + (value === 'external' || value === 'internal' ? value : 'ask')); }
         function ownsActivity() { return !destroyed && (!Lampa.Activity || typeof Lampa.Activity.own !== 'function' || Lampa.Activity.own(component)); }
         function videosFor(group) {
             var index = groups.indexOf(group);
@@ -210,7 +207,7 @@
             mustRefreshProgress = true;
             // Root unlocks on a confirmed return/failure; elapsed time cannot
             // authorize a second stream resolver while the first is in flight.
-            if (deps.launch) deps.launch(card, selectedGroup, videosFor(selectedGroup), video, element, scroll.render(), target());
+            if (deps.launch) deps.launch(card, selectedGroup, videosFor(selectedGroup), video, element, scroll.render());
         }
         function updateCurrentEpisode() {
             if (!selectedVideo || mode !== 'main') return;
@@ -259,7 +256,6 @@
             if (focusKey) lastKey = focusKey;
             mainNodes.voice.find('.yani-playback__field-value').text(selectedGroup.title);
             mainNodes.source.find('.yani-playback__field-value').text(sourceLabel(selectedGroup));
-            if (mainNodes.target) mainNodes.target.find('.yani-playback__field-value').text(targetTitle(target()));
             mainNodes.origin.text(originText());
             mainNodes.groupMeta.text(deps.groupSubtitle ? deps.groupSubtitle(selectedGroup) : '');
             mainNodes.notice.text(missingEpisode ? t('playback_episode_missing') : '');
@@ -297,8 +293,6 @@
             var voice = changeField(t('playback_voice'), selectedGroup.title, 'voice', 'voices');
             var source = changeField(t('playback_source'), sourceLabel(selectedGroup), 'source', 'sources');
             fields.append(voice, source);
-            var targetField = externalAvailable() ? changeField(t('playback_target'), targetTitle(target()), 'target', 'targets') : null;
-            if (targetField) fields.append(targetField);
             content.append(fields);
             var preferenceNote = $('<div class="yani-playback__preference-note"></div>');
             var origin = $('<div class="yani-playback__hint"></div>');
@@ -319,8 +313,7 @@
             }
             var grid = $('<div class="yani-playback__episodes"></div>'), pages = $('<div></div>');
             content.append(grid, pages);
-            if (!externalAvailable()) content.append($('<div class="yani-playback__target-note"></div>').text(t('playback_target_internal')));
-            mainNodes = {currentTitle: currentTitle, currentMeta: currentMeta, voice: voice, source: source, target: targetField,
+            mainNodes = {currentTitle: currentTitle, currentMeta: currentMeta, voice: voice, source: source,
                 preferenceNote: preferenceNote, origin: origin, groupMeta: groupMeta, notice: notice, count: count,
                 grid: grid, pagination: pages, reset: null};
             updateMain(focusKey); scheduleFocus();
@@ -368,21 +361,16 @@
         }
         function optionsForMode(optionMode) {
             var kind = optionMode || mode;
-            return kind === 'targets' ? ['internal', 'external', 'ask'].map(function (value) { return {title: targetTitle(value), target: value, selected: target() === value}; }) : kind === 'voices' ? voiceOptions() : sourceOptions();
+            return kind === 'voices' ? voiceOptions() : sourceOptions();
         }
         function applyOption(option, optionMode) {
-            if (optionMode === 'targets') {
-                if (deps.rememberTarget) deps.rememberTarget(card, option.target);
-                selection = {group: selectedGroup, origin: 'anime', unavailable: false};
-            } else {
-                var desired = episodeValue(selectedVideo);
-                selectedGroup = option.group;
-                if (preferences && preferences.remember) preferences.remember(card, selectedGroup);
-                selection = {group: selectedGroup, origin: 'anime', unavailable: false};
-                selectEpisode(selectedGroup, desired);
-            }
-            var key = optionMode === 'targets' ? 'target' : optionMode === 'voices' ? 'voice' : 'source';
-            updateMain(key, optionMode !== 'targets');
+            if (!option || !option.group) return;
+            var desired = episodeValue(selectedVideo);
+            selectedGroup = option.group;
+            if (preferences && preferences.remember) preferences.remember(card, selectedGroup);
+            selection = {group: selectedGroup, origin: 'anime', unavailable: false};
+            selectEpisode(selectedGroup, desired);
+            updateMain(optionMode === 'voices' ? 'voice' : 'source', true);
         }
         function closeOptions() {
             choiceGeneration += 1;
@@ -390,11 +378,12 @@
             if (panel && panel.destroy) panel.destroy();
         }
         function openOptions(nextMode) {
+            if (nextMode !== 'voices' && nextMode !== 'sources') return;
             var choices = deps.choicePanel || window.LampaYaniChoicePanel;
             if (choices && choices.show) {
                 closeOptions();
                 var items = optionsForMode(nextMode), generation = ++choiceGeneration;
-                var key = nextMode === 'targets' ? 'target' : nextMode === 'voices' ? 'voice' : 'source';
+                var key = nextMode === 'voices' ? 'voice' : 'source';
                 lastKey = key;
                 var owner = progress && progress.owner ? progress.owner() : null;
                 function valid() {
@@ -402,7 +391,7 @@
                         (!owner || progress.sameOwner(owner, progress.owner()));
                 }
                 var panel = choices.show({
-                    title: t(nextMode === 'targets' ? 'playback_target' : nextMode === 'voices' ? 'playback_voice' : 'playback_source'),
+                    title: t(nextMode === 'voices' ? 'playback_voice' : 'playback_source'),
                     description: originText(),
                     context: {title: card.title, poster: card.poster || card.img || ''},
                     origin: content.find('[data-yani-focus-key="' + key + '"]').first(), collection: scroll.render(),
@@ -432,12 +421,12 @@
 
         function renderOptions() {
             if (destroyed) return;
-            var isVoice = mode === 'voices', isTarget = mode === 'targets';
+            var isVoice = mode === 'voices';
             var options = optionItems || optionsForMode();
-            var title = isTarget ? t('player') : t(isVoice ? 'playback_voice' : 'playback_source');
+            var title = t(isVoice ? 'playback_voice' : 'playback_source');
             content.empty();
-            heading(title, isTarget ? card.title : selectedGroup && selectedGroup.title && !isVoice ? selectedGroup.title : card.title);
-            content.append(button('‹ ' + t('playback_back_to_episodes'), 'back', function () { renderMain(isTarget ? 'target' : isVoice ? 'voice' : 'source'); }, 'yani-playback__button--subtle'));
+            heading(title, selectedGroup && selectedGroup.title && !isVoice ? selectedGroup.title : card.title);
+            content.append(button('‹ ' + t('playback_back_to_episodes'), 'back', function () { renderMain(isVoice ? 'voice' : 'source'); }, 'yani-playback__button--subtle'));
             var list = $('<div class="yani-playback__options"></div>');
             var first = optionPage * optionPageSize;
             options.slice(first, first + optionPageSize).forEach(function (option, index) {
@@ -458,7 +447,7 @@
             scheduleFocus();
         }
         function back() {
-            if (mode !== 'main') return renderMain(mode === 'voices' ? 'voice' : mode === 'targets' ? 'target' : 'source');
+            if (mode !== 'main') return renderMain(mode === 'voices' ? 'voice' : 'source');
             if (deps.goBack) deps.goBack();
         }
         function cancelFocus() { if (focusTimer !== null) clearTimeout(focusTimer); focusTimer = null; }

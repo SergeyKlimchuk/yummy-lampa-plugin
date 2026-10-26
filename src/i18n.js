@@ -1089,9 +1089,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     messages.ru.playback_change = "Изменить";
     messages.en.playback_change = "Change";
     messages.uk.playback_change = "Змінити";
-    messages.ru.playback_use_defaults = "Использовать настройки";
-    messages.en.playback_use_defaults = "Use defaults";
-    messages.uk.playback_use_defaults = "Використати налаштування";
+    messages.ru.playback_use_defaults = "Сбросить выбор";
+    messages.en.playback_use_defaults = "Reset choice";
+    messages.uk.playback_use_defaults = "Скинути вибір";
     messages.ru.playback_episode_list = "Серии";
     messages.en.playback_episode_list = "Episodes";
     messages.uk.playback_episode_list = "Серії";
@@ -1228,6 +1228,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     messages.ru.settings_disabled = "Выключено";
     messages.en.settings_disabled = "Disabled";
     messages.uk.settings_disabled = "Вимкнено";
+
+    messages.ru.playback_target_global_description = "Приложение для просмотра всех аниме на этом устройстве. Внешний плеер выбирается через системный выбор приложений Android.";
+    messages.en.playback_target_global_description = "Playback application for every anime on this device. The external player is chosen through Android’s system app chooser.";
+    messages.uk.playback_target_global_description = "Застосунок для перегляду всіх аніме на цьому пристрої. Зовнішній плеєр обирається через системний вибір застосунків Android.";
 
     function language() {
         var value = window.Lampa && Lampa.Storage ? Lampa.Storage.get(key, 'ru') : 'ru';

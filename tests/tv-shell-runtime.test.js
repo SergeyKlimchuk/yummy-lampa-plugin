@@ -28,7 +28,7 @@ Wrapper.prototype.closest = function (selector) { for(let n=this[0];n;n=n.parent
 Wrapper.prototype.remove = function () { this.nodes.forEach(n => { if(n.parent)n.parent.children.splice(n.parent.children.indexOf(n),1); n.parent = null; }); return this; };
 $.contains = (parent, child) => parent.contains(child);
 function rect(left, top, width=100, height=40) { return {left,top,width,height,right:left+width,bottom:top+height}; }
-function harness() {
+function harness(identityApi) {
     let active = {id:1}, name = 'content', collection = null, focused = null, nativeMoves = 0, backward = 0, nativeDestroy = 0, nativePause = 0, nativeStart = 0;
     const controllers = {}, routes = [], content = $('<div class="content scroll"></div>');
     const a = $('<div class="selector a"></div>'), b = $('<div class="selector b"></div>'), c = $('<div class="selector c"></div>');
@@ -42,7 +42,7 @@ function harness() {
         collectionSet:v=>collection=v,collectionFocus:focus
     }};
     const Navigator = {canmove:()=>false, move:()=>nativeMoves++, add:()=>{}};
-    const window = {Lampa,$,Navigator}; const events={};
+    const window = {Lampa,$,Navigator,LampaYaniAccountIdentity:identityApi}; const events={};
     const component = {render:js=>js?content[0]:content,
         on:(key,fn)=>events[key]=fn,
         start(){nativeStart++;const ctrl={toggle:()=>focus(a[0]),left:()=>nativeMoves++};controllers.content=ctrl;Lampa.Controller.toggle('content');},
@@ -126,5 +126,16 @@ function harness() {
     const top=new (context.factory(Top,'catalog'))({page:2});
     assert.equal(top.render().find('.yani-tv-shell').length,0,'delegating factory does not nest the shell inside another shell');
     assert.equal(top.render().find('.yani-tv-rail').length,1);
+}
+{
+    const icons=[],bindings=[];let refreshes=0,destroys=0;
+    const h=harness({icon:name=>{icons.push(name);return '<svg></svg>';},bind:(button,options)=>{
+        bindings.push(button[0]);button.find(options.labelSelector).text('Demo Nickname');
+        return {refresh(){refreshes++;},destroy(){destroys++;}};
+    }});
+    const root=h.component.render();assert.deepEqual(icons,['account','settings']);
+    assert.equal(bindings.length,1);assert.equal(root.find('.yani-tv-rail__label')[5].value,'Demo Nickname');
+    h.component.start();assert.equal(refreshes,1,'returning to a shell refreshes the shared identity without rebuilding rail');
+    h.component.destroy();assert.equal(destroys,1,'shell releases shared identity binding');
 }
 console.log('TV shell runtime tests passed');

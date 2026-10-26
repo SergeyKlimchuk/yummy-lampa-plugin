@@ -34,6 +34,7 @@ function pluginYummyAnime() {
         'src/ui-card-renderers.js',
         'src/ui-card-bind.js',
         'src/ui-card-rails.js',
+        'src/ui-account-identity.js',
         'src/ui-choice-panel.js',
         'src/ui-tv-shell.js',
         'src/ui-playback-history.js',

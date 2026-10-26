@@ -70,6 +70,7 @@
         var initialResumeFocus = lastKey === 'nav:home' || lastKey === 'nav:catalog';
         var continueBindings = [];
         var morePanel = null;
+        var accountIdentity = null;
         var storedKey = lastKey;
         var currentSession = sessionKey();
         var countsGeneration = 0;
@@ -140,7 +141,13 @@
             var element = $('<div class="selector"></div>').addClass(className || 'yani-lite-button');
             element.text(label).attr('data-yani-home-key', key).attr('role', 'button');
             var symbols = {'nav:home': '⌂', 'nav:search': '⌕', 'nav:user_lists': '▤', 'nav:catalog': '▦', 'nav:more': '•••', 'nav:account': '○', 'nav:settings': '⚙'};
-            if (symbols[key]) element.empty().append($('<span class="yani-lite-nav-symbol" aria-hidden="true"></span>').text(symbols[key]), $('<span></span>').text(label));
+            if (symbols[key]) {
+                var symbol = $('<span class="yani-lite-nav-symbol" aria-hidden="true"></span>');
+                var icon = key === 'nav:account' ? 'account' : key === 'nav:settings' ? 'settings' : '';
+                if (icon && window.LampaYaniAccountIdentity) symbol.addClass('yani-nav-icon').append($(window.LampaYaniAccountIdentity.icon(icon)));
+                else symbol.text(symbols[key]);
+                element.empty().append(symbol, $('<span class="yani-lite-nav-label"></span>').text(label));
+            }
             targets[key] = element[0];
             element.on('hover:enter', function () {
                 initialResumeFocus = false;
@@ -210,6 +217,8 @@
         }
 
         function buildShell() {
+            if (accountIdentity) accountIdentity.destroy();
+            accountIdentity = null;
             targets = {};
             header.empty();
             var brand = $('<div class="yani-lite-brand"></div>').append($('<img alt="YummyAnime">').attr('src', OFFICIAL_LOGO));
@@ -228,6 +237,10 @@
             if (enabled('account')) bottom.append(button(text('account', 'Аккаунт'), 'nav:account', routes.account, 'yani-lite-nav yani-lite-nav--account'));
             if (deps.openSettings) bottom.append(button(text('settings', 'Настройки'), 'nav:settings', deps.openSettings, 'yani-lite-nav yani-lite-nav--settings'));
             sidebar.append(bottom);
+            if (targets['nav:account'] && window.LampaYaniAccountIdentity) accountIdentity = window.LampaYaniAccountIdentity.bind($(targets['nav:account']), {
+                auth: deps.auth, api: deps.api, t: deps.t,
+                iconSelector: '.yani-lite-nav-symbol', labelSelector: '.yani-lite-nav-label'
+            });
             main.empty();
             sections = {};
             if (enabled('continue_watching')) sections.continueWatching = section(text('continue_watching', 'Продолжить просмотр'), 'continue', routes.continue_watching);
@@ -520,6 +533,7 @@
         self.start = function () {
             if (destroyed) return;
             active = true;
+            if (accountIdentity) accountIdentity.refresh();
             if (currentSession !== sessionKey()) onAuthChanged();
             Lampa.Controller.add('content', {
                 yaniLiteOwner: self,
@@ -552,6 +566,8 @@
             if (destroyed) return;
             destroyed = true;
             active = false;
+            if (accountIdentity) accountIdentity.destroy();
+            accountIdentity = null;
             clearContinueBindings();
             if (morePanel) morePanel.destroy();
             morePanel = null;

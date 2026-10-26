@@ -3716,3 +3716,22 @@ body.yani-player-open .head--simple {
 }
 .yani-library .yani-card-ratings--below .yani-card-rating__logo { font-size: .8em; }
 .yani-library .yani-card-ratings--below + .card__title { margin-top: .35em; }
+
+/* Shared account/settings visuals have fixed boxes: profile loading never moves
+   the rail or its focus target. Avatar failures keep the silhouette fallback. */
+.yani-tv-rail__symbol.yani-nav-icon,
+.yani-home.yani-home--lite .yani-lite-nav-symbol.yani-nav-icon {
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 1.35em; width: 1.35em; height: 1.35em; font-size: 1.05em;
+}
+.yani-nav-icon svg { display: block; width: 1.2em; height: 1.2em; flex: none; }
+.yani-nav-icon .yani-account-nav__avatar { display: block; width: 1.35em; height: 1.35em; border-radius: 50%; object-fit: cover; }
+.yani-tv-rail__label,
+.yani-home.yani-home--lite .yani-lite-nav-label { min-width: 0; white-space: normal; }
+.yani-tv-rail__item[data-yani-rail-key="account"] .yani-tv-rail__label,
+.yani-home.yani-home--lite .yani-lite-nav--account .yani-lite-nav-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yani-tv-rail__item,
+.yani-home.yani-home--lite .yani-lite-nav { gap: .5em; padding-left: .4em; padding-right: .4em; }
+@media (max-width: 700px) {
+    .yani-tv-rail__symbol.yani-nav-icon { display: flex; }
+}

@@ -99,7 +99,7 @@ function environment(options = {}) {
         t: key => key, preferences: prefs, progress: options.progress ? context.LampaYaniEpisodeProgress : null, loadProgress: options.loadProgress, sourceId: group => group.playerId, sourceLabel: group => group.player,
         playlist: (card, group) => { playlistCalls++; return group.videos; }, getPlayback: () => options.playback || ({number: 1075, time: 31, duration: 100}),
         episodeTitle: (card, video) => 'Episode ' + video.number, groupSubtitle: group => group.videos.length + ' episodes',
-        targetPreference: () => currentTarget, rememberTarget: (card, value) => { currentTarget = value; selectedAnime = true; }, externalAvailable: () => true,
+        targetPreference: () => currentTarget, rememberTarget: () => { throw new Error('Application preferences belong only to Settings'); }, externalAvailable: () => true,
         launch: (...args) => launches.push(args), goBack: () => {}
     });
     component.activity = {loader: () => {}, toggle: () => component.start()};
@@ -122,6 +122,7 @@ assert.equal(env.launches[0][2].length, 1403, 'the complete playlist reaches pla
 assert.equal(env.launches[0][3].number, 1075);
 assert.equal(env.launches[0][3].watched.end_time, 31, 'resume position is carried to the same episode');
 assert.ok(env.launches[0][4].jquery && env.launches[0][5].jquery, 'actual episode and Scroll collection are supplied for return focus');
+assert.equal(env.launches[0].length, 6, 'the picker does not capture a title-specific application argument');
 env.enter('watch');
 assert.equal(env.launches.length, 1, 'repeated OK cannot start a second resolver while playback is pending');
 env.component.playbackRestored(); env.enter('watch');
@@ -156,7 +157,7 @@ assert.deepEqual(env.remembered.slice(-1)[0], [42, 'Studio A', 'sibnet']);
 assert.match(env.root.find('.yani-playback__watch').text(), /3/);
 assert.equal(env.root.find('.yani-playback__notice').text(), 'playback_episode_missing', 'a missing episode explains fallback');
 assert.equal(env.root.find('.yani-playback__episode').length, 3, 'source-specific episode counts remain independent');
-env.enter('target'); env.enter('option:1');
+assert.equal(env.root.find('[data-yani-focus-key="target"]').length, 0, 'application selection is absent from anime playback even on Android');
 assert.equal(env.root.find('[data-yani-focus-key="save-defaults"]').length, 0, 'global preferences belong only in Settings');
 assert.equal(env.defaults.length, 0, 'anime voice/source changes cannot overwrite global defaults');
 assert.equal(env.storage.yani_playback_target, undefined, 'per-anime player changes cannot overwrite the global player setting');

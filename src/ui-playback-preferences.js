@@ -149,10 +149,10 @@
             if (!cardId(id) || !entry || typeof entry !== 'object') return;
             var voice = name(entry.voice);
             var provider = source(typeof entry.source === 'string' ? entry.source : '');
-            var target = validTarget(entry.target);
-            if (!voice && !provider && !target) return;
+            // Old builds stored an application override here. Application choice
+            // is global now; retain only the title's translation/provider pair.
+            if (!voice && !provider) return;
             result[id] = {voice: voice, source: provider, updatedAt: Math.max(0, Number(entry.updatedAt) || 0)};
-            if (target) result[id].target = target;
         });
         return result;
     }
@@ -184,28 +184,17 @@
         var previous = items[id];
         if (previous && previous.voice === voice && previous.source === provider) return previous;
         var entry = {voice: voice, source: provider, updatedAt: nextTime(items)};
-        if (previous && previous.target) entry.target = previous.target;
         items[id] = entry;
         saveEntries(items);
         return entry;
     }
 
-    function rememberTarget(card, value) {
-        var id = cardId(card);
-        var target = validTarget(value);
-        if (!id || !target) return saved(card);
-        var items = entries();
-        var previous = items[id];
-        if (previous && previous.target === target) return previous;
-        var entry = {voice: previous && previous.voice || '', source: previous && previous.source || '', target: target, updatedAt: nextTime(items)};
-        items[id] = entry;
-        saveEntries(items);
-        return entry;
-    }
+    // Compatibility for a mixed cached source-loader: old callers must not
+    // silently create another per-title application override.
+    function rememberTarget(card) { return saved(card); }
 
     function target(card, fallback) {
-        var entry = saved(card);
-        return validTarget(entry && entry.target) || validTarget(fallback) || 'ask';
+        return validTarget(fallback) || validTarget(read('yani_playback_target', 'ask')) || 'ask';
     }
 
     function reset(card) {
@@ -262,6 +251,13 @@
             var own = byRequest(groups, anime, false);
             if (own) return {group: own.group, origin: 'anime', unavailable: own.unavailable, requested: requested};
             unavailable = true;
+        }
+        // A watched video identifies a title-specific dubbing/provider pair in
+        // the account history. Recover that exact pair before defaults for a
+        // new device, without writing a fake watch to save a mere selection.
+        if (!hasRequest(anime) && playback && playback.video_id) {
+            var exactHistory = fromHistory(groups, {video_id: playback.video_id});
+            if (exactHistory) return {group: exactHistory, origin: 'history', unavailable: false, requested: null};
         }
         if (hasRequest(global)) {
             var configured = byRequest(groups, global, true);

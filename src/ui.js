@@ -513,17 +513,12 @@
                 return Number(group.episodeCount || group.videos.length) + ' ' + t('episodes_short') +
                     (group.latestEpisode ? ' · ' + t('latest_episode') + ': ' + group.latestEpisode : '');
             },
-            targetPreference: function (card) { return isAndroidPlatform() ? LampaYaniPlaybackPreferences.target(card, playbackTargetPreference()) : 'internal'; },
-            rememberTarget: function (card, target) { if (isAndroidPlatform()) LampaYaniPlaybackPreferences.rememberTarget(card, target); },
-            externalAvailable: function () { return isAndroidPlatform(); },
-            launch: function (card, group, videos, selected, element, collection, target) {
+            launch: function (card, group, videos, selected, element, collection) {
                 clearPlaybackReturn();
                 beginPlaybackNavigation(element, collection);
                 rememberPlayer(group);
                 enrichEpisodeTitles(card, group);
-                launchVideo(card, group, videos, playbackMenu.applySavedPlaybackPosition(card, selected), {
-                    playbackTarget: isAndroidPlatform() ? target : 'internal'
-                });
+                launchVideo(card, group, videos, playbackMenu.applySavedPlaybackPosition(card, selected));
             },
             goBack: goBack,
             onDestroy: function (destroyed) { if (activePlaybackSetup === destroyed) activePlaybackSetup = null; }
@@ -4246,7 +4241,7 @@
                     },
                     default: 'ask'
                 },
-                field: {name: t('playback_target'), description: t('player_preference_description')}
+                field: {name: t('playback_target'), description: t('playback_target_global_description')}
             });
         } else {
             if (Lampa.Storage) Lampa.Storage.set('yani_playback_target', 'internal');

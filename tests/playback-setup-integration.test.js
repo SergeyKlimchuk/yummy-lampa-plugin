@@ -127,8 +127,8 @@ function environment(options) {
     assert.equal(env.pickers.length, 0);
     assert.equal(env.launches.length, 1);
     let launched = env.launches[0];
-    assert.equal(launched[1].title, 'AniLibria', 'resume uses the resolved dub, not the first dub sharing its provider');
-    assert.equal(launched[3].video_id, 'libria-k2', 'different video ids still match the same normalized episode');
+    assert.equal(launched[1].title, 'Studio Band', 'resume restores the actual watched dubbing before generic defaults');
+    assert.equal(launched[3].video_id, 'studio-k2', 'resume preserves the exact synced video id and provider');
     assert.equal(launched[3].watched.end_time, 321);
     assert.equal(launched[3].duration, 1440);
     assert.equal(launched[2].length, 2, 'resume keeps the complete selected provider playlist');
@@ -150,6 +150,7 @@ function environment(options) {
 
     env = environment({history: oldHistory});
     env.preferences.setDefaults({voice: 'AniLibria', source: 'sibnet'});
+    env.preferences.remember(card, {title: 'AniLibria', player: 'Sibnet'});
     env.menu.openVideos(card, true); await settle();
     assert.equal(env.launches.length, 0, 'resume cannot launch another episode when its preferred source lacks the saved episode');
     assert.equal(env.pickers.length, 1);
@@ -191,33 +192,35 @@ function environment(options) {
 
     const current = {url: 'https://media.example/direct.mp4', title: 'Fixture episode'}, playlist = [current];
     env = environment({external: true, target: 'internal'});
-    env.preferences.rememberTarget(card, 'external');
+    env.store.yani_playback_preferences_v1 = JSON.stringify({version: 1, items: {'42': {voice: 'Studio', source: 'kodik', target: 'external', updatedAt: 1000}}});
     assert.equal(env.menu.showDirectPlaybackOptions(card, current, playlist), true);
-    assert.equal(env.direct.external.length, 1, 'an Android title-specific external choice overrides the global internal target');
+    assert.equal(env.direct.internal.length, 1, 'global internal application ignores a legacy external title override');
     env.menu.showDirectPlaybackOptions({yani_id: 43}, current, playlist);
-    assert.equal(env.direct.internal.length, 1, 'another anime retains the global target');
-    env.preferences.rememberTarget(card, 'internal'); env.setTarget('external');
-    env.menu.showDirectPlaybackOptions(card, current, playlist);
-    assert.equal(env.direct.internal.length, 2, 'an explicit internal title choice overrides a global external target');
-    env.preferences.rememberTarget(card, 'external');
+    assert.equal(env.direct.internal.length, 2, 'all anime use the same global application');
+    env.setTarget('external');
+    env.menu.showDirectPlaybackOptions(card, current, playlist, {playbackTarget: 'internal'});
+    assert.equal(env.direct.external.length, 1, 'latest Settings value overrides a stale picker application argument');
+    env.menu.showDirectPlaybackOptions({yani_id: 43}, current, playlist);
+    assert.equal(env.direct.external.length, 2);
     env.menu.showDirectPlaybackOptions(card, current, playlist, {autoAdvance: true, playbackTarget: 'external'});
     assert.equal(env.direct.internal.length, 3, 'auto-next stays internal without a player selection interruption');
-    assert.equal(env.direct.external.length, 1);
 
     env = environment({external: false, target: 'external'});
-    env.preferences.rememberTarget(card, 'external');
     env.menu.showDirectPlaybackOptions(card, current, playlist);
     assert.equal(env.direct.external.length, 0, 'WebOS/browser cannot launch an Android external player');
-    assert.equal(env.direct.internal.length, 1, 'unsupported external preferences safely use the internal player');
+    assert.equal(env.direct.internal.length, 1, 'unsupported global external preference safely uses the internal player');
 
     env = environment({external: true, target: 'ask'});
     env.menu.showDirectPlaybackOptions(card, current, playlist);
     assert.equal(env.selects.length, 1);
     env.selects[0].onSelect(env.selects[0].items.find(item => item.action === 'internal'));
-    assert.equal(env.preferences.target(card, 'external'), 'internal', 'the native player chooser remembers an explicit choice for this anime');
+    assert.equal(env.direct.internal.length, 1);
+    assert.equal(env.preferences.saved(card), null, 'Ask chooses an application for this launch without saving a title override');
+    assert.equal(env.store.yani_playback_target, undefined, 'a playback chooser cannot alter the global Settings choice');
     env.menu.showDirectPlaybackOptions(card, current, playlist);
-    assert.equal(env.selects.length, 1, 'a remembered target avoids repeatedly asking which player to use');
-    assert.equal(env.direct.internal.length, 2);
+    assert.equal(env.selects.length, 2, 'global Ask deliberately asks on the next launch too');
+    env.selects[1].onSelect(env.selects[1].items.find(item => item.action === 'external'));
+    assert.equal(env.direct.external.length, 1);
 
     console.log('Playback setup integration checks passed');
 })().catch(error => { console.error(error); process.exit(1); });

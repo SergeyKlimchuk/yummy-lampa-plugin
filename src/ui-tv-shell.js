@@ -11,7 +11,7 @@
         component.yaniTvShell = true;
         var original = {}, names = ['render', 'start', 'pause', 'stop', 'destroy'];
         names.forEach(function (name) { original[name] = component[name]; });
-        var shell = null, body = null, content = null, rail = null, buttons = [];
+        var shell = null, body = null, content = null, rail = null, buttons = [], accountIdentity = null;
         var lastContent = null, lastRail = null, owner = null, paused = true, destroyed = false;
         var originController = 'content', originCollection = null;
         var patched = null, originalLeft = null, patchedLeft = null;
@@ -128,7 +128,14 @@
             ].forEach(function (item) {
                 if (typeof routes[item.key] !== 'function') return;
                 var button = $('<div class="yani-tv-rail__item" role="button"></div>').attr('data-yani-rail-key', item.key);
-                button.append($('<span class="yani-tv-rail__symbol" aria-hidden="true"></span>').text(item.symbol), $('<span class="yani-tv-rail__label"></span>').text(item.label));
+                var symbol = $('<span class="yani-tv-rail__symbol" aria-hidden="true"></span>');
+                if ((item.key === 'account' || item.key === 'settings') && window.LampaYaniAccountIdentity) symbol.addClass('yani-nav-icon').append($(window.LampaYaniAccountIdentity.icon(item.key)));
+                else symbol.text(item.symbol);
+                button.append(symbol, $('<span class="yani-tv-rail__label"></span>').text(item.label));
+                if (item.key === 'account' && window.LampaYaniAccountIdentity) accountIdentity = window.LampaYaniAccountIdentity.bind(button, {
+                    auth: options.auth, api: options.api, t: options.t,
+                    iconSelector: '.yani-tv-rail__symbol', labelSelector: '.yani-tv-rail__label'
+                });
                 if (options.active === item.key) { button.addClass('is-current').attr('aria-current', 'page'); lastRail = button[0]; }
                 button.on('hover:focus' + namespace, function (event) {
                     // Native component focus scopes may use comp.render(), which
@@ -154,7 +161,9 @@
         if (component.on) component.on('controller', patch);
         component.start = function () {
             if (destroyed) return;
-            ensure(); deactivateRail(); restoreController(); owner = currentActivity(); paused = false;
+            ensure();
+            if (accountIdentity) accountIdentity.refresh();
+            deactivateRail(); restoreController(); owner = currentActivity(); paused = false;
             var result = original.start && original.start.apply(this, arguments);
             if (valid()) {
                 var enabled = Lampa.Controller.enabled && Lampa.Controller.enabled();
@@ -168,6 +177,8 @@
         component.destroy = function () {
             if (destroyed) return;
             destroyed = true; paused = true; restoreController(); component.yaniEnterRail = null;
+            if (accountIdentity) accountIdentity.destroy();
+            accountIdentity = null;
             if (body) body.off(namespace);
             if (rail) rail.find('.yani-tv-rail__item').off(namespace);
             var result = original.destroy && original.destroy.apply(this, arguments);
