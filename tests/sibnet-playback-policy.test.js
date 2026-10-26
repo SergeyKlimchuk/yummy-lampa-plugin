@@ -12,7 +12,7 @@ assert.match(ui, /function isSibnetPlaybackSource\(url, group\)/);
 // headers instead - so the embedded page is the one route that shows the video,
 // on every platform. Routing Android to the internal player instead produced a
 // screen that could never play.
-assert.match(launchPolicy, /if \(isSibnetPlaybackSource\(sibnetPageUrl, group\)\) \{\s*if \(options\.episodeNavigationToken\) return failEpisodeNavigation\(options\);\s*return openEmbeddedEpisode\(card, group, selected, sibnetPageUrl\);/,
+assert.match(launchPolicy, /if \(isSibnetPlaybackSource\(sibnetPageUrl, group\)\) \{\s*return openEmbeddedEpisode\(card, group, selected, sibnetPageUrl\);/,
     'Sibnet must open its embedded page on every platform');
 assert.match(ui, /function needsRequestHeaders\(item\)/, 'a stream that needs headers must be recognised');
 const resolverSource = fs.readFileSync('src/stream-resolver.js', 'utf8');

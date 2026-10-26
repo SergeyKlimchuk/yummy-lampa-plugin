@@ -2118,38 +2118,11 @@
         });
     }
 
-    function episodeNavigationAllowed(options) {
-        var token = options && options.episodeNavigationToken;
-        if (!token || token.valid()) return true;
-        cancelEpisodeNavigation(options);
-        return false;
-    }
-
-    function cancelEpisodeNavigation(options) {
-        var token = options && options.episodeNavigationToken;
-        if (!token) return;
-        token.cancelled = true;
-        token.context.yaniEpisodeSwitch = false;
-        // A stale request must not hide the spinner of a newer launch.
-        if (token.loading && playbackReturnState.session === token.session) setLoading(false);
-        token.loading = false;
-    }
-
-    function failEpisodeNavigation(options, message) {
-        if (!episodeNavigationAllowed(options)) return false;
-        cancelEpisodeNavigation(options);
-        Lampa.Noty.show(message || t('player_episode_unavailable'));
-        restorePlaybackInteraction();
-        return false;
-    }
-
     function launchVideo(card, group, videos, selected, options) {
         options = options || {};
-        if (!episodeNavigationAllowed(options)) return false;
         if (window.LampaYaniEpisodeProgress && !options.progressOwner) options.progressOwner = LampaYaniEpisodeProgress.owner();
         var url = videoSourceUrl(selected);
         if (!url) {
-            if (options.episodeNavigationToken) return failEpisodeNavigation(options, t('no_videos'));
             Lampa.Noty.show(t('no_videos'));
             restorePlaybackInteraction();
             return;
@@ -2169,17 +2142,13 @@
         // page, which the focus handover in the player component is for.
         var sibnetPageUrl = selected.iframe_url || url;
         if (isSibnetPlaybackSource(sibnetPageUrl, group)) {
-            if (options.episodeNavigationToken) return failEpisodeNavigation(options);
             return openEmbeddedEpisode(card, group, selected, sibnetPageUrl);
         }
         if (!isExternalPlayableUrl(url, selected) && window.LampaYaniStreamResolver && LampaYaniStreamResolver.canResolve(url)) {
             selected.yani_stream_origin = url;
-            if (options.episodeNavigationToken) options.episodeNavigationToken.loading = true;
             setLoading(true);
             return LampaYaniStreamResolver.resolve(url, selected).then(function (result) {
-                if (!episodeNavigationAllowed(options)) return false;
                 setLoading(false);
-                if (options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
                 if (result && result.url) {
                     selected.yani_stream_url = result.url;
                     selected.yani_stream_quality = result.quality || '';
@@ -2190,11 +2159,8 @@
                 }
                 return launchResolvedVideo(card, group, videos, selected, videoSourceUrl(selected) || url, options);
             }).catch(function (error) {
-                if (!episodeNavigationAllowed(options)) return false;
                 setLoading(false);
-                if (options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
                 console.warn('[YummyAnime] Stream resolve failed', error);
-                if (options.episodeNavigationToken) return failEpisodeNavigation(options);
                 if (isVkPlaybackSource(url, group)) {
                     Lampa.Noty.show(t('vk_stream_unavailable'));
                     restorePlaybackInteraction();
@@ -2213,8 +2179,6 @@
 
     function launchResolvedVideo(card, group, videos, selected, url, options) {
         options = options || {};
-        if (!episodeNavigationAllowed(options)) return false;
-        if (options.episodeNavigationToken && !isExternalPlayableUrl(url, selected)) return failEpisodeNavigation(options);
         if (window.LampaYaniEpisodeProgress && options.progressOwner &&
             !LampaYaniEpisodeProgress.sameOwner(options.progressOwner, LampaYaniEpisodeProgress.owner())) return;
         var title = (card.title || 'YummyAnime') + ' · ' + t('episode') + ' ' + (selected.number || selected.index || '?') + ' · ' + group.title;
@@ -2252,15 +2216,6 @@
             return;
         }
 
-        // A series handoff belongs to the running built-in player, even when
-        // the global application setting asks which player to use on launch.
-        if (options.episodeNavigationToken) {
-            if (playInternalPlayer(current, playlist)) return true;
-            cancelEpisodeNavigation(options);
-            Lampa.Noty.show(t('player_episode_unavailable'));
-            restorePlaybackInteraction();
-            return false;
-        }
         if (showDirectPlaybackOptions(card, current, playlist, options)) {
             return;
         }
@@ -2307,28 +2262,22 @@
     }
 
     function launchAllohaDirect(card, group, selected, url, chain, options) {
-        if (options && options.episodeNavigationToken) options.episodeNavigationToken.loading = true;
         setLoading(true);
-        var pending = resolveInOrder(chain).then(function (result) {
-            if (!episodeNavigationAllowed(options)) return false;
+        resolveInOrder(chain).then(function (result) {
             setLoading(false);
-            if (options && options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
             selected.yani_stream_url = result.url;
             selected.yani_stream_quality = result.quality || '';
             selected.yani_stream_qualities = result.qualities || null;
             selected.yani_stream_headers = result.headers || null;
             selected.yani_stream_headers_required = Boolean(result.headersRequired);
             selected.yani_stream_source = result.source || 'lampac-alloha';
-            return launchResolvedVideo(card, group, options && options.episodeNavigationToken ? options.episodeNavigationToken.context.videos : group.videos || [selected], selected, result.url, options);
+            return launchResolvedVideo(card, group, group.videos || [selected], selected, result.url, options);
         }).catch(function (error) {
-            if (!episodeNavigationAllowed(options)) return false;
             setLoading(false);
-            if (options && options.episodeNavigationToken) options.episodeNavigationToken.loading = false;
             console.warn('[YummyAnime] Alloha resolve failed; playback blocked', error);
-            if (options && options.episodeNavigationToken) return failEpisodeNavigation(options);
             blockAllohaPlayback(card, group, selected, url);
         });
-        return options && options.episodeNavigationToken ? pending : true;
+        return true;
     }
 
     function launchAllohaPlayer(card, group, selected, url, options) {
@@ -2336,10 +2285,7 @@
         if (selected && isAllohaUrl(url)) selected.yani_alloha_iframe_url = url;
         var chain = allohaResolvers(card, group, selected, url);
         var webAvailable = allohaIframeEnabled();
-        if (!chain.length) {
-            if (options.episodeNavigationToken) return failEpisodeNavigation(options);
-            return blockAllohaPlayback(card, group, selected, url);
-        }
+        if (!chain.length) return blockAllohaPlayback(card, group, selected, url);
 
         // Auto-next must stay uninterrupted. The direct resolver is the only
         // Alloha route that can preserve Lampa's playlist and progress model.
@@ -2609,46 +2555,161 @@
         return Boolean(source && source.yani_stream_headers_required);
     }
 
+    function nativePlaylistVideoItem(context, video) {
+        var entry = buildExternalPlaylist(context.card, [video])[0];
+        var normalized = internalPlayerPlaylistItem(entry);
+        if (!normalized) return null;
+        var watched = video.watched || {};
+        var duration = Math.max(0, Number(video.duration || 0));
+        var position = Math.max(0, Number(watched.end_time || 0));
+        if (LampaYaniUiUtils.isEpisodeFinished(position, duration, watched)) position = 0;
+        normalized.time = position;
+        // Native Lampa resumes from timeline, not the external-player time key.
+        // Respect its global resume/ask/start-again policy.
+        normalized.timeline = {time: position, duration: duration, percent: duration > 0 ? Math.round(position / duration * 100) : position > 0 ? 1 : 0};
+        return normalized;
+    }
+
+    function resolveNativePlaylistVideo(context, video, valid) {
+        var url = videoResolverUrl(video) || videoSourceUrl(video);
+        var allohaUrl = video.yani_alloha_iframe_url || (isAllohaUrl(video.iframe_url) ? video.iframe_url : url);
+        var promise;
+        if (isSibnetPlaybackSource(video.iframe_url || url, context.group)) return Promise.reject(new Error('Source requires its embedded player'));
+        if (isAllohaUrl(allohaUrl) || /alloha/i.test(String(context.group && (context.group.player || context.group.title) || ''))) {
+            promise = resolveInOrder(allohaResolvers(context.card, context.group, video, allohaUrl));
+        } else if (window.LampaYaniStreamResolver && LampaYaniStreamResolver.canResolve(url)) {
+            // The resolver owns cache expiry; a return to an earlier episode
+            // must not reuse an expired URL stored in the native playlist.
+            promise = LampaYaniStreamResolver.resolve(url);
+        } else if (isExternalPlayableUrl(videoSourceUrl(video), video)) {
+            return Promise.resolve(nativePlaylistVideoItem(context, video));
+        } else return Promise.reject(new Error('No direct episode stream'));
+        return promise.then(function (result) {
+            if (!valid()) return null;
+            if (!result || !result.url) throw new Error('Empty episode stream');
+            video.yani_stream_origin = url;
+            video.yani_stream_url = result.url;
+            video.yani_stream_quality = result.quality || '';
+            video.yani_stream_qualities = result.qualities || null;
+            video.yani_stream_source = result.source || '';
+            video.yani_stream_headers = result.headers || null;
+            video.yani_stream_headers_required = Boolean(result.headersRequired);
+            return nativePlaylistVideoItem(context, video);
+        });
+    }
+
+    function createNativePlaylistSession(context) {
+        if (!context || !window.LampaYaniNativePlaylist) return null;
+        var videos = (context.videos || []).map(function (video) {
+            return videoIdentity(video) === videoIdentity(context.selected) ? context.selected : video;
+        });
+        var session = {
+            context: context,
+            returnSession: playbackReturnState.session,
+            activity: Lampa.Activity && Lampa.Activity.active ? Lampa.Activity.active() : null,
+            closed: false,
+            playlist: null,
+            readyHandler: null,
+            started: false
+        };
+        function valid() {
+            return !session.closed && nativePlaylistSession === session && playbackContext === session.context &&
+                playbackReturnState.session === session.returnSession && playbackReturnState.active &&
+                (!Lampa.Activity || !Lampa.Activity.active || Lampa.Activity.active() === session.activity) &&
+                (!window.LampaYaniEpisodeProgress || !context.progressOwner ||
+                    LampaYaniEpisodeProgress.sameOwner(context.progressOwner, LampaYaniEpisodeProgress.owner()));
+        }
+        session.readyHandler = function (data) {
+            if (!valid()) return;
+            if (Lampa.Player.playdata && Lampa.Player.playdata() !== data) return;
+            var index = session.playlist.items.indexOf(data);
+            var video = index >= 0 ? videos[index] : null;
+            if (!video) return;
+            var initial = !session.started && video === context.selected;
+            session.started = true;
+            stopPlaybackWatcher();
+            var next = {card: context.card, group: context.group, videos: context.videos, selected: video,
+                progressOwner: context.progressOwner, nativePlaylist: session};
+            session.context = playbackContext = next;
+            if (!initial) {
+                rememberPlayback(next.card, next.group, video);
+                addToLampaHistory(next.card);
+                syncServerProgress(video);
+            }
+            // ready follows the actual native start, including delayed preroll
+            // or disclaimer. A new watcher must never observe the old video.
+            startPlaybackWatcher(next);
+        };
+        session.playlist = LampaYaniNativePlaylist.create({
+            videos: videos,
+            selected: context.selected,
+            current: nativePlaylistVideoItem(context, context.selected),
+            title: function (video) { return (context.card.title || 'YummyAnime') + ' · ' + t('episode') + ' ' + window.LampaYaniEpisode.valueOf(video); },
+            episode: function (video) { return window.LampaYaniEpisode.valueOf(video); },
+            valid: valid,
+            resolve: function (video) { return resolveNativePlaylistVideo(context, video, valid); },
+            beforeSelect: function () {
+                // The continuation hands teardown and parameter transfer to
+                // Lampa. Detach our old watcher before native destroy fires.
+                flushPlaybackProgress(true, session.context);
+            },
+            onError: function (error) {
+                if (!valid()) return;
+                console.warn('[YummyAnime] Native playlist stream failed', error);
+                Lampa.Noty.show(t('player_episode_unavailable'));
+                flushPlaybackProgress(true, session.context);
+                // Native lazy URL has no error continuation. Closing through
+                // Player.close releases its loading lock and restores the card.
+                closeInternalPlayer().then(function () {
+                    if (nativePlaylistSession === session && playbackReturnState.session === session.returnSession) {
+                        finishNativePlaylistSession(session);
+                        restorePlaybackInteraction();
+                    }
+                });
+            }
+        });
+        return session.playlist ? session : null;
+    }
+
+    function finishNativePlaylistSession(session) {
+        if (!session) return;
+        session.closed = true;
+        if (session.readyHandler && Lampa.Player.listener && Lampa.Player.listener.remove) Lampa.Player.listener.remove('ready', session.readyHandler);
+        if (session.playlist) session.playlist.destroy();
+        if (nativePlaylistSession === session) nativePlaylistSession = null;
+    }
+
     function playInternalDirectVideo(current, playlist) {
-        if (!Lampa.Player || !Lampa.Player.play || !Lampa.Player.runas) return false;
+        if (!Lampa.Player || !Lampa.Player.play || !Lampa.Player.runas || !Lampa.Player.playlist ||
+            !Lampa.Player.listener || !Lampa.Player.listener.follow) return false;
         var callbackContext = playbackContext;
         var callbackSession = playbackReturnState.session;
-        var directPlaylist = (playlist || []).filter(function (item) { return isExternalPlayableUrl(item.url, item.source); })
-            .map(internalPlayerPlaylistItem).filter(Boolean);
-        var normalizedCurrent = internalPlayerPlaylistItem(current);
-        var directCurrent = normalizedCurrent && directPlaylist.filter(function (item) { return item.url === normalizedCurrent.url; })[0] || normalizedCurrent;
-        if (!directCurrent) return false;
-        if (!directPlaylist.length) directPlaylist = [directCurrent];
+        var session = createNativePlaylistSession(callbackContext);
+        if (!session) return false;
+        finishNativePlaylistSession(nativePlaylistSession);
+        nativePlaylistSession = session;
+        callbackContext.nativePlaylist = session;
+        var directCurrent = session.playlist.current;
+        var directPlaylist = session.playlist.items;
         try {
-            // Lampa.Player.play follows the globally configured player unless
-            // the caller explicitly selects the built-in Lampa engine.
-            //
-            // That engine is a <video> in the WebView, and a <video> cannot send
-            // request headers: it signs every request with the Lampa page as the
-            // referrer. Sibnet checks the referrer and answers 403, which the
-            // element reports as an unplayable file. The same URL and headers
-            // play fine in a native player, so a stream that states headers is
-            // left to whichever engine the platform provides instead of being
-            // forced into the one that must fail. Streams without headers - CVH,
-            // VK, Kodik - keep using the built-in engine exactly as before.
+            Lampa.Player.listener.follow('ready', session.readyHandler);
             Lampa.Player.runas('lampa');
             Lampa.Player.play(directCurrent);
-            if (Lampa.Player.playlist) Lampa.Player.playlist(directPlaylist);
+            Lampa.Player.playlist(directPlaylist);
             if (Lampa.Player.callback) {
+                // Back saves the active native episode, including after several
+                // playlist switches that retain the same close callback.
                 Lampa.Player.callback(function () {
+                    callbackContext = session.context;
                     flushPlaybackProgress(true, callbackContext);
-                    // Closing the previous episode during auto-next invokes its
-                    // callback after a new playback session has begun. That old
-                    // callback must not restore the detail focus over the next
-                    // episode's player.
+                    finishNativePlaylistSession(session);
                     if (playbackReturnState.session !== callbackSession) return;
-                    // Player.callback can fire before Lampa finishes removing its
-                    // player controller. Verify the detail focus after that lifecycle.
                     restorePlaybackInteraction(null, {timeout: 2400, interval: 120});
                 });
             }
             return true;
         } catch (error) {
+            finishNativePlaylistSession(session);
             console.warn('[YummyAnime] Internal Lampa player failed to start', error);
             return false;
         }
@@ -2748,20 +2809,16 @@
     }
 
     function playInternalPlayer(current, playlist) {
-        // The plugin owns episode resolution, progress and decoder handoff.
-        // Keep the native playlist at one item: Lampa's global playlist_next
-        // must not start a second, untracked episode alongside our controls.
-        var items = current ? [current] : [];
-        var started = isExternalPlayableUrl(current && current.url, current && current.source) && playInternalDirectVideo(current, items);
+        var started = isExternalPlayableUrl(current && current.url, current && current.source) && playInternalDirectVideo(current, playlist);
         if (started) {
             warnAboutRequestHeaders(current);
-            startPlaybackWatcher(playbackContext);
         }
         return started;
     }
 
     // Set right before playback is dispatched so the watcher knows which title
     // and episode started, whichever of the three entry points ran.
+    var nativePlaylistSession = null;
     var playbackContext = null;
     var playbackWatcher = null;
     var playbackWatcherGeneration = 0;
@@ -2770,7 +2827,6 @@
     var INTERNAL_PLAYBACK_RECOVERY_READY_SECONDS = 3;
     var CVH_STARTUP_STALL_MS = 18000;
     var CVH_PLAYBACK_STALL_MS = 15000;
-    var NEXT_PREFETCH_LEAD = 90;
     var PLAYER_CLOSE_POLL_MS = 80;
     var PLAYER_CLOSE_SETTLE_MS = 120;
     var PLAYER_CLOSE_TIMEOUT_MS = 3500;
@@ -2787,15 +2843,6 @@
         };
     }
 
-    function autoNextEnabled() {
-        if (!Lampa.Storage || !Lampa.Storage.get) return false;
-        var value = Lampa.Storage.get('yani_auto_next', false);
-        return value === true || value === 'true';
-    }
-
-    // Current Lampa builds may wrap the media element (native TV engines do not
-    // necessarily leave a usable <video> in the DOM). Prefer the public player
-    // accessor and keep the DOM lookup only for older builds.
     function playerVideoElement(preferred) {
         if (window.Lampa && Lampa.PlayerVideo && typeof Lampa.PlayerVideo.video === 'function') {
             try {
@@ -2832,7 +2879,6 @@
         if (state.video && state.endedHandler && state.video.removeEventListener) {
             state.video.removeEventListener('ended', state.endedHandler);
         }
-        if (state.episodeControls) state.episodeControls.destroy();
         playbackWatcher = null;
         destroySkipPrompt();
     }
@@ -2842,7 +2888,6 @@
         var generation = ++playbackWatcherGeneration;
         if (!context) return;
         var skipMode = skipPreference();
-        var autoNext = autoNextEnabled();
         var progressSync = autoProgressSyncEnabled();
 
         var state = {
@@ -2855,7 +2900,6 @@
             skipReady: false,
             skipLoading: false,
             skipLength: 0,
-            autoNext: autoNext,
             progressSync: progressSync,
             lastLocalSync: 0,
             lastLocalPosition: Number(context.selected && context.selected.watched && context.selected.watched.end_time || 0),
@@ -2863,7 +2907,6 @@
             lastObservedDuration: Number(context.selected && context.selected.duration || 0),
             lastServerSync: Date.now(),
             lastServerPosition: Number(context.selected && context.selected.watched && context.selected.watched.end_time || 0),
-            prefetched: false,
             advanced: false,
             video: null,
             endedHandler: null,
@@ -2882,25 +2925,6 @@
         };
         playbackWatcher = state;
         bindPlayerProgressEvents(generation, context, state);
-        if (window.LampaYaniPlayerEpisodes) {
-            var selectedId = videoIdentity(context.selected);
-            var selected = (context.videos || []).filter(function (video) { return videoIdentity(video) === selectedId; })[0];
-            state.episodeControls = LampaYaniPlayerEpisodes.bind({
-                context: context,
-                selected: selected,
-                items: (context.videos || []).map(function (video) {
-                    return {video: video, label: window.LampaYaniEpisode.valueOf(video)};
-                }),
-                t: t,
-                valid: function () {
-                    return generation === playbackWatcherGeneration && playbackWatcher === state &&
-                        playbackContext === context && !state.advanced && !state.recovering &&
-                        (!window.LampaYaniEpisodeProgress || !context.progressOwner ||
-                            LampaYaniEpisodeProgress.sameOwner(context.progressOwner, LampaYaniEpisodeProgress.owner()));
-                },
-                onSelect: function (target) { return switchInternalEpisode(context, target, state.video); }
-            });
-        }
         state.timer = setInterval(function () { watchPlayback(generation, context, state); }, 1000);
         var initialLength = Number(context.selected && context.selected.duration || 0);
         if (skipMode !== 'off' && initialLength >= 60) loadSkipSegments(generation, context, state, skipMode, initialLength);
@@ -3128,13 +3152,6 @@
         applySkip(video, segment, state);
     }
 
-    function advancePlaybackWatcher(generation, context, state) {
-        if (generation !== playbackWatcherGeneration || playbackWatcher !== state || !state.autoNext || state.advanced) return;
-        var closingVideo = state.video;
-        state.advanced = true;
-        advanceToNextEpisode(context, closingVideo);
-    }
-
     function bindPlaybackVideo(generation, context, state, video) {
         if (state.video === video) return;
         if (state.video && state.endedHandler && state.video.removeEventListener) {
@@ -3142,7 +3159,7 @@
         }
         state.video = video;
         state.endedHandler = function () {
-            advancePlaybackWatcher(generation, context, state);
+            storeObservedPlayback(generation, context, state, {current: video.currentTime, duration: video.duration}, true);
         };
         if (video && video.addEventListener) video.addEventListener('ended', state.endedHandler);
     }
@@ -3194,7 +3211,6 @@
         };
         state.playerEndedHandler = function (event) {
             storeObservedPlayback(generation, context, state, event, true);
-            advancePlaybackWatcher(generation, context, state);
         };
         state.playerDestroyHandler = function (event) {
             // Lampa may remove the underlying media node before Player.callback.
@@ -3203,7 +3219,7 @@
             // for the later callback. Auto-next and stream recovery deliberately
             // close the player themselves and must keep ownership of navigation.
             storeObservedPlayback(generation, context, state, event, true);
-            if (!state.advanced && !state.recovering && !state.returnRestoreScheduled) {
+            if (!context.nativePlaylist && !state.advanced && !state.recovering && !state.returnRestoreScheduled) {
                 state.returnRestoreScheduled = true;
                 restorePlaybackInteraction(null, {timeout: 2400, interval: 120});
             }
@@ -3329,15 +3345,6 @@
             else hideSkipPrompt();
         }
 
-        if (!state.autoNext || duration < 60 || position <= 0) return;
-        var remaining = duration - position;
-        if (!state.prefetched && remaining <= NEXT_PREFETCH_LEAD) {
-            state.prefetched = true;
-            prefetchNextEpisode(context);
-        }
-        if (!state.advanced && video.ended) {
-            advancePlaybackWatcher(generation, context, state);
-        }
     }
 
     function videoIdentity(video) {
@@ -3347,62 +3354,8 @@
         return window.LampaYaniEpisode.key(window.LampaYaniEpisode.valueOf(video)) + ':' + String(video.yani_stream_origin || video.iframe_url || videoSourceUrl(video) || '');
     }
 
-    function adjacentEpisodeVideo(context, direction) {
-        var videos = (context && context.videos) || [];
-        var selected = context && context.selected;
-        if (!selected || !videos.length) return null;
-        var index = videos.indexOf(selected);
-        if (index < 0) {
-            var selectedId = videoIdentity(selected);
-            for (var i = 0; i < videos.length; i++) {
-                if (videoIdentity(videos[i]) === selectedId) {
-                    index = i;
-                    break;
-                }
-            }
-        }
-        var targetIndex = index + (direction < 0 ? -1 : 1);
-        if (index < 0 || targetIndex < 0 || targetIndex >= videos.length) return null;
-        return videos[targetIndex];
-    }
-
-    function nextEpisodeVideo(context) {
-        return adjacentEpisodeVideo(context, 1);
-    }
-
-    // Resolving a stream costs a round trip through the source's player page,
-    // which is long enough to be noticeable between episodes. Doing it while
-    // the current episode still plays hides that entirely, and the resolver
-    // caches the result for the launch that follows.
-    function prefetchNextEpisode(context) {
-        var next = nextEpisodeVideo(context);
-        if (!next || next.yani_stream_url) return;
-        var url = videoSourceUrl(next);
-        if (!url || isExternalPlayableUrl(url, next)) return;
-        if (!window.LampaYaniStreamResolver || !LampaYaniStreamResolver.canResolve(url)) return;
-        next.yani_stream_origin = url;
-        LampaYaniStreamResolver.resolve(url, next).then(function (result) {
-            if (!result || !result.url) return;
-            next.yani_stream_url = result.url;
-            next.yani_stream_quality = result.quality || '';
-            next.yani_stream_qualities = result.qualities || null;
-            next.yani_stream_source = result.source || '';
-            next.yani_stream_headers = result.headers || null;
-            next.yani_stream_headers_required = Boolean(result.headersRequired);
-        }).catch(function (error) {
-            // The episode is launched normally later; a failed prefetch only
-            // costs the time it would have saved.
-            console.warn('[YummyAnime] Next episode prefetch failed', error);
-        });
-    }
-
-    // Handing the running player to Lampa's own teardown before starting the
-    // next episode. Playing on top of it instead leaves the previous <video>
-    // and its MediaSource alive, because Lampa only releases the player it
-    // considers current — so every automatic advance stranded one more hardware
-    // decoder, and after eight to ten of them the renderer died. Measured: each
-    // advance added one live video and one live MediaSource, none of which were
-    // ever closed, while a manual launch released both every time.
+    // Explicit recovery/error closes wait for native teardown before a retry.
+    // Ordinary playlist transitions use Lampa's own destroy/play lifecycle.
     function releasePlaybackVideo(video) {
         if (!video) return;
         try { video.pause(); } catch (ignorePause) {}
@@ -3450,88 +3403,6 @@
             console.warn('[YummyAnime] Could not close the player before advancing', error);
         }
         return waitForInternalPlayerTeardown(closingVideo);
-    }
-
-    function titleAiredCount(card) {
-        var episodes = card && card.yani_episodes || {};
-        return Math.max(0, Number(episodes.aired || episodes.released || episodes.count || episodes.total || 0));
-    }
-
-    function autoNextEndMessage(context) {
-        var selected = context && context.selected;
-        var number = window.LampaYaniEpisode && window.LampaYaniEpisode.number
-            ? window.LampaYaniEpisode.number(window.LampaYaniEpisode.valueOf(selected))
-            : Number(selected && (selected.number || selected.index) || 0);
-        var aired = titleAiredCount(context && context.card);
-        if (aired > 0 && isFinite(number) && number >= aired) return t('auto_next_last_title');
-        return t('auto_next_last_voice');
-    }
-
-    function finishAutoNextPlayback(context, closingVideo) {
-        Lampa.Noty.show(autoNextEndMessage(context));
-        flushPlaybackProgress(true, context);
-        closeInternalPlayer(closingVideo).then(function () {
-            restorePlaybackInteraction();
-        });
-    }
-
-    function switchInternalEpisode(context, targetVideo, closingVideo, options) {
-        options = options || {};
-        if (!context || playbackContext !== context || context.yaniEpisodeSwitch || !targetVideo ||
-            (context.videos || []).indexOf(targetVideo) < 0 || videoIdentity(targetVideo) === videoIdentity(context.selected)) return Promise.resolve(false);
-        var owner = context.progressOwner || (window.LampaYaniEpisodeProgress && LampaYaniEpisodeProgress.owner());
-        if (window.LampaYaniEpisodeProgress && owner && !LampaYaniEpisodeProgress.sameOwner(owner, LampaYaniEpisodeProgress.owner())) return Promise.resolve(false);
-        var activity = Lampa.Activity && Lampa.Activity.active ? Lampa.Activity.active() : null;
-        var state = playbackWatcher && playbackWatcher.context === context ? playbackWatcher : null;
-        if (state && state.recovering) return Promise.resolve(false);
-        context.yaniEpisodeSwitch = true;
-        if (state) state.advanced = true;
-        // Save the real position while the old video and watcher still exist.
-        // Moving manually never marks an unfinished episode as completed.
-        flushPlaybackProgress(true, context);
-        beginPlaybackNavigation();
-        var token = {
-            context: context,
-            session: playbackReturnState.session,
-            activity: activity,
-            owner: owner,
-            cancelled: false,
-            valid: function () {
-                return !token.cancelled && playbackContext === context && playbackReturnState.active && playbackReturnState.session === token.session &&
-                    (!Lampa.Activity || !Lampa.Activity.active || Lampa.Activity.active() === token.activity) &&
-                    (!window.LampaYaniEpisodeProgress || !owner || LampaYaniEpisodeProgress.sameOwner(owner, LampaYaniEpisodeProgress.owner()));
-            }
-        };
-        var launchOptions = {autoAdvance: true, progressOwner: owner, episodeNavigationToken: token};
-        return closeInternalPlayer(closingVideo).then(function () {
-            if (!episodeNavigationAllowed(launchOptions)) {
-                cancelEpisodeNavigation(launchOptions);
-                return false;
-            }
-            // Replaying a completed episode starts at zero; unfinished episodes
-            // keep their saved offset. Keep the watched badge/history intact.
-            var watched = targetVideo.watched || {};
-            if (window.LampaYaniUiUtils && LampaYaniUiUtils.isEpisodeFinished &&
-                LampaYaniUiUtils.isEpisodeFinished(watched.end_time || watched.time, targetVideo.duration, watched)) {
-                targetVideo.watched = Object.assign({}, watched, {end_time: 0, time: 0});
-            }
-            return Promise.resolve(launchVideo(context.card, context.group, context.videos, targetVideo, launchOptions)).then(function (result) {
-                return result !== false;
-            });
-        }).catch(function (error) {
-            console.warn('[YummyAnime] Episode switch failed', error);
-            return failEpisodeNavigation(launchOptions);
-        });
-    }
-
-    function advanceToNextEpisode(context, closingVideo) {
-        var next = nextEpisodeVideo(context);
-        if (!next) {
-            finishAutoNextPlayback(context, closingVideo);
-            return;
-        }
-        Lampa.Noty.show(t('auto_next_starting') + ' ' + (next.number || next.index || ''));
-        return switchInternalEpisode(context, next, closingVideo);
     }
 
     function externalPlayablePlaylist(playlist) {
@@ -4391,8 +4262,9 @@
 
         addYummySetting({
             component: 'yani',
-            param: {name: 'yani_auto_next', type: 'trigger', default: false},
-            field: {name: t('auto_next'), description: t('auto_next_description')}
+            param: {name: 'yani_native_player_settings', type: 'button'},
+            field: {name: t('auto_next'), description: t('auto_next_description')},
+            onChange: function () { Lampa.Settings.create('player'); }
         });
 
         addYummySetting({

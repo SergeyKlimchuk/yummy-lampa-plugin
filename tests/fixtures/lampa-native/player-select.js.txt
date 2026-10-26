@@ -1,0 +1,39 @@
+// Upstream Lampa fixture, unmodified except this provenance header.
+// Source: https://github.com/yumata/lampa-source/blob/616c80224518a7c7e04e2789d5811881b93bf611/src/interaction/player.js
+// Commit: 616c80224518a7c7e04e2789d5811881b93bf611; fetched 2026-10-27.
+
+    Playlist.listener.follow('select',(e)=>{
+        let type = typeof e.item.url
+        let call = ()=>{
+            let params = Video.saveParams()
+            let keepPip = document.pictureInPictureElement === Video.video() && typeof e.item.url == 'string' && !Video.verifyTube(e.item.url)
+
+            // Нужно текущий плейлист сохранить, чтобы после destroy в плеере остался правильный плейлист
+            let playlist = Playlist.get()
+
+            if(keepPip) Video.pause()
+
+            destroy(keepPip)
+
+            // Помечаем как продолжение воспроизведения
+            e.item.continue_play = true
+
+            play(e.item)
+
+            Video.setParams(params)
+
+            Playlist.set(playlist)
+
+            if(e.item.callback) e.item.callback()
+        }
+
+        if(type == 'string') call()
+        else if(type == 'function' && !wait_for_loading_url){
+            Info.loading()
+
+            wait_for_loading_url = true
+
+            e.item.url(call)
+        } 
+    })
+

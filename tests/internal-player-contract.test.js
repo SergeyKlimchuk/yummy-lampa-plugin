@@ -40,7 +40,8 @@ assert.doesNotMatch(tubeSource, /crossorigin\s*=/i,
     'the direct video element must not enable CORS mode because the CDN omits ACAO');
 assert.doesNotMatch(menu, /internalPlayerAvailable|canInternal/,
     'CVH must not be hidden from the internal-player picker');
-assert.ok(internalPlayback.includes('isExternalPlayableUrl(item.url, item.source)'), 'resolved streams without a filename extension must remain in the internal playlist');
+assert.ok(internalPlayback.includes('session.playlist.items'), 'the complete native playlist must include episodes whose URLs are resolved on selection');
+assert.match(source, /isExternalPlayableUrl\(videoSourceUrl\(video\), video\)/, 'resolver-confirmed streams without a filename extension must remain playable');
 assert.ok(source.includes('isExternalPlayableUrl(current && current.url, current && current.source)'), 'the internal player must accept a resolver-confirmed CVH stream');
 assert.match(source, /isCvhPlaybackSource\(url, group\)[\s\S]{0,260}cvh_stream_unavailable/,
     'a failed CVH resolution must show a source-specific error instead of opening an iframe');

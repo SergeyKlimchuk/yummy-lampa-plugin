@@ -47,7 +47,7 @@ function pluginYummyAnime() {
         'src/ui-notifications.js',
         'src/ui-auth.js',
         'src/ui-status.js',
-        'src/ui-player.js', 'src/ui-player-episodes.js',
+        'src/ui-player.js', 'src/ui-native-playlist.js',
         'src/ui-account-list-controls.js',
         'src/ui-account-lists.js',
         'src/ui-library.js',

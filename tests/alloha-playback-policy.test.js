@@ -18,7 +18,7 @@ assert.ok(launchPolicy.includes('allohaSource && (!resolvedAlloha || !options.au
 assert.ok(allohaStart >= 0 && allohaEnd > allohaStart, 'Alloha resolver policy must exist');
 assert.ok(allohaPolicy.includes('LampaYaniResolver.enabled()'), 'the self-hosted resolver must be opt-in');
 assert.ok(allohaPolicy.includes('LampaYaniLampacResolver.enabled()'), 'Alloha direct playback must require a configured service');
-assert.match(allohaPolicy, /if \(!chain\.length\) \{\s*if \(options\.episodeNavigationToken\) return failEpisodeNavigation\(options\);\s*return blockAllohaPlayback/, 'Alloha without a resolver must retain strict launch policy and cancel internal series switching');
+assert.ok(allohaPolicy.includes('if (!chain.length) return blockAllohaPlayback'), 'Alloha without any configured resolver must hit the strict policy');
 assert.ok(allohaPolicy.includes("t('alloha_direct_required')"), 'blocked Alloha must display a warning');
 assert.ok(allohaPolicy.includes("t('alloha_playback_title')"), 'configured direct and web modes must have an explicit TV-friendly choice');
 assert.ok(allohaPolicy.includes("action: 'direct'") && allohaPolicy.includes("action: 'web'"), 'Alloha mode choice must distinguish Lampa playback from the source web player');
