@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-26",
+  "scope": "Standalone interactive UX proposal; no production runtime replacement or real account writes",
+  "viewports": [
+    {
+      "width": 1280,
+      "height": 720,
+      "root_font_px": 17.472,
+      "horizontal_overflow": false,
+      "detail_category_bottom_px": 331.4659
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "root_font_px": 28.224,
+      "horizontal_overflow": false,
+      "home_dom_elements": 96
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "root_font_px": 60,
+      "horizontal_overflow": false,
+      "detail_category_bottom_px": 1464.8296
+    }
+  ],
+  "browser_checks": [
+    "Home initial focus is resume",
+    "One Down from detail primary reaches current category",
+    "Category changes update band and pressed state in place",
+    "Voice picker keeps episode page visible and returns focus to voice field",
+    "Provider picker only offers pairs present in captured videos",
+    "Local AnimeVost/CVH change leaves global NDA Studio/Kodik defaults intact",
+    "Back from scale chooser restores scale row focus",
+    "Search Enter preserves query and focuses matching title",
+    "Native 1000ms Enter hold opens a two-action panel without release activation",
+    "One OK from home requests demo resume of episode 4 with selected defaults",
+    "List counts derive from demo membership; favorites counted independently",
+    "Sort chooser returns focus to sort trigger"
+  ],
+  "checks": [
+    "tests/tv-next-navigation.test.js",
+    "tests/mockup-content-renderers.test.js",
+    "tests/mockup-account-renderers.test.js",
+    "node --check app.js",
+    "git diff --check"
+  ],
+  "performance_constraints": {
+    "external_ui_libraries": 0,
+    "web_fonts": 0,
+    "polling": false,
+    "animations": false,
+    "blur": false,
+    "shadows": false,
+    "max_poster_page": 12,
+    "max_episode_page": 12,
+    "television_fps_measured": false
+  },
+  "limitations": [
+    "Public content is a stored API snapshot",
+    "Personal categories and progress are explicit demo state",
+    "No actual video launch or synchronization in this prototype",
+    "Real LG remote timing and device performance still require testing"
+  ]
+}
