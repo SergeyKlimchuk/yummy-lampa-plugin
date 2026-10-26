@@ -11,6 +11,8 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Added
 
+- A two-action long-press menu for Continue Watching cards: resume the saved episode or open the anime details
+
 - Completed and started episode markers, an account-owned sparse playback journal, and fresh server progress refresh on the playback screen
 
 - Preferred translation and video provider defaults, separate remembered choices per anime, and a remote-friendly playback setup screen with direct episode access

@@ -76,6 +76,7 @@
     messages.ru.notification_unread_count = 'не прочитано';
     messages.ru.notification_unread = 'Новое';
     messages.ru.notification_read = 'Прочитано';
+    messages.ru.open_anime_card = 'Открыть карточку аниме';
     messages.ru.notification_open_anime = 'Открыть тайтл  ›';
     messages.ru.notifications_empty_hint = 'Новые события аккаунта появятся здесь';
     messages.ru.notification_kind_episode = 'Новая серия';
@@ -181,6 +182,7 @@
     messages.en.notification_unread_count = 'unread';
     messages.en.notification_unread = 'New';
     messages.en.notification_read = 'Read';
+    messages.en.open_anime_card = 'Open anime details';
     messages.en.notification_open_anime = 'Open title  ›';
     messages.en.notifications_empty_hint = 'New account activity will appear here';
     messages.en.notification_kind_episode = 'New episode';
@@ -726,6 +728,7 @@ messages.en.cvh_region_blocked = 'CVH video is unavailable in your region. Choos
     messages.uk.notification_unread_count = 'не прочитано';
     messages.uk.notification_unread = 'Нове';
     messages.uk.notification_read = 'Прочитано';
+    messages.uk.open_anime_card = 'Відкрити картку аніме';
     messages.uk.notification_open_anime = 'Відкрити тайтл  ›';
     messages.uk.notifications_empty_hint = 'Нові події облікового запису з’являться тут';
     messages.uk.notification_kind_episode = 'Нова серія';

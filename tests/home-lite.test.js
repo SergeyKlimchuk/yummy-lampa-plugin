@@ -120,8 +120,13 @@ function environment(options) {
         accountListDefinitions: function () { return ['watching', 'planned', 'completed', 'dropped', 'favorites', 'postponed'].map(function (key, id) { return {id: id, key: key, title: 'List ' + id}; }); },
         openUserListShortcut: function (definition) { calls.push({name: 'list', id: definition.id}); },
         homeSectionEnabled: function (key) { return !(options.hidden || []).includes(key); },
-        openYummyDetail: function (card, notifyFallback) { calls.push({name: 'detail', id: card.anime_id, notifyFallback: notifyFallback}); },
+        openYummyDetail: function (card, notifyFallback) { calls.push({name: 'detail', id: card.yani_id || card.anime_id, card: card, notifyFallback: notifyFallback}); },
         resumeCard: function (card) { calls.push({name: 'resume', id: card.anime_id, card: card}); },
+        bindContinueMenu: function (rendered, card, options) {
+            rendered.on('hover:long', function () {
+                if (options.valid()) calls.push({name: 'continueMenu', card: card, options: options});
+            });
+        },
         openAccount: function () { calls.push({name: 'account'}); }, openSettings: function () {}
     };
     var window = {Lampa: Lampa, $: $, AbortController: AbortController, Navigator: {canmove: options.canmove || function () { return true; }, move: function () {}}};
@@ -196,8 +201,32 @@ async function run() {
     var detailCall = actionEnv.calls.find(function (call) { return call.name === 'detail'; });
     assert.ok(detailCall, 'Public catalog cards still open the existing anime details');
     assert.strictEqual(detailCall.notifyFallback, false, 'Opening a Yummy title must not show a failed-Lampa-match notification');
+    var resumeCount = actionEnv.calls.filter(function (call) { return call.name === 'resume'; }).length;
+    $(actionPage.render().find('.yani-lite-resume')[0]).trigger('hover:long');
+    var continueMenu = actionEnv.calls.find(function (call) { return call.name === 'continueMenu'; });
+    assert.strictEqual(continueMenu.card, resumeSource, 'long press preserves the exact episode metadata');
+    assert.strictEqual(actionEnv.calls.filter(function (call) { return call.name === 'resume'; }).length, resumeCount, 'opening the menu cannot start playback');
+    continueMenu.options.detail();
+    assert.strictEqual(actionEnv.calls.filter(function (call) { return call.name === 'detail'; }).slice(-1)[0].id, 4207, 'menu opens the same anime details');
+    continueMenu.options.resume();
+    assert.strictEqual(actionEnv.calls.filter(function (call) { return call.name === 'resume'; }).slice(-1)[0].card, resumeSource, 'menu resumes the original episode and timestamp');
+    actionPage.pause();
+    assert.strictEqual(continueMenu.options.valid(), false, 'hidden home cannot act from an old menu');
+    actionPage.start();
     actionPage.destroy();
-    console.log('PASS: Continue Watching resumes the exact episode while catalog cards open details without a false failure notice');
+    assert.strictEqual(continueMenu.options.valid(), false, 'destroyed home cannot act from an old menu');
+    console.log('PASS: Continue Watching keeps single-press resume and long-press detail/resume choices with lifecycle guards');
+
+    var normalizedEnv = environment();
+    var normalizedCard = {yani_id: 987, title: 'Normalized history card', yani_resume: {number: 3, time: 99}};
+    normalizedEnv.histories[42] = [normalizedCard];
+    normalizedEnv.deps.toCard = function () { throw new Error('History cards must not be normalized a second time'); };
+    var normalizedPage = normalizedEnv.make(); normalizedPage.start(); normalizedEnv.timers(); await settle();
+    $(normalizedPage.render().find('.yani-lite-resume')[0]).trigger('hover:long');
+    normalizedEnv.calls.find(function (call) { return call.name === 'continueMenu'; }).options.detail();
+    assert.strictEqual(normalizedEnv.calls.find(function (call) { return call.name === 'detail'; }).card, normalizedCard,
+        'opening details preserves the existing YummyAnime id and attached history');
+    normalizedPage.destroy();
 
     var edgeEnv = environment({canmove: function () { return false; }});
     var edgePage = edgeEnv.make(); edgePage.start();

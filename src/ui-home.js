@@ -247,7 +247,7 @@
 
         function openEntry(raw) {
             if (!raw || !idOf(raw)) return;
-            var card = deps.toCard ? deps.toCard(raw) : raw;
+            var card = raw.yani_id ? raw : deps.toCard ? deps.toCard(raw) : raw;
             if (deps.openYummyDetail) deps.openYummyDetail(card, false);
         }
 
@@ -289,6 +289,11 @@
             cards.forEach(function (raw) {
                 var entry = publicCard(raw);
                 var card = button('', 'continue:' + entry.anime_id, function () { resumeEntry(raw); }, 'yani-lite-resume');
+                if (deps.bindContinueMenu) deps.bindContinueMenu(card, raw, {
+                    valid: function () { return active && !destroyed && currentSession === sessionKey(); },
+                    resume: function () { rememberFocus(); resumeEntry(raw); },
+                    detail: function () { rememberFocus(); openEntry(raw); }
+                });
                 addPoster(card, entry.poster, 'yani-lite-resume-poster');
                 var copy = $('<div class="yani-lite-resume-copy"></div>');
                 copy.append($('<div class="yani-lite-title"></div>').text(entry.title));

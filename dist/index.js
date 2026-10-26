@@ -109,6 +109,7 @@ function pluginYummyAnime() {
     messages.ru.notification_unread_count = 'не прочитано';
     messages.ru.notification_unread = 'Новое';
     messages.ru.notification_read = 'Прочитано';
+    messages.ru.open_anime_card = 'Открыть карточку аниме';
     messages.ru.notification_open_anime = 'Открыть тайтл  ›';
     messages.ru.notifications_empty_hint = 'Новые события аккаунта появятся здесь';
     messages.ru.notification_kind_episode = 'Новая серия';
@@ -214,6 +215,7 @@ function pluginYummyAnime() {
     messages.en.notification_unread_count = 'unread';
     messages.en.notification_unread = 'New';
     messages.en.notification_read = 'Read';
+    messages.en.open_anime_card = 'Open anime details';
     messages.en.notification_open_anime = 'Open title  ›';
     messages.en.notifications_empty_hint = 'New account activity will appear here';
     messages.en.notification_kind_episode = 'New episode';
@@ -759,6 +761,7 @@ messages.en.cvh_region_blocked = 'CVH video is unavailable in your region. Choos
     messages.uk.notification_unread_count = 'не прочитано';
     messages.uk.notification_unread = 'Нове';
     messages.uk.notification_read = 'Прочитано';
+    messages.uk.open_anime_card = 'Відкрити картку аніме';
     messages.uk.notification_open_anime = 'Відкрити тайтл  ›';
     messages.uk.notifications_empty_hint = 'Нові події облікового запису з’являться тут';
     messages.uk.notification_kind_episode = 'Нова серія';
@@ -8156,6 +8159,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             return render;
         };
         var openVideos = deps.openVideos || function () {};
+        var openYummyDetail = deps.openYummyDetail || function () {};
         var addCardPlaybackProgress = deps.addCardPlaybackProgress || function () {};
         var syncCardEpisodesMeta = deps.syncCardEpisodesMeta || function () {};
         var syncCardOverlayLayout = deps.syncCardOverlayLayout || function () {};
@@ -8520,37 +8524,212 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             });
         }
 
-        function bindHistoryCardRender(first, second, third) {
-            bindYummyCardRender(first, second, third);
-            var card;
-            var element;
-            [first, second, third].forEach(function (value) {
-                if (!value) return;
-                if (!element && (value.jquery || value.nodeType || (typeof HTMLElement !== 'undefined' && value instanceof HTMLElement))) element = value;
-                if (!card && (value.render || value.yani_id || value.title)) card = value;
-                else if (!card) {
-                    var candidate = value.card || value.object || value.data;
-                    if (candidate && (candidate.render || candidate.yani_id || candidate.title)) card = candidate;
+        function continueOwner() {
+            var progress = deps.progress || window.LampaYaniEpisodeProgress;
+            if (progress && progress.owner) return progress.owner();
+            var auth = window.LampaYaniAuth;
+            var account = auth && auth.get ? auth.get() || {} : {};
+            var token = auth && auth.token ? auth.token() || '' : account.token || '';
+            if (!token) return {key: 'anonymous'};
+            var identity = account.login || account.email || account.user_id || account.userId || account.id;
+            return {key: identity ? 'account:' + String(identity).toLowerCase() : 'session:' + token};
+        }
+
+        function sameContinueOwner(owner) {
+            var progress = deps.progress || window.LampaYaniEpisodeProgress;
+            var current = continueOwner();
+            return progress && progress.sameOwner ? progress.sameOwner(owner, current) : owner.key === current.key;
+        }
+
+        function continueActivity() {
+            return window.Lampa && window.Lampa.Activity && window.Lampa.Activity.active
+                ? window.Lampa.Activity.active() : null;
+        }
+
+        function showContinueMenu(rendered, card, options) {
+            options = options || {};
+            var lampa = window.Lampa;
+            if (!lampa || !lampa.Select || !lampa.Select.show || !card) return false;
+            var element = rendered && rendered.jquery ? rendered : $(rendered);
+            var node = element[0];
+            var owner = continueOwner();
+            var activity = continueActivity();
+            var controller = lampa.Controller && lampa.Controller.enabled ? lampa.Controller.enabled() : {};
+            var collection = element.closest('.scroll, .yani-home');
+            var settled = false;
+            function valid() {
+                return (!options.valid || options.valid()) && (!node || node.isConnected !== false) &&
+                    activity === continueActivity() && sameContinueOwner(owner);
+            }
+            if (!valid()) return false;
+            function restore() {
+                if (!valid()) return false;
+                if (lampa.Controller && lampa.Controller.toggle) lampa.Controller.toggle(controller.name || 'content');
+                if (collection.length && lampa.Controller && lampa.Controller.collectionSet) lampa.Controller.collectionSet(collection);
+                if (node && lampa.Controller && lampa.Controller.collectionFocus) {
+                    if (window.Navigator && window.Navigator.add) window.Navigator.add(node);
+                    lampa.Controller.collectionFocus(node, collection.length ? collection : undefined);
+                }
+                return true;
+            }
+            lampa.Select.show({
+                title: card.title || t('continue_watching'),
+                items: [
+                    {title: t('continue_watching'), key: 'resume'},
+                    {title: t('open_anime_card'), key: 'detail'}
+                ],
+                onBack: function () {
+                    if (settled) return;
+                    settled = true;
+                    if (options.onClose) options.onClose();
+                    restore();
+                },
+                onSelect: function (item) {
+                    if (settled) return;
+                    settled = true;
+                    if (options.onClose) options.onClose();
+                    if (!restore() || !item) return;
+                    if (item.key === 'resume') {
+                        if (options.resume) options.resume(card);
+                        else openVideos(card, true);
+                    } else if (item.key === 'detail') {
+                        if (options.detail) options.detail(card);
+                        else openYummyDetail(card, false);
+                    }
                 }
             });
-            if (card && card.yani_id) {
-                // Continue Watching is a playback queue, not an information catalog.
-                var openHistoryEntry = function () { openVideos(card, true); };
-                var rendered = cardRenderElement(element, card);
-                rendered.addClass('yani-history-card').attr('data-yani-history-id', String(card.yani_id));
-                rendered.closest('.category-full, .items-cards').addClass('yani-card-grid');
-                rendered.add(rendered.find('*')).off('hover:enter.yaniOpen click.yaniOpen hover:enter.yaniHistory click.yaniHistory');
-                rendered.on('hover:enter.yaniHistory click.yaniHistory', function (event) {
-                    if (event) {
-                        event.preventDefault();
-                        event.stopImmediatePropagation();
-                    }
-                    openHistoryEntry();
-                    return false;
-                });
-                card.onEnter = openHistoryEntry;
-                renderHistoryProgress(rendered, card.yani_resume || {});
+            return true;
+        }
+
+        function bindContinueMenu(rendered, card, options) {
+            options = options || {};
+            var element = rendered && rendered.jquery ? rendered : $(rendered);
+            var node = element[0];
+            if (!node || !card) return;
+            var previous = node.yaniContinueMenu;
+            if (previous && previous.destroy) previous.destroy();
+            var owner = continueOwner();
+            var activity = continueActivity();
+            var state = {menuOpen: false, releaseClick: false, enterUntil: 0};
+            function valid() {
+                return node.yaniContinueMenu === state && node.isConnected !== false &&
+                    activity === continueActivity() && sameContinueOwner(owner) && (!options.valid || options.valid());
             }
+            function stop(event) {
+                if (!event) return;
+                if (event.preventDefault) event.preventDefault();
+                if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+                else if (event.stopPropagation) event.stopPropagation();
+            }
+            function freshPress() {
+                state.releaseClick = false;
+                state.enterUntil = 0;
+            }
+            function guardEnter(event) {
+                if (!valid() || state.menuOpen || Date.now() < state.enterUntil) stop(event);
+                else if (options.enter) {
+                    stop(event);
+                    options.enter(card);
+                }
+            }
+            function guardClick(event) {
+                if (!valid() || state.menuOpen || state.releaseClick) {
+                    state.releaseClick = false;
+                    // Controller schedules hover:enter 20ms after a click. This
+                    // also catches callbacks a host already queued before us.
+                    state.enterUntil = Date.now() + 80;
+                    stop(event);
+                } else if (options.enter) {
+                    stop(event);
+                    options.enter(card);
+                }
+            }
+            function openMenu(event) {
+                stop(event);
+                if (!valid() || state.menuOpen) return;
+                state.releaseClick = true;
+                state.enterUntil = Date.now() + 80;
+                state.menuOpen = true;
+                var menuOptions = Object.assign({}, options, {
+                    valid: valid,
+                    onClose: function () {
+                        state.menuOpen = false;
+                        if (options.onClose) options.onClose();
+                    }
+                });
+                if (!showContinueMenu(element, card, menuOptions)) state.menuOpen = false;
+            }
+            state.open = openMenu;
+            state.valid = valid;
+            state.destroy = function () {
+                if (node.removeEventListener) {
+                    node.removeEventListener('hover:long', openMenu, true);
+                    node.removeEventListener('hover:enter', guardEnter, true);
+                    node.removeEventListener('click', guardClick, true);
+                    ['pointerdown', 'mousedown', 'touchstart'].forEach(function (name) { node.removeEventListener(name, freshPress, true); });
+                }
+                element.off('.yaniContinueMenu');
+                if (node.yaniContinueMenu === state) delete node.yaniContinueMenu;
+            };
+            node.yaniContinueMenu = state;
+            // Capture runs before Card's pre-existing native and jQuery menus.
+            // Lampa's keyboard already separates an 800ms hold from a tap.
+            if (node.addEventListener) {
+                node.addEventListener('hover:long', openMenu, true);
+                node.addEventListener('hover:enter', guardEnter, true);
+                node.addEventListener('click', guardClick, true);
+                ['pointerdown', 'mousedown', 'touchstart'].forEach(function (name) { node.addEventListener(name, freshPress, true); });
+            }
+            element.on('hover:long.yaniContinueMenu', openMenu);
+            return state;
+        }
+
+        function bindHistoryCardRender(first, second, third) {
+            var card;
+            var cardApi;
+            var element;
+            var values = [first, second, third];
+            function hasCard(value) { return value && (value.yani_id || value.anime_id || value.animeId); }
+            values.forEach(function (value) {
+                if (!value) return;
+                if (!element && (value.jquery || value.nodeType || (typeof HTMLElement !== 'undefined' && value instanceof HTMLElement))) element = value;
+                if (!cardApi && typeof value.render === 'function') cardApi = value;
+                if (!card && hasCard(value)) card = value;
+            });
+            values.forEach(function (value) {
+                if (!value || card) return;
+                var candidate = value.card || value.object || value.data;
+                if (hasCard(candidate)) card = candidate;
+            });
+            if (!element && cardApi) element = cardApi.render(true);
+            var node = element && element.jquery ? element[0] : element;
+            if (!card && node) card = node.card_data || node.yaniBoundCard;
+            if (!hasCard(card)) return;
+            card.yani_id = card.yani_id || card.anime_id || card.animeId;
+            bindYummyCardRender(element, card, cardApi);
+            var rendered = cardRenderElement(element, card);
+            var openHistoryEntry = function () {
+                if (!binding || binding.valid()) openVideos(card, true);
+            };
+            rendered.addClass('yani-history-card').attr('data-yani-history-id', String(card.yani_id));
+            rendered.closest('.category-full, .items-cards').addClass('yani-card-grid');
+            rendered.add(rendered.find('*')).off('hover:enter.yaniOpen click.yaniOpen hover:enter.yaniHistory click.yaniHistory');
+            rendered.on('hover:enter.yaniHistory click.yaniHistory', function (event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+                openHistoryEntry();
+                return false;
+            });
+            var binding = bindContinueMenu(rendered, card, {enter: openHistoryEntry});
+            card.onEnter = openHistoryEntry;
+            card.onMenu = binding && binding.open;
+            if (cardApi) {
+                cardApi.onEnter = openHistoryEntry;
+                cardApi.onMenu = binding && binding.open;
+            }
+            renderHistoryProgress(rendered, card.yani_resume || {});
         }
 
         return {
@@ -8567,7 +8746,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             refreshVisiblePlaybackProgress: refreshVisiblePlaybackProgress,
             updatePlaybackProgress: updatePlaybackProgress,
             syncPlaybackHistoryManually: syncPlaybackHistoryManually,
-            bindHistoryCardRender: bindHistoryCardRender
+            bindHistoryCardRender: bindHistoryCardRender,
+            bindContinueMenu: bindContinueMenu,
+            showContinueMenu: showContinueMenu
         };
     }
 
@@ -17219,7 +17400,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
         function openEntry(raw) {
             if (!raw || !idOf(raw)) return;
-            var card = deps.toCard ? deps.toCard(raw) : raw;
+            var card = raw.yani_id ? raw : deps.toCard ? deps.toCard(raw) : raw;
             if (deps.openYummyDetail) deps.openYummyDetail(card, false);
         }
 
@@ -17261,6 +17442,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             cards.forEach(function (raw) {
                 var entry = publicCard(raw);
                 var card = button('', 'continue:' + entry.anime_id, function () { resumeEntry(raw); }, 'yani-lite-resume');
+                if (deps.bindContinueMenu) deps.bindContinueMenu(card, raw, {
+                    valid: function () { return active && !destroyed && currentSession === sessionKey(); },
+                    resume: function () { rememberFocus(); resumeEntry(raw); },
+                    detail: function () { rememberFocus(); openEntry(raw); }
+                });
                 addPoster(card, entry.poster, 'yani-lite-resume-poster');
                 var copy = $('<div class="yani-lite-resume-copy"></div>');
                 copy.append($('<div class="yani-lite-title"></div>').text(entry.title));
@@ -17655,6 +17841,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         },
         cardRenderElement: cardRenderElement,
         openVideos: function (card, resume) { return openVideos(card, resume); },
+        openYummyDetail: function (card, fallback) { return openYummyDetail(card, fallback); },
         addCardPlaybackProgress: addCardPlaybackProgress,
         syncCardEpisodesMeta: cardRenderers.syncCardEpisodesMeta,
         syncCardOverlayLayout: cardRenderers.syncCardOverlayLayout,
@@ -18156,6 +18343,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             localHistoryCards: localHistoryCards,
             continueCards: homeContinueCards,
             resumeCard: function (card) { return openVideos(card, true); },
+            bindContinueMenu: playbackHistoryApi.bindContinueMenu,
             ensureRemoteHistory: ensureRemoteHistory,
             accountListDefinitions: accountListDefinitions,
             listCounts: LampaYaniHomeInsights.listCounts,
