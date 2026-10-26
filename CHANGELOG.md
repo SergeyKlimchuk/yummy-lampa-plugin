@@ -11,6 +11,10 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Added
 
+- TV interface based on the approved prototype: persistent plugin navigation, compact choice panels, one paginated library, direct resume and episode/dubbing controls.
+
+- Build identity in Settings and the UX proposal: source commit, actual assembly time in UTC, local-change marker and build channel, with matching bundle/JSON metadata
+
 - A two-action long-press menu for Continue Watching cards: resume the saved episode or open the anime details
 
 - Completed and started episode markers, an account-owned sparse playback journal, and fresh server progress refresh on the playback screen
@@ -34,6 +38,11 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 - Account counters to compact statistics and reusable poster decoration with scale-aware layout caching
 
 ### Fixed
+
+- My Lists ratings now use a readable row below each poster; mounted card overlays are measured once after replacing the detached grid, keeping scores clear of category bands and stable across scale changes.
+
+
+- Timestamp-sensitive CI bundle verification and missing source/prototype files in the Pages artifact
 
 - Home and profile category counters reading watch-time statistics as zero titles; use compact account counts and discard pre-fix cached zeros
 

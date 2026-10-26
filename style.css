@@ -3522,3 +3522,197 @@ body.yani-player-open .head--simple {
 .yani-playback .yani-playback__episode[data-yani-episode-state="completed"] .yani-playback__episode-fill { background: #3cce7b; }
 .yani-playback .yani-playback__episode[data-yani-episode-state].is-selected { border-color: #ff6666; }
 .yani-playback .yani-playback__episode[data-yani-episode-state].focus { background: #3f3f3f; border-color: #f1f1f1; }
+
+/* TV navigation uses fixed geometry and a separate content scroll. Focus does
+   not scale cards or trigger an animation; selected status remains independent. */
+.yani-tv-shell.yani-lite-view { display: flex; height: 100%; min-height: 0; min-width: 0; background: #292929; color: #f1f1f1; overflow: hidden; }
+.yani-tv-rail { display: flex; flex-direction: column; flex: 0 0 8.6em; width: 8.6em; min-height: 0; padding: 1.15em .6em .8em; box-sizing: border-box; background: #292929; border-right: 1px solid #484848; }
+.yani-tv-rail__brand { margin: 0 .2em 1.6em; min-height: 2.3em; }
+.yani-tv-rail__brand img { display: block; width: 7em; max-width: 100%; height: 2.3em; object-fit: contain; }
+.yani-tv-rail__main,.yani-tv-rail__bottom { display: flex; flex-direction: column; gap: .4em; }
+.yani-tv-rail__bottom { margin-top: auto; padding-top: 1.1em; }
+.yani-tv-rail__item { display: flex; align-items: center; gap: .55em; min-height: 3.1em; padding: .55em .6em; border: .09em solid transparent; border-radius: .25em; font-size: .82em; color: #bfbfbf; box-sizing: border-box; background: transparent; }
+.yani-tv-rail__symbol { width: 1.1em; flex: 0 0 1.1em; font-size: 1.25em; text-align: center; line-height: 1; }
+.yani-tv-rail__label { min-width: 0; overflow-wrap: break-word; }
+.yani-tv-rail__item.is-current { border-left-color: #ff6666; color: #f1f1f1; background: #333333; }
+.yani-tv-rail__item.focus { color: #fff; outline: .13em solid #f1f1f1; outline-offset: .1em; }
+.yani-tv-shell__body { flex: 1 1 0; min-width: 0; min-height: 0; height: 100%; overflow: hidden; position: relative; }
+.yani-tv-shell__body > * { height: 100%; min-height: 0; }
+.yani-tv-shell .yani-detail.yani-lite-view .yani-detail__content { max-width: 76em; }
+.yani-tv-shell .yani-detail.yani-lite-view .yani-detail__title { font-size: 1.7em; }
+.yani-tv-shell .yani-detail.yani-lite-view .yani-detail__button.focus { outline-color: #f1f1f1; }
+.yani-tv-shell .yani-playback .yani-playback__field.focus,
+.yani-tv-shell .yani-playback .yani-playback__button.focus,
+.yani-tv-shell .yani-playback .yani-playback__watch.focus { outline: .12em solid #f1f1f1; outline-offset: .12em; }
+
+.yani-home.yani-home--lite { height: 100%; min-height: 0; overflow: hidden; }
+.yani-home.yani-home--lite .yani-lite-header:empty { display: none; }
+.yani-home.yani-home--lite .yani-lite-layout { height: 100%; min-height: 0; grid-template-columns: 8.6em minmax(0,1fr); }
+.yani-home.yani-home--lite .yani-lite-sidebar { display: flex; flex-direction: column; padding: 1.15em .6em .8em; min-height: 0; box-sizing: border-box; }
+.yani-home.yani-home--lite .yani-lite-sidebar .yani-lite-brand { margin: 0 .2em 1.6em; font-size: 1em; }
+.yani-home.yani-home--lite .yani-lite-sidebar .yani-lite-brand img { width: 7em; height: 2.3em; max-width: 100%; object-fit: contain; }
+.yani-home.yani-home--lite .yani-lite-sidebar-bottom { margin-top: auto; padding-top: 1.1em; }
+.yani-home.yani-home--lite .yani-lite-nav { display: flex; align-items: center; min-height: 3.1em; margin-bottom: .4em; padding: .55em .6em; border: .09em solid transparent; border-radius: .25em; font-size: .82em; box-sizing: border-box; }
+.yani-home.yani-home--lite .yani-lite-nav--active { border-left-color: #ff6666; background: #333333; color: #f1f1f1; }
+.yani-home.yani-home--lite .yani-lite-main-scroll { min-width: 0; min-height: 0; height: 100%; }
+.yani-home.yani-home--lite .yani-lite-main-scroll > .scroll { height: 100%; }
+.yani-home.yani-home--lite .yani-lite-main { padding: 1.5em 1.6em 2em; }
+.yani-home.yani-home--lite .yani-lite-section { margin-bottom: 1.6em; }
+.yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: repeat(auto-fit,minmax(18em,1fr)); gap: .65em; }
+.yani-home.yani-home--lite .yani-lite-resume-row { display: grid; min-width: 0; grid-template-columns: 1fr auto; align-items: stretch; gap: .3em; background: #333333; border-radius: .3em; }
+.yani-home.yani-home--lite .yani-lite-resume { gap: .8em; padding: .75em; border-radius: .3em; }
+.yani-home.yani-home--lite .yani-lite-resume-poster { width: 3.6em; height: 5.4em; flex-basis: 3.6em; }
+.yani-home.yani-home--lite .yani-lite-resume-detail { display: flex; align-items: center; justify-content: center; min-width: 3em; max-width: 5.5em; padding: .65em; font-size: .7em; line-height: 1.3; background: transparent; border: .08em solid #535353; border-radius: .25em; color: #c5c5c5; box-sizing: border-box; }
+.yani-home.yani-home--lite .yani-lite-resume .yani-lite-title { min-height: 0; font-size: .86em; }
+.yani-home.yani-home--lite .yani-lite-resume .yani-lite-meta { font-size: .69em; }
+.yani-home.yani-home--lite .yani-lite-categories { grid-template-columns: repeat(auto-fit,minmax(7.4em,1fr)); }
+.yani-home.yani-home--lite .yani-lite-category { border-bottom: .22em solid var(--yani-list-color,#484848); min-height: 3em; }
+.yani-home.yani-home--lite .selector.focus { outline: .12em solid #f1f1f1 !important; outline-offset: .12em; }
+.yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(auto-fit,minmax(7.5em,1fr)); gap: .9em; }
+.yani-home.yani-home--lite .yani-lite-poster { height: 10.8em; max-height: none; }
+
+/* Choice panels share one controller and retain a bounded options page. There
+   is no blurred backdrop or moving surface, including on older webOS engines. */
+.yani-choice-panel { position: fixed; inset: 0; z-index: 10060; background: rgba(0,0,0,.25); display: flex; justify-content: flex-end; color: #f1f1f1; }
+.yani-choice-panel__surface { display: flex; flex-direction: column; width: 27em; max-width: 47vw; height: 100%; min-height: 0; box-sizing: border-box; padding: 1.35em 1.2em; gap: .8em; background: #333333; border-left: .09em solid #535353; }
+.yani-choice-panel--compact .yani-choice-panel__surface { align-self: center; height: auto; max-height: calc(100vh - 4em); border: .09em solid #535353; border-right: 0; border-radius: .35em 0 0 .35em; }
+.yani-choice-panel__title { flex-shrink: 0; font-size: 1.3em; font-weight: 600; line-height: 1.2; }
+.yani-choice-panel__description { flex-shrink: 0; font-size: .76em; color: #c1c1c1; line-height: 1.45; }
+.yani-choice-panel__context { display: flex; align-items: center; gap: .7em; flex-shrink: 0; padding-bottom: .8em; border-bottom: 1px solid #535353; }
+.yani-choice-panel__context img { width: 3em; height: 4.2em; object-fit: cover; border-radius: .2em; }
+.yani-choice-panel__context-title { font-size: .84em; color: #c1c1c1; line-height: 1.35; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.yani-choice-panel__surface > .scroll { flex: 1 1 auto; height: auto; min-height: 0; }
+.yani-choice-panel__options { display: flex; flex-direction: column; gap: .45em; padding: .2em; }
+.yani-choice-panel__option { display: flex; align-items: center; justify-content: space-between; gap: .7em; min-height: 3.25em; padding: .65em .8em; box-sizing: border-box; border: .08em solid transparent; border-radius: .25em; background: #3c3c3c; }
+.yani-choice-panel__option.is-selected { background: #454545; border-left-color: #ff6666; }
+.yani-choice-panel__option-copy { min-width: 0; }
+.yani-choice-panel__option-title { font-size: .95em; line-height: 1.3; overflow-wrap: break-word; }
+.yani-choice-panel__option-subtitle { font-size: .72em; color: #c1c1c1; line-height: 1.45; margin-top: .2em; }
+.yani-choice-panel__check { min-width: 1.1em; text-align: right; color: #f1f1f1; font-size: 1.1em; }
+.yani-choice-panel .selector.focus { outline: .12em solid #f1f1f1; outline-offset: .1em; }
+.yani-choice-panel__pager { display: flex; justify-content: space-between; align-items: center; gap: .6em; }
+.yani-choice-panel__pager:empty { display: none; }
+.yani-choice-panel__page { padding: .55em .65em; border-radius: .2em; background: #3c3c3c; font-size: .78em; }
+.yani-choice-panel__page-count { color: #c1c1c1; font-size: .72em; }
+.yani-choice-panel__empty { padding: .8em; color: #c1c1c1; font-size: .85em; }
+.yani-choice-panel__footer { flex-shrink: 0; border-top: 1px solid #535353; padding-top: .8em; color: #c1c1c1; font-size: .74em; }
+
+.yani-library { display: flex; flex-direction: column; height: 100%; min-height: 0; color: #f1f1f1; background: #292929; }
+.yani-library__header { flex: 0 0 auto; padding: 1.35em 1.4em .6em; }
+.yani-library__title { margin: 0 0 .75em; font-size: 1.55em; line-height: 1.2; font-weight: 600; }
+.yani-library__controls { display: flex; align-items: flex-start; gap: .65em; }
+.yani-library__tabs { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: .4em; min-width: 0; }
+.yani-library__tab { display: flex; align-items: center; justify-content: space-between; gap: .55em; border: .08em solid transparent; border-bottom: .22em solid var(--yani-list-color,#707070); border-radius: .2em; min-height: 2.8em; padding: .5em .65em; font-size: .76em; background: #333333; box-sizing: border-box; }
+.yani-library__tab--watching { --yani-list-color: #ff6666; }
+.yani-library__tab--planned { --yani-list-color: #af75e4; }
+.yani-library__tab--completed { --yani-list-color: #3cce7b; }
+.yani-library__tab--dropped { --yani-list-color: #6c6c6c; }
+.yani-library__tab--favorites { --yani-list-color: #be46c6; }
+.yani-library__tab--postponed { --yani-list-color: #f2b800; }
+.yani-library__tab.is-selected { background: var(--yani-list-color,#454545); color: #fff; border-color: var(--yani-list-color,#707070); }
+.yani-library__tab--watching.is-selected,.yani-library__tab--planned.is-selected,.yani-library__tab--completed.is-selected,.yani-library__tab--postponed.is-selected { color: #242424; }
+.yani-library__tab.is-pending { border-top-color: #c1c1c1; }
+.yani-library__count { font-variant-numeric: tabular-nums; font-size: .88em; }
+.yani-library__sort { flex: 0 0 auto; padding: .65em .8em; min-height: 2.8em; border: .08em solid #535353; border-radius: .2em; color: #c1c1c1; font-size: .76em; box-sizing: border-box; }
+.yani-library__status { min-height: 1.5em; font-size: .7em; color: #bfbfbf; padding-top: .65em; }
+.yani-library__body { flex: 1 1 auto; min-height: 0; min-width: 0; }
+.yani-library__grid { height: 100%; min-height: 0; }
+.yani-library__grid > .scroll { height: 100%; }
+.yani-library .category-full,.yani-library .items-cards { display: grid; grid-template-columns: repeat(auto-fill,minmax(8em,1fr)); gap: 1.5em .8em; padding: .3em 1.4em 1.5em; margin: 0; width: 100%; max-width: 100%; box-sizing: border-box; }
+.yani-library .category-full .card,.yani-library .items-cards .card { float: none; width: auto; max-width: none; padding: 0; margin: 0; }
+.yani-library .card__title { font-size: .8em; margin-top: .55em; line-height: 1.35; }
+.yani-library .card__age,.yani-library .yani-card-meta { font-size: .67em; margin-top: .25em; }
+.yani-library__pager { display: flex; justify-content: flex-end; align-items: center; gap: .8em; padding: .4em 1.4em 1em; }
+.yani-library__pager:empty { display: none; }
+.yani-library__page { padding: .55em .8em; font-size: .78em; border: .08em solid #535353; border-radius: .2em; background: #333333; }
+.yani-library__page-number { font-size: .72em; color: #bfbfbf; }
+.yani-library .selector.focus:not(.card) { outline: .13em solid #f1f1f1 !important; outline-offset: .12em; }
+.yani-tv-rail__item,.yani-choice-panel__option,.yani-choice-panel__page,.yani-library__tab,.yani-library__sort,.yani-library__page,.yani-library .card,.yani-home .yani-lite-resume-detail { box-shadow: none; text-shadow: none; background-image: none; filter: none; animation: none; transition: none; transform: none; }
+@media (max-width: 1050px) {
+    .yani-tv-rail { flex-basis: 7.6em; width: 7.6em; }
+    .yani-home.yani-home--lite .yani-lite-layout { grid-template-columns: 7.6em minmax(0,1fr); }
+    .yani-home.yani-home--lite .yani-lite-main { padding: 1em 1.1em 1.6em; }
+    .yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: repeat(auto-fit,minmax(15em,1fr)); }
+    .yani-home.yani-home--lite .yani-lite-resume-poster { width: 2.8em; height: 4.2em; flex-basis: 2.8em; }
+    .yani-library__controls { flex-wrap: wrap; }
+    .yani-choice-panel__surface { max-width: 52vw; }
+}
+@media (max-width: 700px) {
+    .yani-tv-rail { flex-basis: 6.5em; width: 6.5em; padding: .8em .4em; }
+    .yani-tv-rail__brand { margin-bottom: 1em; }
+    .yani-tv-rail__item { padding: .5em .4em; font-size: .75em; gap: .35em; }
+    .yani-tv-rail__symbol { display: none; }
+    .yani-home.yani-home--lite .yani-lite-layout { display: grid; grid-template-columns: 6.5em minmax(0,1fr); }
+    .yani-home.yani-home--lite .yani-lite-sidebar { display: flex; flex-wrap: nowrap; gap: 0; border-right: 1px solid #484848; border-bottom: 0; padding: .8em .4em; }
+    .yani-home.yani-home--lite .yani-lite-nav { font-size: .75em; margin-bottom: .4em; }
+    .yani-home.yani-home--lite .yani-lite-continue { grid-template-columns: 1fr; }
+    .yani-home.yani-home--lite .yani-lite-posters { grid-template-columns: repeat(auto-fit,minmax(6em,1fr)); }
+    .yani-home.yani-home--lite .yani-lite-poster { height: 9em; }
+    .yani-library__header { padding: 1em .9em .4em; }
+    .yani-library .category-full,.yani-library .items-cards { padding-left: .9em; padding-right: .9em; grid-template-columns: repeat(auto-fill,minmax(6em,1fr)); }
+    .yani-choice-panel__surface { max-width: 83vw; }
+}
+
+.yani-home.yani-home--lite .yani-list-watching { --yani-list-color: #ff6666; }
+.yani-home.yani-home--lite .yani-list-planned { --yani-list-color: #af75e4; }
+.yani-home.yani-home--lite .yani-list-completed { --yani-list-color: #3cce7b; }
+.yani-home.yani-home--lite .yani-list-dropped { --yani-list-color: #6c6c6c; }
+.yani-home.yani-home--lite .yani-list-favorites { --yani-list-color: #be46c6; }
+.yani-home.yani-home--lite .yani-list-postponed { --yani-list-color: #f2b800; }
+.yani-home.yani-home--lite .yani-lite-resume-detail { min-width: 5em; max-width: 6em; }
+
+.yani-library__heading { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin-bottom: .9em; }
+.yani-library__heading .yani-library__title { margin: 0; min-width: 0; }
+.yani-library__heading .yani-library__sort { position: static; max-width: 23em; flex: 0 1 auto; }
+@media (max-width: 700px) {
+    .yani-library__heading { display: block; }
+    .yani-library__heading .yani-library__sort { margin-top: .65em; display: inline-block; max-width: 100%; }
+}
+
+.yani-settings { display: flex; flex-direction: column; height: 100%; min-height: 0; background: #292929; color: #f1f1f1; }
+.yani-settings__header { flex: 0 0 auto; padding: 1.35em 1.5em .7em; }
+.yani-settings__title { margin: 0 0 .75em; font-size: 1.55em; font-weight: 600; line-height: 1.2; }
+.yani-settings__tabs { display: flex; flex-wrap: wrap; gap: .5em; }
+.yani-settings__tab { min-height: 2.8em; padding: .6em .8em; font-size: .84em; background: transparent; color: #bfbfbf; border: .08em solid transparent; border-bottom: .18em solid #535353; border-radius: .2em; box-sizing: border-box; }
+.yani-settings__tab.is-selected { color: #f1f1f1; background: #333333; border-bottom-color: #ff6666; }
+.yani-settings__body { flex: 1 1 auto; min-height: 0; }
+.yani-settings__body > .scroll { height: 100%; }
+.yani-settings__section { max-width: 64em; padding: .5em 1.5em 1.5em; }
+.yani-settings__section-title { font-size: 1.05em; line-height: 1.3; font-weight: 500; margin: .75em 0 .5em; }
+.yani-settings__section-description { color: #bfbfbf; font-size: .78em; line-height: 1.5; margin-bottom: 1.1em; max-width: 64ch; }
+.yani-settings .yani-settings__row.settings-param { position: relative; min-height: 4.6em; height: auto; margin: 0 0 .6em; padding: .8em 11em .8em 1em; background: #333333; border: .08em solid transparent; border-radius: .3em; color: #f1f1f1; box-sizing: border-box; }
+.yani-settings .yani-settings__row.settings-param .settings-param__name { color: #f1f1f1; font-size: .95em; line-height: 1.35; font-weight: 500; }
+.yani-settings .yani-settings__row.settings-param .settings-param__descr { color: #bfbfbf; font-size: .7em; line-height: 1.45; margin-top: .3em; }
+.yani-settings .yani-settings__row.settings-param .settings-param__value { position: absolute; right: 1em; top: 50%; transform: translateY(-50%); width: 10em; text-align: right; font-size: .85em; color: #ff9090; line-height: 1.35; overflow-wrap: break-word; }
+.yani-settings__static { padding: .85em 1em; margin-bottom: .4em; border-bottom: 1px solid #484848; color: #bfbfbf; font-size: .85em; line-height: 1.45; overflow-wrap: break-word; }
+.yani-settings .selector.focus { outline: .13em solid #f1f1f1; outline-offset: .1em; background: #3c3c3c; color: #f1f1f1; }
+.yani-settings__tab,.yani-settings .yani-settings__row.settings-param { box-shadow: none; text-shadow: none; background-image: none; filter: none; animation: none; transition: none; transform: none; }
+@media (max-width: 700px) {
+    .yani-settings__header { padding: 1em .9em .5em; }
+    .yani-settings__section { padding: .4em .9em 1.5em; }
+    .yani-settings .yani-settings__row.settings-param { padding: .75em; }
+    .yani-settings .yani-settings__row.settings-param .settings-param__value { position: static; margin-top: .45em; width: auto; text-align: left; transform: none; }
+}
+
+.yani-home.yani-home--lite .yani-lite-resume-action { margin-top: .5em; color: #ff6666; font-size: .72em; font-weight: 600; }
+
+.yani-home.yani-home--lite .yani-lite-nav { gap: .65em; }
+.yani-home.yani-home--lite .yani-lite-nav-symbol { flex: 0 0 1em; width: 1em; text-align: center; color: #b8b8b8; }
+.yani-playback .yani-playback__notice:empty { display: none; }
+
+.yani-tv-shell .card.focus .card__view,
+.yani-tv-shell .card.hover .card__view { outline: .13em solid #f1f1f1; outline-offset: .12em; }
+
+/* Library scores live outside the poster, above the title. They retain the
+   shared source/value badges without covering the account category band. */
+.yani-library .yani-card-ratings--below {
+    position: static; inset: auto; display: flex; justify-content: flex-start;
+    flex-wrap: wrap; gap: .24em; max-width: 100%; min-height: 1.65em;
+    margin-top: .5em; pointer-events: none;
+}
+.yani-library .yani-card-ratings--below .yani-card-rating {
+    flex: 0 0 auto; font-size: .78em; min-height: 1.7em;
+    padding: .12em .3em .12em .12em; border-radius: .2em;
+}
+.yani-library .yani-card-ratings--below .yani-card-rating__logo { font-size: .8em; }
+.yani-library .yani-card-ratings--below + .card__title { margin-top: .35em; }

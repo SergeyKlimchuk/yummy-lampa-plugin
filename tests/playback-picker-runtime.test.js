@@ -44,8 +44,8 @@ Wrapper.prototype.each = function (callback) { this.nodes.forEach((node, index) 
 Wrapper.prototype.remove = function () { this.nodes.forEach(detach); return this; };
 
 function environment(options = {}) {
-    const documentRoot = new Node('document'), timers = new Map(), launches = [], remembered = [], defaults = [], storage = {}, notices = [], controllers = {};
-    let sequence = 0, currentTarget = 'internal', selectedAnime = false, resets = 0, playlistCalls = 0;
+    const documentRoot = new Node('document'), timers = new Map(), launches = [], remembered = [], defaults = [], storage = {}, notices = [], controllers = {}, panels = [];
+    let sequence = 0, enabled = 'content', currentTarget = 'internal', selectedAnime = false, resets = 0, playlistCalls = 0;
     const prefs = {
         normalizeVoice: value => String(value).toLowerCase().trim(), source: group => String(group.playerId || group.player).toLowerCase(),
         saved: () => selectedAnime ? {} : null,
@@ -56,13 +56,33 @@ function environment(options = {}) {
     };
     const Lampa = {
         Scroll: function (options) { assert.equal(options.mask, false); assert.equal(options.notransition, true); const root = $('<div class="scroll"></div>'); this.minus = () => {}; this.update = () => {}; this.append = value => root.append(value); this.render = js => js ? root[0] : root; this.destroy = () => root.remove(); },
-        Controller: {enabled: () => ({name: 'content'}), add: (name, controller) => { controllers[name] = controller; }, toggle: name => { if (controllers[name] && controllers[name].toggle) controllers[name].toggle(); }, collectionSet: () => {}, collectionFocus: element => { find(documentRoot, '.focus').forEach(node => { node.classes = node.classes.filter(name => name !== 'focus'); }); if (element) { $(element).addClass('focus'); $(element).trigger('hover:focus'); } }},
+        Controller: {enabled: () => ({name: enabled}), add: (name, controller) => { controllers[name] = controller; }, toggle: name => { enabled = name; if (controllers[name] && controllers[name].toggle) controllers[name].toggle(); }, collectionSet: () => {}, collectionFocus: element => { find(documentRoot, '.focus').forEach(node => { node.classes = node.classes.filter(name => name !== 'focus'); }); if (element) { $(element).addClass('focus'); $(element).trigger('hover:focus'); } }},
         Storage: {get: (key, fallback) => Object.prototype.hasOwnProperty.call(storage,key) ? storage[key] : fallback, set: (key, value) => { storage[key] = value; }}, Noty: {show: message => notices.push(message)}
     };
     const context = {window: {}, Lampa, $, document: {documentElement: {contains: node => { for (let current = node; current; current = current.parentNode) if (current === documentRoot) return true; return false; }}},
         setTimeout: fn => { const id = ++sequence; timers.set(id, fn); return id; }, clearTimeout: id => timers.delete(id),
         console, Navigator: {canmove: () => true, move: () => {}, add: () => {}}};
     context.window = context;
+    if (options.panel) context.LampaYaniChoicePanel = {show: params => {
+        const record = {params, destroyed: false};
+        record.select = index => {
+            if (record.destroyed) return;
+            record.destroyed = true; enabled = 'content';
+            Lampa.Controller.collectionFocus(params.origin[0]);
+            if (params.onClose) params.onClose('select');
+            params.onSelect(params.items[index]);
+        };
+        record.back = () => {
+            if (record.destroyed) return;
+            record.destroyed = true; enabled = 'content';
+            Lampa.Controller.collectionFocus(params.origin[0]);
+            if (params.onClose) params.onClose('back');
+            if (params.onBack) params.onBack();
+        };
+        record.handle = {destroy: () => { record.destroyed = true; if (params.onClose) params.onClose('destroy'); }};
+        panels.push(record); enabled = 'yani_choice_panel';
+        return record.handle;
+    }};
     if (options.auth) context.LampaYaniAuth = {get: () => options.auth, token: () => options.auth.token || ''};
     vm.runInNewContext(fs.readFileSync('src/episode.js', 'utf8') + '\n' + fs.readFileSync('src/ui-playback-picker.js', 'utf8'), context);
     if (options.progress) vm.runInNewContext(fs.readFileSync('src/ui-episode-progress.js','utf8'), context);
@@ -88,11 +108,11 @@ function environment(options = {}) {
     flush();
     const root = component.render();
     const enter = key => { const element = root.find('[data-yani-focus-key="' + key + '"]'); assert.equal(element.length, 1, key + ' must identify one action'); element.trigger('hover:enter'); flush(); };
-    return {component, root, groups, progress: context.LampaYaniEpisodeProgress, enter, flush, launches, remembered, defaults, storage, notices, controllers, timers, resetCount: () => resets, playlistCalls: () => playlistCalls};
+    return {component, root, groups, progress: context.LampaYaniEpisodeProgress, enter, flush, launches, remembered, defaults, storage, notices, controllers, timers, panels, resetCount: () => resets, playlistCalls: () => playlistCalls};
 }
 
 let env = environment();
-assert.equal(env.root.find('.yani-playback__episode').length, 60, 'only 60 episodes are rendered for a 1403-episode title');
+assert.equal(env.root.find('.yani-playback__episode').length, 12, 'only twelve episodes are rendered for a 1403-episode title');
 assert.equal(env.root.find('.focus').attr('data-yani-focus-key'), 'watch', 'saved/default choice opens with one-OK playback');
 assert.match(env.root.find('.yani-playback__watch').text(), /1075/);
 assert.equal(env.playlistCalls(), 1, 'serialized selected group is reconciled with cached real groups');
@@ -149,7 +169,47 @@ env.component.destroy(); env.flush();
 assert.equal(env.root.find('.selector').length, 0, 'destroy drops all screen controls');
 assert.equal(env.timers.size, 0, 'destroy cancels deferred focus and launch guards');
 
-console.log('Playback picker runtime: bounded episodes, real combinations, preference changes, return focus and lifecycle passed');
+// A real side panel must leave the source screen and its primary controls in place.
+env = environment({panel: true});
+const watchNode = env.root.find('[data-yani-focus-key="watch"]')[0];
+const voiceNode = env.root.find('[data-yani-focus-key="voice"]')[0];
+const sourceNode = env.root.find('[data-yani-focus-key="source"]')[0];
+const episodeGrid = env.root.find('.yani-playback__episodes')[0];
+const titleNode = env.root.find('.yani-playback__title')[0];
+env.enter('voice');
+assert.equal(env.panels.length, 1);
+assert.equal(env.panels[0].params.title, 'playback_voice');
+assert.equal(env.panels[0].params.items.length, 2);
+assert.equal(env.root.find('.yani-playback__option').length, 0, 'the main page must not become an options page');
+assert.strictEqual(env.root.find('.yani-playback__episodes')[0], episodeGrid, 'episodes remain behind the panel');
+assert.strictEqual(env.root.find('.yani-playback__title')[0], titleNode);
+env.enter('watch');
+assert.equal(env.launches.length, 0, 'a background Enter cannot launch while choices have focus');
+env.panels[0].select(1); env.flush();
+assert.deepEqual(env.remembered[0], [42, 'Studio B', 'kodik']);
+assert.strictEqual(env.root.find('[data-yani-focus-key="watch"]')[0], watchNode);
+assert.strictEqual(env.root.find('[data-yani-focus-key="voice"]')[0], voiceNode, 'voice choice preserves the invoking control');
+assert.strictEqual(env.root.find('[data-yani-focus-key="source"]')[0], sourceNode);
+assert.strictEqual(env.root.find('.yani-playback__episodes')[0], episodeGrid, 'only episode children change for a new pair');
+assert.equal(env.root.find('.focus').attr('data-yani-focus-key'), 'voice');
+assert.match(env.root.find('.yani-playback__watch').text(), /1075/, 'a real episode number survives the new translation');
+assert.equal(env.defaults.length, 0);
+env.enter('source');
+assert.equal(env.panels[1].params.items.length, 1, 'source options stay limited to the selected voice');
+env.panels[1].back(); env.flush();
+assert.equal(env.root.find('.focus').attr('data-yani-focus-key'), 'source');
+env.enter('voice');
+const stalePanel = env.panels[2];
+env.component.pause();
+assert.equal(stalePanel.destroyed, true, 'pausing destroys the owned panel without restoring focus');
+stalePanel.params.onSelect(stalePanel.params.items[0]);
+assert.equal(env.remembered.length, 1, 'a late panel choice cannot mutate a hidden screen');
+env.component.start(); env.enter('voice');
+const destroyedPanel = env.panels[3]; env.component.destroy();
+assert.equal(destroyedPanel.destroyed, true);
+destroyedPanel.params.onSelect(destroyedPanel.params.items[0]);
+assert.equal(env.remembered.length, 1, 'destroy invalidates captured panel callbacks');
+console.log('Playback picker runtime: bounded episodes, real combinations, in-place side panels, return focus and lifecycle passed');
 
 
 (async function watchedEpisodeChecks() {

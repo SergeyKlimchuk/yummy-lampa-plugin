@@ -95,7 +95,7 @@ function environment(options) {
     document.removeEventListener = function (name, handler) { eventListeners[name] = (eventListeners[name] || []).filter(function (fn) { return fn !== handler; }); };
     document.dispatch = function (name) { (eventListeners[name] || []).slice().forEach(function (fn) { fn(); }); };
     var auth = {token: 'session-42', user_id: options.noUserId ? undefined : 42, login: 'demo'};
-    var histories = {};
+    var histories = {}, bindingDestroyCount = 0;
     var cardList = Array.from({length: 20}, function (_, index) { return {anime_id: index + 1, title: 'Anime ' + (index + 1), poster: {medium: 'https://static.test/' + index + '.webp', fullsize: 'https://static.test/huge.jpg'}, year: 2026}; });
     var controller, enabled = {name: 'content', controller: null};
     var Lampa = {
@@ -123,9 +123,11 @@ function environment(options) {
         openYummyDetail: function (card, notifyFallback) { calls.push({name: 'detail', id: card.yani_id || card.anime_id, card: card, notifyFallback: notifyFallback}); },
         resumeCard: function (card) { calls.push({name: 'resume', id: card.anime_id, card: card}); },
         bindContinueMenu: function (rendered, card, options) {
-            rendered.on('hover:long', function () {
+            var handler = function () {
                 if (options.valid()) calls.push({name: 'continueMenu', card: card, options: options});
-            });
+            };
+            rendered.on('hover:long', handler);
+            return {destroy: function () { rendered.off('hover:long', handler); bindingDestroyCount += 1; }};
         },
         openAccount: function () { calls.push({name: 'account'}); }, openSettings: function () {}
     };
@@ -138,7 +140,7 @@ function environment(options) {
         module: window.LampaYaniHome, make: make, store: store, writes: writes, calls: calls, document: document, deps: deps,
         timers: function () { timers.splice(0).forEach(function (timer) { if (timer.live) timer.fn(); }); },
         switchUser: function (id) { auth = {user_id: id, token: 'session-' + id, login: 'demo-' + id}; document.dispatch('yani:auth-changed'); },
-        histories: histories, focus: function () { return focused; }, listeners: eventListeners,
+        bindingDestroyCount: function () { return bindingDestroyCount; }, histories: histories, focus: function () { return focused; }, listeners: eventListeners,
         controller: function () { return controller; }, enabled: function () { return enabled; },
         scrollOptions: function () { return scrollOptions; }
     };
@@ -168,6 +170,10 @@ async function run() {
     assert.strictEqual(env.store.yani_lite_counts_v1.counts.favorites, 1);
     assert.strictEqual(env.store.yani_lite_counts_v1.counts.completed, 0);
     assert.ok(!JSON.stringify(env.store.yani_lite_ongoing_v1).includes('session-42'), 'Public card cache must not contain credentials');
+    assert.strictEqual(env.focus().attrs['data-yani-home-key'], 'continue:1', 'Initial focus is the most recent resumable anime');
+    assert.strictEqual(component.render().find('.yani-lite-resume-detail').length, 3, 'Each continue entry has a discoverable detail action');
+    var railKeys = component.render().find('.yani-lite-nav').nodes.map(function (n) { return n.attrs['data-yani-home-key']; });
+    assert.deepStrictEqual(railKeys, ['nav:home','nav:search','nav:user_lists','nav:catalog','nav:more','nav:account','nav:settings']);
     console.log('PASS: immediate shell, bounded DOM and one catalog/statistics/history task');
 
     var envOldCounts = environment();
@@ -210,7 +216,11 @@ async function run() {
     assert.strictEqual(actionEnv.calls.filter(function (call) { return call.name === 'detail'; }).slice(-1)[0].id, 4207, 'menu opens the same anime details');
     continueMenu.options.resume();
     assert.strictEqual(actionEnv.calls.filter(function (call) { return call.name === 'resume'; }).slice(-1)[0].card, resumeSource, 'menu resumes the original episode and timestamp');
+    $(actionPage.render().find('.yani-lite-resume-detail')[0]).trigger('hover:enter');
+    assert.strictEqual(actionEnv.calls.filter(function (call) { return call.name === 'detail'; }).slice(-1)[0].card, resumeSource, 'Visible detail action opens original anime without starting video');
+    var beforeCleanup = actionEnv.bindingDestroyCount();
     actionPage.pause();
+    assert.strictEqual(actionEnv.bindingDestroyCount(), beforeCleanup + 1, 'Pause releases owned long press panel binding');
     assert.strictEqual(continueMenu.options.valid(), false, 'hidden home cannot act from an old menu');
     actionPage.start();
     actionPage.destroy();

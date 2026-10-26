@@ -42,6 +42,8 @@
 
 `https://yummyanime.github.io/yummy-lampa-plugin/dist/index.js`
 
+Для этого форка актуальная ссылка: [sergeyklimchuk.github.io/yummy-lampa-plugin/dist/index.js](https://sergeyklimchuk.github.io/yummy-lampa-plugin/dist/index.js). Адреса исходного проекта выше не получают изменения форка. Коммит и время сборки доступны в **Настройки → YummyAnime → О сборке** после установки сборки с этой функцией. [О сборке и публикации](build-info.md).
+
 Для обычного использования выбирайте стабильную версию.
 
 ## Авторизация

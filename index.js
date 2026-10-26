@@ -4,6 +4,9 @@ function pluginYummyAnime() {
     if (window.plugin_yummy_anime_ready) return;
     window.plugin_yummy_anime_ready = true;
 
+    // This entry loads source modules, so it must not claim a bundle's build time.
+    window.LampaYaniBuild = {commit: null, shortCommit: null, builtAt: null, dirty: null, channel: 'development'};
+
     var scripts = [
         'src/config.js',
         'src/i18n.js',
@@ -31,6 +34,8 @@ function pluginYummyAnime() {
         'src/ui-card-renderers.js',
         'src/ui-card-bind.js',
         'src/ui-card-rails.js',
+        'src/ui-choice-panel.js',
+        'src/ui-tv-shell.js',
         'src/ui-playback-history.js',
         'src/ui-playback-preferences.js',
         'src/ui-playback-menu.js',
@@ -44,6 +49,7 @@ function pluginYummyAnime() {
         'src/ui-player.js',
         'src/ui-account-list-controls.js',
         'src/ui-account-lists.js',
+        'src/ui-library.js',
         'src/ui-home-sections.js',
         'src/ui-home-insights.js',
         'src/ui-collections.js',
@@ -53,6 +59,7 @@ function pluginYummyAnime() {
         'src/ui-translations.js',
         'src/ui-detail.js',
         'src/ui-home.js',
+        'src/ui-settings-page.js',
         'src/ui.js'
     ];
     var current = document.currentScript;

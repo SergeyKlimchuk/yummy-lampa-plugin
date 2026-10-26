@@ -1200,10 +1200,12 @@ window.YUMMY_MOCKUP_CONTRACTS = {
   },
   "settings": {
     "title": "Настройки YummyAnime",
-    "component": "Lampa shared SettingsApi section 'yani'",
-    "route": "Lampa.Settings.create('yani')",
+    "component": "yani_settings / Lampa shared SettingsApi section 'yani'",
+    "route": "yani/settings / Lampa.Settings.create('yani')",
     "sources": [
       "src/ui.js :: addSettings",
+      "src/ui-settings-page.js :: create / groupDefinitions",
+      "docs/mockups/tv-next/app.js :: renderSettings",
       "src/ui.js :: playbackSourceDefaultEnabled",
       "src/ui-playback-preferences.js :: defaults / setDefaults / knownVoices",
       "tests/settings-structure-contract.test.js"

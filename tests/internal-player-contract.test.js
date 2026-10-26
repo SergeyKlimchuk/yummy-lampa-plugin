@@ -52,7 +52,7 @@ assert.match(source, /display_sources/);
 assert.match(source, /yani_playback_target_locked/);
 assert.match(source, /player_preference_non_android/);
 assert.match(source, /if \(!isAndroidPlatform\(\)\) return 'internal'/);
-assert.match(source, /isAndroidPlatform\(\)\) \{\s*Lampa\.SettingsApi\.addParam\(\{[\s\S]{0,400}yani_playback_target/);
+assert.match(source, /isAndroidPlatform\(\)\) \{\s*(?:Lampa\.SettingsApi\.addParam|addYummySetting)\(\{[\s\S]{0,400}yani_playback_target/);
 assert.match(menu, /isPlaybackSourceEnabled\(playbackSourceId\(voice\.group\)\)/);
 assert.match(menu, /t\('source'\)/);
 assert.match(menu, /t\('no_enabled_sources'\)/);

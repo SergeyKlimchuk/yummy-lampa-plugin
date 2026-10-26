@@ -45,11 +45,12 @@
             // versions preserve only custom fields when forwarding a card to the
             // default detail handler.
             card._yani_card = true;
+            var rendered = cardRenderElement(element, card);
+            rendered.toggleClass('yani-card--ratings-below', Boolean(options && options.ratingPlacement === 'below'));
             decorate(element, card);
             attachPosterFallback(element, card);
             // Some Lampa versions clone the card object after cardRender. Keep a
             // DOM-level handler as a fallback so search results remain clickable.
-            var rendered = cardRenderElement(element, card);
             rendered.attr('data-yani-card-id', String(card.yani_id || ''));
             if (rendered[0]) rendered[0].yaniBoundCard = card;
             if (!rendered.closest('.yani-card-rails, .yani-user-lists-view, .yani-home').length) {

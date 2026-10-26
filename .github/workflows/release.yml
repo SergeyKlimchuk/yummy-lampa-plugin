@@ -37,6 +37,9 @@ jobs:
             node "$test"
           done
 
+      - name: Verify committed bundle and build metadata
+        run: node build.js --check
+
       - name: Rebuild bundled plugin
         run: node build.js
 

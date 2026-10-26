@@ -66,7 +66,10 @@
         var generation = 0;
         var aborter = typeof window.AbortController === 'function' ? new window.AbortController() : null;
         var retryTimer = null;
-        var lastKey = read(FOCUS_KEY, 'nav:catalog');
+        var lastKey = read(FOCUS_KEY, 'nav:home');
+        var initialResumeFocus = lastKey === 'nav:home' || lastKey === 'nav:catalog';
+        var continueBindings = [];
+        var morePanel = null;
         var storedKey = lastKey;
         var currentSession = sessionKey();
         var countsGeneration = 0;
@@ -135,9 +138,12 @@
 
         function button(label, key, callback, className) {
             var element = $('<div class="selector"></div>').addClass(className || 'yani-lite-button');
-            element.text(label).attr('data-yani-home-key', key);
+            element.text(label).attr('data-yani-home-key', key).attr('role', 'button');
+            var symbols = {'nav:home': '⌂', 'nav:search': '⌕', 'nav:user_lists': '▤', 'nav:catalog': '▦', 'nav:more': '•••', 'nav:account': '○', 'nav:settings': '⚙'};
+            if (symbols[key]) element.empty().append($('<span class="yani-lite-nav-symbol" aria-hidden="true"></span>').text(symbols[key]), $('<span></span>').text(label));
             targets[key] = element[0];
             element.on('hover:enter', function () {
+                initialResumeFocus = false;
                 rememberFocus();
                 if (!destroyed && callback) callback();
             });
@@ -159,6 +165,8 @@
         }
 
         var routes = {
+            home: function () { lastKey = targets['continue:first'] ? $(targets['continue:first']).attr('data-yani-home-key') : 'all:continue'; syncFocus(); },
+            history: action(deps.openWatchHistory),
             catalog: route('yani_catalog', text('catalog', 'Каталог'), {params: {limit: 30, sort: 'top', sort_forward: false}}),
             search: action(deps.openSearch),
             user_lists: action(deps.openUserLists),
@@ -178,6 +186,8 @@
 
         function showMore() {
             var options = [
+                ['continue_watching', 'continue_watching', 'Продолжить просмотр'], ['history', 'watch_history', 'История просмотров'],
+                ['schedule', 'schedule', 'Расписание'], ['top_rated', 'top_rated', 'Топ аниме'], ['collections', 'collections', 'Коллекции'],
                 ['genres', 'genres', 'Жанры'], ['new_translations', 'new_translations', 'Новые переводы'],
                 ['new_releases', 'new_releases', 'Новые аниме'], ['for_you', 'for_you', 'Для вас'],
                 ['updates', 'updates', 'Обновления'], ['notifications', 'notifications', 'Уведомления'],
@@ -189,7 +199,13 @@
                 onSelect: function (item) { if (item && routes[item.key]) routes[item.key](); },
                 onBack: function () { self.start(); }
             };
-            if (deps.showSelect) deps.showSelect(params);
+            if (window.LampaYaniChoicePanel) {
+                morePanel = window.LampaYaniChoicePanel.show(Object.assign(params, {
+                    origin: targets['nav:more'], collection: root,
+                    valid: function () { return active && !destroyed && currentSession === sessionKey(); },
+                    onClose: function () { morePanel = null; }
+                }));
+            } else if (deps.showSelect) deps.showSelect(params);
             else Lampa.Select.show(params);
         }
 
@@ -197,21 +213,21 @@
             targets = {};
             header.empty();
             var brand = $('<div class="yani-lite-brand"></div>').append($('<img alt="YummyAnime">').attr('src', OFFICIAL_LOGO));
-            var headerActions = $('<div class="yani-lite-header-actions"></div>');
-            if (enabled('account')) headerActions.append(button(account().display_name || account().login || text('account', 'Аккаунт'), 'header:account', routes.account));
-            if (deps.openSettings) headerActions.append(button(text('settings', 'Настройки'), 'header:settings', deps.openSettings));
-            header.append(brand).append(headerActions);
-            sidebar.empty();
+            sidebar.empty().append(brand);
             [
-                ['catalog', 'catalog', 'Каталог'], ['user_lists', 'user_lists', 'Мои списки'],
-                ['search', 'search', 'Поиск'], ['continue_watching', 'continue_watching', 'Продолжить'],
-                ['schedule', 'schedule', 'Расписание'], ['top_rated', 'top_rated', 'Топ аниме'],
-                ['collections', 'collections', 'Коллекции']
+                ['home', 'home_nav', 'Главная'], ['search', 'search', 'Поиск'],
+                ['user_lists', 'user_lists', 'Мои списки'], ['catalog', 'catalog', 'Каталог']
             ].forEach(function (entry) {
-                if (!enabled(entry[0])) return;
-                sidebar.append(button(text(entry[1], entry[2]), 'nav:' + entry[0], routes[entry[0]], 'yani-lite-nav'));
+                if (entry[0] !== 'home' && !enabled(entry[0])) return;
+                var nav = button(text(entry[1], entry[2]), 'nav:' + entry[0], routes[entry[0]], 'yani-lite-nav');
+                if (entry[0] === 'home') nav.addClass('yani-lite-nav--active').attr('aria-current', 'page');
+                sidebar.append(nav);
             });
             sidebar.append(button(text('home_lite_more', 'Ещё'), 'nav:more', showMore, 'yani-lite-nav'));
+            var bottom = $('<div class="yani-lite-sidebar-bottom"></div>');
+            if (enabled('account')) bottom.append(button(text('account', 'Аккаунт'), 'nav:account', routes.account, 'yani-lite-nav yani-lite-nav--account'));
+            if (deps.openSettings) bottom.append(button(text('settings', 'Настройки'), 'nav:settings', deps.openSettings, 'yani-lite-nav yani-lite-nav--settings'));
+            sidebar.append(bottom);
             main.empty();
             sections = {};
             if (enabled('continue_watching')) sections.continueWatching = section(text('continue_watching', 'Продолжить просмотр'), 'continue', routes.continue_watching);
@@ -268,7 +284,12 @@
             parent.append(frame);
         }
 
+        function clearContinueBindings() {
+            continueBindings.splice(0).forEach(function (binding) { if (binding && binding.destroy) binding.destroy(); });
+        }
+
         function refreshContinue() {
+            clearContinueBindings();
             var container = sections.continueWatching;
             if (!container) return;
             if (historyPending) {
@@ -280,6 +301,7 @@
             }) : [];
             cards = (cards || []).filter(function (entry) { return idOf(entry); }).slice(0, LIMITS.continueWatching);
             forgetTargets('continue:');
+            forgetTargets('continue-detail:');
             container.body.empty().addClass('yani-lite-continue');
             if (!cards.length) {
                 state(container, text('home_lite_history_empty', 'Здесь появятся аниме, которые вы начали смотреть.'));
@@ -289,11 +311,11 @@
             cards.forEach(function (raw) {
                 var entry = publicCard(raw);
                 var card = button('', 'continue:' + entry.anime_id, function () { resumeEntry(raw); }, 'yani-lite-resume');
-                if (deps.bindContinueMenu) deps.bindContinueMenu(card, raw, {
+                if (deps.bindContinueMenu) continueBindings.push(deps.bindContinueMenu(card, raw, {
                     valid: function () { return active && !destroyed && currentSession === sessionKey(); },
                     resume: function () { rememberFocus(); resumeEntry(raw); },
                     detail: function () { rememberFocus(); openEntry(raw); }
-                });
+                }));
                 addPoster(card, entry.poster, 'yani-lite-resume-poster');
                 var copy = $('<div class="yani-lite-resume-copy"></div>');
                 copy.append($('<div class="yani-lite-title"></div>').text(entry.title));
@@ -305,9 +327,17 @@
                 var progress = $('<div class="yani-lite-progress"></div>').attr('aria-label', Math.round(ratio * 100) + '%');
                 progress.append($('<i></i>').css('width', Math.round(ratio * 100) + '%'));
                 copy.append(progress);
+                copy.append($('<div class="yani-lite-resume-action"></div>').text('▶ ' + text('home_lite_resume', 'Продолжить просмотр')));
                 card.append(copy);
-                container.body.append(card);
+                var row = $('<div class="yani-lite-resume-row"></div>');
+                row.append(card).append(button(text('home_lite_details', 'Карточка'), 'continue-detail:' + entry.anime_id, function () { openEntry(raw); }, 'yani-lite-resume-detail'));
+                container.body.append(row);
             });
+            targets['continue:first'] = targets['continue:' + idOf(cards[0])];
+            if (initialResumeFocus) {
+                lastKey = 'continue:' + idOf(cards[0]);
+                initialResumeFocus = false;
+            }
             syncFocus();
         }
 
@@ -322,7 +352,7 @@
                 return;
             }
             definitions().forEach(function (definition) {
-                var entry = button('', 'list:' + definition.key, function () { deps.openUserListShortcut(definition); }, 'yani-lite-category');
+                var entry = button('', 'list:' + definition.key, function () { deps.openUserListShortcut(definition); }, 'yani-lite-category yani-list-' + definition.key);
                 entry.append($('<span class="yani-lite-category-title"></span>').text(definition.title));
                 var count = counts && counts[definition.key];
                 entry.append($('<span class="yani-lite-category-count"></span>').text(typeof count === 'number' ? String(count) : '—'));
@@ -470,16 +500,16 @@
         }
 
         self.create = function () {
-            root.append(header).append(layout.append(sidebar).append(main));
+            root.append(header).append(layout.append(sidebar).append($('<div class="yani-lite-main-scroll"></div>').append(scroll.render())));
             buildShell();
             refreshContinue();
             renderCategories();
-            scroll.append(root);
+            scroll.append(main);
             root.on('hover:focus.yaniLite', '.selector', function (event) {
                 var element = event.currentTarget || this;
                 var key = $(element).attr('data-yani-home-key');
                 if (key) lastKey = key;
-                scroll.update($(element), true);
+                if ($.contains(main[0], element)) scroll.update($(element), true);
             });
             if (typeof document !== 'undefined') document.addEventListener('yani:auth-changed', onAuthChanged);
             $(document).on('yani:watch-progress.yaniLiteHome', onWatchProgress);
@@ -497,10 +527,10 @@
                     Lampa.Controller.collectionSet(root);
                     Lampa.Controller.collectionFocus(target(lastKey), root, true);
                 },
-                up: function () { if (window.Navigator.canmove('up')) window.Navigator.move('up'); else Lampa.Controller.toggle('head'); },
-                down: function () { if (window.Navigator.canmove('down')) window.Navigator.move('down'); },
-                left: function () { if (window.Navigator.canmove('left')) window.Navigator.move('left'); else Lampa.Controller.toggle('menu'); },
-                right: function () { if (window.Navigator.canmove('right')) window.Navigator.move('right'); },
+                up: function () { initialResumeFocus = false; if (window.Navigator.canmove('up')) window.Navigator.move('up'); else Lampa.Controller.toggle('head'); },
+                down: function () { initialResumeFocus = false; if (window.Navigator.canmove('down')) window.Navigator.move('down'); },
+                left: function () { initialResumeFocus = false; if (window.Navigator.canmove('left')) window.Navigator.move('left'); else Lampa.Controller.toggle('menu'); },
+                right: function () { initialResumeFocus = false; if (window.Navigator.canmove('right')) window.Navigator.move('right'); },
                 back: function () { rememberFocus(); Lampa.Activity.backward(); }
             });
             Lampa.Controller.toggle('content');
@@ -512,12 +542,19 @@
                 beginData();
             }
         };
-        self.pause = self.stop = function () { active = false; rememberFocus(); };
-        self.render = function (js) { return js ? scroll.render(true) : scroll.render(); };
+        self.pause = self.stop = function () {
+            active = false; rememberFocus(); clearContinueBindings();
+            if (morePanel) morePanel.destroy();
+            morePanel = null;
+        };
+        self.render = function (js) { return js ? root[0] : root; };
         self.destroy = function () {
             if (destroyed) return;
             destroyed = true;
             active = false;
+            clearContinueBindings();
+            if (morePanel) morePanel.destroy();
+            morePanel = null;
             generation += 1;
             rememberFocus();
             cancelOwnRequests();
@@ -533,5 +570,5 @@
         return self;
     }
 
-    window.LampaYaniHome = {create: create, limits: LIMITS, publicCard: publicCard};
+    window.LampaYaniHome = {create: create, limits: LIMITS, publicCard: publicCard, logo: OFFICIAL_LOGO};
 }(window));

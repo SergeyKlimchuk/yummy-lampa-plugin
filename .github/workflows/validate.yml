@@ -24,6 +24,9 @@ jobs:
           set -e
           find . -name '*.js' -not -path '*/node_modules/*' -print0 | xargs -0 -n1 node --check
 
+      - name: Verify committed bundle and build metadata
+        run: node build.js --check
+
       - name: Rebuild bundled plugin
         run: node build.js
 
@@ -41,7 +44,3 @@ jobs:
             echo "-- $test"
             node "$test"
           done
-
-      - name: Verify bundle is committed
-        shell: bash
-        run: git diff --exit-code -- dist/index.js

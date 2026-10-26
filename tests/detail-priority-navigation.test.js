@@ -1,8 +1,8 @@
 'use strict';
 const assert=require('assert'),fs=require('fs'),vm=require('vm');
 const source=fs.readFileSync('src/ui-detail.js','utf8');
-function group(names){const g={names};g.nodes=names.map(name=>({name,group:g,kind:names.length===4?'action':'category'}));return g;}
-const actions=group(['watch','open','trailers','subscribe']),categories=group(['watching','planned','completed','dropped','postponed','favorite']);
+function group(names){const g={names};g.nodes=names.map(name=>({name,group:g,kind:names[0]==='watch'?'action':'category'}));return g;}
+const actions=group(['watch','configure','open','trailers','subscribe']),categories=group(['watching','planned','completed','dropped','postponed','favorite']);
 let current=actions.nodes[0],selected=categories.nodes[1],focused;
 function wrap(node) {
     return {
@@ -30,6 +30,6 @@ selected=null;current=actions.nodes[0];c.moveDetailVertical('down');assert.stric
 current=categories.nodes[0];c.moveDetailHorizontal('right');assert.strictEqual(focused,categories.nodes[1]);
 c.moveDetailHorizontal('left');assert.strictEqual(focused,categories.nodes[0]);
 c.moveDetailHorizontal('left');assert.strictEqual(current,categories.nodes[0],'category boundary must stay in its strip, not jump to a distant poster');
-current=actions.nodes[0];c.moveDetailHorizontal('right');assert.strictEqual(focused,actions.nodes[1],'Open follows Watch');
-assert.match(source,/button && button\.length \? button : titleFocus/,'a fresh detail opens on Watch');
+current=actions.nodes[0];c.moveDetailHorizontal('right');assert.strictEqual(focused,actions.nodes[1],'Episodes and dubbing follow Watch');
+assert.match(source,/button && button\.length \? button : null/,'a fresh detail opens on Watch');
 console.log('Priority navigation passed: Watch first, one-key category access, action return and horizontal strips without geometry scans');

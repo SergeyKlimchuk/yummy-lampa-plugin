@@ -1,0 +1,222 @@
+{
+  "checkedAt": "2026-10-26T15:00:04.314374+00:00",
+  "build": {
+    "schemaVersion": 1,
+    "version": "0.47.22",
+    "commit": "af45fcba0c0d47e66178bea81d00b7bcf1e34a2e",
+    "shortCommit": "af45fcb",
+    "builtAt": "2026-10-26T14:59:58.148Z",
+    "dirty": true,
+    "channel": "local",
+    "repository": "https://github.com/SergeyKlimchuk/yummy-lampa-plugin"
+  },
+  "environment": "Desktop Chromium with production source modules and a synthetic Lampa host/API. No account changes or video playback.",
+  "tests": {
+    "passed": 129,
+    "total": 129,
+    "runtime": "Node 26 with --no-experimental-global-navigator (matches the navigator behavior of CI Node 20)",
+    "postLayoutChecks": [
+      "library-runtime",
+      "home-lite",
+      "home-motion-contract",
+      "settings-page-runtime",
+      "playback-picker-runtime",
+      "ui-scaling-contract",
+      "lite-private-runtime"
+    ],
+    "bundleCheck": true,
+    "bundleSyntax": true,
+    "diffWhitespace": true
+  },
+  "screens": {
+    "passed": [
+      "home",
+      "catalog",
+      "genres",
+      "top",
+      "user_lists",
+      "account_list",
+      "history",
+      "schedule",
+      "new_translations",
+      "new_releases",
+      "recommended",
+      "updates",
+      "collections",
+      "collection",
+      "detail",
+      "playback",
+      "trailers",
+      "account",
+      "notifications",
+      "subscriptions",
+      "auth",
+      "status",
+      "policy"
+    ],
+    "errors": [],
+    "computedHeavyEffects": {
+      "gradients": 0,
+      "shadows": 0,
+      "filters": 0,
+      "animations": 0,
+      "transitions": 0
+    },
+    "settings": "Four tabs, real shared definitions, default source/voice, build identity and manual scale checked separately"
+  },
+  "library": {
+    "fixtureTitles": 600,
+    "simultaneousCards": 30,
+    "pages": 20,
+    "nextPageFirstTitle": "Нагрузочный пример 31",
+    "reopenCycles": [
+      {
+        "cycle": 1,
+        "state": {
+          "nodes": 813,
+          "visible": 783,
+          "heavy": {
+            "gradients": 0,
+            "shadows": 0,
+            "filters": 0,
+            "animations": 0,
+            "transitions": 0
+          },
+          "requests": 50,
+          "errors": []
+        }
+      },
+      {
+        "cycle": 15,
+        "state": {
+          "nodes": 813,
+          "visible": 783,
+          "heavy": {
+            "gradients": 0,
+            "shadows": 0,
+            "filters": 0,
+            "animations": 0,
+            "transitions": 0
+          },
+          "requests": 78,
+          "errors": []
+        }
+      },
+      {
+        "cycle": 30,
+        "state": {
+          "nodes": 813,
+          "visible": 783,
+          "heavy": {
+            "gradients": 0,
+            "shadows": 0,
+            "filters": 0,
+            "animations": 0,
+            "transitions": 0
+          },
+          "requests": 108,
+          "errors": []
+        }
+      }
+    ],
+    "afterDestroy": {
+      "nodes": 0,
+      "visible": 0,
+      "heavy": {
+        "gradients": 0,
+        "shadows": 0,
+        "filters": 0,
+        "animations": 0,
+        "transitions": 0
+      },
+      "requests": 108,
+      "errors": []
+    },
+    "pendingRequestsAfterDestroy": 0
+  },
+  "viewports": {
+    "hd": {
+      "cards": 30,
+      "focusOutline": "rgb(241, 241, 241)",
+      "rootOutline": "none",
+      "scale": "1.3em",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    "fhd": {
+      "contentFont": "31.9354px",
+      "episodes": 12,
+      "horizontalOverflow": false,
+      "scale": "1.4em",
+      "shellFont": "31.9354px",
+      "viewport": [
+        1920,
+        1080
+      ]
+    },
+    "uhd": {
+      "cards": 30,
+      "contentFont": "68.4329px",
+      "headingBottom": 422.5227508544922,
+      "horizontalOverflow": false,
+      "overlap": false,
+      "scale": "1.5em",
+      "shellFont": "68.4329px",
+      "tabsTop": 484.102294921875,
+      "viewport": [
+        3840,
+        2160
+      ]
+    },
+    "manualScale": {
+      "selected": "130%",
+      "applied": "1.3em",
+      "focusRestored": "yani_interface_scale"
+    }
+  },
+  "remoteNavigation": [
+    "Detail Left enters the rail, Right restores the exact action",
+    "Library first-row Up returns to the selected category; Down returns to grid",
+    "Long OK on Continue opens exactly resume/details; releasing OK does not launch",
+    "Back from voice/source restores the same field and keeps 12 episode elements",
+    "Selected state has a check/color; focus uses a single light frame"
+  ],
+  "limits": [
+    "No physical LG OLED48A3RLA GPU/frame-rate or heap measurement was performed",
+    "Fixture counts and progress are synthetic; existing account/API contracts are covered by unit tests",
+    "GitHub Pages publication was not performed"
+  ],
+  "ratingsFix": {
+    "placement": "Static row after poster and before title, maximum three available positive ratings; category band stays on poster",
+    "mountedLayout": "One overlay size refresh after native grid mount per page; no card rebinding",
+    "regressionTests": [
+      "library-ratings-runtime",
+      "library-runtime",
+      "card-bind-module-contract",
+      "lite-detail-rendering"
+    ],
+    "browser": {
+      "viewports": [
+        [
+          954,
+          974
+        ],
+        [
+          1280,
+          720
+        ],
+        [
+          3840,
+          2160
+        ]
+      ],
+      "uhdScale": "1.5em",
+      "overlaps": 0,
+      "duplicateRatingRows": 0,
+      "categoryChangesChecked": true
+    },
+    "values": "Existing API scores and source labels preserved"
+  }
+}

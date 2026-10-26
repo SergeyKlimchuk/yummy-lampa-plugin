@@ -52,7 +52,7 @@ Wrapper.prototype.closest = function () { return this.length ? $(this[0].collect
 function environment(options) {
     options = options || {};
     let activity = {component: 'yani_history'}, owner = 'alice', token = 'first', clock = 1000;
-    let enabled = {name: 'items_line'}, menu;
+    let enabled = {name: 'items_line'}, menu, sharedPanel;
     const calls = {resume: [], detail: [], controller: [], focus: [], nativeMenu: 0, nativeEnter: 0, scheduled: []};
     const lampa = {
         Activity: {active: () => activity},
@@ -64,6 +64,34 @@ function environment(options) {
         Select: {show: (params) => { menu = params; enabled = {name: 'select'}; }}
     };
     const window = {Lampa: lampa, LampaYaniAuth: {get: () => ({login: owner}), token: () => token}};
+    if (options.panel) window.LampaYaniChoicePanel = {show: params => {
+        if (sharedPanel) sharedPanel.destroy('replace');
+        const before = enabled.name;
+        menu = params; enabled = {name: 'yani_choice_panel'};
+        const handle = {closed: false, destroy: reason => {
+            if (handle.closed) return;
+            handle.closed = true;
+            params.onClose(reason || 'destroy');
+        }};
+        handle.select = key => {
+            if (handle.closed) return;
+            handle.closed = true;
+            if (params.valid()) {
+                lampa.Controller.toggle(before); lampa.Controller.collectionFocus(params.origin[0]);
+            }
+            params.onClose('select'); params.onSelect(params.items.find(item => item.key === key));
+        };
+        handle.back = () => {
+            if (handle.closed) return;
+            handle.closed = true;
+            if (params.valid()) {
+                lampa.Controller.toggle(before); lampa.Controller.collectionFocus(params.origin[0]);
+            }
+            params.onClose('back'); if (params.onBack) params.onBack();
+        };
+        sharedPanel = handle;
+        return handle;
+    }};
     const context = {window, $, Date: {now: () => clock}, console};
     vm.runInNewContext(source, context);
     const progress = {owner: () => ({key: token ? owner : 'anonymous'}), sameOwner: (left, right) => left.key === right.key};
@@ -84,7 +112,7 @@ function environment(options) {
         value.addEventListener('hover:enter', () => { calls.nativeEnter++; if (cardApi && cardApi.onEnter) cardApi.onEnter(); });
         value.addEventListener('click', () => calls.scheduled.push(() => value.dispatch('hover:enter')));
     }
-    return {api, calls, node, host, menu: () => menu,
+    return {api, calls, node, host, menu: () => menu, shared: () => sharedPanel,
         advance: (ms) => { clock += ms; },
         flush: () => { const pending = calls.scheduled.splice(0); clock += 20; pending.forEach((fn) => fn()); },
         activity: () => { activity = {component: 'other'}; },
@@ -224,3 +252,50 @@ for (const format of ['legacy', 'reordered', 'node']) {
     assert.equal(env.calls.resume.length + env.calls.detail.length, 0, 'caller callbacks must override the defaults');
 }
 console.log('Continue Watching native hold, menu actions, ownership, rebind and history event runtime checks passed');
+
+
+// The production choice component replaces the oversized native Select without
+// weakening hold/release suppression or card/account ownership.
+{
+    const env = environment({panel: true}), node = env.node(), entry = card(42);
+    env.host(node);
+    const binding = env.api.bindContinueMenu(node, entry);
+    node.dispatch('hover:long');
+    assert.equal(env.menu().compact, true);
+    assert.strictEqual(env.menu().origin[0], node);
+    assert.strictEqual(env.menu().context.title, entry.title);
+    assert.equal(env.calls.nativeMenu, 0);
+    node.dispatch('click'); env.flush();
+    assert.equal(env.calls.resume.length, 0);
+    env.shared().select('detail');
+    assert.strictEqual(env.calls.detail[0].card, entry);
+    assert.equal(env.calls.resume.length, 0);
+    assert.equal(binding.menuOpen, false, 'onClose releases the card after selection');
+    assert.strictEqual(binding.panel, null);
+    assert.strictEqual(env.calls.focus[0], node);
+    node.dispatch('hover:long');
+    const oldMenu = env.menu();
+    binding.destroy();
+    assert.equal(env.shared().closed, true, 'teardown closes its shared overlay without restoring');
+    oldMenu.onSelect(oldMenu.items[0]);
+    assert.equal(env.calls.resume.length, 0, 'destroyed overlay callbacks cannot resume');
+}
+for (const reason of ['replace', 'invalid']) {
+    const env = environment({panel: true}), node = env.node();
+    const binding = env.api.bindContinueMenu(node, card(1));
+    node.dispatch('hover:long');
+    const stale = env.menu(); env.shared().destroy(reason);
+    assert.equal(binding.menuOpen, false, reason + ' must unlock the previous card');
+    assert.strictEqual(binding.panel, null);
+    stale.onSelect(stale.items[0]);
+    assert.equal(env.calls.resume.length, 0, 'a dismissed shared menu cannot act later');
+}
+{
+    const env = environment({panel: true}), node = env.node();
+    const binding = env.api.bindContinueMenu(node, card(1));
+    node.dispatch('hover:long'); env.account('bob'); env.shared().select('resume');
+    assert.equal(env.calls.resume.length, 0);
+    assert.equal(env.calls.controller.length, 0, 'stale shared menu may not restore the prior account controller');
+    assert.equal(binding.menuOpen, false);
+}
+console.log('Continue Watching shared side-panel actions, release guard and invalidation passed');

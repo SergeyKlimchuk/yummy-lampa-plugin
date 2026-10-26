@@ -23,7 +23,10 @@ assert.match(source, /yani-card-grid/);
 assert.match(source, /yani-card-rails/);
 
 const calls = {decorate: 0, poster: 0, detail: 0, standard: 0, menu: 0};
+let expectedBelow = false;
 const fakeRendered = {
+    below: false,
+    toggleClass: function (name, enabled) { assert.equal(name, 'yani-card--ratings-below'); this.below = enabled; return this; },
     attr: function () { return this; },
     add: function () { return this; },
     find: function () { return this; },
@@ -44,7 +47,7 @@ const context = {
 vm.runInNewContext(source, context);
 
 const bind = context.window.LampaYaniCardBind.create({
-    decorate: function () { calls.decorate += 1; },
+    decorate: function () { assert.equal(fakeRendered.below, expectedBelow, 'placement option must be set before rendering scores'); calls.decorate += 1; },
     cardRenderElement: function () { return fakeRendered; },
     attachPosterFallback: function () { calls.poster += 1; },
     openYummyDetail: function () { calls.detail += 1; },
@@ -73,5 +76,12 @@ assert.equal(calls.detail, 1);
 
 card.onMenu();
 assert.equal(calls.menu, 1);
+
+expectedBelow = true;
+bind.bindYummyCardRender({nodeType: 1}, {yani_id: 99}, undefined, {ratingPlacement: 'below'});
+assert.equal(fakeRendered.below, true, 'library adapter opts into independent score rows');
+expectedBelow = false;
+bind.bindYummyCardRender({nodeType: 1}, {yani_id: 100});
+assert.equal(fakeRendered.below, false, 'recycled standard catalog cards clear the library placement');
 
 console.log('card bind module contract checks passed');

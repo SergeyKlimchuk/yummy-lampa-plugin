@@ -530,8 +530,9 @@
             var render = cardRenderElement(element, card);
             var view = $('.card__view', render).first();
             if (!view.length) return;
-            var existing = view.find('.yani-card-ratings');
-            var signature = JSON.stringify(ratings.map(function (rating) {
+            var below = render.hasClass('yani-card--ratings-below');
+            var existing = render.find('.yani-card-ratings');
+            var signature = (below ? 'below:' : 'overlay:') + JSON.stringify(ratings.map(function (rating) {
                 return [rating.key, rating.value, rating.short || '', rating.title || ''];
             }));
             if (sameCardPaint(view, 'ratings', signature, existing, !ratings.length)) return;
@@ -551,7 +552,12 @@
                 badge.append(value);
                 block.append(badge);
             });
-            view.append(block);
+            if (below && view[0].parentNode) {
+                // Keep the list band on the poster; scores have their own readable
+                // row and do not compete with the small-poster overlay budget.
+                block.addClass('yani-card-ratings--below');
+                view[0].parentNode.insertBefore(block[0], view[0].nextSibling);
+            } else view.append(block);
         }
 
         function decorate(element, card) {

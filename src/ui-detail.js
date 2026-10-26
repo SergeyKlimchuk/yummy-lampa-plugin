@@ -167,7 +167,7 @@
         var locale = deps.locale;
         var getYummyId = deps.getYummyId;
         var toCard = deps.toCard;
-        var getPlayback = deps.getPlayback;
+        var getPlayback = deps.getPlayback || function () { return {}; };
         var mediaTypeLabels = deps.mediaTypeLabels;
         var cardMediaMotionAllowed = deps.cardMediaMotionAllowed;
         var createDetailRatings = deps.createDetailRatings;
@@ -214,7 +214,7 @@
         var detailTimeout = null;
         var enrichTimer = null;
         var focusTimer = null;
-        var refreshDetailWatchState = function () {};
+        var refreshDetailWatchState = function () { updatePrimaryWatchAction(); };
         var videosAbort = typeof AbortController !== 'undefined' ? new AbortController() : null;
         var posterViewer = null;
         var posterExpanded = false;
@@ -226,10 +226,7 @@
             scroll: scroll,
             selector: '.selector',
             fallback: function () {
-                return (button && (button[0] || button)) ||
-                    (titleFocus && (titleFocus[0] || titleFocus)) ||
-                    html.find('.yani-detail__title.selector, .selector').first()[0] ||
-                    null;
+                return (button && (button[0] || button)) || html.find('.selector').first()[0] || null;
             }
         });
 
@@ -287,7 +284,7 @@
             if (posterViewer) posterViewer.remove();
             posterViewer = null;
             $('body').removeClass('yani-poster-viewer-open');
-            html.find('.yani-detail__poster').attr('aria-expanded', 'false');
+            html.find('.yani-detail__poster, .yani-detail__poster-action').attr('aria-expanded', 'false');
             return true;
         }
 
@@ -412,25 +409,31 @@
             }
         };
 
+        function updatePrimaryWatchAction() {
+            if (!button || !button.length) return;
+            var saved = data.yani_resume || getPlayback(data.yani_id) || {};
+            var episode = String(saved.number || '').trim();
+            var label = episode ? t('continue_episode') + ' ' + episode : t('watch');
+            if (button.text() !== label) button.text(label);
+        }
+
         function renderDetail(cardData) {
             data = cardData;
             if (window.LampaYaniCardModel && LampaYaniCardModel.applyListState) LampaYaniCardModel.applyListState(data);
             var malId = data.yani_remote_ids && (data.yani_remote_ids.myanimelist_id || data.yani_remote_ids.mal_id);
             if (malId) LampaYaniApi.episodeInfo(malId).catch(function () {});
-            var poster = $('<img class="yani-detail__poster selector" role="button" aria-expanded="false">')
+            var poster = $('<img class="yani-detail__poster" aria-expanded="false">')
                 .attr('src', data.img || data.poster || '').attr('alt', data.title || 'YummyAnime');
             LampaYaniMedia.bindPosterFallback(poster, data);
             poster.on('hover:enter.yaniPoster click.yaniPoster', function (event) {
                 if (event) { event.preventDefault(); event.stopPropagation(); }
                 togglePosterViewer(poster, data);
             });
-            bindDetailButtonFocus(poster);
             detailPosterStatus = $('<div class="yani-detail__poster-status" data-visible="false"></div>');
             var posterFrame = $('<div class="yani-detail__poster-frame"></div>').append(poster, detailPosterStatus);
             var posterColumn = $('<div class="yani-detail__poster-column"></div>').append(posterFrame);
             var info = $('<div class="yani-detail__info"></div>');
-            titleFocus = $('<div class="yani-detail__title selector"></div>').text(data.title || 'YummyAnime');
-            bindDetailButtonFocus(titleFocus);
+            titleFocus = $('<div class="yani-detail__title" role="heading" aria-level="1"></div>').text(data.title || 'YummyAnime');
             info.append(titleFocus);
 
             var ratingRow = $('<div class="yani-detail__rating-row"></div>');
@@ -449,15 +452,29 @@
             var actions = $('<div class="yani-detail__actions" data-yani-detail-group="actions"></div>');
             button = $('<div class="yani-detail__button yani-detail__button--watch selector"></div>')
                 .attr('data-yani-focus-key', 'action:watch').text(t('watch'));
-            button.on('hover:enter click.yaniWatch', function () {
-                beginPlaybackNavigation(button, scroll.render());
-                openTitlePlaybackOptions(data);
+            button.on('hover:enter click.yaniWatch', function (event) {
+                if (event) { event.preventDefault(); event.stopImmediatePropagation(); }
+                if (destroyed || paused) return;
+                if (beginPlaybackNavigation) beginPlaybackNavigation(button, scroll.render());
+                if (deps.resumePlayback) deps.resumePlayback(data);
+                else openTitlePlaybackOptions(data);
             });
             bindDetailButtonFocus(button);
+            updatePrimaryWatchAction();
+            var configureButton = $('<div class="yani-detail__button yani-detail__button--configure selector"></div>')
+                .attr('data-yani-focus-key', 'action:configure').text(t('detail_playback_options'));
+            configureButton.on('hover:enter click.yaniDetailConfigure', function (event) {
+                if (event) { event.preventDefault(); event.stopImmediatePropagation(); }
+                if (destroyed || paused) return;
+                if (beginPlaybackNavigation) beginPlaybackNavigation(configureButton, scroll.render());
+                if (deps.configurePlayback) deps.configurePlayback(data);
+                else openTitlePlaybackOptions(data);
+            });
+            bindDetailButtonFocus(configureButton);
             var searchButton = $('<div class="yani-detail__button yani-detail__button--lampa selector"></div>')
                 .attr('data-yani-focus-key', 'action:open');
             searchButton.append($('<span class="yani-detail__button-icon"></span>').html(lampaIcon()));
-            searchButton.append($('<span></span>').text(t('open_lampa_search')));
+            searchButton.append($('<span></span>').text(t('detail_open_lampa')));
             searchButton.on('hover:enter click.yaniLampaCard', function (event) {
                 if (event) { event.preventDefault(); event.stopPropagation(); }
                 openStandardLampaCard(data);
@@ -474,7 +491,7 @@
                 toggleEpisodeSubscription(data, subscribeButton, {t: t, loadVideos: function () { return loadDetailVideos(); }});
             });
             bindDetailButtonFocus(subscribeButton);
-            actions.append(button, searchButton, trailersButton, subscribeButton);
+            actions.append(button, configureButton, searchButton, trailersButton, subscribeButton);
             info.append(actions);
 
             detailCategoryStatus = $('<div class="yani-detail__list-current" role="status" aria-live="polite"></div>');
@@ -487,11 +504,11 @@
             info.append(listDock);
 
             if (data.overview) {
-                var overview = $('<div class="yani-detail__overview selector"></div>')
+                var overview = $('<div class="yani-detail__overview"></div>')
                     .attr('data-yani-focus-key', 'description').text(data.overview);
                 if (data.overview.length > 450) {
                     var overviewHint = $('<div class="yani-detail__overview-hint"></div>').text(t('expand_description'));
-                    overview.addClass('is-collapsed').attr({'role': 'button', 'aria-expanded': 'false', 'aria-label': t('expand_description')});
+                    overview.addClass('is-collapsed selector').attr({'role': 'button', 'aria-expanded': 'false', 'aria-label': t('expand_description')});
                     overview.on('hover:enter.yaniDescription click.yaniDescription', function (event) {
                         if (event) { event.preventDefault(); event.stopPropagation(); }
                         var expanded = overview.hasClass('is-collapsed');
@@ -499,7 +516,7 @@
                         overview.toggleClass('is-collapsed', !expanded).attr({'aria-expanded': expanded ? 'true' : 'false', 'aria-label': t(expanded ? 'collapse_description' : 'expand_description')});
                     });
                 }
-                bindDetailButtonFocus(overview);
+                if (overview.hasClass('selector')) bindDetailButtonFocus(overview);
                 info.append(overview);
                 if (overviewHint) info.append(overviewHint);
             }
@@ -513,6 +530,17 @@
                 var alternatives = alternativeTitles.join(' · ');
                 metadata.append($('<div class="yani-detail__alternative-titles"></div>').text(alternatives).attr({title: alternatives, 'aria-label': alternatives}));
             }
+            // Poster enlargement is a deliberate secondary action rather than
+            // another focus stop before the important viewing controls.
+            var posterAction = $('<div class="yani-detail__poster-action selector" role="button" aria-expanded="false"></div>')
+                .attr('data-yani-focus-key', 'poster').text(t('detail_poster'));
+            posterAction.on('hover:enter click.yaniDetailPoster', function (event) {
+                if (event) { event.preventDefault(); event.stopImmediatePropagation(); }
+                togglePosterViewer(poster, data);
+                posterAction.attr('aria-expanded', String(posterExpanded));
+            });
+            bindDetailButtonFocus(posterAction);
+            metadata.append(posterAction);
             if (metadata.children().length) info.append(metadata);
             var comments = $('<div class="yani-detail__comments"></div>');
             info.append(comments);
@@ -528,7 +556,7 @@
             var lastVideos = [];
             var stats = LampaYaniUiUtils.detailEpisodeStats(cardData, lastVideos, getPlayback(cardData.yani_id));
             if (!stats.seasons && !stats.total && !stats.aired && !stats.watched && !stats.minutes) return null;
-            var block = $('<div class="yani-detail__episode-summary selector"></div>')
+            var block = $('<div class="yani-detail__episode-summary"></div>')
                 .attr('aria-label', t('episode_information'));
             var loading = false;
             var loaded = false;
@@ -565,6 +593,7 @@
 
             refreshDetailWatchState = function () {
                 render(LampaYaniUiUtils.detailEpisodeStats(cardData, lastVideos, getPlayback(cardData.yani_id)));
+                updatePrimaryWatchAction();
             };
 
             function enrich() {
@@ -588,11 +617,9 @@
             }
 
             render(stats);
-            bindDetailButtonFocus(block);
-            block.one('hover:focus.yaniEpisodeSummary', enrich);
             // Normal one-cour titles are cheap to enrich in the background.
-            // Very long shows wait until this compact row receives focus to
-            // avoid loading thousands of video variants on weak devices.
+            // The summary remains read-only; long shows keep their known API
+            // counts until the playback flow has loaded richer video data.
             if (stats.total > 0 && stats.total <= 100) enrichTimer = setTimeout(enrich, 350);
             return block;
         }
@@ -619,12 +646,11 @@
         }
 
         function createDetailTranslations() {
-            var block = $('<div class="yani-detail__translations selector loading"></div>')
+            var block = $('<div class="yani-detail__translations loading"></div>')
                 .attr('aria-label', t('available_translations'));
             block.addClass('yani-detail__translations--static');
             block.append($('<div class="yani-detail__translations-title"></div>').text(t('available_translations')));
             block.append('<div class="yani-detail__translations-skeleton">…</div>');
-            bindDetailButtonFocus(block);
 
             function renderRow(kind, title, values) {
                 if (!values.length) return null;
@@ -1000,7 +1026,7 @@
             var current = focusedDetailElement();
             if (direction === 'down' && current.closest('.yani-detail__actions').length) {
                 lastPrimaryAction = current[0];
-                var selected = html.find('.yani-detail__list-action.active').first();
+                var selected = html.find('.yani-detail__list-action.active:not([data-yani-list-key="favorites"])').first();
                 return focusDetailElement(selected.length ? selected : html.find('.yani-detail__list-action').first());
             }
             if (direction === 'up' && current.hasClass('yani-detail__list-action')) {
@@ -1039,8 +1065,7 @@
         }
 
         function loadInlineComments(cardData, container) {
-            var commentsTitle = $('<div class="yani-detail__comments-title selector"></div>').text(t('comments_title') + (cardData.yani_comments_count ? ' (' + cardData.yani_comments_count + ')' : ''));
-            commentsTitle.on('hover:focus', function () { commentsTitle.addClass('focus'); });
+            var commentsTitle = $('<div class="yani-detail__comments-title"></div>').text(t('comments_title') + (cardData.yani_comments_count ? ' (' + cardData.yani_comments_count + ')' : ''));
             container.append(commentsTitle);
             var list = $('<div class="yani-detail__comments-list"></div>');
             list.append($('<div class="yani-detail__comments-loading"></div>').text('…'));
@@ -1051,8 +1076,7 @@
                 var comments = LampaYaniApi.normalizeComments(payload);
                 list.empty();
                 if (!comments.length) {
-                    var empty = $('<div class="yani-detail__comments-empty selector"></div>').text(t('comments_empty'));
-                    empty.on('hover:focus', function () { empty.addClass('focus'); });
+                    var empty = $('<div class="yani-detail__comments-empty"></div>').text(t('comments_empty'));
                     list.append(empty);
                     bindDetailScrollTargets(empty);
                     appendDetailNavigation(empty);
@@ -1077,8 +1101,7 @@
             }).catch(function (error) {
                 if (destroyed) return;
                 console.error('[YummyAnime Comments]', error);
-                var errorRow = $('<div class="yani-detail__comments-error selector"></div>').text(t('comments_error'));
-                errorRow.on('hover:focus', function () { errorRow.addClass('focus'); });
+                var errorRow = $('<div class="yani-detail__comments-error"></div>').text(t('comments_error'));
                 list.empty().append(errorRow);
                 bindDetailScrollTargets(errorRow);
                 appendDetailNavigation(errorRow);
@@ -1131,7 +1154,7 @@
             focusTimer = setTimeout(function () {
                 if (paused || destroyed || !detailControllerIsActive()) return;
                 var remembered = detailFocus.target();
-                var first = remembered ? $(remembered) : (button && button.length ? button : titleFocus);
+                var first = remembered ? $(remembered) : (button && button.length ? button : null);
                 if (!first || !first.length) {
                     first = html.find('.yani-detail__button.selector, .yani-detail__order-item.selector, .yani-detail__comment.selector').first();
                 }

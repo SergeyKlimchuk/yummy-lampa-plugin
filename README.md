@@ -10,6 +10,8 @@ The official YummyAnime plugin for Lampa. It adds an anime catalog, schedule, ra
 
 Current version: `0.47.22`
 
+This fork: [current plugin](https://sergeyklimchuk.github.io/yummy-lampa-plugin/dist/index.js). Its updates are separate from the upstream URLs below. [Build identity and deployment](docs/build-info.md).
+
 Official website: [yummyani.me](https://yummyani.me)
 
 [Changelog](CHANGELOG.md) · [Technical documentation](docs/README.en.md)

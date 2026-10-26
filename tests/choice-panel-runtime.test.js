@@ -1,0 +1,37 @@
+'use strict';
+const assert = require('assert');
+const {tvEnvironment,$} = require('./helpers/tv-dom');
+function setup() {
+    const env=tvEnvironment(); env.load('ui-choice-panel.js');
+    const origin=$('<div class="selector">Origin</div>'),collection=$('<div class="origin"></div>').append(origin); $(env.document.body).append(collection);
+    env.context.Lampa.Controller.add('content',{toggle(){}}); env.context.Lampa.Controller.toggle('content');
+    let entry,closeCalls=0;
+    env.context.Lampa.Controller.windowOpen=(name,valid)=>entry={name,valid};
+    env.context.Lampa.Controller.windowClose=(value,silent)=>{assert.equal(value,entry);assert.equal(silent,true);closeCalls++;};
+    return Object.assign(env,{origin,collection,entry:()=>entry,closes:()=>closeCalls});
+}
+let env=setup(),selected=[],closed=[];
+const options={title:'Voice',origin:env.origin,collection:env.collection,items:Array.from({length:95},(_,index)=>({key:index,title:'Voice '+index,selected:index===45})),onSelect:item=>selected.push(item.key),onClose:reason=>closed.push(reason)};
+let handle=env.context.LampaYaniChoicePanel.show(options);
+assert.equal(env.enabled().name,'yani_choice_panel');
+assert.equal(handle.render().find('.yani-choice-panel__option').length,30,'large options stay paginated');
+assert.equal(handle.render().find('.yani-choice-panel__page-count').text(),'2 / 4');
+assert.equal(env.focusCalls[env.focusCalls.length-1].attrs['data-yani-choice-key'],'45','selected option initially focused');
+assert.equal(env.entry().valid(),true);
+env.controls.yani_choice_panel.back();
+assert.equal(env.enabled().name,'content'); assert.equal(env.focusCalls[env.focusCalls.length-1],env.origin[0],'Back restores exact origin');
+assert.deepEqual(selected,[]);assert.deepEqual(closed,['back']);assert.equal(env.closes(),1);
+handle=env.context.LampaYaniChoicePanel.show(Object.assign({},options,{items:[{key:'a',title:'A'},{key:'b',title:'B',selected:true}]}));
+assert.equal(handle.render().hasClass('yani-choice-panel--compact'),true);
+handle.render().find('.yani-choice-panel__option').first().trigger('hover:enter');
+assert.deepEqual(selected,['a']);assert.equal(env.enabled().name,'content');
+handle=env.context.LampaYaniChoicePanel.show(options); const before=env.focusCalls.length;
+env.auth.user_id=77;env.auth.login='other';env.auth.token='token-other';
+handle.render().find('.yani-choice-panel__option').first().trigger('hover:enter');
+assert.deepEqual(selected,['a'],'stale account cannot choose an option');assert.equal(env.focusCalls.length,before,'invalid panel never restores stale focus');
+env=setup();let retired=0;
+const old=env.context.LampaYaniChoicePanel.show({title:'Old',items:[{title:'A'}],onClose:()=>retired++});
+const replacement=env.context.LampaYaniChoicePanel.show({title:'New',items:[{title:'B'}]});
+assert.equal(retired,1);assert.equal(old.render().length,0);assert.equal($(env.document.body).find('.yani-choice-panel').length,1,'single live panel');
+const count=env.focusCalls.length;replacement.destroy();assert.equal(env.focusCalls.length,count,'destroy never reactivates a previous screen');
+console.log('choice-panel-runtime: pagination, origin restoration, compact choice, replacement and ownership passed');

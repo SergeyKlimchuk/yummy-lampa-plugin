@@ -405,7 +405,8 @@
         function showContinueMenu(rendered, card, options) {
             options = options || {};
             var lampa = window.Lampa;
-            if (!lampa || !lampa.Select || !lampa.Select.show || !card) return false;
+            var choices = deps.choicePanel || window.LampaYaniChoicePanel;
+            if (!lampa || !card || !(choices && choices.show) && !(lampa.Select && lampa.Select.show)) return false;
             var element = rendered && rendered.jquery ? rendered : $(rendered);
             var node = element[0];
             var owner = continueOwner();
@@ -428,6 +429,36 @@
                 }
                 return true;
             }
+            function perform(item) {
+                if (!item) return;
+                if (item.key === 'resume') {
+                    if (options.resume) options.resume(card);
+                    else openVideos(card, true);
+                } else if (item.key === 'detail') {
+                    if (options.detail) options.detail(card);
+                    else openYummyDetail(card, false);
+                }
+            }
+            if (choices && choices.show) {
+                return choices.show({
+                    title: t('continue_watching'),
+                    context: {title: card.title, poster: card.poster || card.img || ''},
+                    items: [
+                        {title: t('continue_watching'), key: 'resume'},
+                        {title: t('open_anime_card'), key: 'detail'}
+                    ],
+                    compact: true, origin: element, collection: collection, valid: valid,
+                    onClose: function (reason) {
+                        if (reason !== 'select') settled = true;
+                        if (options.onClose) options.onClose(reason);
+                    },
+                    onSelect: function (item) {
+                        if (settled || !valid()) return;
+                        settled = true;
+                        perform(item);
+                    }
+                });
+            }
             lampa.Select.show({
                 title: card.title || t('continue_watching'),
                 items: [
@@ -445,13 +476,7 @@
                     settled = true;
                     if (options.onClose) options.onClose();
                     if (!restore() || !item) return;
-                    if (item.key === 'resume') {
-                        if (options.resume) options.resume(card);
-                        else openVideos(card, true);
-                    } else if (item.key === 'detail') {
-                        if (options.detail) options.detail(card);
-                        else openYummyDetail(card, false);
-                    }
+                    perform(item);
                 }
             });
             return true;
@@ -466,7 +491,7 @@
             if (previous && previous.destroy) previous.destroy();
             var owner = continueOwner();
             var activity = continueActivity();
-            var state = {menuOpen: false, releaseClick: false, enterUntil: 0};
+            var state = {menuOpen: false, releaseClick: false, enterUntil: 0, panel: null};
             function valid() {
                 return node.yaniContinueMenu === state && node.isConnected !== false &&
                     activity === continueActivity() && sameContinueOwner(owner) && (!options.valid || options.valid());
@@ -509,15 +534,19 @@
                 var menuOptions = Object.assign({}, options, {
                     valid: valid,
                     onClose: function () {
-                        state.menuOpen = false;
+                        state.menuOpen = false; state.panel = null;
                         if (options.onClose) options.onClose();
                     }
                 });
-                if (!showContinueMenu(element, card, menuOptions)) state.menuOpen = false;
+                var opened = showContinueMenu(element, card, menuOptions);
+                state.panel = opened && opened.destroy ? opened : null;
+                if (!opened) state.menuOpen = false;
             }
             state.open = openMenu;
             state.valid = valid;
             state.destroy = function () {
+                var panel = state.panel; state.panel = null; state.menuOpen = false;
+                if (panel && panel.destroy) panel.destroy();
                 if (node.removeEventListener) {
                     node.removeEventListener('hover:long', openMenu, true);
                     node.removeEventListener('hover:enter', guardEnter, true);

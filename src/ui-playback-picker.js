@@ -19,7 +19,8 @@
         var lastKey = 'watch', ready = false, destroyed = false, paused = false;
         var focusTimer = null, launching = false, missingEpisode = false;
         var playlistCache = [];
-        var pageSize = 60, optionPageSize = 30;
+        var pageSize = 12, optionPageSize = 30;
+        var mainNodes = null, activeChoices = null, choiceGeneration = 0;
         var progress = deps.progress || window.LampaYaniEpisodeProgress;
         var progressOwner = progress && progress.owner ? progress.owner() : null;
         var remoteVideos = Array.isArray(object.progressVideos) ? object.progressVideos : groups.reduce(function (all, group) { return all.concat(group.videos); }, []);
@@ -144,6 +145,7 @@
         }
         function onProgressAuthChanged() {
             if (destroyed) return;
+            if (!progress || !progress.sameOwner(progressOwner, progress.owner())) closeOptions();
             rebuildProgress(); paintProgress();
             mustRefreshProgress = true;
             if (!paused && ownsActivity()) refreshAfterReturn();
@@ -153,7 +155,7 @@
         function bind(element, key, handler) {
             element.attr({'data-yani-focus-key': key, role: 'button', tabindex: '-1'});
             element.on('hover:focus', function () { if (destroyed || paused) return; lastKey = key; scroll.update(element, true); });
-            element.on('hover:enter', function () { if (!destroyed && !paused && !launching) handler(element); });
+            element.on('hover:enter', function () { if (!destroyed && !paused && !launching && !activeChoices) handler(element); });
             return element;
         }
         function button(label, key, handler, className) {
@@ -217,6 +219,12 @@
             var nextLabel = resuming ? t('continue_watching') : t('watch'), nextEpisode = episodeTitle(selectedVideo);
             if (label.text() !== nextLabel) label.text(nextLabel);
             if (episode.text() !== nextEpisode) episode.text(nextEpisode);
+            if (mainNodes) {
+                mainNodes.currentTitle.text(nextEpisode);
+                var time = Math.max(0, Math.floor(Number(saved.time) || 0));
+                var clock = Math.floor(time / 60) + ':' + ('0' + time % 60).slice(-2);
+                mainNodes.currentMeta.text(resuming ? t('continue_watching') + ' · ' + clock : originText());
+            }
             var videos = videosFor(selectedGroup);
             content.find('.yani-playback__episode').each(function () {
                 var item = $(this), index = Number((item.attr('data-yani-focus-key') || '').split(':')[1]);
@@ -225,39 +233,81 @@
             });
             paintProgress();
         }
+        function renderEpisodeGrid() {
+            if (!mainNodes) return;
+            var videos = videosFor(selectedGroup), first = episodePage * pageSize, last = Math.min(first + pageSize, videos.length);
+            mainNodes.count.text((first + 1) + '–' + last + ' / ' + videos.length);
+            mainNodes.grid.empty();
+            videos.slice(first, last).forEach(function (video, index) {
+                var active = video === selectedVideo;
+                var item = button(episodeTitle(video), 'episode:' + (first + index), function (element) { play(video, element); }, 'yani-playback__episode');
+                item.empty().append($('<span class="yani-playback__episode-title"></span>').text(episodeTitle(video)),
+                    $('<span class="yani-playback__episode-status"></span>'),
+                    $('<span class="yani-playback__episode-bar" aria-hidden="true"><span class="yani-playback__episode-fill"></span></span>'));
+                item.toggleClass('is-selected', active).attr('aria-pressed', String(active));
+                mainNodes.grid.append(item);
+            });
+            mainNodes.pagination.empty();
+            pagination(episodePage, Math.ceil(videos.length / pageSize), function (page) {
+                episodePage = page; lastKey = 'episode:' + (page * pageSize);
+                renderEpisodeGrid(); paintProgress(); scheduleFocus();
+            }, mainNodes.pagination);
+            paintProgress();
+        }
+        function updateMain(focusKey, episodesChanged) {
+            if (!mainNodes || mode !== 'main') return renderMain(focusKey);
+            if (focusKey) lastKey = focusKey;
+            mainNodes.voice.find('.yani-playback__field-value').text(selectedGroup.title);
+            mainNodes.source.find('.yani-playback__field-value').text(sourceLabel(selectedGroup));
+            if (mainNodes.target) mainNodes.target.find('.yani-playback__field-value').text(targetTitle(target()));
+            mainNodes.origin.text(originText());
+            mainNodes.groupMeta.text(deps.groupSubtitle ? deps.groupSubtitle(selectedGroup) : '');
+            mainNodes.notice.text(missingEpisode ? t('playback_episode_missing') : '');
+            var hasSaved = preferences && preferences.saved && preferences.saved(card);
+            if (hasSaved && !mainNodes.reset) {
+                mainNodes.reset = button(t('playback_use_defaults'), 'defaults', reset, 'yani-playback__button--subtle');
+                mainNodes.preferenceNote.append(mainNodes.reset);
+            } else if (!hasSaved && mainNodes.reset) {
+                mainNodes.reset.remove(); mainNodes.reset = null;
+            }
+            if (episodesChanged !== false) renderEpisodeGrid();
+            updateCurrentEpisode(); paintProgressMessage();
+        }
         function renderMain(focusKey) {
             if (destroyed) return;
-            mode = 'main';
-            optionItems = null;
+            mode = 'main'; optionItems = null; mainNodes = null;
             if (focusKey) lastKey = focusKey;
             content.empty();
-            heading(card.title || t('playback_setup_title'), originText());
+            heading(card.title || t('playback_setup_title'));
             if (!selectedGroup || !selectedVideo) {
                 content.append($('<div class="yani-playback__empty"></div>').text(t('no_videos')));
                 content.append(button(t('playback_back_to_anime'), 'back', back));
                 return scheduleFocus();
             }
-            var fields = $('<div class="yani-playback__fields"></div>');
-            fields.append(changeField(t('playback_voice'), selectedGroup.title, 'voice', 'voices'));
-            fields.append(changeField(t('playback_source'), sourceLabel(selectedGroup), 'source', 'sources'));
-            if (externalAvailable()) fields.append(changeField(t('player'), targetTitle(target()), 'target', 'targets'));
-            content.append(fields);
+            var current = $('<div class="yani-playback__current"></div>');
+            var copy = $('<div class="yani-playback__current-copy"></div>');
+            var currentTitle = $('<h2 class="yani-playback__current-title"></h2>');
+            var currentMeta = $('<div class="yani-playback__current-meta"></div>');
+            copy.append(currentTitle, currentMeta);
             var actions = $('<div class="yani-playback__actions"></div>');
-            var saved = playback(), resuming = Number(saved.time || 0) > 0 && sameEpisode(episodeValue(selectedVideo), saved.number);
             var watch = bind($('<div class="yani-playback__watch selector"></div>'), 'watch', function (element) { play(selectedVideo, element); });
-            watch.append($('<span class="yani-playback__watch-label"></span>').text(resuming ? t('continue_watching') : t('watch')));
-            watch.append($('<span class="yani-playback__watch-episode"></span>').text(episodeTitle(selectedVideo)));
-            actions.append(watch);
-            var hasSaved = preferences && preferences.saved && preferences.saved(card);
-            if (hasSaved) actions.append(button(t('playback_use_defaults'), 'defaults', reset, 'yani-playback__button--subtle'));
-            content.append(actions);
-            var subtitle = deps.groupSubtitle ? deps.groupSubtitle(selectedGroup) : '';
-            if (subtitle) content.append($('<div class="yani-playback__group-meta"></div>').text(subtitle));
-            if (missingEpisode) content.append($('<div class="yani-playback__notice"></div>').text(t('playback_episode_missing')));
-            var videos = videosFor(selectedGroup), first = episodePage * pageSize, last = Math.min(first + pageSize, videos.length);
+            watch.append($('<span class="yani-playback__watch-label"></span>'), $('<span class="yani-playback__watch-episode"></span>'));
+            actions.append(watch); current.append(copy, actions); content.append(current);
+            var fields = $('<div class="yani-playback__fields"></div>');
+            var voice = changeField(t('playback_voice'), selectedGroup.title, 'voice', 'voices');
+            var source = changeField(t('playback_source'), sourceLabel(selectedGroup), 'source', 'sources');
+            fields.append(voice, source);
+            var targetField = externalAvailable() ? changeField(t('playback_target'), targetTitle(target()), 'target', 'targets') : null;
+            if (targetField) fields.append(targetField);
+            content.append(fields);
+            var preferenceNote = $('<div class="yani-playback__preference-note"></div>');
+            var origin = $('<div class="yani-playback__hint"></div>');
+            preferenceNote.append(origin); content.append(preferenceNote);
+            var groupMeta = $('<div class="yani-playback__group-meta"></div>');
+            var notice = $('<div class="yani-playback__notice"></div>');
+            content.append(groupMeta, notice);
             var section = $('<div class="yani-playback__episode-head"></div>').append($('<h2></h2>').text(t('playback_episode_list')));
-            section.append($('<span></span>').text((first + 1) + '–' + last + ' / ' + videos.length));
-            content.append(section);
+            var count = $('<span></span>'); section.append(count); content.append(section);
             if (progress) {
                 var legend = $('<div class="yani-playback__progress-tools"></div>');
                 var labels = $('<div class="yani-playback__progress-legend"></div>');
@@ -267,21 +317,15 @@
                 if (deps.loadProgress) legend.append(button(t('playback_progress_refresh'), 'refresh-progress', refreshProgress, 'yani-playback__button--subtle'));
                 content.append(legend, $('<div class="yani-playback__progress-message" role="status" aria-live="polite"></div>').text(progressStatus));
             }
-            var grid = $('<div class="yani-playback__episodes"></div>');
-            videos.slice(first, last).forEach(function (video, index) {
-                var active = video === selectedVideo;
-                var item = button(episodeTitle(video), 'episode:' + (first + index), function (element) { play(video, element); }, 'yani-playback__episode');
-                item.empty().append($('<span class="yani-playback__episode-title"></span>').text(episodeTitle(video)),
-                    $('<span class="yani-playback__episode-status"></span>'),
-                    $('<span class="yani-playback__episode-bar" aria-hidden="true"><span class="yani-playback__episode-fill"></span></span>'));
-                item.toggleClass('is-selected', active).attr('aria-pressed', String(active));
-                grid.append(item);
-            });
-            content.append(grid);
-            pagination(episodePage, Math.ceil(videos.length / pageSize), function (page) { episodePage = page; renderMain('episode:' + (page * pageSize)); });
-            paintProgress(); paintProgressMessage();
-            scheduleFocus();
+            var grid = $('<div class="yani-playback__episodes"></div>'), pages = $('<div></div>');
+            content.append(grid, pages);
+            if (!externalAvailable()) content.append($('<div class="yani-playback__target-note"></div>').text(t('playback_target_internal')));
+            mainNodes = {currentTitle: currentTitle, currentMeta: currentMeta, voice: voice, source: source, target: targetField,
+                preferenceNote: preferenceNote, origin: origin, groupMeta: groupMeta, notice: notice, count: count,
+                grid: grid, pagination: pages, reset: null};
+            updateMain(focusKey); scheduleFocus();
         }
+
         function reset() {
             if (!preferences || !preferences.reset || !preferences.resolve) return;
             var desired = episodeValue(selectedVideo);
@@ -289,14 +333,14 @@
             selection = preferences.resolve(card, groups, playback());
             selectedGroup = selection.group || groups[0];
             selectEpisode(selectedGroup, desired);
-            renderMain('watch');
+            updateMain('watch'); scheduleFocus();
         }
-        function pagination(page, total, select) {
+        function pagination(page, total, select, parent) {
             if (total < 2) return;
             var row = $('<div class="yani-playback__pagination"></div>');
             if (page > 0) row.append(button('‹ ' + t('playback_option_page') + ' ' + page, 'previous', function () { select(page - 1); }));
             if (page + 1 < total) row.append(button(t('playback_option_page') + ' ' + (page + 2) + ' ›', 'next', function () { select(page + 1); }));
-            content.append(row);
+            (parent || content).append(row);
         }
         function voiceOptions() {
             var seen = {}, result = [];
@@ -322,17 +366,70 @@
                 return {title: sourceLabel(group), subtitle: deps.groupSubtitle ? deps.groupSubtitle(group) : '', group: group, selected: sourceKey(group) === sourceKey(selectedGroup)};
             });
         }
-        function optionsForMode() {
-            return mode === 'targets' ? ['internal', 'external', 'ask'].map(function (value) { return {title: targetTitle(value), target: value, selected: target() === value}; }) : mode === 'voices' ? voiceOptions() : sourceOptions();
+        function optionsForMode(optionMode) {
+            var kind = optionMode || mode;
+            return kind === 'targets' ? ['internal', 'external', 'ask'].map(function (value) { return {title: targetTitle(value), target: value, selected: target() === value}; }) : kind === 'voices' ? voiceOptions() : sourceOptions();
+        }
+        function applyOption(option, optionMode) {
+            if (optionMode === 'targets') {
+                if (deps.rememberTarget) deps.rememberTarget(card, option.target);
+                selection = {group: selectedGroup, origin: 'anime', unavailable: false};
+            } else {
+                var desired = episodeValue(selectedVideo);
+                selectedGroup = option.group;
+                if (preferences && preferences.remember) preferences.remember(card, selectedGroup);
+                selection = {group: selectedGroup, origin: 'anime', unavailable: false};
+                selectEpisode(selectedGroup, desired);
+            }
+            var key = optionMode === 'targets' ? 'target' : optionMode === 'voices' ? 'voice' : 'source';
+            updateMain(key, optionMode !== 'targets');
+        }
+        function closeOptions() {
+            choiceGeneration += 1;
+            var panel = activeChoices; activeChoices = null;
+            if (panel && panel.destroy) panel.destroy();
         }
         function openOptions(nextMode) {
-            mode = nextMode;
-            optionItems = optionsForMode();
+            var choices = deps.choicePanel || window.LampaYaniChoicePanel;
+            if (choices && choices.show) {
+                closeOptions();
+                var items = optionsForMode(nextMode), generation = ++choiceGeneration;
+                var key = nextMode === 'targets' ? 'target' : nextMode === 'voices' ? 'voice' : 'source';
+                lastKey = key;
+                var owner = progress && progress.owner ? progress.owner() : null;
+                function valid() {
+                    return generation === choiceGeneration && !destroyed && !paused && !launching && ownsActivity() &&
+                        (!owner || progress.sameOwner(owner, progress.owner()));
+                }
+                var panel = choices.show({
+                    title: t(nextMode === 'targets' ? 'playback_target' : nextMode === 'voices' ? 'playback_voice' : 'playback_source'),
+                    description: originText(),
+                    context: {title: card.title, poster: card.poster || card.img || ''},
+                    origin: content.find('[data-yani-focus-key="' + key + '"]').first(), collection: scroll.render(),
+                    compact: items.length <= 6,
+                    items: items.map(function (option, index) {
+                        return {key: String(index), title: option.title, subtitle: option.subtitle, selected: option.selected};
+                    }),
+                    valid: valid,
+                    onClose: function () { if (generation === choiceGeneration) activeChoices = null; },
+                    onBack: function () { if (valid()) lastKey = key; },
+                    onSelect: function (item) {
+                        if (!valid()) return;
+                        var option = items[Number(item && item.key)];
+                        if (option) applyOption(option, nextMode);
+                    }
+                });
+                if (valid()) activeChoices = panel || null;
+                return;
+            }
+            // Compatibility for an older source-loader that has not loaded the panel module.
+            mode = nextMode; optionItems = optionsForMode();
             var selected = 0;
             optionItems.some(function (option, index) { if (option.selected) selected = index; return Boolean(option.selected); });
             optionPage = Math.floor(selected / optionPageSize);
             renderOptions();
         }
+
         function renderOptions() {
             if (destroyed) return;
             var isVoice = mode === 'voices', isTarget = mode === 'targets';
@@ -345,17 +442,7 @@
             var first = optionPage * optionPageSize;
             options.slice(first, first + optionPageSize).forEach(function (option, index) {
                 var item = bind($('<div class="yani-playback__option selector"></div>'), 'option:' + (first + index), function () {
-                    if (isTarget) {
-                        if (deps.rememberTarget) deps.rememberTarget(card, option.target);
-                        selection = {group: selectedGroup, origin: 'anime', unavailable: false};
-                    } else {
-                        var desired = episodeValue(selectedVideo);
-                        selectedGroup = option.group;
-                        if (preferences && preferences.remember) preferences.remember(card, selectedGroup);
-                        selection = {group: selectedGroup, origin: 'anime', unavailable: false};
-                        selectEpisode(selectedGroup, desired);
-                    }
-                    renderMain(isTarget ? 'target' : isVoice ? 'voice' : 'source');
+                    applyOption(option, mode);
                 });
                 item.toggleClass('is-selected', option.selected).attr('aria-pressed', String(Boolean(option.selected)));
                 item.append($('<div class="yani-playback__option-title"></div>').text(option.title));
@@ -403,8 +490,8 @@
                 });
                 Lampa.Controller.toggle('content');
             },
-            pause: function () { paused = true; mustRefreshProgress = true; cancelFocus(); },
-            stop: function () { paused = true; mustRefreshProgress = true; cancelFocus(); },
+            pause: function () { paused = true; mustRefreshProgress = true; closeOptions(); cancelFocus(); },
+            stop: function () { paused = true; mustRefreshProgress = true; closeOptions(); cancelFocus(); },
             playbackRestored: function () {
                 if (destroyed || paused) return;
                 launching = false;
@@ -415,7 +502,7 @@
             refreshProgress: refreshProgress,
             render: function (js) { return js ? html[0] : html; },
             destroy: function () {
-                destroyed = true; ready = false; cancelFocus();
+                destroyed = true; ready = false; closeOptions(); cancelFocus(); mainNodes = null;
                 progressGeneration += 1; progressTask = null; pendingProgress = null; remoteVideos = []; progressIndex = {};
                 if (document.removeEventListener) document.removeEventListener('yani:auth-changed', onProgressAuthChanged);
                 playlistCache = []; selectedVideo = null; groups = []; scroll.destroy(); html.remove();

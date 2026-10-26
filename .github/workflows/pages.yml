@@ -45,6 +45,9 @@ jobs:
             node "$test"
           done
 
+      - name: Verify committed bundle and build metadata
+        run: node build.js --check
+
       - name: Rebuild bundled plugin
         run: node build.js
 
@@ -53,15 +56,6 @@ jobs:
 
       - name: Check production bundle syntax
         run: node --check stable/index.js
-
-      - name: Verify dist/index.js matches sources
-        shell: bash
-        run: |
-          set -e
-          if ! git diff --exit-code -- dist/index.js; then
-            echo "::error::dist/index.js is out of date. Run node build.js and commit the result."
-            exit 1
-          fi
 
       - name: Update YummyStatus snapshot
         id: yummy_status
@@ -81,7 +75,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p _pages
-          cp -R dist assets status _pages/
+          cp -R dist assets status src docs _pages/
           cp index.js style.css README.md _pages/
           if [ -d embed ]; then cp -R embed _pages/embed; fi
           if [ -d stable ]; then cp -R stable _pages/stable; fi

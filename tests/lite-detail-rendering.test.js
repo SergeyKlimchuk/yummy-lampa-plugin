@@ -48,6 +48,7 @@ Wrapper.prototype.remove = function () { this.nodes.forEach(n => { writes++; if 
 Wrapper.prototype.text = function (value) { if (value === undefined) return this.nodes.map(text).join(''); this.empty(); this.nodes.forEach(n => { writes++; n.textValue=String(value); }); return this; };
 Wrapper.prototype.html = function (value) { return this.empty().append(value); };
 Wrapper.prototype.attr = function (name, value) { if (typeof name === 'object') { Object.keys(name).forEach(k => this.attr(k,name[k])); return this; } if (value === undefined) return this[0] && this[0].attrs[name]; this.nodes.forEach(n => { writes++; n.attrs[name]=String(value); }); return this; };
+Wrapper.prototype.hasClass = function (name) { return Boolean(this[0] && this[0].classes.indexOf(name) >= 0); };
 Wrapper.prototype.addClass = function (names) { names.split(/\s+/).forEach(name => this.nodes.forEach(n => n.classList.toggle(name,true))); return this; };
 Wrapper.prototype.removeClass = function (names) { names.split(/\s+/).forEach(name => this.nodes.forEach(n => n.classList.toggle(name,false))); return this; };
 Wrapper.prototype.css = function (name,value) { this.nodes.forEach(n => { writes++; n.styles[name]=value; }); return this; };
@@ -111,10 +112,10 @@ console.log('lite detail rendering runtime: unchanged paints, mutable lists/prog
 Wrapper.prototype.children = function (selector) { return new Wrapper(this.nodes.reduce((out,n) => out.concat(n.children.filter(c => !selector || matches(c,selector))),[]),this); };
 Wrapper.prototype.each = function (callback) { this.nodes.forEach((n,i) => callback.call(n,i,n)); return this; };
 Wrapper.prototype.add = function (other) { return new Wrapper(this.nodes.concat($(other).nodes).filter((n,i,all)=>all.indexOf(n)===i),this); };
-Wrapper.prototype.hasClass = function (name) { return this[0] && this[0].classes.includes(name); };
-Wrapper.prototype.on = function () { return this; };
+Wrapper.prototype.on = function (name,fn) { this.nodes.forEach(n=>n.events.push({name,fn})); return this; };
 Wrapper.prototype.toggleClass = function (name,enabled) { return enabled ? this.addClass(name) : this.removeClass(name); };
-let detailToggles=0,detailControllers=0;
+let detailToggles=0,detailControllers=0,detailPlayback={number:4,time:333,duration:1440};
+const detailActions=[];
 const doc = new Node('document');doc.removeEventListener=()=>{};doc.addEventListener=()=>{};
 context.document=doc;context.setTimeout=()=>1;context.clearTimeout=()=>{};
 context.window.Lampa = context.Lampa = {
@@ -130,9 +131,11 @@ const alternatives=['Alternative title one','Alternative title two','Alternative
 context.LampaYaniApi={detail:()=>Promise.resolve({response:{yani_id:9,title:'Title',overview:synopsis,yani_titles:alternatives}}),recommendations:()=>Promise.resolve([]),normalize:()=>[],comments:()=>Promise.resolve([]),normalizeComments:()=>[]};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../src/ui-detail.js'),'utf8'),context);
 const detail=context.window.LampaYaniDetail.create({card:{yani_id:9}}, {
-    t:x=>x,locale:()=> 'ru',getYummyId:x=>x.yani_id,toCard:x=>x,getPlayback:()=>({}),mediaTypeLabels:()=>({full:"Сериал"}),
+    t:x=>x,locale:()=> 'ru',getYummyId:x=>x.yani_id,toCard:x=>x,getPlayback:()=>detailPlayback,mediaTypeLabels:()=>({full:"Сериал"}),
     detailGenres:()=>[{id:1,title:'Фэнтези'}],genreTitle:x=>x.title,genreValue:x=>x.id,createDetailRatings:()=> $('<div></div>'),hasYummyList:()=>false,
-    addCardListBadge:()=>{},syncCardOverlayLayout:()=>{},loadVideos:()=>Promise.resolve([]),lampaIcon:()=>''
+    addCardListBadge:()=>{},syncCardOverlayLayout:()=>{},loadVideos:()=>Promise.resolve([]),lampaIcon:()=>'',
+    beginPlaybackNavigation:()=>{},resumePlayback:card=>detailActions.push({type:'resume',card}),
+    configurePlayback:card=>detailActions.push({type:'configure',card})
 });
 detail.activity={loader:()=>{},toggle:()=>{detailToggles++;}};detail.create();detail.pause();
 Promise.resolve().then(()=>{}).then(()=>{}).then(()=>{
@@ -146,6 +149,15 @@ Promise.resolve().then(()=>{}).then(()=>{}).then(()=>{
     const ordered=['yani-detail__title','yani-detail__rating-row','yani-detail__tags','yani-detail__episode-summary','yani-detail__actions','yani-detail__list-dock','yani-detail__overview','yani-detail__translations','yani-detail__metadata','yani-detail__comments'];
     ordered.forEach((name,i)=>{assert.ok(at(name)>=0,'missing detail block '+name);if(i)assert.ok(at(ordered[i-1])<at(name),'priority '+ordered[i-1]+' before '+name);});
     assert.strictEqual(rendered.find('.yani-detail__poster-column').find('.yani-detail__list-panel').length,0,'categories must not remain in a separate poster lane');
+    ['.yani-detail__title','.yani-detail__poster','.yani-detail__episode-summary','.yani-detail__translations','.yani-detail__comments-title'].forEach(selector=>{
+        assert.strictEqual(rendered.find(selector+'.selector').length,0,'read-only '+selector+' must not enter the D-pad journey');
+    });
+    assert.strictEqual(rendered.find('.yani-detail__overview.selector').length,1,'expanding the complete synopsis remains an actual action');
+    assert.strictEqual(rendered.find('.yani-detail__poster-action.selector').length,1,'poster enlargement remains available as a secondary metadata action');
+    assert.strictEqual(rendered.find('.yani-detail__button--watch').text(),'continue_episode 4','a real saved episode labels the primary action');
+    const actualActions=rendered.find('.yani-detail__actions').children().nodes.map(n=>n.attrs['data-yani-focus-key']);
+    assert.deepStrictEqual(actualActions,['action:watch','action:configure','action:open','action:trailers','action:subscribe'],'the episode/voice control is adjacent to the fast primary action');
+
     assert.strictEqual(rendered.find('.yani-detail__list-label').length,6,'all categories need visible text, not icon-only controls');
     assert.ok(rendered.find('.yani-detail__list-label').text().includes('planned'));
 
@@ -153,6 +165,22 @@ Promise.resolve().then(()=>{}).then(()=>{}).then(()=>{
     assert.strictEqual(rendered.find('.yani-detail__alternative-titles').attr('title'),alternatives.join(' · '),'all alternate titles remain accessible');
     assert.strictEqual(detailToggles,0,'successfully rendered paused detail must not toggle over another activity');
     detail.start();assert.strictEqual(detailControllers,1,'successfully rendered detail remains usable on resume');
+    const enter=selector=>{
+        const node=rendered.find(selector)[0],binding=node.events.find(e=>e.name.split(/\s+/).some(name=>name==='hover:enter'));
+        assert.ok(binding,'action has an Enter handler');
+        binding.fn({preventDefault(){},stopImmediatePropagation(){}});
+    };
+    enter('.yani-detail__button--watch');enter('.yani-detail__button--configure');
+    assert.deepStrictEqual(detailActions.map(action=>action.type),['resume','configure'],'primary launches directly while adjacent action configures without a stream launch');
+    assert.strictEqual(detailActions[0].card,detailActions[1].card,'both routes keep the original hydrated anime identity');
+    assert.strictEqual(detailActions[0].card.yani_id,9);
+    const watchNode=rendered.find('.yani-detail__button--watch')[0];
+    detailPlayback={number:7,time:12,duration:1440};
+    const progressHandler=doc.events.find(e=>e.name==='yani:watch-progress.yaniDetail');
+    progressHandler.fn(null,{yani_id:9});
+    assert.strictEqual(rendered.find('.yani-detail__button--watch')[0],watchNode,'progress changes cannot replace the primary focused node');
+    assert.strictEqual(rendered.find('.yani-detail__button--watch').text(),'continue_episode 7');
+
     detail.destroy();
     console.log('lite detail layout runtime: actions before complete overview and accessible alternatives passed');
 }).catch(error=>{console.error(error);process.exitCode=1;});

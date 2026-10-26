@@ -259,7 +259,22 @@
         }, 0);
     }
 
+    function showBasicYummyChoice(params, snapshot) {
+        if (window.LampaYaniChoicePanel && params && !params.nohide && params.yaniRestore !== false && !params.onDraw && Array.isArray(params.items) && params.items.every(function (item) { return !item.checkbox && !item.template && !item.onDraw; })) {
+            snapshot = snapshot || transientNavigationSnapshot();
+            return Boolean(LampaYaniChoicePanel.show({
+                title: params.title, description: params.description, items: params.items.map(function (item, index) {
+                    return Object.assign({}, item, {selected: item.selected || item.checked || (typeof params.selected === 'number' && params.selected === index)});
+                }),
+                origin: snapshot.element, collection: snapshot.collection,
+                onSelect: params.onSelect, onBack: params.onBack, onClose: params.onClose
+            }));
+        }
+        return false;
+    }
+
     function showYummySelect(params, snapshot) {
+        if (showBasicYummyChoice(params, snapshot)) return true;
         if (!Lampa.Select || !Lampa.Select.show) return false;
         snapshot = snapshot || transientNavigationSnapshot();
         params = Object.assign({}, params || {});
@@ -315,6 +330,42 @@
     var openTrailers = trailerUi.open;
     var TrailerList = trailerUi.Component;
 
+    function tvRoutes() {
+        return {
+            home: function () { Lampa.Activity.push({component: 'yani_home', url: 'yani/home', title: 'YummyAnime'}); },
+            search: openSearch, lists: openUserLists,
+            catalog: function () { Lampa.Activity.push({component: 'yani_catalog', url: 'yani/catalog', title: 'YummyAnime · ' + t('catalog'), params: {limit: 30, sort: 'top', sort_forward: false}}); },
+            account: openAccount, settings: openPluginSettings,
+            more: function () {
+                var entries = [
+                    ['yani_schedule', 'schedule'], ['yani_history', 'watch_history'], ['yani_collections', 'collections'],
+                    ['yani_top', 'top_rated'], ['yani_genres', 'genres'], ['yani_new_translations', 'new_translations'],
+                    ['yani_new_releases', 'new_releases'], ['yani_recommended', 'for_you'], ['yani_updates', 'updates'],
+                    ['yani_notifications', 'notifications'], ['yani_status', 'status']
+                ];
+                showYummySelect({title: t('home_lite_more'), items: entries.map(function (entry) { return {component: entry[0], title: t(entry[1])}; }), onSelect: function (item) {
+                    if (item.component === 'yani_history') return openWatchHistory();
+                    if (item.component === 'yani_collections') return openCollections();
+                    if (item.component === 'yani_genres') return openGenres();
+                    if (item.component === 'yani_notifications') return openNotifications();
+                    Lampa.Activity.push({component: item.component, url: 'yani/' + item.component.slice(5), title: 'YummyAnime · ' + item.title});
+                }});
+            }
+        };
+    }
+
+    function tvFactory(factory, active) {
+        if (factory.yaniTvWrapped) return factory;
+        function wrapped(object) {
+            var component = new factory(object);
+            return window.LampaYaniTvShell ? LampaYaniTvShell.wrap(component, {
+                active: active, t: t, routes: tvRoutes(), logo: window.LampaYaniHome && LampaYaniHome.logo
+            }) : component;
+        }
+        wrapped.yaniTvWrapped = true;
+        return wrapped;
+    }
+
     window.LampaYani = {
         register: function () {
             if (!window.Lampa || !Lampa.Component || !Lampa.Component.add) {
@@ -348,6 +399,31 @@
                 }
             }
 
+            // Keep the plugin rail across content screens; host player and auth keep their own controls.
+            Catalog = tvFactory(Catalog, 'catalog');
+            Top = tvFactory(Top, 'catalog');
+            Recommended = tvFactory(Recommended, 'more');
+            Updates = tvFactory(Updates, 'more');
+            NewTranslations = tvFactory(NewTranslations, 'more');
+            NewReleases = tvFactory(NewReleases, 'more');
+            Collections = tvFactory(Collections, 'more');
+            CollectionDetail = tvFactory(CollectionDetail, 'more');
+            Genres = tvFactory(Genres, 'catalog');
+            Schedule = tvFactory(Schedule, 'more');
+            History = tvFactory(History, 'more');
+            Detail = tvFactory(Detail, '');
+            PlaybackSetup = tvFactory(PlaybackSetup, '');
+            UsagePolicy = tvFactory(UsagePolicy, 'more');
+            TrailerList = tvFactory(TrailerList, '');
+            Account = tvFactory(Account, 'account');
+            UserLists = tvFactory(UserLists, 'lists');
+            AccountList = tvFactory(AccountList, 'lists');
+            Notifications = tvFactory(Notifications, 'more');
+            Subscriptions = tvFactory(Subscriptions, 'more');
+            StatusDashboard = tvFactory(StatusDashboard, 'more');
+
+            SettingsPage = tvFactory(SettingsPage, 'settings');
+            Lampa.Component.add('yani_settings', SettingsPage);
             Lampa.Component.add('yani_home', Home);
 
             Lampa.Component.add('yani_catalog', Catalog);
@@ -668,7 +744,7 @@
             openCollections: openCollections,
             openYummyDetail: openYummyDetail,
             showSelect: showYummySelect,
-            openSettings: function () { Lampa.Settings.create('yani'); }
+            openSettings: openPluginSettings
         });
     }
 
@@ -1662,9 +1738,9 @@
         return resolveUserListsUserId().then(function (userId) {
             // A category is opened on demand. Fetch its current membership,
             // rather than a five-minute preview snapshot captured before edits.
-            var request = definition.id === 4 ? LampaYaniApi.userLists(userId) : LampaYaniApi.userList(userId, definition.id);
+            var request = definition.id === -1 ? LampaYaniApi.userLists(userId) : definition.id === 4 ? LampaYaniApi.userLists(userId) : LampaYaniApi.userList(userId, definition.id);
             return request.then(normalizeUserList).then(function (items) {
-                return writeCache(userId, filterAccountListItems(definition, items));
+                return writeCache(userId, definition.id === -1 ? items : filterAccountListItems(definition, items));
             }).catch(function (error) {
                 var cached = readCache(userId);
                 if (cached) return cached;
@@ -1677,7 +1753,22 @@
         return LampaYaniAccountLists.normalize(payload);
     }
 
+    function library(object) {
+        return LampaYaniLibrary.create(object, {
+            t: t, definitions: accountListDefinitions, loadItems: loadUserListShortcutItems,
+            loadCounts: function () {
+                return resolveUserListsUserId().then(function (id) { return LampaYaniApi.userListCounts(id); }).then(LampaYaniHomeInsights.listCounts);
+            },
+            toCard: toCard,
+            cardRender: function (first, second, third) { bindYummyCardRender(first, second, third, {ratingPlacement: 'below'}); },
+            syncCardLayout: function (scope) { scope.find('.card').each(function () { syncCardOverlayLayout($(this), this.yaniBoundCard); }); },
+            goBack: goBack,
+            onError: function () { Lampa.Noty.show(t('user_lists_error')); }
+        });
+    }
+
     function AccountList(object) {
+        if (window.LampaYaniLibrary) return library(object);
         return LampaYaniAccountLists.accountList(object, {
             t: t,
             showSelect: showYummySelect,
@@ -1689,6 +1780,7 @@
     }
 
     function UserLists(object) {
+        if (window.LampaYaniLibrary) return library(object);
         return LampaYaniAccountLists.userLists(object, {
             t: t,
             openList: openUserListShortcut,
@@ -1766,6 +1858,8 @@
             openSubjectCatalog: openSubjectCatalog,
             beginPlaybackNavigation: beginPlaybackNavigation,
             openTitlePlaybackOptions: openTitlePlaybackOptions,
+            configurePlayback: function (card) { return openTitlePlaybackOptions(card); },
+            resumePlayback: function (card) { return openVideos(card, true); },
             openTrailers: openTrailers,
             lampaIcon: lampaIcon,
             openStandardLampaCard: openStandardLampaCard,
@@ -4006,8 +4100,27 @@
         });
     }
 
+    var yummySettingsDefinitions = [];
+    function addYummySetting(definition) {
+        yummySettingsDefinitions.push(definition);
+        Lampa.SettingsApi.addParam(definition);
+    }
+
+    function openPluginSettings() {
+        if (!window.LampaYaniSettingsPage || !yummySettingsDefinitions.length) return Lampa.Settings.create('yani');
+        Lampa.Activity.push({component: 'yani_settings', url: 'yani/settings', title: 'YummyAnime · ' + t('settings')});
+    }
+
+    function SettingsPage(object) {
+        return LampaYaniSettingsPage.create(object, {
+            t: t, definitions: function () { return yummySettingsDefinitions; },
+            showSelect: showYummySelect, goBack: goBack
+        });
+    }
+
     function addSettings() {
         if (!Lampa.SettingsApi || !Lampa.SettingsApi.addComponent) return;
+        yummySettingsDefinitions = [];
         migrateLegacyPlayerPreference();
 
         Lampa.SettingsApi.addComponent({
@@ -4016,7 +4129,7 @@
             name: 'YummyAnime'
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_account_title', type: 'title'},
             field: {name: t('settings_account_section')}
@@ -4033,20 +4146,20 @@
             },
             onChange: openSettingsLogin
         };
-        Lampa.SettingsApi.addParam(authSettingsParamDefinition);
-        Lampa.SettingsApi.addParam({
+        addYummySetting(authSettingsParamDefinition);
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_auto_sync_progress', type: 'trigger', default: true},
             field: {name: t('auto_sync_progress'), description: t('auto_sync_progress_description')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_interface_title', type: 'title'},
             field: {name: t('settings_interface_section')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_language', type: 'select', values: {ru: 'Русский', uk: 'Українська', en: 'English'}, default: 'ru'},
             field: {name: t('language_name'), description: t('language_description')},
@@ -4067,10 +4180,10 @@
                 },
                 onChange: function (value) { LampaYaniScale.apply(value); }
             };
-            Lampa.SettingsApi.addParam(scaleSetting);
+            addYummySetting(scaleSetting);
         }
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_playback_title', type: 'title'},
             field: {name: t('settings_playback_section')}
@@ -4079,7 +4192,7 @@
         if (window.LampaYaniPlaybackPreferences) {
             var sourceValues = {auto: t('playback_auto')};
             PLAYBACK_SOURCE_IDS.forEach(function (id) { sourceValues[id] = playbackSourceLabel(id); });
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {name: 'yani_default_source', type: 'select', values: sourceValues, default: 'auto'},
                 field: {name: t('playback_default_source'), description: t('playback_default_source_description')},
@@ -4093,7 +4206,7 @@
                 if (!value.length) value = $('<div class="settings-param__value"></div>').appendTo(voiceRow);
                 value.text(LampaYaniPlaybackPreferences.defaults().voice || t('playback_auto'));
             }
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {name: 'yani_default_voice', type: 'button'},
                 field: {name: t('playback_default_voice'), description: t('playback_default_voice_description')},
@@ -4121,7 +4234,7 @@
         }
 
         if (isAndroidPlatform()) {
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {
                     name: 'yani_playback_target',
@@ -4137,7 +4250,7 @@
             });
         } else {
             if (Lampa.Storage) Lampa.Storage.set('yani_playback_target', 'internal');
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {name: 'yani_playback_target_locked', type: 'button'},
                 field: {
@@ -4150,7 +4263,7 @@
             });
         }
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {
                 name: 'yani_aniskip',
@@ -4161,19 +4274,19 @@
             field: {name: t('aniskip'), description: t('aniskip_description')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_auto_next', type: 'trigger', default: false},
             field: {name: t('auto_next'), description: t('auto_next_description')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_add_to_lampa_history', type: 'trigger', default: true},
             field: {name: t('add_to_lampa_history'), description: t('add_to_lampa_history_description')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_clear_playback_history', type: 'button'},
             field: {name: t('clear_history'), description: t('clear_history_description')},
@@ -4183,7 +4296,7 @@
             }
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_display_sources_title', type: 'title'},
             field: {name: t('display_sources'), description: t('display_sources_description')}
@@ -4192,7 +4305,7 @@
             var label = playbackSourceLabel(sourceId);
             var storageKey = 'yani_source_' + sourceId;
             var experimental = EXPERIMENTAL_PLAYBACK_SOURCE_IDS.indexOf(sourceId) >= 0;
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {name: storageKey, type: 'trigger', default: playbackSourceDefaultEnabled(sourceId)},
                 field: {
@@ -4208,14 +4321,14 @@
             });
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_playback_services_title', type: 'title'},
             field: {name: t('settings_integrations_section')}
         });
 
         if (isAndroidTvPlatform()) {
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {name: 'yani_yummytv_enabled', type: 'trigger', default: false},
                 field: {name: t('yummytv_integration'), description: t('yummytv_integration_description')}
@@ -4223,7 +4336,7 @@
         }
 
         var resolverUrl = window.LampaYaniResolver ? LampaYaniResolver.baseUrl() : '';
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_resolver_server', type: 'button'},
             field: {
@@ -4234,7 +4347,7 @@
         });
 
         if (resolverUrl) {
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {name: 'yani_resolver_check', type: 'button'},
                 field: {name: t('resolver_check'), description: t('resolver_check_description')},
@@ -4250,7 +4363,7 @@
         }
 
         var lampacUrl = window.LampaYaniLampacResolver ? LampaYaniLampacResolver.baseUrl() : '';
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_lampac_server', type: 'button'},
             field: {
@@ -4260,7 +4373,7 @@
             onChange: editLampacServer
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_alloha_iframe', type: 'trigger', default: false},
             field: {name: t('alloha_iframe'), description: t('alloha_iframe_description')},
@@ -4269,25 +4382,25 @@
             }
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_lampa_card_title', type: 'title'},
             field: {name: t('lampa_card_integration')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_lampa_card_rating', type: 'trigger', default: true},
             field: {name: t('lampa_card_rating'), description: t('lampa_card_rating_description')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_lampa_card_button', type: 'trigger', default: true},
             field: {name: t('lampa_card_button'), description: t('lampa_card_button_description')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_home_sections_title', type: 'title'},
             field: {name: t('home_sections')}
@@ -4310,20 +4423,33 @@
             ['account', 'account'],
             ['status', 'status']
         ].forEach(function (section) {
-            Lampa.SettingsApi.addParam({
+            addYummySetting({
                 component: 'yani',
                 param: {name: 'yani_section_' + section[0], type: 'trigger', default: true},
                 field: {name: t(section[1]), description: t('section_visibility_description')}
             });
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
+            component: 'yani',
+            param: {name: 'yani_build_title', type: 'title'},
+            field: {name: t('settings_build_section')}
+        });
+        buildInfoRows().forEach(function (row) {
+            addYummySetting({
+                component: 'yani',
+                param: {name: 'yani_build_' + row.key, type: 'title'},
+                field: {name: row.label + ': ' + row.value}
+            });
+        });
+
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_about_title', type: 'title'},
             field: {name: t('settings_about_section')}
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_about', type: 'button'},
             field: {
@@ -4333,7 +4459,7 @@
             onChange: openYummyWebsite
         });
 
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_usage_policy', type: 'button'},
             field: {name: t('usage_policy_title'), description: t('usage_policy_settings_description')},
@@ -4342,11 +4468,30 @@
 
         // A title row is deliberately non-interactive: the repository URL is
         // reference text, not another settings action or external link.
-        Lampa.SettingsApi.addParam({
+        addYummySetting({
             component: 'yani',
             param: {name: 'yani_repo_notice', type: 'title'},
             field: {name: t('repo_notice')}
         });
+    }
+
+    // Read the artifact's build stamp, never the time at which Settings opens.
+    function buildInfoRows(metadata) {
+        var info = metadata || window.LampaYaniBuild || {};
+        var commit = String(info.commit || info.shortCommit || '');
+        if (!/^[a-f0-9]{7,64}$/i.test(commit)) commit = '';
+        var commitLabel = commit ? commit.slice(0, 7) : t('build_not_available');
+        if (info.dirty === true) commitLabel += ' · ' + t('build_local_changes');
+        var date = info.builtAt ? new Date(info.builtAt) : null;
+        var builtAt = date && isFinite(date.getTime())
+            ? date.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC') : t('build_not_available');
+        var channel = {local: t('build_channel_local'), 'github-actions': t('build_channel_actions'), development: t('build_channel_development')};
+        return [
+            {key: 'version', label: t('build_version'), value: String(info.version || LampaYaniConfig.version || t('build_not_available'))},
+            {key: 'commit', label: t('build_commit'), value: commitLabel},
+            {key: 'time', label: t('build_time'), value: builtAt},
+            {key: 'channel', label: t('build_channel'), value: Object.prototype.hasOwnProperty.call(channel, info.channel) ? channel[info.channel] : t('build_not_available')}
+        ];
     }
 
     function yummyWebsiteUrl() {
