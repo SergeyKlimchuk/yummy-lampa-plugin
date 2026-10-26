@@ -632,6 +632,10 @@
             control = control || {};
             return request('/profile', {auth: true, cache: false, signal: control.signal});
         },
+        userListCounts: function (id, control) {
+            control = control || {};
+            return request('/users/id' + encodeURIComponent(id) + '?need_counts=true', {auth: true, cache: false, signal: control.signal});
+        },
         userListStats: function (id, control) {
             control = control || {};
             return request('/users/' + encodeURIComponent(id) + '/stats/lists', {auth: true, cache: false, signal: control.signal});

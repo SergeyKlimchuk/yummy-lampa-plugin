@@ -228,38 +228,53 @@
 
     function listCounts(payload) {
         var value = response(payload);
+        // /users/id{id}?need_counts=true returns a compact numeric map.
+        // /stats/lists contains watch time only and must never imply zero titles.
+        if (value && value.counts !== undefined) value = value.counts;
+        else if (value && value.lists_count !== undefined) value = value.lists_count;
         var names = ['watching', 'planned', 'completed', 'dropped', 'favorites', 'postponed'];
         var result = {watching: 0, planned: 0, completed: 0, dropped: 0, favorites: 0, postponed: 0};
         var items = Array.isArray(value) ? value : value && (value.items || value.data || value.lists);
+        var known = Array.isArray(items) && items.length === 0;
+
+        function readCount(raw) {
+            if (raw && typeof raw === 'object') {
+                if (raw.count !== undefined) raw = raw.count;
+                else if (raw.anime_count !== undefined) raw = raw.anime_count;
+                else if (raw.items_count !== undefined) raw = raw.items_count;
+                else if (raw.total !== undefined) raw = raw.total;
+                else if (Array.isArray(raw.items)) raw = raw.items.length;
+            }
+            if (typeof raw !== 'number' && (typeof raw !== 'string' || !raw.trim())) return null;
+            return isFinite(Number(raw)) ? Math.max(0, Number(raw)) : null;
+        }
 
         if (!Array.isArray(items) && value && typeof value === 'object') {
             names.forEach(function (name, id) {
-                var direct = value[name];
-                if (direct === undefined) direct = value[id];
-                if (direct !== undefined) result[name] = Math.max(0, Number(direct && (direct.count || direct.total) || direct) || 0);
+                var count = readCount(value[name] !== undefined ? value[name] : value[id]);
+                if (count === null) return;
+                known = true;
+                result[name] = count;
             });
-            return result;
+        } else {
+            (items || []).forEach(function (item) {
+                item = item || {};
+                var list = item.list || {};
+                var id = Number(item.list_id !== undefined ? item.list_id : list.id !== undefined ? list.id : item.id);
+                if (!isFinite(id) || Math.floor(id) !== id || id < 0 || id >= names.length) return;
+                var count = readCount(item);
+                if (count === null) return;
+                known = true;
+                result[names[id]] = count;
+            });
         }
-
-        (items || []).forEach(function (item) {
-            item = item || {};
-            var list = item.list || {};
-            var id = Number(item.list_id !== undefined ? item.list_id : list.id !== undefined ? list.id : item.id);
-            if (id < 0 || id >= names.length) return;
-            var count = item.count;
-            if (count === undefined) count = item.anime_count;
-            if (count === undefined) count = item.items_count;
-            if (count === undefined) count = item.total;
-            if (count === undefined && Array.isArray(item.items)) count = item.items.length;
-            result[names[id]] = Math.max(0, Number(count) || 0);
-        });
-        return result;
+        return known ? result : null;
     }
 
     function personalInsight(continuing, account, stats) {
         continuing = Array.isArray(continuing) ? continuing.slice() : [];
         continuing.sort(function (a, b) { return Number(b && b.updated_at || 0) - Number(a && a.updated_at || 0); });
-        var lists = listCounts(stats);
+        var lists = listCounts(stats) || listCounts([]);
         var total = lists.watching + lists.planned + lists.completed + lists.dropped + lists.postponed;
         var tracked = lists.watching + lists.planned + lists.postponed;
         return {

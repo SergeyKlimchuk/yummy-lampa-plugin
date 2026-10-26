@@ -86,7 +86,7 @@ function countNodes(component) { return descendants(component.render()[0], '', [
     const ui = fs.readFileSync(path.join(root, 'src/ui.js'), 'utf8');
     const accountSource = ui.slice(ui.indexOf('    function Account(object)'), ui.indexOf('    function AuthPage(object)'));
     const definitions = ['watching', 'planned', 'completed', 'dropped', 'favorites', 'postponed'].map((key, id) => ({id, key, title: key}));
-    function accountEnvironment(statsPromise) {
+    function accountEnvironment(statsPromise, countsPromise) {
         const env = environment(), profile = deferred();
         loadModule(env, 'ui-home-insights.js'); env.context.LampaYaniHomeInsights = env.context.window.LampaYaniHomeInsights;
         Object.assign(env.context, {
@@ -94,7 +94,8 @@ function countNodes(component) { return descendants(component.render()[0], '', [
             accountListDefinitions: () => definitions, formatAccountDate: String, formatWatchTime: String,
             cacheHomeListCounts: (id, counts) => env.calls.push(['cache', id, counts]),
             openUserListShortcut: definition => env.calls.push(['open-list', definition.id]),
-            LampaYaniApi: {profile: () => profile.promise, userListStats: (id, control) => { env.calls.push(['stats', id, control]); return statsPromise || Promise.resolve({response: [{list: {id: 0}, count: 7, seconds: 3600}, {list: {id: 4}, count: 2, seconds: 0}]}); },
+            LampaYaniApi: {profile: () => profile.promise, userListStats: (id, control) => { env.calls.push(['stats', id, control]); return statsPromise || Promise.resolve({response: [{list: {id: 0}, seconds: 3600}, {list: {id: 4}, seconds: 0}]}); },
+                userListCounts: (id, control) => { env.calls.push(['counts', id, control]); return countsPromise || Promise.resolve({response: {id, counts: {'0': 7, '1': 3, '2': 9, '3': 1, '4': 2, '5': 0}}}); },
                 userLists: () => { throw new Error('Account may not download every list entry'); }, userStatsGenres: () => Promise.resolve([]), userStatsRatings: () => Promise.resolve([]), userStatsTypes: () => Promise.resolve([])}
         });
         vm.runInNewContext(accountSource + '\nthis.TestAccount = Account;', env.context);
@@ -132,7 +133,14 @@ function countNodes(component) { return descendants(component.render()[0], '', [
     assert.equal(env.component.render().find('.yani-account__profile').length, 0, 'late account response cannot render another owner');
     assert.equal(env.calls.filter(call => call[0] === 'cache').length, 0, 'late response cannot pollute account count cache');
     env = accountEnvironment(Promise.reject(new Error('offline'))); env.profile.resolve({response: {id: 42}}); await settle();
-    assert.equal(env.component.render().find('.yani-account__list-count').first().text(), '— anime_count', 'failed statistics remain unknown');
+    assert.equal(env.component.render().find('.yani-account__list-count').first().text(), '7 anime_count', 'watch-time failure does not hide independent title counts');
+    assert.ok(env.component.render().find('.yani-account__list-time').first().text().includes('—'));
+    env = accountEnvironment(undefined, Promise.reject(new Error('counts offline'))); env.profile.resolve({response: {id: 42}}); await settle();
+    assert.equal(env.component.render().find('.yani-account__list-count').first().text(), '— anime_count', 'failed title counts remain unknown');
+    assert.ok(env.component.render().find('.yani-account__list-time').first().text().includes('3600'), 'watch time remains visible when counts fail');
+    assert.equal(env.calls.filter(call => call[0] === 'cache').length, 0, 'unavailable counts cannot cache fabricated zeros');
+    env = accountEnvironment(undefined, Promise.resolve({response: {id: 42}})); env.profile.resolve({response: {id: 42}}); await settle();
+    assert.equal(env.component.render().find('.yani-account__list-count').first().text(), '— anime_count', 'missing count fields stay unknown');
 
     env = environment(); const initial = deferred(), next = deferred(); let fetches = 0, markAllCalls = 0;
     loadModule(env, 'ui-notifications.js');

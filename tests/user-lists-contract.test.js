@@ -61,7 +61,7 @@ assert.match(lists, /card\.yani_history\) deps\.openHistory\(\)/);
 assert.match(lists, /deps\.openList\(card\.yani_definition\)/);
 assert.match(lists, /deps\.openCard\(card\)/);
 assert.match(lists, /deps\.loadRows\(\)/);
-assert.match(home, /deps\.api\.userListStats\(id, requestControl\(\)\)/, 'home counters must load the compact statistics endpoint');
+assert.match(home, /deps\.api\.userListCounts\(id, requestControl\(\)\)/, 'home counters must load compact title counts rather than watch times');
 assert.match(ui, /listCounts: LampaYaniHomeInsights\.listCounts/, 'home counters must retain the shared list-ID mapping');
 assert.doesNotMatch(home, /deps\.api\.userLists\(/, 'the homepage must not download the entire library just for counters');
 const userListsComponent = lists.slice(lists.indexOf('function userLists'), lists.indexOf('window.LampaYani ='));

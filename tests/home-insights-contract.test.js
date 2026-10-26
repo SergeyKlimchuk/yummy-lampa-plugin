@@ -81,3 +81,13 @@ assert.equal(personal.tracked_total, 12);
 assert.equal(personal.lists.favorites, 3);
 
 console.log('home insights contract checks passed');
+
+// Current official API shape: profile counts are independent of watch-time stats.
+const actualCounts = insights.listCounts({response: {id: 1, counts: {'0': 12, '1': 207, '2': 496, '3': 66, '4': 35, '5': 44}}});
+assert.deepEqual({...actualCounts}, {watching: 12, planned: 207, completed: 496, dropped: 66, favorites: 35, postponed: 44});
+assert.equal(insights.listCounts({response: [{list: {id: 0}, seconds: 1200}]}), null, 'watch time is not a title count');
+assert.equal(insights.listCounts({response: {id: 1}}), null, 'absent counts are unknown');
+assert.equal(insights.listCounts({response: {counts: {'0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0}}}).watching, 0, 'actual empty lists retain zero');
+assert.equal(insights.listCounts({response: {lists_count: {'0': {count: 0, total: 99}, '4': '2'}}}).watching, 0, 'zero count takes precedence over fallback total');
+assert.equal(insights.listCounts({response: {lists_count: {'0': 0, '4': '2'}}}).favorites, 2);
+assert.equal(insights.listCounts({response: [{list: {id: 'bad'}, count: 9}, {list: {id: 0}, count: ''}]}), null);

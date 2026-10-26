@@ -1123,11 +1123,12 @@
                     LampaYaniApi.userListStats(profile.id, control()).then(responseData).catch(function () { return null; }),
                     LampaYaniApi.userStatsGenres(profile.id).then(responseData).catch(function () { return []; }),
                     LampaYaniApi.userStatsRatings(profile.id).then(responseData).catch(function () { return []; }),
-                    LampaYaniApi.userStatsTypes(profile.id).then(responseData).catch(function () { return []; })
+                    LampaYaniApi.userStatsTypes(profile.id).then(responseData).catch(function () { return []; }),
+                    LampaYaniApi.userListCounts(profile.id, control()).catch(function () { return null; })
                 ]);
             }).then(function (result) {
                 if (!current() || !result) return;
-                renderAccount(result[0], result[1], result[2], result[3], result[4]);
+                renderAccount(result[0], result[1], result[2], result[3], result[4], result[5]);
                 finish(self);
             }).catch(function (error) {
                 if (!current()) return;
@@ -1168,13 +1169,14 @@
             content.append(notice);
         }
 
-        function renderAccount(profile, stats, genreStats, ratingStats, typeStats) {
-            var hasStats = stats !== null;
-            var namedCounts = LampaYaniHomeInsights.listCounts(stats);
+        function renderAccount(profile, stats, genreStats, ratingStats, typeStats, countsPayload) {
+            var hasStats = Array.isArray(stats);
+            var namedCounts = LampaYaniHomeInsights.listCounts(countsPayload);
+            var hasCounts = Boolean(namedCounts);
             var counts = {};
-            accountListDefinitions().forEach(function (definition) { counts[definition.id] = namedCounts[definition.key]; });
-            var total = namedCounts.watching + namedCounts.planned + namedCounts.completed + namedCounts.dropped + namedCounts.postponed;
-            if (hasStats) cacheHomeListCounts(profile.id, counts);
+            accountListDefinitions().forEach(function (definition) { counts[definition.id] = hasCounts ? namedCounts[definition.key] : null; });
+            var total = hasCounts ? namedCounts.watching + namedCounts.planned + namedCounts.completed + namedCounts.dropped + namedCounts.postponed : null;
+            if (hasCounts) cacheHomeListCounts(profile.id, counts);
             stats = Array.isArray(stats) ? stats : [];
             var header = $('<div class="yani-account__profile selector"></div>');
             var avatar = profile.avatars && (profile.avatars.big || profile.avatars.full || profile.avatars.small);
@@ -1197,7 +1199,7 @@
             addInfo(info, t('roles'), profile.roles && profile.roles.length ? profile.roles.join(', ') : t('user'));
             addInfo(info, t('messages'), String(profile.messages && profile.messages.unread_count || 0) + ' ' + t('unread'));
             addInfo(info, t('notifications'), String(profile.notifications && profile.notifications.count || 0));
-            addInfo(info, t('total_lists'), hasStats ? String(total) : '—');
+            addInfo(info, t('total_lists'), hasCounts ? String(total) : '—');
             content.append(info);
 
             var notificationButton = $('<div class="yani-account__notification-button selector"></div>');
@@ -1235,7 +1237,7 @@
                 var stat = stats.filter(function (item) { return Number(item.list && item.list.id) === definition.id; })[0] || {};
                 var tile = $('<div class="yani-account__list selector"></div>');
                 tile.append($('<div class="yani-account__list-title"></div>').text(definition.title));
-                tile.append($('<div class="yani-account__list-count"></div>').text((hasStats ? String(counts[definition.id] || 0) : '—') + ' ' + t('anime_count')));
+                tile.append($('<div class="yani-account__list-count"></div>').text((hasCounts ? String(counts[definition.id]) : '—') + ' ' + t('anime_count')));
                 tile.append($('<div class="yani-account__list-time"></div>').text(t('total_time') + ': ' + (hasStats && stat.seconds !== undefined ? formatWatchTime(stat.seconds) : '—')));
                 bindAccountFocus(tile);
                 tile.on('hover:enter', function () { openUserListShortcut(definition); });

@@ -2121,6 +2121,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             control = control || {};
             return request('/profile', {auth: true, cache: false, signal: control.signal});
         },
+        userListCounts: function (id, control) {
+            control = control || {};
+            return request('/users/id' + encodeURIComponent(id) + '?need_counts=true', {auth: true, cache: false, signal: control.signal});
+        },
         userListStats: function (id, control) {
             control = control || {};
             return request('/users/' + encodeURIComponent(id) + '/stats/lists', {auth: true, cache: false, signal: control.signal});
@@ -14136,38 +14140,53 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     function listCounts(payload) {
         var value = response(payload);
+        // /users/id{id}?need_counts=true returns a compact numeric map.
+        // /stats/lists contains watch time only and must never imply zero titles.
+        if (value && value.counts !== undefined) value = value.counts;
+        else if (value && value.lists_count !== undefined) value = value.lists_count;
         var names = ['watching', 'planned', 'completed', 'dropped', 'favorites', 'postponed'];
         var result = {watching: 0, planned: 0, completed: 0, dropped: 0, favorites: 0, postponed: 0};
         var items = Array.isArray(value) ? value : value && (value.items || value.data || value.lists);
+        var known = Array.isArray(items) && items.length === 0;
+
+        function readCount(raw) {
+            if (raw && typeof raw === 'object') {
+                if (raw.count !== undefined) raw = raw.count;
+                else if (raw.anime_count !== undefined) raw = raw.anime_count;
+                else if (raw.items_count !== undefined) raw = raw.items_count;
+                else if (raw.total !== undefined) raw = raw.total;
+                else if (Array.isArray(raw.items)) raw = raw.items.length;
+            }
+            if (typeof raw !== 'number' && (typeof raw !== 'string' || !raw.trim())) return null;
+            return isFinite(Number(raw)) ? Math.max(0, Number(raw)) : null;
+        }
 
         if (!Array.isArray(items) && value && typeof value === 'object') {
             names.forEach(function (name, id) {
-                var direct = value[name];
-                if (direct === undefined) direct = value[id];
-                if (direct !== undefined) result[name] = Math.max(0, Number(direct && (direct.count || direct.total) || direct) || 0);
+                var count = readCount(value[name] !== undefined ? value[name] : value[id]);
+                if (count === null) return;
+                known = true;
+                result[name] = count;
             });
-            return result;
+        } else {
+            (items || []).forEach(function (item) {
+                item = item || {};
+                var list = item.list || {};
+                var id = Number(item.list_id !== undefined ? item.list_id : list.id !== undefined ? list.id : item.id);
+                if (!isFinite(id) || Math.floor(id) !== id || id < 0 || id >= names.length) return;
+                var count = readCount(item);
+                if (count === null) return;
+                known = true;
+                result[names[id]] = count;
+            });
         }
-
-        (items || []).forEach(function (item) {
-            item = item || {};
-            var list = item.list || {};
-            var id = Number(item.list_id !== undefined ? item.list_id : list.id !== undefined ? list.id : item.id);
-            if (id < 0 || id >= names.length) return;
-            var count = item.count;
-            if (count === undefined) count = item.anime_count;
-            if (count === undefined) count = item.items_count;
-            if (count === undefined) count = item.total;
-            if (count === undefined && Array.isArray(item.items)) count = item.items.length;
-            result[names[id]] = Math.max(0, Number(count) || 0);
-        });
-        return result;
+        return known ? result : null;
     }
 
     function personalInsight(continuing, account, stats) {
         continuing = Array.isArray(continuing) ? continuing.slice() : [];
         continuing.sort(function (a, b) { return Number(b && b.updated_at || 0) - Number(a && a.updated_at || 0); });
-        var lists = listCounts(stats);
+        var lists = listCounts(stats) || listCounts([]);
         var total = lists.watching + lists.planned + lists.completed + lists.dropped + lists.postponed;
         var tracked = lists.watching + lists.planned + lists.postponed;
         return {
@@ -17334,7 +17353,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             if (!sections.categories || !authorized() || countsPending) return;
             var owner = currentSession;
             var stored = read(COUNTS_CACHE, null);
-            if (stored && stored.owner === owner) {
+            if (stored && stored.version === 2 && stored.owner === owner) {
                 renderCategories(stored.counts);
                 if (Date.now() - Number(stored.at || 0) < FRESH_FOR) return;
             }
@@ -17347,12 +17366,16 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 if (!valid(version) || requestVersion !== countsGeneration) return null;
                 var id = Number(user && (user.id || user.user_id || user.user && user.user.id) || 0);
                 if (!id) throw new Error('Missing account ID');
-                return deps.api.userListStats(id, requestControl());
+                return deps.api.userListCounts(id, requestControl());
             }).then(function (payload) {
                 if (!payload || !valid(version) || requestVersion !== countsGeneration) return;
                 countsPending = false;
-                var counts = deps.listCounts ? deps.listCounts(payload) : {};
-                write(COUNTS_CACHE, {owner: owner, at: Date.now(), counts: counts});
+                var counts = deps.listCounts ? deps.listCounts(payload) : null;
+                if (!counts) {
+                    if (sections.categories) sections.categories.root.addClass('yani-lite-section--cached');
+                    return;
+                }
+                write(COUNTS_CACHE, {version: 2, owner: owner, at: Date.now(), counts: counts});
                 renderCategories(counts);
             }, function () {
                 if (!valid(version) || requestVersion !== countsGeneration) return;
@@ -18605,11 +18628,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     LampaYaniApi.userListStats(profile.id, control()).then(responseData).catch(function () { return null; }),
                     LampaYaniApi.userStatsGenres(profile.id).then(responseData).catch(function () { return []; }),
                     LampaYaniApi.userStatsRatings(profile.id).then(responseData).catch(function () { return []; }),
-                    LampaYaniApi.userStatsTypes(profile.id).then(responseData).catch(function () { return []; })
+                    LampaYaniApi.userStatsTypes(profile.id).then(responseData).catch(function () { return []; }),
+                    LampaYaniApi.userListCounts(profile.id, control()).catch(function () { return null; })
                 ]);
             }).then(function (result) {
                 if (!current() || !result) return;
-                renderAccount(result[0], result[1], result[2], result[3], result[4]);
+                renderAccount(result[0], result[1], result[2], result[3], result[4], result[5]);
                 finish(self);
             }).catch(function (error) {
                 if (!current()) return;
@@ -18650,13 +18674,14 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             content.append(notice);
         }
 
-        function renderAccount(profile, stats, genreStats, ratingStats, typeStats) {
-            var hasStats = stats !== null;
-            var namedCounts = LampaYaniHomeInsights.listCounts(stats);
+        function renderAccount(profile, stats, genreStats, ratingStats, typeStats, countsPayload) {
+            var hasStats = Array.isArray(stats);
+            var namedCounts = LampaYaniHomeInsights.listCounts(countsPayload);
+            var hasCounts = Boolean(namedCounts);
             var counts = {};
-            accountListDefinitions().forEach(function (definition) { counts[definition.id] = namedCounts[definition.key]; });
-            var total = namedCounts.watching + namedCounts.planned + namedCounts.completed + namedCounts.dropped + namedCounts.postponed;
-            if (hasStats) cacheHomeListCounts(profile.id, counts);
+            accountListDefinitions().forEach(function (definition) { counts[definition.id] = hasCounts ? namedCounts[definition.key] : null; });
+            var total = hasCounts ? namedCounts.watching + namedCounts.planned + namedCounts.completed + namedCounts.dropped + namedCounts.postponed : null;
+            if (hasCounts) cacheHomeListCounts(profile.id, counts);
             stats = Array.isArray(stats) ? stats : [];
             var header = $('<div class="yani-account__profile selector"></div>');
             var avatar = profile.avatars && (profile.avatars.big || profile.avatars.full || profile.avatars.small);
@@ -18679,7 +18704,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             addInfo(info, t('roles'), profile.roles && profile.roles.length ? profile.roles.join(', ') : t('user'));
             addInfo(info, t('messages'), String(profile.messages && profile.messages.unread_count || 0) + ' ' + t('unread'));
             addInfo(info, t('notifications'), String(profile.notifications && profile.notifications.count || 0));
-            addInfo(info, t('total_lists'), hasStats ? String(total) : '—');
+            addInfo(info, t('total_lists'), hasCounts ? String(total) : '—');
             content.append(info);
 
             var notificationButton = $('<div class="yani-account__notification-button selector"></div>');
@@ -18717,7 +18742,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 var stat = stats.filter(function (item) { return Number(item.list && item.list.id) === definition.id; })[0] || {};
                 var tile = $('<div class="yani-account__list selector"></div>');
                 tile.append($('<div class="yani-account__list-title"></div>').text(definition.title));
-                tile.append($('<div class="yani-account__list-count"></div>').text((hasStats ? String(counts[definition.id] || 0) : '—') + ' ' + t('anime_count')));
+                tile.append($('<div class="yani-account__list-count"></div>').text((hasCounts ? String(counts[definition.id]) : '—') + ' ' + t('anime_count')));
                 tile.append($('<div class="yani-account__list-time"></div>').text(t('total_time') + ': ' + (hasStats && stat.seconds !== undefined ? formatWatchTime(stat.seconds) : '—')));
                 bindAccountFocus(tile);
                 tile.on('hover:enter', function () { openUserListShortcut(definition); });

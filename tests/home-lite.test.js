@@ -107,7 +107,7 @@ function environment(options) {
     };
     var api = {
         catalog: function (params, control) { calls.push({name: 'catalog', params: params, control: control}); return options.catalog ? options.catalog(params, control) : Promise.resolve({response: cardList}); },
-        userListStats: function (id, control) { calls.push({name: 'userListStats', id: id, control: control}); return options.userListStats ? options.userListStats(id, control) : Promise.resolve({response: [{id: 0, count: 2}, {id: 4, count: 1}]}); },
+        userListCounts: function (id, control) { calls.push({name: 'userListCounts', id: id, control: control}); return options.userListCounts ? options.userListCounts(id, control) : Promise.resolve({response: {id: id, counts: {'0': 2, '1': 0, '2': 0, '3': 0, '4': 1, '5': 0}}}); },
         userLists: function () { throw new Error('The home must use lightweight statistics instead of downloading every list entry'); },
         profile: function (control) { calls.push({name: 'profile', control: control}); return options.profile ? options.profile(control) : Promise.resolve({response: {id: auth.user_id || 42}}); }
     };
@@ -150,7 +150,7 @@ async function run() {
     assert.strictEqual(component.render().find('.yani-lite-resume').length, 3);
     component.start(); env.timers(); await settle();
     assert.strictEqual(env.calls.filter(function (c) { return c.name === 'catalog'; }).length, 1);
-    assert.strictEqual(env.calls.filter(function (c) { return c.name === 'userListStats'; }).length, 1);
+    assert.strictEqual(env.calls.filter(function (c) { return c.name === 'userListCounts'; }).length, 1);
     assert.strictEqual(env.calls.filter(function (c) { return c.name === 'sharedHistory'; }).length, 1);
     assert.strictEqual(component.render().find('.yani-lite-card').length, 6);
     assert.ok(component.render().find('.selector').length <= 30, 'TV focus collection must remain bounded');
@@ -164,6 +164,20 @@ async function run() {
     assert.strictEqual(env.store.yani_lite_counts_v1.counts.completed, 0);
     assert.ok(!JSON.stringify(env.store.yani_lite_ongoing_v1).includes('session-42'), 'Public card cache must not contain credentials');
     console.log('PASS: immediate shell, bounded DOM and one catalog/statistics/history task');
+
+    var envOldCounts = environment();
+    envOldCounts.store.yani_lite_counts_v1 = {owner: '42', at: Date.now(), counts: {watching: 0}};
+    var oldCounts = envOldCounts.make(); oldCounts.start(); envOldCounts.timers(); await settle();
+    assert.strictEqual(envOldCounts.calls.filter(function (call) { return call.name === 'userListCounts'; }).length, 1,
+        'pre-fix cached zeros must not suppress fresh compact counts');
+    assert.strictEqual(envOldCounts.store.yani_lite_counts_v1.version, 2);
+    assert.strictEqual(envOldCounts.store.yani_lite_counts_v1.counts.watching, 2);
+    var envUnknownCounts = environment({userListCounts: function () { return Promise.resolve({response: {id: 42}}); }});
+    var unknownCounts = envUnknownCounts.make(); unknownCounts.start(); envUnknownCounts.timers(); await settle();
+    assert.strictEqual(unknownCounts.render().find('.yani-lite-category-count').nodes[0].textValue, '—',
+        'missing counts must remain unknown rather than becoming false zeros');
+    assert.strictEqual(envUnknownCounts.store.yani_lite_counts_v1, undefined);
+
 
     var actionEnv = environment();
     var resumeSource = {anime_id: 4207, title: 'Resume exact episode', yani_list_progress: 0.25,
@@ -224,13 +238,13 @@ async function run() {
     console.log('PASS: fresh public snapshot paints without another catalog request');
 
     var oldLists = defer(), newLists = defer();
-    var envRace = environment({userListStats: function (id) { return id === 42 ? oldLists.promise : newLists.promise; }});
+    var envRace = environment({userListCounts: function (id) { return id === 42 ? oldLists.promise : newLists.promise; }});
     var race = envRace.make(); race.start(); envRace.timers(); await settle();
     envRace.switchUser(77);
     oldLists.resolve({response: [{id: 0, count: 900}, {id: 4, count: 500}]});
     await settle();
     assert.ok(!envRace.store.yani_lite_counts_v1 || envRace.store.yani_lite_counts_v1.owner !== '42');
-    newLists.resolve({response: []}); await settle();
+    newLists.resolve({response: {counts: {'0': 0, '1': 0, '2': 0, '3': 0, '4': 0, '5': 0}}}); await settle();
     assert.strictEqual(envRace.store.yani_lite_counts_v1.owner, '77');
     assert.strictEqual(envRace.store.yani_lite_counts_v1.counts.watching, 0);
     console.log('PASS: account change rejects late private counts from the old session');
@@ -255,14 +269,14 @@ async function run() {
     profilePage.destroy();
     assert.strictEqual(profileCall.control.signal.aborted, true);
     profilePending.resolve({response: {id: 42}}); await settle();
-    assert.strictEqual(envProfile.calls.filter(function (call) { return call.name === 'userListStats'; }).length, 0,
+    assert.strictEqual(envProfile.calls.filter(function (call) { return call.name === 'userListCounts'; }).length, 0,
         'Closing the homepage during its ID lookup must not start a later private request');
     console.log('PASS: missing account IDs use a cancellable lookup with no post-destroy statistics request');
 
     for (var profileVariant of [{id: 42}, {user_id: 42}, {user: {id: 42}}]) {
         var envProfileShape = environment({noUserId: true, profile: function () { return Promise.resolve({response: profileVariant}); }});
         var profileShapePage = envProfileShape.make(); profileShapePage.start(); envProfileShape.timers(); await settle();
-        assert.strictEqual(envProfileShape.calls.find(function (call) { return call.name === 'userListStats'; }).id, 42,
+        assert.strictEqual(envProfileShape.calls.find(function (call) { return call.name === 'userListCounts'; }).id, 42,
             'The homepage must accept the same account-ID shapes as the existing account-list flow');
         profileShapePage.destroy();
     }
@@ -270,7 +284,7 @@ async function run() {
 
     var envHidden = environment({hidden: ['continue_watching', 'user_lists', 'catalog', 'new_releases']});
     var hidden = envHidden.make(); hidden.start(); envHidden.timers(); await settle();
-    assert.strictEqual(envHidden.calls.filter(function (c) { return c.name === 'catalog' || c.name === 'userListStats'; }).length, 0);
+    assert.strictEqual(envHidden.calls.filter(function (c) { return c.name === 'catalog' || c.name === 'userListCounts'; }).length, 0);
     assert.strictEqual(hidden.render().find('.yani-lite-categories').length, 0);
     var more = hidden.render().find('.yani-lite-nav').nodes.find(function (node) { return node.attrs['data-yani-home-key'] === 'nav:more'; });
     $(more).trigger('hover:enter');

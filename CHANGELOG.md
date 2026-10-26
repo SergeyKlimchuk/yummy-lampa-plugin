@@ -33,6 +33,8 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Fixed
 
+- Home and profile category counters reading watch-time statistics as zero titles; use compact account counts and discard pre-fix cached zeros
+
 - Account ownership for cached progress, in-flight API requests and queued mutations, so late responses and deferred writes cannot affect another account
 
 - Category switching flashing the complete list panel by keeping opacity and confirmed labels stable while saving, applying only changed state, and avoiding success-toast flashes

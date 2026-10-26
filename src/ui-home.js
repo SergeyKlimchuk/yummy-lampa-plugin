@@ -381,7 +381,7 @@
             if (!sections.categories || !authorized() || countsPending) return;
             var owner = currentSession;
             var stored = read(COUNTS_CACHE, null);
-            if (stored && stored.owner === owner) {
+            if (stored && stored.version === 2 && stored.owner === owner) {
                 renderCategories(stored.counts);
                 if (Date.now() - Number(stored.at || 0) < FRESH_FOR) return;
             }
@@ -394,12 +394,16 @@
                 if (!valid(version) || requestVersion !== countsGeneration) return null;
                 var id = Number(user && (user.id || user.user_id || user.user && user.user.id) || 0);
                 if (!id) throw new Error('Missing account ID');
-                return deps.api.userListStats(id, requestControl());
+                return deps.api.userListCounts(id, requestControl());
             }).then(function (payload) {
                 if (!payload || !valid(version) || requestVersion !== countsGeneration) return;
                 countsPending = false;
-                var counts = deps.listCounts ? deps.listCounts(payload) : {};
-                write(COUNTS_CACHE, {owner: owner, at: Date.now(), counts: counts});
+                var counts = deps.listCounts ? deps.listCounts(payload) : null;
+                if (!counts) {
+                    if (sections.categories) sections.categories.root.addClass('yani-lite-section--cached');
+                    return;
+                }
+                write(COUNTS_CACHE, {version: 2, owner: owner, at: Date.now(), counts: counts});
                 renderCategories(counts);
             }, function () {
                 if (!valid(version) || requestVersion !== countsGeneration) return;
