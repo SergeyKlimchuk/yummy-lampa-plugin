@@ -547,6 +547,38 @@
         return duration * EPISODE_FINISHED_RATIO;
     }
 
+    // Remote timestamps may be seconds, milliseconds or ISO strings. Missing
+    // dates are unknown, not evidence that a larger position happened later.
+    function playbackTimestamp(value) {
+        if (value === undefined || value === null || value === '') return 0;
+        if (typeof value === 'string' && !/^\d+(?:\.\d+)?$/.test(value)) {
+            var parsed = Date.parse(value);
+            return isFinite(parsed) && parsed > 0 ? parsed : 0;
+        }
+        var number = Number(value);
+        return isFinite(number) && number > 0 ? (number < 100000000000 ? number * 1000 : number) : 0;
+    }
+
+    function playbackPosition(record) {
+        var value = record && record.time;
+        if (!record || record.position_known === false || value === undefined || value === null || value === '' || typeof value === 'boolean') return null;
+        var number = Number(value);
+        return isFinite(number) && number >= 0 ? number : null;
+    }
+
+    // The first record is the local/current preference when freshness cannot
+    // be established. A rewind and an explicit zero are valid new positions.
+    function latestPlaybackProgress(preferred, other) {
+        if (!preferred) return other;
+        if (!other) return preferred;
+        function known(record) {
+            return playbackPosition(record) !== null || hasEpisodeCompletionFlag(record) || hasEpisodeCompletionFlag(record.watched);
+        }
+        var preferredKnown = known(preferred), otherKnown = known(other);
+        if (preferredKnown !== otherKnown) return otherKnown ? other : preferred;
+        return playbackTimestamp(other.updated_at) > playbackTimestamp(preferred.updated_at) ? other : preferred;
+    }
+
     function isEpisodeFinished(position, duration, flags) {
         if (hasEpisodeCompletionFlag(flags)) return true;
         return positiveNumber(position) >= episodeCompletionThreshold(duration);
@@ -706,6 +738,9 @@
         compactWatchedEpisodeLabel: compactWatchedEpisodeLabel,
         detailEpisodeStats: detailEpisodeStats,
         hasEpisodeCompletionFlag: hasEpisodeCompletionFlag,
+        playbackTimestamp: playbackTimestamp,
+        playbackPosition: playbackPosition,
+        latestPlaybackProgress: latestPlaybackProgress,
         episodeCompletionThreshold: episodeCompletionThreshold,
         isEpisodeFinished: isEpisodeFinished,
         isEpisodeProgressCounted: isEpisodeProgressCounted,

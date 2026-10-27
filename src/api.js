@@ -5,6 +5,10 @@
     var pendingRequests = {};
     var pendingRefreshes = {};
     var mutationFlush = null;
+    var mutationRequests = {};
+    var mutationIntents = {};
+    var mutationQueueMemory = [];
+    var mutationQueueUnsaved = false;
     var MUTATION_QUEUE_KEY = 'yani_pending_mutations_v1';
     var MUTATION_MAX_ATTEMPTS = 8;
     var ownerNonce = Date.now().toString(36) + ':' + Math.random().toString(36).slice(2);
@@ -29,18 +33,59 @@
     }
 
     function readMutationQueue() {
-        if (!window.Lampa || !Lampa.Storage) return [];
+        if (mutationQueueUnsaved || !window.Lampa || !Lampa.Storage) return mutationQueueMemory;
         try {
-            var items = JSON.parse(Lampa.Storage.get(MUTATION_QUEUE_KEY, '[]'));
-            return Array.isArray(items) ? items : [];
-        } catch (ignore) {
-            return [];
-        }
+            // Native Lampa already parses JSON; small hosts may return text.
+            var stored = Lampa.Storage.get(MUTATION_QUEUE_KEY, '[]');
+            var items = typeof stored === 'string' ? JSON.parse(stored) : stored;
+            if (Array.isArray(items)) mutationQueueMemory = items;
+        } catch (ignore) {}
+        return mutationQueueMemory;
     }
 
     function writeMutationQueue(items) {
-        if (!window.Lampa || !Lampa.Storage) return;
-        Lampa.Storage.set(MUTATION_QUEUE_KEY, JSON.stringify((items || []).slice(-100)));
+        mutationQueueMemory = (items || []).slice(-100);
+        mutationQueueUnsaved = true;
+        // A full/unavailable store must not suppress an online write. Keep a
+        // session fallback; durable retries resume after a successful save.
+        try {
+            if (!window.Lampa || !Lampa.Storage) return;
+            Lampa.Storage.set(MUTATION_QUEUE_KEY, JSON.stringify(mutationQueueMemory));
+            mutationQueueUnsaved = false;
+        } catch (ignore) {}
+    }
+
+    function progressMutation(entry) {
+        var match = entry.method === 'PUT' && /^\/video\/([^/?]+)$/.exec(entry.path);
+        if (match) return {ids: [decodeURIComponent(match[1])]};
+        if (entry.method === 'POST' && entry.path === '/video') {
+            try {
+                var body = JSON.parse(entry.body);
+                if (body && Array.isArray(body.videos)) return {
+                    ids: body.videos.filter(function (video) { return video && video.video_id; }).map(function (video) { return String(video.video_id); }),
+                    body: body
+                };
+            } catch (ignore) {}
+        }
+        return null;
+    }
+
+    function trimSupersededProgress(entry, ids) {
+        var progress = progressMutation(entry);
+        if (!progress) return entry;
+        if (!progress.body) return ids[progress.ids[0]] ? null : entry;
+        var remaining = progress.body.videos.filter(function (video) { return !video || !ids[String(video.video_id)]; });
+        if (remaining.length === progress.body.videos.length) return entry;
+        if (!remaining.length) return null;
+        progress.body.videos = remaining;
+        entry.body = JSON.stringify(progress.body);
+        return entry;
+    }
+
+    function mutationLane(entry) {
+        // A batch can touch the same videos as individual PUTs. Serialize both
+        // forms so a request already on the wire always finishes first.
+        return progressMutation(entry) ? entry.owner + '|video-progress' : entry.key;
     }
 
     function queueMutation(path, options) {
@@ -57,14 +102,95 @@
             createdAt: Date.now(),
             attemptCount: 0
         };
-        var items = readMutationQueue().filter(function (item) { return item && item.key !== entry.key; });
+        var progress = progressMutation(entry), ids = Object.create(null);
+        if (progress) progress.ids.forEach(function (id) { ids[id] = true; });
+        // Keep unrelated rows of older batches. Each batch needs its own key;
+        // only overlapping video ids are superseded by a newer user intent.
+        if (progress && progress.body) entry.key += ':' + entry.id;
+        var items = readMutationQueue().filter(function (item) { return item && item.key !== entry.key; }).map(function (item) {
+            return progress && item.owner === owner ? trimSupersededProgress(item, ids) : item;
+        }).filter(Boolean);
+        if (progress) Object.keys(mutationIntents).forEach(function (key) {
+            var live = mutationIntents[key];
+            if (live.owner === owner && !trimSupersededProgress(live, ids)) delete mutationIntents[key];
+        });
         items.push(entry);
         writeMutationQueue(items);
-        return {queued: true, pending: items.length};
+        return entry;
     }
 
-    function networkMutationFailure(error) {
-        return Boolean(error && error.name !== 'AbortError' && !Number(error.status));
+    function retryableMutationFailure(error) {
+        if (!error || error.name === 'AbortError') return false;
+        var status = Number(error.status || 0);
+        return !status || status === 408 || status === 425 || status === 429 || status >= 500;
+    }
+
+    function removeMutation(entry) {
+        writeMutationQueue(readMutationQueue().filter(function (item) {
+            return !(item && item.id === entry.id);
+        }));
+    }
+
+    function hasMutation(entry) {
+        return readMutationQueue().some(function (item) { return item && item.id === entry.id; });
+    }
+
+    function queuedMutationResult() {
+        return {queued: true, pending: readMutationQueue().length};
+    }
+
+    // Direct writes and retries share one lane for each account/object. Store
+    // the newest intent before waiting: a late failure or success of an older
+    // request must neither restore its value nor remove the newer queued one.
+    function serializeMutation(key, callback) {
+        var previous = mutationRequests[key] || Promise.resolve();
+        var operation = previous.then(callback);
+        var settled = operation.then(function () {
+            if (mutationRequests[key] === settled) delete mutationRequests[key];
+        }, function () {
+            if (mutationRequests[key] === settled) delete mutationRequests[key];
+        });
+        mutationRequests[key] = settled;
+        return operation;
+    }
+
+    function sendMutation(path, options) {
+        var entry;
+        try { entry = queueMutation(path, options); }
+        catch (error) { return Promise.reject(error); }
+        mutationIntents[entry.key] = entry;
+        var operation = serializeMutation(mutationLane(entry), function () {
+            if (entry.owner !== authOwnerKey()) {
+                removeMutation(entry);
+                throw staleOwnerError();
+            }
+            if (mutationIntents[entry.key] !== entry) return queuedMutationResult();
+            return request(path, Object.assign({}, options, {body: entry.body, queueMutation: false})).then(function (payload) {
+                removeMutation(entry);
+                return payload;
+            }).catch(function (error) {
+                if (entry.owner !== authOwnerKey() || !retryableMutationFailure(error)) {
+                    removeMutation(entry);
+                    throw error;
+                }
+                // The durable queue is bounded, but an otherwise current live
+                // write must still run. Restore it after failure if a burst of
+                // writes evicted it while the request was in flight.
+                if (mutationIntents[entry.key] === entry && !hasMutation(entry)) {
+                    var items = readMutationQueue().filter(function (item) { return item && item.key !== entry.key; });
+                    items.push(entry);
+                    writeMutationQueue(items);
+                }
+                return queuedMutationResult();
+            });
+        });
+        return operation.then(function (payload) {
+            if (mutationIntents[entry.key] === entry) delete mutationIntents[entry.key];
+            return payload;
+        }, function (error) {
+            if (mutationIntents[entry.key] === entry) delete mutationIntents[entry.key];
+            throw error;
+        });
     }
 
     function sleep(milliseconds) {
@@ -81,6 +207,7 @@
             if (controller) requestOptions.signal = controller.signal;
             var timer;
             var abortRequest;
+            var timedOut = false;
             if (controller && externalSignal) {
                 abortRequest = function () { controller.abort(); };
                 if (externalSignal.aborted) abortRequest();
@@ -92,6 +219,7 @@
             }
             var timeoutPromise = new Promise(function (resolve, reject) {
                 timer = setTimeout(function () {
+                    timedOut = true;
                     if (controller) controller.abort();
                     reject(new Error('YummyAnime request timeout'));
                 }, timeout);
@@ -105,6 +233,7 @@
                 return response;
             }).catch(function (error) {
                 cleanup();
+                if (timedOut && !(externalSignal && externalSignal.aborted)) error = new Error('YummyAnime request timeout');
                 var aborted = error && error.name === 'AbortError';
                 if (number < retries && !aborted && !(externalSignal && externalSignal.aborted)) return sleep(Math.pow(2, number) * 400).then(function () { return attempt(number + 1); });
                 throw error;
@@ -194,15 +323,11 @@
         options = options || {};
         if (options.auth && options.ownerKey === undefined) options = Object.assign({}, options, {ownerKey: authOwnerKey()});
         if (options.auth && options.ownerKey !== authOwnerKey()) return Promise.reject(staleOwnerError());
+        if ((options.method || 'GET') !== 'GET' && options.queueMutation) return sendMutation(path, options);
         if (options.auth && !options.authRefreshChecked && window.LampaYaniAuth && LampaYaniAuth.token() && LampaYaniAuth.refreshIfNeeded) {
             var refreshedOptions = Object.assign({}, options, {authRefreshChecked: true});
             return LampaYaniAuth.refreshIfNeeded().then(function () {
                 return request(path, refreshedOptions);
-            }).catch(function (error) {
-                if ((options.method || 'GET') !== 'GET' && options.queueMutation && networkMutationFailure(error)) {
-                    return queueMutation(path, options);
-                }
-                throw error;
             });
         }
         var headers = Object.assign({}, options.headers || {});
@@ -254,9 +379,6 @@
             return payload;
         }).catch(function (error) {
             if (options.auth && options.ownerKey !== authOwnerKey()) throw staleOwnerError();
-            if (method !== 'GET' && options.queueMutation && networkMutationFailure(error)) {
-                return queueMutation(path, options);
-            }
             if (method === 'GET' && options.cache !== false && window.Lampa && Lampa.Storage) {
                 cached = cached || readCache(cacheKey);
                 if (cached && (options.staleFallback || Date.now() - cached.time < cacheTtl)) return markFromCache(cached.data);
@@ -279,12 +401,6 @@
         if (mutationFlush) return mutationFlush;
         if (!window.LampaYaniAuth || !LampaYaniAuth.token()) return Promise.resolve({pending: readMutationQueue().length});
         var owner = authOwnerKey();
-        function removeFlushed(entry) {
-            var current = readMutationQueue().filter(function (item) {
-                return !(item && item.id === entry.id);
-            });
-            writeMutationQueue(current);
-        }
         function recordFailedAttempt(entry) {
             var attempts = null;
             var current = readMutationQueue().map(function (item) {
@@ -310,25 +426,31 @@
             // Old unowned entries cannot safely be assigned to the current
             // account. Keep them local instead of sending another user's data.
             if (!entry) return Promise.resolve({pending: items.length, skipped: true});
-            return request(entry.path, {
-                ownerKey: owner,
-                method: entry.method,
-                auth: true,
-                cache: false,
-                headers: entry.headers,
-                body: entry.body,
-                queueMutation: false
+            return serializeMutation(mutationLane(entry), function () {
+                if (owner !== authOwnerKey()) throw staleOwnerError();
+                var current = readMutationQueue().filter(function (item) { return item && item.id === entry.id; })[0];
+                if (!current) return;
+                return request(entry.path, {
+                    ownerKey: owner,
+                    method: entry.method,
+                    auth: true,
+                    cache: false,
+                    headers: entry.headers,
+                    body: current.body,
+                    queueMutation: false
+                }).then(function () { removeMutation(entry); });
             }).then(function () {
-                removeFlushed(entry);
                 return next();
             }).catch(function (error) {
+                if (owner !== authOwnerKey()) return {pending: readMutationQueue().length, ownerChanged: true};
+                if (!hasMutation(entry)) return next();
                 if (permanentMutationRejection(error)) {
-                    removeFlushed(entry);
+                    removeMutation(entry);
                     return next();
                 }
                 var status = Number(error && error.status || 0);
                 if (status && recordFailedAttempt(entry) >= MUTATION_MAX_ATTEMPTS) {
-                    removeFlushed(entry);
+                    removeMutation(entry);
                     return next();
                 }
                 // Keep both network failures and temporary server responses in

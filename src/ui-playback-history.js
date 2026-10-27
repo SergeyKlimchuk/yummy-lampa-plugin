@@ -168,8 +168,12 @@
             (videos || []).forEach(function (video) {
                 if (!video) return;
                 var watched = video.watched && typeof video.watched === 'object' ? video.watched : {};
-                var time = Number(watched.end_time || watched.time || 0);
-                if (!(time > 0) && !explicitCompletion(video)) return;
+                var utils = window.LampaYaniUiUtils;
+                var position = utils.playbackPosition({time: watched.end_time});
+                if (position === null) position = utils.playbackPosition({time: watched.time});
+                var updatedAt = utils.playbackTimestamp(watched.updated_at || watched.date);
+                var time = position === null ? 0 : position;
+                if (!(time > 0) && !explicitCompletion(video) && !(position === 0 && updatedAt > 0)) return;
                 var videoData = window.LampaYaniUiUtils && window.LampaYaniUiUtils.videoData
                     ? window.LampaYaniUiUtils.videoData(video)
                     : {};
@@ -182,9 +186,10 @@
                     player: String(videoData.player || ''),
                     voice: String(videoData.dubbing || videoData.translation || videoData.voice || ''),
                     time: time,
+                    position_known: position !== null,
                     duration: Math.max(0, Number(video.duration || 0)),
                     completed: explicitCompletion(video),
-                    updated_at: Number(watched.updated_at || watched.date || 0)
+                    updated_at: updatedAt
                 });
             });
             var result = importRemoteEntries(entries);
@@ -300,6 +305,7 @@
             var video = context.selected;
             video.watched = video.watched || {};
             video.watched.end_time = Math.max(0, Math.floor(Number(position) || 0));
+            video.watched.updated_at = Date.now();
             if (duration > 0) video.duration = Math.floor(duration);
             if (deps.progress) deps.progress.record(context.card, video, {owner: context.progressOwner, flush: Boolean(remote)});
             var saved = rememberPlayback(context.card, context.group, video);
@@ -312,6 +318,7 @@
                     last_watched_episode: Number(saved.time || 0) > 0 ? Number(saved.number || 0) : 0,
                     video_id: saved.video_id,
                     time: saved.time,
+                    position_known: true,
                     duration: saved.duration,
                     completed: saved.completed,
                     player: saved.player,

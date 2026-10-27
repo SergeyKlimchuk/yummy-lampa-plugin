@@ -113,8 +113,22 @@
                 ? Episode.same(Episode.valueOf(video), playback && playback.number)
                 : Number(video && (video.number || video.index)) === Number(playback && playback.number);
             if (!playback || !video || !sameEpisode) return video;
-            video.watched = video.watched || {};
-            video.watched.end_time = Math.max(Number(video.watched.end_time || 0), Number(playback.time || 0));
+            var utils = window.LampaYaniUiUtils;
+            var watched = video.watched || {};
+            var serverPosition = utils.playbackPosition({time: watched.end_time});
+            if (serverPosition === null) serverPosition = utils.playbackPosition({time: watched.time});
+            var server = {
+                time: serverPosition,
+                updated_at: watched.updated_at || watched.date,
+                completed: utils.hasEpisodeCompletionFlag(video) || utils.hasEpisodeCompletionFlag(watched)
+            };
+            var selected = utils.latestPlaybackProgress(playback, server);
+            var position = utils.playbackPosition(selected);
+            if (position !== null) {
+                video.watched = watched;
+                watched.end_time = position;
+                if (selected === playback) watched.updated_at = utils.playbackTimestamp(playback.updated_at);
+            }
             if (!video.duration && playback.duration) video.duration = Number(playback.duration);
             return video;
         }
@@ -467,11 +481,8 @@
                         return window.LampaYaniEpisode.same(window.LampaYaniEpisode.valueOf(video), playback.number);
                     })[0];
                     if (resumeVideo) {
-                        resumeVideo.watched = resumeVideo.watched || {};
-                        resumeVideo.watched.end_time = Math.max(Number(resumeVideo.watched.end_time || 0), Number(playback.time || 0));
-                        if (!resumeVideo.duration && playback.duration) resumeVideo.duration = Number(playback.duration);
                         rememberPlayer(resumeVoice.group);
-                        return launchVideo(card, resumeVoice.group, resumePlaylist, resumeVideo);
+                        return launchVideo(card, resumeVoice.group, resumePlaylist, applySavedPlaybackPosition(card, resumeVideo));
                     }
                 }
 

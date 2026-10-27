@@ -44,6 +44,10 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Fixed
 
+- Deferred progress, category and rating writes can no longer replay an older value after a newer update; individual and batch progress share ordering and keep unrelated batch rows.
+- Initial temporary HTTP failures (408, 425, 429 and 5xx) and network deadlines retain writes for retry, with native Lampa storage and account isolation covered by runtime tests.
+- Resume uses the latest known checkpoint instead of the largest position, preserves an explicit restart at zero, and compares remote seconds/ISO timestamps with local milliseconds.
+
 - My Lists ratings now use a readable row below each poster; mounted card overlays are measured once after replacing the detached grid, keeping scores clear of category bands and stable across scale changes.
 
 

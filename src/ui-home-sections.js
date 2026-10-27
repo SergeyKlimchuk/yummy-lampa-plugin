@@ -14,10 +14,15 @@
     }
 
     function historyTimestamp(value) {
-        if (!value) return 0;
-        if (typeof value === 'string' && !/^\d+$/.test(value)) return Date.parse(value) || 0;
-        var number = Number(value) || 0;
-        return number > 0 && number < 100000000000 ? number * 1000 : number;
+        return window.LampaYaniUiUtils.playbackTimestamp(value);
+    }
+
+    function historyPosition(values) {
+        for (var index = 0; index < values.length; index++) {
+            var position = window.LampaYaniUiUtils.playbackPosition({time: values[index]});
+            if (position !== null) return position;
+        }
+        return null;
     }
 
     function historyPoster(value) {
@@ -64,6 +69,7 @@
                 if (onDropped) onDropped(item);
                 return null;
             }
+            var position = historyPosition([item.end_time, item.time, watched.end_time, watched.time, item.current_time]);
             return {
                 anime_id: animeId,
                 video_id: item.video_id || item.videoId || item.video && item.video.id || '',
@@ -74,7 +80,8 @@
                 screenshot: historyScreenshot(item.screenshot_url || screenshot),
                 player: String(item.player_title || item.player || ''),
                 voice: String(item.dub_title || item.dubbing || ''),
-                time: Math.max(0, Number(item.end_time || item.time || watched.end_time || watched.time || item.current_time || 0)),
+                time: position === null ? 0 : position,
+                position_known: position !== null,
                 duration: Math.max(0, Number(item.duration || watched.duration || 0)),
                 completed: explicitCompletion(item),
                 updated_at: historyTimestamp(item.date || item.updated_at || item.created_at || watched.updated_at || watched.date),
@@ -137,6 +144,7 @@
     function normalizeLocalHistory(saved) {
         return Object.keys(saved || {}).map(function (id) {
             var item = saved[id] || {};
+            var position = window.LampaYaniUiUtils.playbackPosition(item);
             return {
                 anime_id: item.anime_id || id,
                 video_id: item.video_id || '',
@@ -147,7 +155,8 @@
                 screenshot: historyScreenshot(item.screenshot || item.screenshot_url),
                 player: String(item.player || ''),
                 voice: String(item.voice || ''),
-                time: Math.max(0, Number(item.time || 0)),
+                time: position === null ? 0 : position,
+                position_known: position !== null,
                 duration: Math.max(0, Number(item.duration || 0)),
                 completed: explicitCompletion(item),
                 max_episode: Math.max(0, Number(item.max_episode || 0)),
@@ -226,12 +235,14 @@
                 merged[key] = entry;
                 return;
             }
-            var newer = Number(entry.updated_at || 0) >= Number(current.updated_at || 0) ? entry : current;
+            var newer = window.LampaYaniUiUtils.latestPlaybackProgress(current, entry);
             var older = newer === entry ? current : entry;
             merged[key] = Object.assign({}, older, newer, {
                 completed: explicitCompletion(newer),
                 finished: false,
-                time: Number(newer.time || older.time || 0),
+                time: Number(newer.time || 0),
+                position_known: window.LampaYaniUiUtils.playbackPosition(newer) !== null,
+                updated_at: historyTimestamp(newer.updated_at),
                 duration: Number(newer.duration || older.duration || 0),
                 // Reach and episode count are facts about the title, not about
                 // one record of it, so the better-informed side always wins.
@@ -244,7 +255,7 @@
             });
         });
         return Object.keys(merged).map(function (key) { return merged[key]; }).sort(function (a, b) {
-            return Number(b.updated_at || 0) - Number(a.updated_at || 0);
+            return historyTimestamp(b.updated_at) - historyTimestamp(a.updated_at);
         });
     }
 
@@ -440,16 +451,16 @@
 
     function shouldReplaceLocal(current, entry) {
         if (!current) return true;
-        var remoteAt = Number(entry && entry.updated_at || 0);
-        var localAt = Number(current.updated_at || 0);
-        if (hasClockTimestamp(remoteAt) && hasClockTimestamp(localAt)) {
-            if (remoteAt > localAt) return true;
-            return remoteAt === localAt && Number(entry.time || 0) > Number(current.time || 0);
+        var Episode = window.LampaYaniEpisode;
+        if (Episode.same(current.number, entry && entry.number)) {
+            return window.LampaYaniUiUtils.latestPlaybackProgress(current, entry) === entry;
         }
-        var remoteEpisode = Number(entry && entry.number || 0);
-        var localEpisode = Number(current.number || 0);
-        if (remoteEpisode > localEpisode) return true;
-        return remoteEpisode === localEpisode && Number(entry && entry.time || 0) > Number(current.time || 0);
+        var remoteAt = historyTimestamp(entry && entry.updated_at);
+        var localAt = historyTimestamp(current.updated_at);
+        if (hasClockTimestamp(remoteAt) && hasClockTimestamp(localAt)) return remoteAt > localAt;
+        // Legacy records may have no comparable date. Retain their existing
+        // episode-reach fallback, without treating a larger time as newer.
+        return Number(entry && entry.number || 0) > Number(current.number || 0);
     }
 
     function importRemoteIntoLocal(localSaved, remoteEntries) {
@@ -459,7 +470,7 @@
         (remoteEntries || []).forEach(function (entry) {
             var id = String(entry && entry.anime_id || '');
             if (!id) return;
-            if (!latest[id] || Number(entry.updated_at || 0) > Number(latest[id].updated_at || 0)) latest[id] = entry;
+            if (!latest[id] || historyTimestamp(entry.updated_at) > historyTimestamp(latest[id].updated_at)) latest[id] = entry;
         });
         var imported = 0;
         Object.keys(latest).forEach(function (id) {
@@ -470,6 +481,7 @@
                 number: window.LampaYaniEpisode.normalize(entry.number || current && current.number || ''),
                 video_id: entry.video_id || current && current.video_id || '',
                 time: Number(entry.time || 0),
+                position_known: window.LampaYaniUiUtils.playbackPosition(entry) !== null,
                 duration: Math.max(0, Number(entry.duration || current && current.duration || 0)),
                 player: String(entry.player || current && current.player || '').toLowerCase(),
                 voice: String(entry.voice || current && current.voice || ''),
@@ -481,7 +493,7 @@
                     poster: entry.poster || '',
                     anime_id: entry.anime_id
                 },
-                updated_at: Number(entry.updated_at || Date.now()),
+                updated_at: historyTimestamp(entry.updated_at),
                 completed: explicitCompletion(entry),
                 remote: true
             };
@@ -496,11 +508,12 @@
             number: window.LampaYaniEpisode.normalize(entry.number),
             video_id: entry.video_id || '',
             time: Number(entry.time || 0),
+            position_known: window.LampaYaniUiUtils.playbackPosition(entry) !== null,
             duration: Number(entry.duration || 0),
             completed: explicitCompletion(entry),
             player: entry.player || '',
             voice: entry.voice || '',
-            updated_at: Number(entry.updated_at || 0)
+            updated_at: historyTimestamp(entry.updated_at)
         };
         card.yani_resume.max_episode = Math.max(0, Number(entry.max_episode || 0));
         card.yani_resume.last_watched_episode = Math.max(0, Number(entry.last_watched_episode || 0));

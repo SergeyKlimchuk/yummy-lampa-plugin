@@ -3,7 +3,7 @@ function pluginYummyAnime() {
     window.plugin_yummy_anime_ready = true;
 
     // YUMMY_BUILD_INFO_START
-    window.LampaYaniBuild = {"schemaVersion":1,"version":"0.47.22","commit":"b0eb746a2cf6f0c1a1b556656a1e41c28abfce2f","shortCommit":"b0eb746","builtAt":"2026-10-27T06:52:19.259Z","dirty":true,"channel":"local","repository":"https://github.com/SergeyKlimchuk/yummy-lampa-plugin"};
+    window.LampaYaniBuild = {"schemaVersion":1,"version":"0.47.22","commit":"3db9eea5f94a0bd9c19ebeb078fad6eed6fbebe2","shortCommit":"3db9eea","builtAt":"2026-10-27T15:21:20.416Z","dirty":true,"channel":"local","repository":"https://github.com/SergeyKlimchuk/yummy-lampa-plugin"};
     // YUMMY_BUILD_INFO_END
 
     var style = document.createElement('style');
@@ -1590,6 +1590,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     var pendingRequests = {};
     var pendingRefreshes = {};
     var mutationFlush = null;
+    var mutationRequests = {};
+    var mutationIntents = {};
+    var mutationQueueMemory = [];
+    var mutationQueueUnsaved = false;
     var MUTATION_QUEUE_KEY = 'yani_pending_mutations_v1';
     var MUTATION_MAX_ATTEMPTS = 8;
     var ownerNonce = Date.now().toString(36) + ':' + Math.random().toString(36).slice(2);
@@ -1614,18 +1618,59 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function readMutationQueue() {
-        if (!window.Lampa || !Lampa.Storage) return [];
+        if (mutationQueueUnsaved || !window.Lampa || !Lampa.Storage) return mutationQueueMemory;
         try {
-            var items = JSON.parse(Lampa.Storage.get(MUTATION_QUEUE_KEY, '[]'));
-            return Array.isArray(items) ? items : [];
-        } catch (ignore) {
-            return [];
-        }
+            // Native Lampa already parses JSON; small hosts may return text.
+            var stored = Lampa.Storage.get(MUTATION_QUEUE_KEY, '[]');
+            var items = typeof stored === 'string' ? JSON.parse(stored) : stored;
+            if (Array.isArray(items)) mutationQueueMemory = items;
+        } catch (ignore) {}
+        return mutationQueueMemory;
     }
 
     function writeMutationQueue(items) {
-        if (!window.Lampa || !Lampa.Storage) return;
-        Lampa.Storage.set(MUTATION_QUEUE_KEY, JSON.stringify((items || []).slice(-100)));
+        mutationQueueMemory = (items || []).slice(-100);
+        mutationQueueUnsaved = true;
+        // A full/unavailable store must not suppress an online write. Keep a
+        // session fallback; durable retries resume after a successful save.
+        try {
+            if (!window.Lampa || !Lampa.Storage) return;
+            Lampa.Storage.set(MUTATION_QUEUE_KEY, JSON.stringify(mutationQueueMemory));
+            mutationQueueUnsaved = false;
+        } catch (ignore) {}
+    }
+
+    function progressMutation(entry) {
+        var match = entry.method === 'PUT' && /^\/video\/([^/?]+)$/.exec(entry.path);
+        if (match) return {ids: [decodeURIComponent(match[1])]};
+        if (entry.method === 'POST' && entry.path === '/video') {
+            try {
+                var body = JSON.parse(entry.body);
+                if (body && Array.isArray(body.videos)) return {
+                    ids: body.videos.filter(function (video) { return video && video.video_id; }).map(function (video) { return String(video.video_id); }),
+                    body: body
+                };
+            } catch (ignore) {}
+        }
+        return null;
+    }
+
+    function trimSupersededProgress(entry, ids) {
+        var progress = progressMutation(entry);
+        if (!progress) return entry;
+        if (!progress.body) return ids[progress.ids[0]] ? null : entry;
+        var remaining = progress.body.videos.filter(function (video) { return !video || !ids[String(video.video_id)]; });
+        if (remaining.length === progress.body.videos.length) return entry;
+        if (!remaining.length) return null;
+        progress.body.videos = remaining;
+        entry.body = JSON.stringify(progress.body);
+        return entry;
+    }
+
+    function mutationLane(entry) {
+        // A batch can touch the same videos as individual PUTs. Serialize both
+        // forms so a request already on the wire always finishes first.
+        return progressMutation(entry) ? entry.owner + '|video-progress' : entry.key;
     }
 
     function queueMutation(path, options) {
@@ -1642,14 +1687,95 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             createdAt: Date.now(),
             attemptCount: 0
         };
-        var items = readMutationQueue().filter(function (item) { return item && item.key !== entry.key; });
+        var progress = progressMutation(entry), ids = Object.create(null);
+        if (progress) progress.ids.forEach(function (id) { ids[id] = true; });
+        // Keep unrelated rows of older batches. Each batch needs its own key;
+        // only overlapping video ids are superseded by a newer user intent.
+        if (progress && progress.body) entry.key += ':' + entry.id;
+        var items = readMutationQueue().filter(function (item) { return item && item.key !== entry.key; }).map(function (item) {
+            return progress && item.owner === owner ? trimSupersededProgress(item, ids) : item;
+        }).filter(Boolean);
+        if (progress) Object.keys(mutationIntents).forEach(function (key) {
+            var live = mutationIntents[key];
+            if (live.owner === owner && !trimSupersededProgress(live, ids)) delete mutationIntents[key];
+        });
         items.push(entry);
         writeMutationQueue(items);
-        return {queued: true, pending: items.length};
+        return entry;
     }
 
-    function networkMutationFailure(error) {
-        return Boolean(error && error.name !== 'AbortError' && !Number(error.status));
+    function retryableMutationFailure(error) {
+        if (!error || error.name === 'AbortError') return false;
+        var status = Number(error.status || 0);
+        return !status || status === 408 || status === 425 || status === 429 || status >= 500;
+    }
+
+    function removeMutation(entry) {
+        writeMutationQueue(readMutationQueue().filter(function (item) {
+            return !(item && item.id === entry.id);
+        }));
+    }
+
+    function hasMutation(entry) {
+        return readMutationQueue().some(function (item) { return item && item.id === entry.id; });
+    }
+
+    function queuedMutationResult() {
+        return {queued: true, pending: readMutationQueue().length};
+    }
+
+    // Direct writes and retries share one lane for each account/object. Store
+    // the newest intent before waiting: a late failure or success of an older
+    // request must neither restore its value nor remove the newer queued one.
+    function serializeMutation(key, callback) {
+        var previous = mutationRequests[key] || Promise.resolve();
+        var operation = previous.then(callback);
+        var settled = operation.then(function () {
+            if (mutationRequests[key] === settled) delete mutationRequests[key];
+        }, function () {
+            if (mutationRequests[key] === settled) delete mutationRequests[key];
+        });
+        mutationRequests[key] = settled;
+        return operation;
+    }
+
+    function sendMutation(path, options) {
+        var entry;
+        try { entry = queueMutation(path, options); }
+        catch (error) { return Promise.reject(error); }
+        mutationIntents[entry.key] = entry;
+        var operation = serializeMutation(mutationLane(entry), function () {
+            if (entry.owner !== authOwnerKey()) {
+                removeMutation(entry);
+                throw staleOwnerError();
+            }
+            if (mutationIntents[entry.key] !== entry) return queuedMutationResult();
+            return request(path, Object.assign({}, options, {body: entry.body, queueMutation: false})).then(function (payload) {
+                removeMutation(entry);
+                return payload;
+            }).catch(function (error) {
+                if (entry.owner !== authOwnerKey() || !retryableMutationFailure(error)) {
+                    removeMutation(entry);
+                    throw error;
+                }
+                // The durable queue is bounded, but an otherwise current live
+                // write must still run. Restore it after failure if a burst of
+                // writes evicted it while the request was in flight.
+                if (mutationIntents[entry.key] === entry && !hasMutation(entry)) {
+                    var items = readMutationQueue().filter(function (item) { return item && item.key !== entry.key; });
+                    items.push(entry);
+                    writeMutationQueue(items);
+                }
+                return queuedMutationResult();
+            });
+        });
+        return operation.then(function (payload) {
+            if (mutationIntents[entry.key] === entry) delete mutationIntents[entry.key];
+            return payload;
+        }, function (error) {
+            if (mutationIntents[entry.key] === entry) delete mutationIntents[entry.key];
+            throw error;
+        });
     }
 
     function sleep(milliseconds) {
@@ -1666,6 +1792,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             if (controller) requestOptions.signal = controller.signal;
             var timer;
             var abortRequest;
+            var timedOut = false;
             if (controller && externalSignal) {
                 abortRequest = function () { controller.abort(); };
                 if (externalSignal.aborted) abortRequest();
@@ -1677,6 +1804,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             }
             var timeoutPromise = new Promise(function (resolve, reject) {
                 timer = setTimeout(function () {
+                    timedOut = true;
                     if (controller) controller.abort();
                     reject(new Error('YummyAnime request timeout'));
                 }, timeout);
@@ -1690,6 +1818,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 return response;
             }).catch(function (error) {
                 cleanup();
+                if (timedOut && !(externalSignal && externalSignal.aborted)) error = new Error('YummyAnime request timeout');
                 var aborted = error && error.name === 'AbortError';
                 if (number < retries && !aborted && !(externalSignal && externalSignal.aborted)) return sleep(Math.pow(2, number) * 400).then(function () { return attempt(number + 1); });
                 throw error;
@@ -1779,15 +1908,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         options = options || {};
         if (options.auth && options.ownerKey === undefined) options = Object.assign({}, options, {ownerKey: authOwnerKey()});
         if (options.auth && options.ownerKey !== authOwnerKey()) return Promise.reject(staleOwnerError());
+        if ((options.method || 'GET') !== 'GET' && options.queueMutation) return sendMutation(path, options);
         if (options.auth && !options.authRefreshChecked && window.LampaYaniAuth && LampaYaniAuth.token() && LampaYaniAuth.refreshIfNeeded) {
             var refreshedOptions = Object.assign({}, options, {authRefreshChecked: true});
             return LampaYaniAuth.refreshIfNeeded().then(function () {
                 return request(path, refreshedOptions);
-            }).catch(function (error) {
-                if ((options.method || 'GET') !== 'GET' && options.queueMutation && networkMutationFailure(error)) {
-                    return queueMutation(path, options);
-                }
-                throw error;
             });
         }
         var headers = Object.assign({}, options.headers || {});
@@ -1839,9 +1964,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             return payload;
         }).catch(function (error) {
             if (options.auth && options.ownerKey !== authOwnerKey()) throw staleOwnerError();
-            if (method !== 'GET' && options.queueMutation && networkMutationFailure(error)) {
-                return queueMutation(path, options);
-            }
             if (method === 'GET' && options.cache !== false && window.Lampa && Lampa.Storage) {
                 cached = cached || readCache(cacheKey);
                 if (cached && (options.staleFallback || Date.now() - cached.time < cacheTtl)) return markFromCache(cached.data);
@@ -1864,12 +1986,6 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         if (mutationFlush) return mutationFlush;
         if (!window.LampaYaniAuth || !LampaYaniAuth.token()) return Promise.resolve({pending: readMutationQueue().length});
         var owner = authOwnerKey();
-        function removeFlushed(entry) {
-            var current = readMutationQueue().filter(function (item) {
-                return !(item && item.id === entry.id);
-            });
-            writeMutationQueue(current);
-        }
         function recordFailedAttempt(entry) {
             var attempts = null;
             var current = readMutationQueue().map(function (item) {
@@ -1895,25 +2011,31 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             // Old unowned entries cannot safely be assigned to the current
             // account. Keep them local instead of sending another user's data.
             if (!entry) return Promise.resolve({pending: items.length, skipped: true});
-            return request(entry.path, {
-                ownerKey: owner,
-                method: entry.method,
-                auth: true,
-                cache: false,
-                headers: entry.headers,
-                body: entry.body,
-                queueMutation: false
+            return serializeMutation(mutationLane(entry), function () {
+                if (owner !== authOwnerKey()) throw staleOwnerError();
+                var current = readMutationQueue().filter(function (item) { return item && item.id === entry.id; })[0];
+                if (!current) return;
+                return request(entry.path, {
+                    ownerKey: owner,
+                    method: entry.method,
+                    auth: true,
+                    cache: false,
+                    headers: entry.headers,
+                    body: current.body,
+                    queueMutation: false
+                }).then(function () { removeMutation(entry); });
             }).then(function () {
-                removeFlushed(entry);
                 return next();
             }).catch(function (error) {
+                if (owner !== authOwnerKey()) return {pending: readMutationQueue().length, ownerChanged: true};
+                if (!hasMutation(entry)) return next();
                 if (permanentMutationRejection(error)) {
-                    removeFlushed(entry);
+                    removeMutation(entry);
                     return next();
                 }
                 var status = Number(error && error.status || 0);
                 if (status && recordFailedAttempt(entry) >= MUTATION_MAX_ATTEMPTS) {
-                    removeFlushed(entry);
+                    removeMutation(entry);
                     return next();
                 }
                 // Keep both network failures and temporary server responses in
@@ -3926,6 +4048,38 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         return duration * EPISODE_FINISHED_RATIO;
     }
 
+    // Remote timestamps may be seconds, milliseconds or ISO strings. Missing
+    // dates are unknown, not evidence that a larger position happened later.
+    function playbackTimestamp(value) {
+        if (value === undefined || value === null || value === '') return 0;
+        if (typeof value === 'string' && !/^\d+(?:\.\d+)?$/.test(value)) {
+            var parsed = Date.parse(value);
+            return isFinite(parsed) && parsed > 0 ? parsed : 0;
+        }
+        var number = Number(value);
+        return isFinite(number) && number > 0 ? (number < 100000000000 ? number * 1000 : number) : 0;
+    }
+
+    function playbackPosition(record) {
+        var value = record && record.time;
+        if (!record || record.position_known === false || value === undefined || value === null || value === '' || typeof value === 'boolean') return null;
+        var number = Number(value);
+        return isFinite(number) && number >= 0 ? number : null;
+    }
+
+    // The first record is the local/current preference when freshness cannot
+    // be established. A rewind and an explicit zero are valid new positions.
+    function latestPlaybackProgress(preferred, other) {
+        if (!preferred) return other;
+        if (!other) return preferred;
+        function known(record) {
+            return playbackPosition(record) !== null || hasEpisodeCompletionFlag(record) || hasEpisodeCompletionFlag(record.watched);
+        }
+        var preferredKnown = known(preferred), otherKnown = known(other);
+        if (preferredKnown !== otherKnown) return otherKnown ? other : preferred;
+        return playbackTimestamp(other.updated_at) > playbackTimestamp(preferred.updated_at) ? other : preferred;
+    }
+
     function isEpisodeFinished(position, duration, flags) {
         if (hasEpisodeCompletionFlag(flags)) return true;
         return positiveNumber(position) >= episodeCompletionThreshold(duration);
@@ -4085,6 +4239,9 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         compactWatchedEpisodeLabel: compactWatchedEpisodeLabel,
         detailEpisodeStats: detailEpisodeStats,
         hasEpisodeCompletionFlag: hasEpisodeCompletionFlag,
+        playbackTimestamp: playbackTimestamp,
+        playbackPosition: playbackPosition,
+        latestPlaybackProgress: latestPlaybackProgress,
         episodeCompletionThreshold: episodeCompletionThreshold,
         isEpisodeFinished: isEpisodeFinished,
         isEpisodeProgressCounted: isEpisodeProgressCounted,
@@ -8966,8 +9123,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             (videos || []).forEach(function (video) {
                 if (!video) return;
                 var watched = video.watched && typeof video.watched === 'object' ? video.watched : {};
-                var time = Number(watched.end_time || watched.time || 0);
-                if (!(time > 0) && !explicitCompletion(video)) return;
+                var utils = window.LampaYaniUiUtils;
+                var position = utils.playbackPosition({time: watched.end_time});
+                if (position === null) position = utils.playbackPosition({time: watched.time});
+                var updatedAt = utils.playbackTimestamp(watched.updated_at || watched.date);
+                var time = position === null ? 0 : position;
+                if (!(time > 0) && !explicitCompletion(video) && !(position === 0 && updatedAt > 0)) return;
                 var videoData = window.LampaYaniUiUtils && window.LampaYaniUiUtils.videoData
                     ? window.LampaYaniUiUtils.videoData(video)
                     : {};
@@ -8980,9 +9141,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     player: String(videoData.player || ''),
                     voice: String(videoData.dubbing || videoData.translation || videoData.voice || ''),
                     time: time,
+                    position_known: position !== null,
                     duration: Math.max(0, Number(video.duration || 0)),
                     completed: explicitCompletion(video),
-                    updated_at: Number(watched.updated_at || watched.date || 0)
+                    updated_at: updatedAt
                 });
             });
             var result = importRemoteEntries(entries);
@@ -9098,6 +9260,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var video = context.selected;
             video.watched = video.watched || {};
             video.watched.end_time = Math.max(0, Math.floor(Number(position) || 0));
+            video.watched.updated_at = Date.now();
             if (duration > 0) video.duration = Math.floor(duration);
             if (deps.progress) deps.progress.record(context.card, video, {owner: context.progressOwner, flush: Boolean(remote)});
             var saved = rememberPlayback(context.card, context.group, video);
@@ -9110,6 +9273,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     last_watched_episode: Number(saved.time || 0) > 0 ? Number(saved.number || 0) : 0,
                     video_id: saved.video_id,
                     time: saved.time,
+                    position_known: true,
                     duration: saved.duration,
                     completed: saved.completed,
                     player: saved.player,
@@ -9853,8 +10017,22 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 ? Episode.same(Episode.valueOf(video), playback && playback.number)
                 : Number(video && (video.number || video.index)) === Number(playback && playback.number);
             if (!playback || !video || !sameEpisode) return video;
-            video.watched = video.watched || {};
-            video.watched.end_time = Math.max(Number(video.watched.end_time || 0), Number(playback.time || 0));
+            var utils = window.LampaYaniUiUtils;
+            var watched = video.watched || {};
+            var serverPosition = utils.playbackPosition({time: watched.end_time});
+            if (serverPosition === null) serverPosition = utils.playbackPosition({time: watched.time});
+            var server = {
+                time: serverPosition,
+                updated_at: watched.updated_at || watched.date,
+                completed: utils.hasEpisodeCompletionFlag(video) || utils.hasEpisodeCompletionFlag(watched)
+            };
+            var selected = utils.latestPlaybackProgress(playback, server);
+            var position = utils.playbackPosition(selected);
+            if (position !== null) {
+                video.watched = watched;
+                watched.end_time = position;
+                if (selected === playback) watched.updated_at = utils.playbackTimestamp(playback.updated_at);
+            }
             if (!video.duration && playback.duration) video.duration = Number(playback.duration);
             return video;
         }
@@ -10207,11 +10385,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                         return window.LampaYaniEpisode.same(window.LampaYaniEpisode.valueOf(video), playback.number);
                     })[0];
                     if (resumeVideo) {
-                        resumeVideo.watched = resumeVideo.watched || {};
-                        resumeVideo.watched.end_time = Math.max(Number(resumeVideo.watched.end_time || 0), Number(playback.time || 0));
-                        if (!resumeVideo.duration && playback.duration) resumeVideo.duration = Number(playback.duration);
                         rememberPlayer(resumeVoice.group);
-                        return launchVideo(card, resumeVoice.group, resumePlaylist, resumeVideo);
+                        return launchVideo(card, resumeVoice.group, resumePlaylist, applySavedPlaybackPosition(card, resumeVideo));
                     }
                 }
 
@@ -14495,10 +14670,15 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     }
 
     function historyTimestamp(value) {
-        if (!value) return 0;
-        if (typeof value === 'string' && !/^\d+$/.test(value)) return Date.parse(value) || 0;
-        var number = Number(value) || 0;
-        return number > 0 && number < 100000000000 ? number * 1000 : number;
+        return window.LampaYaniUiUtils.playbackTimestamp(value);
+    }
+
+    function historyPosition(values) {
+        for (var index = 0; index < values.length; index++) {
+            var position = window.LampaYaniUiUtils.playbackPosition({time: values[index]});
+            if (position !== null) return position;
+        }
+        return null;
     }
 
     function historyPoster(value) {
@@ -14545,6 +14725,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 if (onDropped) onDropped(item);
                 return null;
             }
+            var position = historyPosition([item.end_time, item.time, watched.end_time, watched.time, item.current_time]);
             return {
                 anime_id: animeId,
                 video_id: item.video_id || item.videoId || item.video && item.video.id || '',
@@ -14555,7 +14736,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 screenshot: historyScreenshot(item.screenshot_url || screenshot),
                 player: String(item.player_title || item.player || ''),
                 voice: String(item.dub_title || item.dubbing || ''),
-                time: Math.max(0, Number(item.end_time || item.time || watched.end_time || watched.time || item.current_time || 0)),
+                time: position === null ? 0 : position,
+                position_known: position !== null,
                 duration: Math.max(0, Number(item.duration || watched.duration || 0)),
                 completed: explicitCompletion(item),
                 updated_at: historyTimestamp(item.date || item.updated_at || item.created_at || watched.updated_at || watched.date),
@@ -14618,6 +14800,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     function normalizeLocalHistory(saved) {
         return Object.keys(saved || {}).map(function (id) {
             var item = saved[id] || {};
+            var position = window.LampaYaniUiUtils.playbackPosition(item);
             return {
                 anime_id: item.anime_id || id,
                 video_id: item.video_id || '',
@@ -14628,7 +14811,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 screenshot: historyScreenshot(item.screenshot || item.screenshot_url),
                 player: String(item.player || ''),
                 voice: String(item.voice || ''),
-                time: Math.max(0, Number(item.time || 0)),
+                time: position === null ? 0 : position,
+                position_known: position !== null,
                 duration: Math.max(0, Number(item.duration || 0)),
                 completed: explicitCompletion(item),
                 max_episode: Math.max(0, Number(item.max_episode || 0)),
@@ -14707,12 +14891,14 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 merged[key] = entry;
                 return;
             }
-            var newer = Number(entry.updated_at || 0) >= Number(current.updated_at || 0) ? entry : current;
+            var newer = window.LampaYaniUiUtils.latestPlaybackProgress(current, entry);
             var older = newer === entry ? current : entry;
             merged[key] = Object.assign({}, older, newer, {
                 completed: explicitCompletion(newer),
                 finished: false,
-                time: Number(newer.time || older.time || 0),
+                time: Number(newer.time || 0),
+                position_known: window.LampaYaniUiUtils.playbackPosition(newer) !== null,
+                updated_at: historyTimestamp(newer.updated_at),
                 duration: Number(newer.duration || older.duration || 0),
                 // Reach and episode count are facts about the title, not about
                 // one record of it, so the better-informed side always wins.
@@ -14725,7 +14911,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             });
         });
         return Object.keys(merged).map(function (key) { return merged[key]; }).sort(function (a, b) {
-            return Number(b.updated_at || 0) - Number(a.updated_at || 0);
+            return historyTimestamp(b.updated_at) - historyTimestamp(a.updated_at);
         });
     }
 
@@ -14921,16 +15107,16 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 
     function shouldReplaceLocal(current, entry) {
         if (!current) return true;
-        var remoteAt = Number(entry && entry.updated_at || 0);
-        var localAt = Number(current.updated_at || 0);
-        if (hasClockTimestamp(remoteAt) && hasClockTimestamp(localAt)) {
-            if (remoteAt > localAt) return true;
-            return remoteAt === localAt && Number(entry.time || 0) > Number(current.time || 0);
+        var Episode = window.LampaYaniEpisode;
+        if (Episode.same(current.number, entry && entry.number)) {
+            return window.LampaYaniUiUtils.latestPlaybackProgress(current, entry) === entry;
         }
-        var remoteEpisode = Number(entry && entry.number || 0);
-        var localEpisode = Number(current.number || 0);
-        if (remoteEpisode > localEpisode) return true;
-        return remoteEpisode === localEpisode && Number(entry && entry.time || 0) > Number(current.time || 0);
+        var remoteAt = historyTimestamp(entry && entry.updated_at);
+        var localAt = historyTimestamp(current.updated_at);
+        if (hasClockTimestamp(remoteAt) && hasClockTimestamp(localAt)) return remoteAt > localAt;
+        // Legacy records may have no comparable date. Retain their existing
+        // episode-reach fallback, without treating a larger time as newer.
+        return Number(entry && entry.number || 0) > Number(current.number || 0);
     }
 
     function importRemoteIntoLocal(localSaved, remoteEntries) {
@@ -14940,7 +15126,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         (remoteEntries || []).forEach(function (entry) {
             var id = String(entry && entry.anime_id || '');
             if (!id) return;
-            if (!latest[id] || Number(entry.updated_at || 0) > Number(latest[id].updated_at || 0)) latest[id] = entry;
+            if (!latest[id] || historyTimestamp(entry.updated_at) > historyTimestamp(latest[id].updated_at)) latest[id] = entry;
         });
         var imported = 0;
         Object.keys(latest).forEach(function (id) {
@@ -14951,6 +15137,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 number: window.LampaYaniEpisode.normalize(entry.number || current && current.number || ''),
                 video_id: entry.video_id || current && current.video_id || '',
                 time: Number(entry.time || 0),
+                position_known: window.LampaYaniUiUtils.playbackPosition(entry) !== null,
                 duration: Math.max(0, Number(entry.duration || current && current.duration || 0)),
                 player: String(entry.player || current && current.player || '').toLowerCase(),
                 voice: String(entry.voice || current && current.voice || ''),
@@ -14962,7 +15149,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     poster: entry.poster || '',
                     anime_id: entry.anime_id
                 },
-                updated_at: Number(entry.updated_at || Date.now()),
+                updated_at: historyTimestamp(entry.updated_at),
                 completed: explicitCompletion(entry),
                 remote: true
             };
@@ -14977,11 +15164,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             number: window.LampaYaniEpisode.normalize(entry.number),
             video_id: entry.video_id || '',
             time: Number(entry.time || 0),
+            position_known: window.LampaYaniUiUtils.playbackPosition(entry) !== null,
             duration: Number(entry.duration || 0),
             completed: explicitCompletion(entry),
             player: entry.player || '',
             voice: entry.voice || '',
-            updated_at: Number(entry.updated_at || 0)
+            updated_at: historyTimestamp(entry.updated_at)
         };
         card.yani_resume.max_episode = Math.max(0, Number(entry.max_episode || 0));
         card.yani_resume.last_watched_episode = Math.max(0, Number(entry.last_watched_episode || 0));
