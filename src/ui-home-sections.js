@@ -1,6 +1,12 @@
 (function (window) {
     'use strict';
 
+    function explicitCompletion(value) {
+        var utils = window.LampaYaniUiUtils;
+        return Boolean(utils && utils.hasEpisodeCompletionFlag &&
+            (utils.hasEpisodeCompletionFlag(value) || utils.hasEpisodeCompletionFlag(value && value.watched)));
+    }
+
     function historyPayloadItems(payload) {
         var value = payload && payload.response !== undefined ? payload.response : payload;
         if (Array.isArray(value)) return value;
@@ -70,6 +76,7 @@
                 voice: String(item.dub_title || item.dubbing || ''),
                 time: Math.max(0, Number(item.end_time || item.time || watched.end_time || watched.time || item.current_time || 0)),
                 duration: Math.max(0, Number(item.duration || watched.duration || 0)),
+                completed: explicitCompletion(item),
                 updated_at: historyTimestamp(item.date || item.updated_at || item.created_at || watched.updated_at || watched.date),
                 remote: true
             };
@@ -142,6 +149,7 @@
                 voice: String(item.voice || ''),
                 time: Math.max(0, Number(item.time || 0)),
                 duration: Math.max(0, Number(item.duration || 0)),
+                completed: explicitCompletion(item),
                 max_episode: Math.max(0, Number(item.max_episode || 0)),
                 episodes_aired: Math.max(0, Number(item.episodes_aired || 0)),
                 updated_at: historyTimestamp(item.updated_at),
@@ -221,6 +229,8 @@
             var newer = Number(entry.updated_at || 0) >= Number(current.updated_at || 0) ? entry : current;
             var older = newer === entry ? current : entry;
             merged[key] = Object.assign({}, older, newer, {
+                completed: explicitCompletion(newer),
+                finished: false,
                 time: Number(newer.time || older.time || 0),
                 duration: Number(newer.duration || older.duration || 0),
                 // Reach and episode count are facts about the title, not about
@@ -248,9 +258,7 @@
         if (utils && utils.isEpisodeFinished) {
             return utils.isEpisodeFinished(entry && entry.time, entry && entry.duration, entry);
         }
-        var position = Math.max(0, Number(entry && entry.time || 0));
-        var duration = Math.max(0, Number(entry && entry.duration || 0));
-        return duration > 0 && position / duration >= 0.95;
+        return false;
     }
 
     function isContinueEntry(entry) {
@@ -340,6 +348,8 @@
             time: 0,
             duration: 0,
             max_episode: watched,
+            completed: false,
+            finished: false,
             resume_next: true
         });
     }
@@ -472,6 +482,7 @@
                     anime_id: entry.anime_id
                 },
                 updated_at: Number(entry.updated_at || Date.now()),
+                completed: explicitCompletion(entry),
                 remote: true
             };
             imported += 1;
@@ -486,6 +497,7 @@
             video_id: entry.video_id || '',
             time: Number(entry.time || 0),
             duration: Number(entry.duration || 0),
+            completed: explicitCompletion(entry),
             player: entry.player || '',
             voice: entry.voice || '',
             updated_at: Number(entry.updated_at || 0)

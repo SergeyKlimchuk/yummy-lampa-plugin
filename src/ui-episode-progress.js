@@ -68,7 +68,11 @@
     function publicState(value) {
         if (!value) return emptyState;
         var time = positive(value.t), duration = positive(value.d);
-        return {state: value.s === 2 ? 'completed' : 'started', percent: value.s === 2 ? 100 : duration ? Math.min(100, Math.round(time / duration * 100)) : 0, time: time, duration: duration};
+        var utils = window.LampaYaniUiUtils;
+        // Existing v1 journals keep their real time/duration. Re-evaluate old
+        // started observations under the shared policy without a new watch.
+        var complete = value.s === 2 || Boolean(utils && utils.isEpisodeFinished && utils.isEpisodeFinished(time, duration));
+        return {state: complete ? 'completed' : 'started', percent: complete ? 100 : duration ? Math.min(100, Math.round(time / duration * 100)) : 0, time: time, duration: duration};
     }
     function observation(video) {
         video = video || {};
@@ -77,7 +81,7 @@
         var duration = positive(video.duration) || positive(watched.duration);
         var flags = {completed: flag(watched.completed) || flag(video.completed), finished: flag(watched.finished) || flag(video.finished)};
         var utils = window.LampaYaniUiUtils;
-        var complete = utils && utils.isEpisodeFinished ? utils.isEpisodeFinished(time, duration, flags) : flags.completed || flags.finished || duration > 0 && time / duration >= 0.95;
+        var complete = flags.completed || flags.finished || Boolean(utils && utils.isEpisodeFinished && utils.isEpisodeFinished(time, duration, flags));
         return complete || time ? {s: complete ? 2 : 1, t: time, d: duration, a: 0} : null;
     }
     function prefer(left, right) {

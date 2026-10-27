@@ -177,7 +177,7 @@ assert.deepStrictEqual(JSON.parse(JSON.stringify(sparseWatched.watchedNumbers)),
 assert.strictEqual(sparseWatched.watchedLabel, '10, 13', 'sparse watched episodes must show numbers, not a sequential count');
 
 // Card and title counters treat more than 30 seconds as a watched episode.
-// Finishing the episode (95%) is a separate rule for Continue Watching.
+// Finishing an episode uses a separate, duration-aware rule for Continue Watching.
 const barelyStarted = utils.detailEpisodeStats({}, [
     {number: '4', duration: 1440, watched: {end_time: 20}},
     {number: '5', duration: 1440, watched: {end_time: 1370}}

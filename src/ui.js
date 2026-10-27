@@ -2562,11 +2562,16 @@
         var watched = video.watched || {};
         var duration = Math.max(0, Number(video.duration || 0));
         var position = Math.max(0, Number(watched.end_time || 0));
-        if (LampaYaniUiUtils.isEpisodeFinished(position, duration, watched)) position = 0;
+        if (LampaYaniUiUtils.isEpisodeFinished(position, duration, watched) || LampaYaniUiUtils.hasEpisodeCompletionFlag(video)) position = 0;
         normalized.time = position;
-        // Native Lampa resumes from timeline, not the external-player time key.
-        // Respect its global resume/ask/start-again policy.
-        normalized.timeline = {time: position, duration: duration, percent: duration > 0 ? Math.round(position / duration * 100) : position > 0 ? 1 : 0};
+        // Native Timeline seeks to the exact time only while its initial
+        // percent hint is below 90. Our shared policy may still consider a
+        // short/long video unfinished there. Cap only this resume hint; actual
+        // position/duration, progress storage and API payloads remain exact.
+        // Native timeupdate replaces the hint after seeking, and its global
+        // continue/ask/start-again setting remains authoritative.
+        var resumePercent = position > 0 ? Math.min(89, Math.max(1, duration > 0 ? Math.round(position / duration * 100) : 1)) : 0;
+        normalized.timeline = {time: position, duration: duration, percent: resumePercent};
         return normalized;
     }
 

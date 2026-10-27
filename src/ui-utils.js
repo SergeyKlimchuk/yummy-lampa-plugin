@@ -523,22 +523,33 @@
         return 'high';
     }
 
-    // An episode counts as finished at 95% of its length: the tail is credits,
-    // and nobody sits through them. This is the single definition of "watched"
-    // — the detail summary, the furthest-episode reach and the Continue
-    // Watching queue all have to agree, or the same episode reads as watched in
-    // one place and unwatched in another.
+    // All badges, Continue Watching and replay use this same heuristic. For
+    // episode-length videos allow a credits/preview tail of up to five minutes,
+    // never more than a quarter of the video. Shorts and films retain 95%.
+    // This classifies progress only: it must not seek or invent watched time.
     var EPISODE_FINISHED_RATIO = 0.95;
     var EPISODE_WATCHED_SECONDS = 30;
+    var EPISODE_TAIL_MIN_DURATION = 15 * 60;
+    var EPISODE_TAIL_MAX_DURATION = 40 * 60;
+    var EPISODE_TAIL_SECONDS = 5 * 60;
+
+    function hasEpisodeCompletionFlag(flags) {
+        function enabled(value) { return value === true || value === 1 || value === 'true' || value === '1'; }
+        return Boolean(flags && (enabled(flags.completed) || enabled(flags.finished)));
+    }
+
+    function episodeCompletionThreshold(duration) {
+        duration = positiveNumber(duration);
+        if (!duration) return Infinity;
+        if (duration >= EPISODE_TAIL_MIN_DURATION && duration <= EPISODE_TAIL_MAX_DURATION) {
+            return duration - Math.min(EPISODE_TAIL_SECONDS, duration * 0.25);
+        }
+        return duration * EPISODE_FINISHED_RATIO;
+    }
 
     function isEpisodeFinished(position, duration, flags) {
-        if (flags && (flags.completed || flags.finished)) return true;
-        position = positiveNumber(position);
-        duration = positiveNumber(duration);
-        // Without a duration there is nothing to measure against, and counting
-        // any stray second as a full watch is how a title silently disappears
-        // from the queue.
-        return duration > 0 && position / duration >= EPISODE_FINISHED_RATIO;
+        if (hasEpisodeCompletionFlag(flags)) return true;
+        return positiveNumber(position) >= episodeCompletionThreshold(duration);
     }
 
     function isEpisodeProgressCounted(position, duration, flags) {
@@ -694,6 +705,8 @@
         formatWatchedEpisodeNumbers: formatWatchedEpisodeNumbers,
         compactWatchedEpisodeLabel: compactWatchedEpisodeLabel,
         detailEpisodeStats: detailEpisodeStats,
+        hasEpisodeCompletionFlag: hasEpisodeCompletionFlag,
+        episodeCompletionThreshold: episodeCompletionThreshold,
         isEpisodeFinished: isEpisodeFinished,
         isEpisodeProgressCounted: isEpisodeProgressCounted,
         ratingTier: ratingTier,

@@ -3,7 +3,7 @@ function pluginYummyAnime() {
     window.plugin_yummy_anime_ready = true;
 
     // YUMMY_BUILD_INFO_START
-    window.LampaYaniBuild = {"schemaVersion":1,"version":"0.47.22","commit":"669c8e77f13843f9f44ee29bd4bfdd32f4865044","shortCommit":"669c8e7","builtAt":"2026-10-26T22:57:40.235Z","dirty":true,"channel":"local","repository":"https://github.com/SergeyKlimchuk/yummy-lampa-plugin"};
+    window.LampaYaniBuild = {"schemaVersion":1,"version":"0.47.22","commit":"b0eb746a2cf6f0c1a1b556656a1e41c28abfce2f","shortCommit":"b0eb746","builtAt":"2026-10-27T06:52:19.259Z","dirty":true,"channel":"local","repository":"https://github.com/SergeyKlimchuk/yummy-lampa-plugin"};
     // YUMMY_BUILD_INFO_END
 
     var style = document.createElement('style');
@@ -3902,22 +3902,33 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         return 'high';
     }
 
-    // An episode counts as finished at 95% of its length: the tail is credits,
-    // and nobody sits through them. This is the single definition of "watched"
-    // — the detail summary, the furthest-episode reach and the Continue
-    // Watching queue all have to agree, or the same episode reads as watched in
-    // one place and unwatched in another.
+    // All badges, Continue Watching and replay use this same heuristic. For
+    // episode-length videos allow a credits/preview tail of up to five minutes,
+    // never more than a quarter of the video. Shorts and films retain 95%.
+    // This classifies progress only: it must not seek or invent watched time.
     var EPISODE_FINISHED_RATIO = 0.95;
     var EPISODE_WATCHED_SECONDS = 30;
+    var EPISODE_TAIL_MIN_DURATION = 15 * 60;
+    var EPISODE_TAIL_MAX_DURATION = 40 * 60;
+    var EPISODE_TAIL_SECONDS = 5 * 60;
+
+    function hasEpisodeCompletionFlag(flags) {
+        function enabled(value) { return value === true || value === 1 || value === 'true' || value === '1'; }
+        return Boolean(flags && (enabled(flags.completed) || enabled(flags.finished)));
+    }
+
+    function episodeCompletionThreshold(duration) {
+        duration = positiveNumber(duration);
+        if (!duration) return Infinity;
+        if (duration >= EPISODE_TAIL_MIN_DURATION && duration <= EPISODE_TAIL_MAX_DURATION) {
+            return duration - Math.min(EPISODE_TAIL_SECONDS, duration * 0.25);
+        }
+        return duration * EPISODE_FINISHED_RATIO;
+    }
 
     function isEpisodeFinished(position, duration, flags) {
-        if (flags && (flags.completed || flags.finished)) return true;
-        position = positiveNumber(position);
-        duration = positiveNumber(duration);
-        // Without a duration there is nothing to measure against, and counting
-        // any stray second as a full watch is how a title silently disappears
-        // from the queue.
-        return duration > 0 && position / duration >= EPISODE_FINISHED_RATIO;
+        if (hasEpisodeCompletionFlag(flags)) return true;
+        return positiveNumber(position) >= episodeCompletionThreshold(duration);
     }
 
     function isEpisodeProgressCounted(position, duration, flags) {
@@ -4073,6 +4084,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         formatWatchedEpisodeNumbers: formatWatchedEpisodeNumbers,
         compactWatchedEpisodeLabel: compactWatchedEpisodeLabel,
         detailEpisodeStats: detailEpisodeStats,
+        hasEpisodeCompletionFlag: hasEpisodeCompletionFlag,
+        episodeCompletionThreshold: episodeCompletionThreshold,
         isEpisodeFinished: isEpisodeFinished,
         isEpisodeProgressCounted: isEpisodeProgressCounted,
         ratingTier: ratingTier,
@@ -4154,7 +4167,11 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
     function publicState(value) {
         if (!value) return emptyState;
         var time = positive(value.t), duration = positive(value.d);
-        return {state: value.s === 2 ? 'completed' : 'started', percent: value.s === 2 ? 100 : duration ? Math.min(100, Math.round(time / duration * 100)) : 0, time: time, duration: duration};
+        var utils = window.LampaYaniUiUtils;
+        // Existing v1 journals keep their real time/duration. Re-evaluate old
+        // started observations under the shared policy without a new watch.
+        var complete = value.s === 2 || Boolean(utils && utils.isEpisodeFinished && utils.isEpisodeFinished(time, duration));
+        return {state: complete ? 'completed' : 'started', percent: complete ? 100 : duration ? Math.min(100, Math.round(time / duration * 100)) : 0, time: time, duration: duration};
     }
     function observation(video) {
         video = video || {};
@@ -4163,7 +4180,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var duration = positive(video.duration) || positive(watched.duration);
         var flags = {completed: flag(watched.completed) || flag(video.completed), finished: flag(watched.finished) || flag(video.finished)};
         var utils = window.LampaYaniUiUtils;
-        var complete = utils && utils.isEpisodeFinished ? utils.isEpisodeFinished(time, duration, flags) : flags.completed || flags.finished || duration > 0 && time / duration >= 0.95;
+        var complete = flags.completed || flags.finished || Boolean(utils && utils.isEpisodeFinished && utils.isEpisodeFinished(time, duration, flags));
         return complete || time ? {s: complete ? 2 : 1, t: time, d: duration, a: 0} : null;
     }
     function prefer(left, right) {
@@ -8855,7 +8872,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         function episodeFinished(position, duration, flags) {
             var utils = window.LampaYaniUiUtils;
             if (utils && utils.isEpisodeFinished) return utils.isEpisodeFinished(position, duration, flags);
-            return positiveNumber(duration) > 0 && positiveNumber(position) / positiveNumber(duration) >= 0.95;
+            return false;
         }
 
         // How many episodes the title has released. Continue Watching needs a
@@ -8866,6 +8883,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             return positiveNumber(episodes.aired || episodes.released) ||
                 positiveNumber(episodes.count || episodes.total) ||
                 positiveNumber(card && (card.episodes_aired || card.episodes_count));
+        }
+
+        function explicitCompletion(value) {
+            var utils = window.LampaYaniUiUtils;
+            return Boolean(utils && utils.hasEpisodeCompletionFlag &&
+                (utils.hasEpisodeCompletionFlag(value) || utils.hasEpisodeCompletionFlag(value && value.watched)));
         }
 
         function rememberPlayback(card, group, video) {
@@ -8886,6 +8909,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 video_id: video.video_id || '',
                 time: Number(video.watched && video.watched.end_time || 0),
                 duration: Math.max(0, Number(video.duration || 0)),
+                completed: explicitCompletion(video),
                 player: playerKey(group),
                 voice: String(videoData.dubbing || videoData.translation || videoData.voice || group && group.title || ''),
                 episode_url: videoSourceUrl(video),
@@ -8940,10 +8964,10 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             if (!card || !card.yani_id) return {imported: 0};
             var entries = [];
             (videos || []).forEach(function (video) {
-                var watched = video && video.watched;
-                if (!watched || typeof watched !== 'object') return;
+                if (!video) return;
+                var watched = video.watched && typeof video.watched === 'object' ? video.watched : {};
                 var time = Number(watched.end_time || watched.time || 0);
-                if (!(time > 0) && !watched.completed && !watched.finished) return;
+                if (!(time > 0) && !explicitCompletion(video)) return;
                 var videoData = window.LampaYaniUiUtils && window.LampaYaniUiUtils.videoData
                     ? window.LampaYaniUiUtils.videoData(video)
                     : {};
@@ -8957,6 +8981,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     voice: String(videoData.dubbing || videoData.translation || videoData.voice || ''),
                     time: time,
                     duration: Math.max(0, Number(video.duration || 0)),
+                    completed: explicitCompletion(video),
                     updated_at: Number(watched.updated_at || watched.date || 0)
                 });
             });
@@ -9086,6 +9111,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     video_id: saved.video_id,
                     time: saved.time,
                     duration: saved.duration,
+                    completed: saved.completed,
                     player: saved.player,
                     voice: saved.voice,
                     updated_at: saved.updated_at
@@ -14456,6 +14482,12 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
 (function (window) {
     'use strict';
 
+    function explicitCompletion(value) {
+        var utils = window.LampaYaniUiUtils;
+        return Boolean(utils && utils.hasEpisodeCompletionFlag &&
+            (utils.hasEpisodeCompletionFlag(value) || utils.hasEpisodeCompletionFlag(value && value.watched)));
+    }
+
     function historyPayloadItems(payload) {
         var value = payload && payload.response !== undefined ? payload.response : payload;
         if (Array.isArray(value)) return value;
@@ -14525,6 +14557,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 voice: String(item.dub_title || item.dubbing || ''),
                 time: Math.max(0, Number(item.end_time || item.time || watched.end_time || watched.time || item.current_time || 0)),
                 duration: Math.max(0, Number(item.duration || watched.duration || 0)),
+                completed: explicitCompletion(item),
                 updated_at: historyTimestamp(item.date || item.updated_at || item.created_at || watched.updated_at || watched.date),
                 remote: true
             };
@@ -14597,6 +14630,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                 voice: String(item.voice || ''),
                 time: Math.max(0, Number(item.time || 0)),
                 duration: Math.max(0, Number(item.duration || 0)),
+                completed: explicitCompletion(item),
                 max_episode: Math.max(0, Number(item.max_episode || 0)),
                 episodes_aired: Math.max(0, Number(item.episodes_aired || 0)),
                 updated_at: historyTimestamp(item.updated_at),
@@ -14676,6 +14710,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             var newer = Number(entry.updated_at || 0) >= Number(current.updated_at || 0) ? entry : current;
             var older = newer === entry ? current : entry;
             merged[key] = Object.assign({}, older, newer, {
+                completed: explicitCompletion(newer),
+                finished: false,
                 time: Number(newer.time || older.time || 0),
                 duration: Number(newer.duration || older.duration || 0),
                 // Reach and episode count are facts about the title, not about
@@ -14703,9 +14739,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         if (utils && utils.isEpisodeFinished) {
             return utils.isEpisodeFinished(entry && entry.time, entry && entry.duration, entry);
         }
-        var position = Math.max(0, Number(entry && entry.time || 0));
-        var duration = Math.max(0, Number(entry && entry.duration || 0));
-        return duration > 0 && position / duration >= 0.95;
+        return false;
     }
 
     function isContinueEntry(entry) {
@@ -14795,6 +14829,8 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             time: 0,
             duration: 0,
             max_episode: watched,
+            completed: false,
+            finished: false,
             resume_next: true
         });
     }
@@ -14927,6 +14963,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
                     anime_id: entry.anime_id
                 },
                 updated_at: Number(entry.updated_at || Date.now()),
+                completed: explicitCompletion(entry),
                 remote: true
             };
             imported += 1;
@@ -14941,6 +14978,7 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
             video_id: entry.video_id || '',
             time: Number(entry.time || 0),
             duration: Number(entry.duration || 0),
+            completed: explicitCompletion(entry),
             player: entry.player || '',
             voice: entry.voice || '',
             updated_at: Number(entry.updated_at || 0)
@@ -21580,11 +21618,16 @@ messages.uk.cvh_region_blocked = 'Відео CVH недоступне у ваш�
         var watched = video.watched || {};
         var duration = Math.max(0, Number(video.duration || 0));
         var position = Math.max(0, Number(watched.end_time || 0));
-        if (LampaYaniUiUtils.isEpisodeFinished(position, duration, watched)) position = 0;
+        if (LampaYaniUiUtils.isEpisodeFinished(position, duration, watched) || LampaYaniUiUtils.hasEpisodeCompletionFlag(video)) position = 0;
         normalized.time = position;
-        // Native Lampa resumes from timeline, not the external-player time key.
-        // Respect its global resume/ask/start-again policy.
-        normalized.timeline = {time: position, duration: duration, percent: duration > 0 ? Math.round(position / duration * 100) : position > 0 ? 1 : 0};
+        // Native Timeline seeks to the exact time only while its initial
+        // percent hint is below 90. Our shared policy may still consider a
+        // short/long video unfinished there. Cap only this resume hint; actual
+        // position/duration, progress storage and API payloads remain exact.
+        // Native timeupdate replaces the hint after seeking, and its global
+        // continue/ask/start-again setting remains authoritative.
+        var resumePercent = position > 0 ? Math.min(89, Math.max(1, duration > 0 ? Math.round(position / duration * 100) : 1)) : 0;
+        normalized.timeline = {time: position, duration: duration, percent: resumePercent};
         return normalized;
     }
 

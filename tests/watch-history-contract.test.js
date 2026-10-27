@@ -21,6 +21,7 @@ const context = {
 };
 
 vm.runInNewContext(fs.readFileSync('src/episode.js', 'utf8'), context);
+vm.runInNewContext(fs.readFileSync('src/ui-utils.js', 'utf8'), context);
 vm.runInNewContext(sectionsSource, context);
 const history = context.window.LampaYaniHomeSections;
 const lastWatchTokens = history.lastWatchTokens({
@@ -203,7 +204,7 @@ assert.strictEqual(
 assert.strictEqual(history.isContinueEntry({anime_id: 77, video_id: 7701, time: 1390, duration: 1440}), false, 'nearly completed episodes are hidden');
 assert.strictEqual(history.isContinueEntry({anime_id: 77, video_id: 7701, time: 1080, duration: 1440}), true, '75 percent remains resumable');
 assert.strictEqual(history.isContinueEntry({anime_id: 77, video_id: 7701, time: 0, duration: 1440}), true, 'a just-started episode remains resumable');
-assert.strictEqual(history.isContinueEntry({anime_id: 77, video_id: 7701, time: 1079, duration: 1440}), true, 'progress below 95 percent remains resumable');
+assert.strictEqual(history.isContinueEntry({anime_id: 77, video_id: 7701, time: 1079, duration: 1440}), true, 'progress before the ending window remains resumable');
 assert.deepStrictEqual(
     Array.from(history.continueWatchingEntries([
         {anime_id: 42, video_id: 4208, number: '8', time: 45, duration: 1440, updated_at: 20},

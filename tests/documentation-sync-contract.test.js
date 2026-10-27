@@ -35,19 +35,18 @@ assert.match(releaseWorkflow, /tags:[\s\S]*v\*/);
 assert.match(en, /Russian, English and Ukrainian extension interface/);
 assert.match(en, /Available translations panel/);
 assert.match(en, /src\/ui-detail\.js/);
-assert.match(root, /The official YummyAnime plugin for Lampa/);
+assert.match(root, /fork of the official YummyAnime plugin for Lampa/i);
 assert.doesNotMatch(root, /unofficial/i);
 assert.match(ru, /Официальный плагин YummyAnime для Lampa/);
 assert.doesNotMatch(ru, /[Нн]еофициальн/);
 assert.match(en, /The official YummyAnime plugin for Lampa/);
 assert.match(root, /yummyani\.me/);
 assert.match(ru, /yummyani\.me/);
-assert.match(root, /assets\/yummyanime-home-lite\.png/);
-assert.match(root, /assets\/yummyanime-title\.png/);
-assert.match(root, /assets\/yummyanime-schedule\.png/);
-assert.match(root, /assets\/yummyanime-genre\.jpg/);
-['assets/yummyanime-home-lite.png', 'assets/yummyanime-title.png', 'assets/yummyanime-schedule.png', 'assets/yummyanime-genre.jpg'].forEach((file) => {
-    assert.ok(fs.existsSync(file), file + ' must be present for README catalogs');
+['home', 'detail', 'lists', 'playback', 'settings', 'interface', 'native-playlist'].forEach((name) => {
+    const file = 'assets/screenshots/' + name + '.jpg';
+    assert.ok(root.includes('](' + file + ')'), file + ' must be linked from README');
+    assert.ok(fs.existsSync(file), file + ' must be present for README');
+    assert.strictEqual(fs.readFileSync(file).subarray(0, 3).toString('hex'), 'ffd8ff', file + ' must be a JPEG screenshot');
 });
 assert.match(root, /<sub>\[Русская версия\]\(docs\/README\.ru\.md\)<\/sub>/);
 assert.ok(fs.existsSync('docs/README.ru.md'), 'optional Russian documentation must be available separately');

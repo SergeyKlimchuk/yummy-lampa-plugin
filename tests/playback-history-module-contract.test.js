@@ -128,6 +128,7 @@ const account = {login: 'Alice', token: 'a'};
 context.window.LampaYaniAuth = {get: () => account, token: () => account.token};
 const sent = [];
 context.window.LampaYaniApi.syncVideoProgress = (...args) => {sent.push(args);return Promise.resolve({});};
+vm.runInNewContext(fs.readFileSync('src/ui-utils.js','utf8'), context);
 vm.runInNewContext(fs.readFileSync('src/ui-episode-progress.js','utf8'), context);
 const progress = context.window.LampaYaniEpisodeProgress;
 const owned = context.window.LampaYaniPlaybackHistory.create({progress});

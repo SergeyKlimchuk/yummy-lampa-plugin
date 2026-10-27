@@ -15,6 +15,7 @@ const saved = {
 };
 const context = {window: {}, console, Date};
 vm.runInNewContext(fs.readFileSync('src/episode.js', 'utf8'), context);
+vm.runInNewContext(fs.readFileSync('src/ui-utils.js', 'utf8'), context);
 vm.runInNewContext(fs.readFileSync('src/ui-home-sections.js', 'utf8'), context);
 context.LampaYaniHomeSections = context.window.LampaYaniHomeSections;
 context.Lampa = {Storage: {get: () => ({502: {count: 1, at: now}})}};

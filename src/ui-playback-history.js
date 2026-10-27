@@ -74,7 +74,7 @@
         function episodeFinished(position, duration, flags) {
             var utils = window.LampaYaniUiUtils;
             if (utils && utils.isEpisodeFinished) return utils.isEpisodeFinished(position, duration, flags);
-            return positiveNumber(duration) > 0 && positiveNumber(position) / positiveNumber(duration) >= 0.95;
+            return false;
         }
 
         // How many episodes the title has released. Continue Watching needs a
@@ -85,6 +85,12 @@
             return positiveNumber(episodes.aired || episodes.released) ||
                 positiveNumber(episodes.count || episodes.total) ||
                 positiveNumber(card && (card.episodes_aired || card.episodes_count));
+        }
+
+        function explicitCompletion(value) {
+            var utils = window.LampaYaniUiUtils;
+            return Boolean(utils && utils.hasEpisodeCompletionFlag &&
+                (utils.hasEpisodeCompletionFlag(value) || utils.hasEpisodeCompletionFlag(value && value.watched)));
         }
 
         function rememberPlayback(card, group, video) {
@@ -105,6 +111,7 @@
                 video_id: video.video_id || '',
                 time: Number(video.watched && video.watched.end_time || 0),
                 duration: Math.max(0, Number(video.duration || 0)),
+                completed: explicitCompletion(video),
                 player: playerKey(group),
                 voice: String(videoData.dubbing || videoData.translation || videoData.voice || group && group.title || ''),
                 episode_url: videoSourceUrl(video),
@@ -159,10 +166,10 @@
             if (!card || !card.yani_id) return {imported: 0};
             var entries = [];
             (videos || []).forEach(function (video) {
-                var watched = video && video.watched;
-                if (!watched || typeof watched !== 'object') return;
+                if (!video) return;
+                var watched = video.watched && typeof video.watched === 'object' ? video.watched : {};
                 var time = Number(watched.end_time || watched.time || 0);
-                if (!(time > 0) && !watched.completed && !watched.finished) return;
+                if (!(time > 0) && !explicitCompletion(video)) return;
                 var videoData = window.LampaYaniUiUtils && window.LampaYaniUiUtils.videoData
                     ? window.LampaYaniUiUtils.videoData(video)
                     : {};
@@ -176,6 +183,7 @@
                     voice: String(videoData.dubbing || videoData.translation || videoData.voice || ''),
                     time: time,
                     duration: Math.max(0, Number(video.duration || 0)),
+                    completed: explicitCompletion(video),
                     updated_at: Number(watched.updated_at || watched.date || 0)
                 });
             });
@@ -305,6 +313,7 @@
                     video_id: saved.video_id,
                     time: saved.time,
                     duration: saved.duration,
+                    completed: saved.completed,
                     player: saved.player,
                     voice: saved.voice,
                     updated_at: saved.updated_at

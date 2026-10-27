@@ -85,7 +85,7 @@ function environment(options = {}) {
     }};
     if (options.auth) context.LampaYaniAuth = {get: () => options.auth, token: () => options.auth.token || ''};
     vm.runInNewContext(fs.readFileSync('src/episode.js', 'utf8') + '\n' + fs.readFileSync('src/ui-playback-picker.js', 'utf8'), context);
-    if (options.progress) vm.runInNewContext(fs.readFileSync('src/ui-episode-progress.js','utf8'), context);
+    if (options.progress) vm.runInNewContext(fs.readFileSync('src/ui-utils.js','utf8') + '\n' + fs.readFileSync('src/ui-episode-progress.js','utf8'), context);
     const allVideos = length => Array.from({length}, (_, index) => ({number: index + 1, video_id: 'v' + (index + 1)}));
     const groups = [
         {title: 'Studio A', player: 'Kodik', playerId: 'kodik', videos: allVideos(1403)},

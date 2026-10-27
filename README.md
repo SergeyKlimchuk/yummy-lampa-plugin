@@ -1,113 +1,92 @@
 # YummyAnime for Lampa
 
-[Browse all screen mockups](docs/mockups/index.html) · [Field and capability audit](docs/mockups/README.md). The review controls distinguish captured public data from anonymized personal examples.
+A TV-focused fork of the official YummyAnime plugin for Lampa: anime discovery, personal lists, watch history and playback, with a charcoal/coral interface designed for remote controls.
 
-The working screens now share the flat charcoal/coral skin. Schedule rows and long episode choices are paged; unchanged poster badges are reused; account counters use compact statistics. [Rendering checks and limits](docs/performance-lite.md). These fork changes remain local until published; the installation URLs below refer to the upstream distribution.
+Current version: `0.47.22` · [Official YummyAnime website](https://yummyani.me) · [Upstream project](https://github.com/yummyanime/yummy-lampa-plugin)
 
-This fork uses a lightweight TV home in charcoal and coral: three continue-watching cards, six personal-list shortcuts, and up to six ongoing titles. Home reuses the shared history synchronization and loads additional sections only when opened. [Interactive layout mockup](docs/mockups/home-lite.html).
+## Install this fork
 
-The official YummyAnime plugin for Lampa. It adds an anime catalog, schedule, ratings, personal lists, and playback from available sources. The interface is designed for TV remotes.
+In Lampa, open **Settings → Extensions**, add the plugin URL below, then restart Lampa:
 
-Current version: `0.47.22`
+```text
+https://sergeyklimchuk.github.io/yummy-lampa-plugin/dist/index.js
+```
 
-This fork: [current plugin](https://sergeyklimchuk.github.io/yummy-lampa-plugin/dist/index.js). Its updates are separate from the upstream URLs below. [Build identity and deployment](docs/build-info.md).
+Updates to this fork are published through its GitHub Pages deployment. The upstream `yummyanime.github.io` URLs install the original plugin and do not receive this fork’s changes. Use one distribution to avoid loading duplicate copies. The [upstream stable build](https://yummyanime.github.io/yummy-lampa-plugin/stable/index.js) is available separately.
 
-Official website: [yummyani.me](https://yummyani.me)
-
-[Changelog](CHANGELOG.md) · [Technical documentation](docs/README.en.md)
+Open **Settings → YummyAnime → Build information** to see the version, source commit, build time and whether the build contains local changes. [Build identity and deployment](docs/build-info.md).
 
 ## Screenshots
 
-<p align="center">
-  <img src="assets/yummyanime-home-lite.png" alt="Lightweight YummyAnime home preview with demonstration data" width="720">
-</p>
+Captured on 2026-10-27 at 1280 × 720. These images show the current plugin components with public catalog data and demonstration account/history data. The native-player screenshot uses the actual Lampa 3.4.1 player with a local test video. The captures were made in a desktop browser; TV appearance also depends on Lampa’s resolution and scaling settings.
 
-<p align="center">
-  <img src="assets/yummyanime-title.png" alt="YummyAnime title page with ratings and translations" width="720">
-</p>
+### Home
 
-<p align="center">
-  <img src="assets/yummyanime-schedule.png" alt="YummyAnime schedule with episodes and dubbing teams" width="720">
-</p>
+![Home with Continue Watching and personal-list shortcuts](assets/screenshots/home.jpg)
 
-<p align="center">
-  <img src="assets/yummyanime-genre.jpg" alt="YummyAnime genre catalog" width="720">
-</p>
+### Anime details
 
-## Installation
+![Anime details, ratings, main actions and list categories](assets/screenshots/detail.jpg)
 
-Add the official stable URL in the Lampa extensions settings:
+### My Lists
 
-`https://yummyanime.github.io/yummy-lampa-plugin/stable/index.js`
+![Personal lists with category colors and poster status badges](assets/screenshots/lists.jpg)
 
-Test version from `main`:
+### Episodes, dubbing and source
 
-`https://yummyanime.github.io/yummy-lampa-plugin/dist/index.js`
+![Episode selection with the current dubbing, source and watched markers](assets/screenshots/playback.jpg)
 
-Use the stable version for everyday use.
+### Settings
 
-## Sign in
+![Global playback preferences and interface settings](assets/screenshots/settings.jpg)
 
-Create a YummyAnime account at `https://en.yummyani.me/`. To sign in to the plugin, enter your YummyAnime login or email and password under `Settings → YummyAnime → Sign in to YummyAnime`.
+### Interface scaling
 
-Signing in enables your profile, notifications, ratings, favorites, personal lists, and watch-progress sync. The password is not stored. The extension stores a Bearer token on the device and refreshes it automatically.
+![Interface settings with automatic scaling and a manual override](assets/screenshots/interface.jpg)
 
-## Main sections
+### Native Lampa playlist
 
-- **Catalog** — browse anime with sorting and filters for type, status, and year.
-- **Genres** — genre descriptions and separate genre catalogs.
-- **Search** — search by main and alternative titles.
-- **Collections** — themed YummyAnime collections.
-- **Top** — overall ranking, series, movies, and ONA.
-- **For You** — new episodes, translations, news, and related titles for anime from your lists and watch history.
-- **Updates** — recent activity for subscriptions and personal lists.
-- **Continue Watching** — unfinished titles from local and YummyAnime watch history.
-- **My Lists** — quick access to your library.
-- **Account** — profile, statistics, and synchronization.
-- **Status** — availability of YummyAnime services.
+![The standard Lampa playlist with the full selected episode queue](assets/screenshots/native-playlist.jpg)
 
-Sections you do not use can be hidden in the extension settings.
+## What this fork includes
 
-## Schedule
-
-The schedule opens on the current day and covers the previous week, the current week, and the next two weeks. Each release can show its episode number, local time, rating, and available dubbing or subtitle teams.
-
-Disabled sources are hidden. VK is enabled by default; the extension resolves supported VK wrapper and `video_ext` pages into a direct MP4/HLS stream. CVH is resolved into direct MP4 qualities and is enabled by default on Android, Android TV and LG WebOS, where playback has been verified; it remains opt-in on other platforms because the CVH API does not expose CORS access. Alloha stays disabled by default. The last successfully loaded schedule remains available during temporary API problems.
-
-## Ratings
-
-The extension can show ratings from YummyAnime, Kinopoisk, Shikimori, AniDB, MyAnimeList, and World-Art. Service logos keep the rating panel compact.
-
-Signed-in users can give a YummyAnime rating from 1 to 10 or remove it. Ratings and the YummyAnime button on standard Lampa cards can be disabled separately.
-
-## Lists
-
-Available lists are **Watching**, **Planned**, **Completed**, **Dropped**, **Postponed**, and **Favorite**.
-
-A title can have only one main status. **Favorite** is independent and can be enabled or disabled separately. List status can be changed from the title page.
-
-**My Lists** shows recently added titles and opens each full list. **Continue Watching** combines local history with YummyAnime watch progress. Automatic synchronization can be enabled in settings or started manually from the account page.
+- A TV home with Continue Watching, six personal-list shortcuts and ongoing titles. Less-used sections open on demand.
+- Catalog, search, genres, rankings, schedule, collections, recommendations, updates and notifications.
+- Anime details with ratings, primary playback actions and list controls near the top.
+- **Watching, Planned, Completed, Dropped, Postponed** and the independent **Favorite** flag, synchronized with YummyAnime.
+- An account entry showing the signed-in nickname and avatar, plus profile statistics and list counts.
+- Automatic interface scaling for the app resolution, with a per-device manual override in Settings.
+- A flat interface, bounded episode/option pages and reused card badges. [Rendering checks](docs/performance-lite.md).
 
 ## Playback and sources such as Alloha
 
-Lampa's internal player and external Android players need a direct video stream, usually HLS (`.m3u8`), DASH, MP4, or WebM. Most sources can provide one. Sources such as Alloha may instead return a protected web player (an iframe), which is a web page rather than a playable video link. Sending that page to Lampa, VLC, Kodi, or another media player results in an error or a black screen.
+Set the default source, dubbing and playback application under **Settings → YummyAnime → Playback**. Changing the dubbing or source for one anime remembers that pair locally for that anime; the global application choice stays in Settings.
 
-For Alloha, the extension uses the following order:
+The internal Lampa player receives the full playlist for the selected dubbing/source. Use its standard **Playlist** control to choose any episode, including the previous one, and **Next** to advance. Stream URLs are resolved when selected. Native Lampa handles the transition and transfer of supported player parameters. Auto-next uses Lampa’s shared player setting.
 
-1. **YummyAnime resolver server** — converts the selected episode and dubbing into a direct HLS stream.
-2. **Lampac server** — tries to find a direct stream by the title's external IDs; matching is not guaranteed.
-3. **Alloha source web player** — an optional fallback, disabled by default. It opens the original web player inside Lampa without a companion app, so Lampa's timeline, precise progress tracking, and external-player handoff are unavailable.
+A protected source iframe is a web page rather than a playable video link; native players require a resolved stream. External-player selection is available on Android. Some sources require their own embedded web player; these do not provide the same native playlist or reliable timeline access. Alloha requires a configured direct-stream resolver or its explicitly enabled web-player fallback. [Playback preferences and source details](docs/playback-preferences.md).
 
-When both a direct resolver and the source web player are available, the extension asks whether to use the Lampa player or the Alloha web player. If neither option is configured, Alloha playback is blocked with an explanation instead of sending an iframe to an incompatible player. Other available sources remain usable and are placed higher in the dubbing list. Resolver and Lampac addresses, source visibility, the Alloha web-player fallback, and the preferred player are configured under `Settings → YummyAnime`.
+## Continue Watching and synchronization
 
-The optional YummyTV integration is shown only on Android TV and is disabled by default. It only opens the title in the separately installed YummyTV application, is not an Alloha resolver, and is not required for the extension.
+Sign in with your YummyAnime account under **Settings → YummyAnime**. The password is not stored; the plugin keeps and refreshes an account token.
 
+The internal player saves the actual episode position locally, and—with automatic progress synchronization enabled—sends it to YummyAnime roughly once a minute and at pause, close or episode change. Account history is loaded back into Lampa so other-device progress can update Continue Watching. This is refreshed history, rather than an instant cross-device notification.
 
-## Additional information
+For episode-length videos of **15–40 minutes**, up to **five remaining minutes**, capped at a quarter of the video, count as completion. For a 24-minute episode, **19:00** advances Continue Watching to the next episode; **18:59** remains resumable. Shorter and longer videos retain the **95%** threshold. This is a duration-based heuristic, not detection of the credits: it does not seek or launch the next episode early. YummyAnime still receives the real time and duration.
 
-- Interface languages: Russian, English, and Ukrainian.
-- Playback depends on the available sources and their formats.
+A short press on a Continue Watching card resumes it; a long press offers **Continue Watching** or **Open anime details**. [Progress and playback behavior](docs/playback-preferences.md).
 
-Official plugin by YummyAnime
+## Development
+
+```sh
+node build.js
+node build.js --check
+```
+
+Commit the source changes and all three generated `dist` build artifacts together. Publishing requires a successful Pages deployment. `stable/index.js` is promoted separately.
+
+[Technical documentation](docs/README.en.md) · [Build information](docs/build-info.md) · [Changelog](CHANGELOG.md) · [Design proposals](docs/mockups/README.md)
+
+Original plugin by YummyAnime; this repository contains fork-specific interface and playback changes. Interface languages: Russian, English and Ukrainian.
 
 <sub>[Русская версия](docs/README.ru.md)</sub>
