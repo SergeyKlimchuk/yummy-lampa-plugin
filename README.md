@@ -76,6 +76,12 @@ For episode-length videos of **15–40 minutes**, up to **five remaining minutes
 
 A short press on a Continue Watching card resumes it; a long press offers **Continue Watching** or **Open anime details**. [Progress and playback behavior](docs/playback-preferences.md).
 
+## Licensing
+
+This is a derivative project with separately scoped licensing. The historical upstream MIT notice is preserved, and SergeyKlimchuk's own fork contributions are offered under MIT to the extent of the contributor's rights. Later upstream additions have no confirmed license in the reviewed sources; neither the fork's MIT grant nor the ownership notice supplies permission for those additions. The repository and bundle are not represented as wholly MIT-licensed.
+
+See [licensing status and scope](LICENSE), the [third-party inventory](THIRD_PARTY_NOTICES.md) and the [machine-readable registry](licenses.json). In the plugin, open **Settings → YummyAnime → About → Licenses** to read the inventory and complete license texts without a network request. Native Lampa test fixtures and the optional Playwright server dependency are identified separately from the browser plugin. Code licenses do not cover third-party logos, posters or texts.
+
 ## Development
 
 ```sh
@@ -83,10 +89,12 @@ node build.js
 node build.js --check
 ```
 
-Commit the source changes and all three generated `dist` build artifacts together. Publishing requires a successful Pages deployment. `stable/index.js` is promoted separately.
+Commit source/license changes, generated `src/license-data.js`, entry-point notices and all three generated `dist` build artifacts together. The build refreshes license notices without changing the old stable program's behavior or version; feature promotion of `stable/index.js` remains a separate step. Publishing requires a successful Pages deployment.
 
 [Technical documentation](docs/README.en.md) · [Build information](docs/build-info.md) · [Changelog](CHANGELOG.md) · [Design proposals](docs/mockups/README.md)
 
 Original plugin by YummyAnime; this repository contains fork-specific interface and playback changes. Interface languages: Russian, English and Ukrainian.
+
+<sub>Logos, posters and texts from third-party sources belong to their respective rights holders. The fork’s authors do not claim rights to these materials.</sub>
 
 <sub>[Русская версия](docs/README.ru.md)</sub>

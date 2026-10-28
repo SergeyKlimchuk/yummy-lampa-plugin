@@ -11,6 +11,11 @@ Entries use [Keep a Changelog](https://keepachangelog.com/) categories: **Added*
 
 ### Added
 
+- A scoped license registry, preserved historical MIT notice and MIT terms for the fork's own contributions, with separately identified unconfirmed upstream additions and third-party materials.
+- An offline Licenses screen and deterministic license notices in development, bundled and stable entry points and the Pages artifact.
+
+- A third-party content ownership notice in the documentation, About settings and usage policy, localized in Russian, English and Ukrainian.
+
 - TV interface based on the approved prototype: persistent plugin navigation, compact choice panels, one paginated library, direct resume and episode/dubbing controls.
 
 - Build identity in Settings and the UX proposal: source commit, actual assembly time in UTC, local-change marker and build channel, with matching bundle/JSON metadata

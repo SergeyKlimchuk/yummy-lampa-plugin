@@ -3732,6 +3732,25 @@ body.yani-player-open .head--simple {
 .yani-home.yani-home--lite .yani-lite-nav--account .yani-lite-nav-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .yani-tv-rail__item,
 .yani-home.yani-home--lite .yani-lite-nav { gap: .5em; padding-left: .4em; padding-right: .4em; }
+
+/* Licenses build one reader only after a component is selected. */
+.yani-licenses { display: flex; flex-direction: column; height: 100%; min-height: 0; background: #292929; color: #f1f1f1; }
+.yani-licenses__header { display: flex; align-items: center; flex-wrap: wrap; gap: 1em; padding: 1.2em 1.6em .8em; }
+.yani-licenses__title { margin: 0; font-size: 1.4em; font-weight: 600; }
+.yani-licenses__back { padding: .6em .85em; background: #333333; border: .12em solid transparent; border-radius: .3em; }
+.yani-licenses > .scroll { flex: 1; min-height: 0; }
+.yani-licenses__content { padding: .3em 1.6em 1.8em; max-width: 74em; }
+.yani-licenses__intro, .yani-licenses__scope, .yani-licenses__notice, .yani-licenses__no-text { margin: .5em 0 .85em; line-height: 1.45; }
+.yani-licenses__intro, .yani-licenses__scope, .yani-licenses__hint { color: #bdbdbd; }
+.yani-licenses__entry { padding: .9em 1.1em; margin: .65em 0; background: #333333; border: .12em solid transparent; border-radius: .3em; }
+.yani-licenses__entry-title { font-size: 1.05em; }
+.yani-licenses__entry-license { display: inline-block; margin-left: 1em; color: #ff9999; }
+.yani-licenses__status { margin: .4em 0; font-size: .88em; }
+.yani-licenses__source { padding: .7em .85em; margin: .6em 0; border: .12em solid transparent; background: #333333; border-radius: .3em; overflow-wrap: break-word; word-break: break-word; }
+.yani-licenses__hint { margin: .9em 0; font-size: .85em; }
+.yani-licenses__text { margin: .6em 0 0; padding: .85em; font-family: monospace; font-size: .9em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; border: .12em solid transparent; background: #333333; border-radius: .3em; }
+.yani-licenses .selector.focus { border-color: #ff6666; }
+
 @media (max-width: 700px) {
     .yani-tv-rail__symbol.yani-nav-icon { display: flex; }
 }

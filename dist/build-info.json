@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "version": "0.47.22",
-  "commit": "3db9eea5f94a0bd9c19ebeb078fad6eed6fbebe2",
-  "shortCommit": "3db9eea",
-  "builtAt": "2026-10-27T15:21:20.416Z",
+  "commit": "105ce86dc74ea8684c7de29e6a54bed8b60f017b",
+  "shortCommit": "105ce86",
+  "builtAt": "2026-10-28T07:07:11.412Z",
   "dirty": true,
   "channel": "local",
   "repository": "https://github.com/SergeyKlimchuk/yummy-lampa-plugin"

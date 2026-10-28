@@ -37,9 +37,9 @@ assert.match(en, /Available translations panel/);
 assert.match(en, /src\/ui-detail\.js/);
 assert.match(root, /fork of the official YummyAnime plugin for Lampa/i);
 assert.doesNotMatch(root, /unofficial/i);
-assert.match(ru, /Официальный плагин YummyAnime для Lampa/);
+assert.match(ru, /Форк официального плагина YummyAnime для Lampa/);
 assert.doesNotMatch(ru, /[Нн]еофициальн/);
-assert.match(en, /The official YummyAnime plugin for Lampa/);
+assert.match(en, /This fork is based on the official YummyAnime plugin for Lampa/);
 assert.match(root, /yummyani\.me/);
 assert.match(ru, /yummyani\.me/);
 ['home', 'detail', 'lists', 'playback', 'settings', 'interface', 'native-playlist'].forEach((name) => {

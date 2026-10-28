@@ -13,9 +13,9 @@ node build.js
 node build.js --check
 ```
 
-Commit all three generated `dist` artifacts with source changes. `--check` reuses the recorded stamp while comparing the **entire bundle content** with current sources and checks that the manifests match. It does not write files or regenerate timestamps. This avoids treating a fresh timestamp or new commit ID as a source mismatch.
+Commit all three generated `dist` artifacts with source changes. Licensing changes also regenerate `src/license-data.js` and entry-point notices; commit these with `licenses.json` and the canonical texts in `LICENSES/`. `--check` reuses the recorded stamp while comparing the **entire bundle content** with current sources and checks that the manifests and license artifacts match. It does not write files or regenerate timestamps. This avoids treating a fresh timestamp or new commit ID as a source mismatch.
 
-CI checks the committed bundle first, then rebuilds with that run's revision and actual time. GitHub Pages publishes the stamped `dist` directory. It also publishes `src` and `docs`, so the source loader and interactive UX proposal have their required files. Publishing the proposal does not replace the working plugin interface.
+CI checks the committed bundle first, then rebuilds with that run's revision and actual time. GitHub Pages publishes the stamped `dist` directory. It also publishes `src`, `docs`, `LICENSE`, `LICENSES/`, `licenses.json` and `THIRD_PARTY_NOTICES.md`, so source loading, previews and license references have their required files. Publishing the proposal does not replace the working plugin interface. Normal builds may refresh the stable file's license notice while preserving its program body and version; promotion of stable features is separate.
 
 For this fork, the current development build URL is:
 

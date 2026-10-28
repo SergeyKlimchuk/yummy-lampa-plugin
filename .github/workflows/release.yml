@@ -52,5 +52,6 @@ jobs:
           set -e
           NOTES="$(node -e "const fs=require('fs'); const release=require('./scripts/release'); process.stdout.write(release.changelogSection(fs.readFileSync('CHANGELOG.md','utf8'), process.env.VERSION));")"
           gh release create "$GITHUB_REF_NAME" dist/index.js stable/index.js stable.json \
+            LICENSE THIRD_PARTY_NOTICES.md licenses.json LICENSES/*.txt \
             --title "YummyAnime ${GITHUB_REF_NAME#v}" \
             --notes "$NOTES"

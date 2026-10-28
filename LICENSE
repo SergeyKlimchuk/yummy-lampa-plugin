@@ -1,0 +1,56 @@
+Licensing status and scope
+==========================
+
+This repository does not currently have one confirmed license covering every
+included component. The notices below preserve known grants and identify the
+remaining uncertainty; they do not grant rights on behalf of other authors.
+
+1. Historical upstream code
+
+   Code traceable to the YummyAnime plugin published with the MIT license at
+   commit 227ff5c98b97d95e744e8d3b2211e9debbcc04c2 retains that historical
+   grant and its original copyright notice. The unmodified text is in
+   LICENSES/MIT-original.txt.
+
+   This notice applies only to material covered by that historical grant.
+   It is not a claim that all current files or all later upstream changes
+   are licensed under MIT.
+
+2. Original fork contributions
+
+   Original contributions to this fork for which SergeyKlimchuk is entitled
+   to grant copyright permissions are offered under the MIT license in
+   LICENSES/MIT-fork.txt. This grant does not relicense inherited code or
+   third-party materials, and does not expand permissions for those parts.
+
+3. Later upstream changes: license not confirmed
+
+   Upstream removed its LICENSE in commit
+   61977a0f81966bd7881956f7ef82ccae799cb9f6 on 2026-08-13. The fork also
+   contains later upstream changes, based on commit
+   d9cf256500c5d0a1a75de66dbddcc949e997ab5d. A license or permission for
+   those later changes has not been confirmed by this repository's audit.
+
+   Their presence here and this notice do not establish permission to use,
+   modify or distribute them. A statement from the relevant rights holders
+   is needed before treating those changes, or the whole plugin, as MIT.
+
+4. Separately scoped third-party materials
+
+   Native Lampa fixtures in tests/fixtures/lampa-native are accompanied by
+   the upstream GPL version 2 license. They are test inputs and are not
+   included as player code in the plugin bundle. See LICENSES/GPL-2.0.txt.
+
+   Playwright 1.49.1 is a server dependency under Apache-2.0. The referenced
+   license is in LICENSES/Apache-2.0-Playwright.txt. Playwright, its browser
+   downloads and node_modules are not vendored in this repository or the
+   plugin bundle. Their own notices must be preserved when distributing
+   those components; this inventory is not a complete browser/dependency SBOM.
+
+   Logos, posters, illustrations and texts from third-party sources remain
+   subject to their respective rights holders' terms. Software licenses in
+   this repository do not grant rights to those materials. An ownership
+   notice does not replace permission or required image-specific attribution.
+
+See THIRD_PARTY_NOTICES.md and licenses.json for sources and component scopes.
+The original source history is retained so the provenance can be inspected.

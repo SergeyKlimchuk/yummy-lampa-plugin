@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "id": "upstream-mit",
+      "title": "Historical YummyAnime plugin code",
+      "license": "MIT",
+      "status": "confirmed",
+      "scope": "Only upstream material traceable to the MIT-licensed snapshot 227ff5c98b97d95e744e8d3b2211e9debbcc04c2, including retained portions of later modified files.",
+      "notice": "Copyright (c) 2026 Andrew Rasskazoff Codeman. The exact historical MIT notice is preserved. This entry does not license later upstream additions or all current files under MIT.",
+      "sources": [
+        {
+          "title": "Historical upstream MIT license",
+          "url": "https://github.com/yummyanime/yummy-lampa-plugin/blob/227ff5c98b97d95e744e8d3b2211e9debbcc04c2/LICENSE"
+        }
+      ],
+      "licenseFile": "LICENSES/MIT-original.txt"
+    },
+    {
+      "id": "fork-mit",
+      "title": "Original fork contributions",
+      "license": "MIT",
+      "status": "confirmed",
+      "scope": "Original contributions to this fork for which SergeyKlimchuk is entitled to grant copyright permissions; inherited code and third-party materials are excluded.",
+      "notice": "Copyright (c) 2026 SergeyKlimchuk. The MIT grant covers only the original fork contributions within this scope and does not expand permissions for upstream code or other materials.",
+      "sources": [
+        {
+          "title": "Fork repository",
+          "url": "https://github.com/SergeyKlimchuk/yummy-lampa-plugin"
+        }
+      ],
+      "licenseFile": "LICENSES/MIT-fork.txt"
+    },
+    {
+      "id": "upstream-unconfirmed",
+      "title": "Later upstream changes",
+      "license": null,
+      "status": "unconfirmed",
+      "scope": "Upstream additions and changes after removal of LICENSE in commit 61977a0f81966bd7881956f7ef82ccae799cb9f6, including later code inherited at the fork base d9cf256500c5d0a1a75de66dbddcc949e997ab5d.",
+      "notice": "A license or permission for these later contributions has not been confirmed. Inclusion in this repository, the historical MIT text and this notice do not establish a grant for them. Confirmation must come from the relevant rights holders.",
+      "sources": [
+        {
+          "title": "Upstream commit removing LICENSE",
+          "url": "https://github.com/yummyanime/yummy-lampa-plugin/commit/61977a0f81966bd7881956f7ef82ccae799cb9f6"
+        },
+        {
+          "title": "Upstream snapshot used as the fork base",
+          "url": "https://github.com/yummyanime/yummy-lampa-plugin/tree/d9cf256500c5d0a1a75de66dbddcc949e997ab5d"
+        }
+      ],
+      "licenseFile": null
+    },
+    {
+      "id": "lampa-fixtures",
+      "title": "Native Lampa test fixtures",
+      "license": "GPL version 2 (upstream LICENSE)",
+      "status": "confirmed",
+      "scope": "The Playlist and Timeline source fixtures and native selection-handler excerpt in tests/fixtures/lampa-native. They are test inputs; the native player source is not included in the production plugin bundle.",
+      "notice": "License identification follows the upstream root LICENSE. The full GPL version 2 text and source/provenance headers are preserved. This entry applies to the copied test fixtures and is not a blanket GPL declaration for the plugin.",
+      "sources": [
+        {
+          "title": "Playlist and player-handler upstream snapshot",
+          "url": "https://github.com/yumata/lampa-source/tree/616c80224518a7c7e04e2789d5811881b93bf611"
+        },
+        {
+          "title": "Timeline source snapshot",
+          "url": "https://github.com/yumata/lampa-source/blob/71733ed81f4b13ac1ed1b3328cbbaa7e01afdbd2/src/interaction/player/timeline.js"
+        }
+      ],
+      "licenseFile": "LICENSES/GPL-2.0.txt"
+    },
+    {
+      "id": "playwright",
+      "title": "Playwright 1.49.1",
+      "license": "Apache-2.0",
+      "status": "confirmed",
+      "scope": "Declared dependency of the self-hosted resolver in server/package.json. The package, node_modules and downloaded Chromium are not vendored and are not part of the browser plugin bundle or Pages deployment.",
+      "notice": "The license is copied unchanged from the official v1.49.1 tag, including its copyright statements. When redistributing Playwright or browser binaries, preserve their own applicable licenses and third-party notices. Transitive packages and browser components are not exhaustively inventoried here.",
+      "sources": [
+        {
+          "title": "Official Playwright 1.49.1 license",
+          "url": "https://github.com/microsoft/playwright/blob/v1.49.1/LICENSE"
+        }
+      ],
+      "licenseFile": "LICENSES/Apache-2.0-Playwright.txt"
+    },
+    {
+      "id": "third-party-assets",
+      "title": "Third-party logos, images and texts",
+      "license": null,
+      "status": "third-party",
+      "scope": "YummyAnime and other service logos, anime posters, screenshots containing them, catalog texts and other material from external APIs or image sources, including Wikimedia subject images.",
+      "notice": "These materials belong to their respective rights holders. The fork authors do not claim rights to them. No blanket asset license or redistribution permission is asserted. Source-specific terms and any required creator/license attribution must be checked separately; the existing Commons fallback does not yet retain that metadata.",
+      "sources": [
+        {
+          "title": "YummyAnime website",
+          "url": "https://ru.yummyani.me/"
+        },
+        {
+          "title": "Wikimedia Commons reuse and hotlinking guidance",
+          "url": "https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia/technical#Hotlinking"
+        }
+      ],
+      "licenseFile": null
+    }
+  ]
+}

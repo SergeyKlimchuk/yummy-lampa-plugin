@@ -55,6 +55,9 @@ try {
     });
     fs.mkdirSync(path.join(temp, 'scripts'), {recursive: true});
     fs.copyFileSync('scripts/build-info.js', path.join(temp, 'scripts/build-info.js'));
+    fs.copyFileSync('scripts/licenses.js', path.join(temp, 'scripts/licenses.js'));
+    fs.copyFileSync('licenses.json', path.join(temp, 'licenses.json'));
+    fs.cpSync('LICENSES', path.join(temp, 'LICENSES'), {recursive: true});
     fs.writeFileSync(path.join(temp, 'build.js'), builder);
     fs.writeFileSync(path.join(temp, 'style.css'), '.test {color: #333;}\n');
     const env = Object.assign({}, process.env, {GITHUB_ACTIONS: 'true', GITHUB_SHA: ciRevision, GITHUB_REPOSITORY: 'Owner/Plugin'});

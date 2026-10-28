@@ -4,6 +4,7 @@ const {execFileSync} = require('child_process');
 
 const bump = require('./bump-version');
 const changelog = require('./changelog');
+const licenses = require('./licenses');
 
 const PAGES_BASE = 'https://yummyanime.github.io/yummy-lampa-plugin';
 const STABLE_PATH = 'stable/index.js';
@@ -81,7 +82,8 @@ function writeStable(options) {
     const manifest = stableManifest(version, {releasedAt: options.releasedAt});
     const stableDir = path.join(root, 'stable');
     fs.mkdirSync(stableDir, {recursive: true});
-    fs.writeFileSync(path.join(root, STABLE_PATH), bundle);
+    const includeFork = options.includeForkNotice === undefined ? licenses.forkNoticePresent(bundle) : Boolean(options.includeForkNotice);
+    fs.writeFileSync(path.join(root, STABLE_PATH), licenses.withNotices(bundle, {root, includeFork}));
     fs.writeFileSync(path.join(root, STABLE_META), JSON.stringify(manifest, null, 4) + '\n');
     return manifest;
 }
@@ -132,7 +134,8 @@ function promote(options) {
         root: root,
         version: version,
         bundle: bundle,
-        releasedAt: options.releasedAt
+        releasedAt: options.releasedAt,
+        includeForkNotice: options.includeForkNotice
     });
     const tag = manifest.tag;
     let tagged = false;
@@ -163,6 +166,7 @@ function parseArgs(argv) {
         if (arg === '--tag') result.tag = true;
         else if (arg === '--no-tag') result.tag = false;
         else if (arg === '--push') result.push = true;
+        else if (arg === '--fork-notice') result.includeForkNotice = true;
         else if (arg === '--promote') result.promote = args[++index];
         else if (arg === '--help' || arg === '-h') result.help = true;
         else throw new Error('Unknown argument: ' + arg);
@@ -174,13 +178,14 @@ function usage() {
     return [
         'Usage:',
         '  node scripts/release.js [--tag] [--push]',
-        '  node scripts/release.js --promote <version>',
+        '  node scripts/release.js --promote <version> [--fork-notice]',
         '',
         'Production URL:  ' + STABLE_URL,
         'Test URL:        ' + TEST_URL,
         '',
         'If CHANGELOG [Unreleased] has entries, patch-bumps the plugin first, then',
-        'copies dist to production. --promote rolls back without bumping.'
+        'copies dist to production. --promote rolls back without bumping.',
+        'Use --fork-notice only for a known fork snapshot predating embedded notices; it is not inferred from its version.'
     ].join('\n');
 }
 

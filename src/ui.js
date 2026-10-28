@@ -424,6 +424,7 @@
 
             SettingsPage = tvFactory(SettingsPage, 'settings');
             Lampa.Component.add('yani_settings', SettingsPage);
+            Lampa.Component.add('yani_licenses', LicensesPage);
             Lampa.Component.add('yani_home', Home);
 
             Lampa.Component.add('yani_catalog', Catalog);
@@ -790,7 +791,8 @@
                 t('usage_policy_as_is'),
                 t('usage_policy_information'),
                 t('usage_policy_legal'),
-                t('usage_policy_responsibility')
+                t('usage_policy_responsibility'),
+                t('content_rights_notice')
             ].forEach(function (paragraph) {
                 content.append($('<div class="yani-policy__paragraph"></div>').text(paragraph));
             });
@@ -861,7 +863,8 @@
             t('usage_policy_as_is'),
             t('usage_policy_information'),
             t('usage_policy_legal'),
-            t('usage_policy_responsibility')
+            t('usage_policy_responsibility'),
+            t('content_rights_notice')
         ].forEach(function (paragraph) {
             content.append($('<div class="yani-policy__paragraph"></div>').text(paragraph));
         });
@@ -4109,6 +4112,38 @@
         });
     }
 
+    var licensesReturnSnapshot = null;
+    function openLicenses() {
+        licensesReturnSnapshot = {
+            interaction: transientNavigationSnapshot(),
+            nativeSettings: $('body').hasClass('settings--open'),
+            animate: $('.settings').hasClass('animate'),
+            animateDown: $('.settings').hasClass('animate-down')
+        };
+        if (licensesReturnSnapshot.nativeSettings) {
+            $('body').removeClass('settings--open');
+            $('.settings').removeClass('animate animate-down');
+        }
+        Lampa.Activity.push({component: 'yani_licenses', url: 'yani/licenses', title: t('licenses_title')});
+    }
+
+    function LicensesPage(object) {
+        var snapshot = licensesReturnSnapshot;
+        licensesReturnSnapshot = null;
+        return window.LampaYaniLicenses.create(object, {
+            t: t, openSource: openExternalUri,
+            goBack: function () {
+                goBack();
+                if (!snapshot) return;
+                if (snapshot.nativeSettings) {
+                    $('body').addClass('settings--open');
+                    $('.settings').toggleClass('animate', snapshot.animate).toggleClass('animate-down', snapshot.animateDown);
+                }
+                restoreTransientInteraction(snapshot.interaction);
+            }
+        });
+    }
+
     function addSettings() {
         if (!Lampa.SettingsApi || !Lampa.SettingsApi.addComponent) return;
         yummySettingsDefinitions = [];
@@ -4457,6 +4492,12 @@
             field: {name: t('usage_policy_title'), description: t('usage_policy_settings_description')},
             onChange: showUsagePolicy
         });
+        addYummySetting({
+            component: 'yani',
+            param: {name: 'yani_licenses', type: 'button'},
+            field: {name: t('licenses_title'), description: t('licenses_description')},
+            onChange: openLicenses
+        });
 
         // A title row is deliberately non-interactive: the repository URL is
         // reference text, not another settings action or external link.
@@ -4464,6 +4505,11 @@
             component: 'yani',
             param: {name: 'yani_repo_notice', type: 'title'},
             field: {name: t('repo_notice')}
+        });
+        addYummySetting({
+            component: 'yani',
+            param: {name: 'yani_content_rights_notice', type: 'title'},
+            field: {name: t('content_rights_notice')}
         });
     }
 

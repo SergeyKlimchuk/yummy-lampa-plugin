@@ -6,7 +6,7 @@ The production catalog, detail, lists, schedule, notifications, account and serv
 
 The lightweight home uses a flat charcoal/coral palette, static focus outlines, three continue-watching cards, six personal-list shortcuts, and up to six ongoing titles. It reuses shared playback-history synchronization, caches public previews for five minutes, and opens other sections on demand. [Interactive layout mockup](mockups/home-lite.html).
 
-The official YummyAnime plugin for Lampa, powered by the YummyAnime (Yani) API.
+This fork is based on the official YummyAnime plugin for Lampa and uses the YummyAnime (Yani) API. Installation of this fork is described in the [project README](../README.md).
 
 Official website: [yummyani.me](https://yummyani.me)
 
@@ -167,3 +167,7 @@ GitHub Actions automatically checks JavaScript syntax on every push and pull req
 The authenticated token is automatically refreshed through `GET /profile/token`.
 
 The detailed view uses Yani data. The For You feed combines lists, watch history, schedule, new videos, and notifications. Related titles come from the viewing order of up to four recent titles, while trailers are loaded through `/anime/{id}/trailers`.
+
+## Licensing
+
+See [LICENSE](../LICENSE) for the separate scopes of historical upstream MIT code, the fork's own MIT contributions and later upstream additions whose license is unconfirmed. [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) identifies components and material sources; [LICENSES](../LICENSES) contains full license texts. The plugin's **Settings → YummyAnime → About → Licenses** screen reads the same registry offline. These notices do not grant permission for unconfirmed upstream code or third-party images and texts.

@@ -8,6 +8,10 @@ const source = fs.readFileSync('scripts/release.js', 'utf8');
 const pages = fs.readFileSync('.github/workflows/pages.yml', 'utf8');
 const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
 
+function copyLicenseSources(root) {
+    fs.cpSync('LICENSES', path.join(root, 'LICENSES'), {recursive: true});
+}
+
 assert.strictEqual(release.STABLE_URL, 'https://yummyanime.github.io/yummy-lampa-plugin/stable/index.js');
 assert.strictEqual(release.TEST_URL, 'https://yummyanime.github.io/yummy-lampa-plugin/dist/index.js');
 assert.doesNotMatch(source, /TEST_URL \+ '\?v='/);
@@ -22,6 +26,7 @@ assert.match(workflow, /gh release create/);
 assert.match(workflow, /tags:[\s\S]*v\*/);
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'yani-release-'));
+copyLicenseSources(root);
 fs.mkdirSync(path.join(root, 'src'));
 fs.mkdirSync(path.join(root, 'dist'));
 const bundle = "window.LampaYaniConfig = { version: '0.41.40' };\n";
@@ -72,6 +77,7 @@ assert.match(fs.readFileSync(path.join(root, 'dist/index.js'), 'utf8'), /0\.41\.
 fs.rmSync(root, {recursive: true, force: true});
 
 const bumpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'yani-release-bump-'));
+copyLicenseSources(bumpRoot);
 fs.mkdirSync(path.join(bumpRoot, 'src'));
 fs.mkdirSync(path.join(bumpRoot, 'dist'));
 fs.writeFileSync(path.join(bumpRoot, 'src/config.js'), "window.LampaYaniConfig = { version: '0.47.0' };\n");

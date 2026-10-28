@@ -15,8 +15,17 @@ const data = context.window.YUMMY_MOCKUP_DATA;
 const ui = fs.readFileSync(path.join(root, 'src', 'ui.js'), 'utf8');
 const core = fs.readFileSync(path.join(mockups, 'prototype.js'), 'utf8');
 const registered = Array.from(ui.matchAll(/Lampa\.Component\.add\('([^']+)'/g), match => match[1]);
-assert.equal(Object.keys(contracts).length, 32, 'the review should cover every registered component and supported dialog');
-registered.forEach(name => assert.ok(Object.values(contracts).some(record => record.component.includes(name)), name + ' has no corresponding mockup contract'));
+assert.equal(Object.keys(contracts).length, 32, 'the approved prototype snapshot retains its 32 reviewed views');
+// Licenses was added after this approved snapshot. Its offline renderer and
+// remote navigation are exercised directly, rather than inventing a mockup
+// which could diverge from the canonical license registry.
+const runtimeAdditions = {yani_licenses: ['src/ui-licenses.js', 'tests/licenses-ui-runtime.test.js']};
+registered.forEach(name => {
+    if (Object.values(contracts).some(record => record.component.includes(name))) return;
+    const evidence = runtimeAdditions[name];
+    assert.ok(evidence, name + ' has neither a mockup contract nor documented runtime coverage');
+    evidence.forEach(file => assert.ok(fs.existsSync(path.join(root, file)), name + ' is missing runtime evidence: ' + file));
+});
 Object.keys(contracts).forEach(name => {
     assert.ok(views[name] || name === 'schedule', name + ' has no renderer');
     assert.ok(contracts[name].sources.length, name + ' must identify its existing code source');
@@ -33,4 +42,4 @@ assert.ok(data.policy.paragraphs.length === 4, 'the usage screen must use the fo
 });
 assert.match(core, /navigatingBack/, 'Back must restore route history without adding the route back to the stack');
 assert.ok(fs.existsSync(path.join(mockups, 'assets', 'yummyanime-official.svg')));
-console.log('All registered components and 32 prototype views have source-backed coverage; public snapshots and private examples remain separate');
+console.log('32 approved prototype views and later runtime components have source-backed coverage; public snapshots and private examples remain separate');
